@@ -1,0 +1,6 @@
+{
+    "java.project.sourcePaths": [
+        "src/main/java/no/sikt",
+        "src/test/java/no/sikt"
+    ]
+}
