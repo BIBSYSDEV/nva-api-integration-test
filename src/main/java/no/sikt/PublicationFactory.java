@@ -5,6 +5,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import io.restassured.RestAssured;
 import static io.restassured.RestAssured.*;
@@ -39,7 +40,6 @@ public class PublicationFactory {
         String CREATOR_ACCESS_TOKEN = CognitoLogin.login(user).get("accessToken");
         Map<String, String> creatorHeaders = new HashMap<>();
         creatorHeaders.put("Authorization", "Bearer " + CREATOR_ACCESS_TOKEN);
-        creatorHeaders.put("Content-Type", "application/x-www-form-urlencoded");
 
         RestAssured.baseURI = BASE_URI;
         Response createResponse = RestAssured.given()
@@ -124,9 +124,10 @@ public class PublicationFactory {
             .body(responseBody)
             .put("/publication/" + identifier);
 
-        // String CURATOR_ACCESS_TOKEN = CognitoLogin.login(user).get("accessToken");
+        String CURATOR_ACCESS_TOKEN = CognitoLogin.login(user).get("accessToken");
         Map<String, String> curatorHeaders = new HashMap<>();
-        curatorHeaders.put("Authorization", "Bearer " + CREATOR_ACCESS_TOKEN);
+        curatorHeaders.put("Authorization", "Bearer " + CURATOR_ACCESS_TOKEN);
+        curatorHeaders.put("If-ETag", createResponse.jsonPath().get("resourceOwner.owner").toString() + UUID.randomUUID().toString());
 
         Map<String, Object> updateBody = updateResponse.body().jsonPath().getMap("");
         updateBody.remove("@context");
