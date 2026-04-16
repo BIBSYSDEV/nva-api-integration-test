@@ -150,7 +150,7 @@ class CognitoLogin {
     }
 
     /**
-     * Gets an authorizatio code
+     * Gets an authorization code
      */
     private static String getCode(String userName, String password) {
         String url = generateUrl();

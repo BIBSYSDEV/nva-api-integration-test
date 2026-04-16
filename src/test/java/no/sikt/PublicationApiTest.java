@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 
 import io.qameta.allure.restassured.AllureRestAssured;
 import static io.restassured.RestAssured.*;
-import static io.restassured.matcher.RestAssuredMatchers.*;
 import static org.hamcrest.Matchers.*;
 import io.restassured.http.ContentType;
 
@@ -38,17 +37,25 @@ public class PublicationApiTest {
     @BeforeAll
     public static void createTestData() {
 
-        String getIdentifier = Publication.createDraftPublication(USER_ID);
+       
+        String getIdentifier = PublicationFactory.createDraftPublication(USER_ID);
         identifierMap.put(GET_PUBLICATION_TITLE, getIdentifier);
 
-        String deleteIdentifier = Publication.createDraftPublication(USER_ID);
+        String deleteIdentifier = PublicationFactory.createDraftPublication(USER_ID);
         identifierMap.put(DELETE_PUBLICATION_TITLE, deleteIdentifier);
 
-        String deleteUnauthorizedIdentifier = Publication.createDraftPublication(USER_ID);
+        String deleteUnauthorizedIdentifier = PublicationFactory.createDraftPublication(USER_ID);
         identifierMap.put(UNAUTHORIZED_DELETE_PUBLICATION_TITLE, deleteUnauthorizedIdentifier);
 
-        String publishIncompleteIdentifier = Publication.createDraftPublication(USER_ID);
+        String publishIncompleteIdentifier = PublicationFactory.createDraftPublication(USER_ID);
         identifierMap.put(PUBLISH_INCOMPLETE_PUBLICATION_TITLE, publishIncompleteIdentifier);
+
+    }
+    
+    @Test
+    public void testPublishing() {
+        
+        PublicationFactory.createPublishedPublication(CURATOR_USER_ID, "Publish test", PublicationFactory.Category.ACADEMIC_ARTICLE, CURATOR_USER_ID);
     }
 
     @Test
