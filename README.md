@@ -55,6 +55,12 @@ api-test
 
 ## Usage
 
+Before running the application run
+```
+. login.bash <aws_profile>
+```
+to set up aws credentials
+
 To run the application, use the following command:
 ```
 ./gradlew run

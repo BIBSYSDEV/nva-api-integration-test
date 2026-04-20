@@ -1,24 +1,24 @@
 package no.sikt;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static org.hamcrest.Matchers.equalTo;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import io.qameta.allure.restassured.AllureRestAssured;
-import static io.restassured.RestAssured.*;
-import static org.hamcrest.Matchers.*;
+import static io.restassured.RestAssured.given;
 import io.restassured.http.ContentType;
+import io.restassured.response.Response;
 
 public class PublicationApiTest {
 
     private static final String BASE_URI = "https://api.e2e.nva.aws.unit.no";
-    private static final String USER_ID = "test-user-registrator-sintef@test.no";
-    private static final String CURATOR_USER_ID = "test-user-publication-curator-messages-sintef@test.no";
-    private static final String CREATOR_ACCESS_TOKEN = CognitoLogin.login(USER_ID).get("accessToken");
-    private static final String CURATOR_ACCESS_TOKEN = CognitoLogin.login(CURATOR_USER_ID).get("accessToken");
+    private static final String CREATOR_ACCESS_TOKEN = CognitoLogin.login(TestUser.UIB_CREATOR.userId).get("accessToken");
+    private static final String PUBLISHING_CURATOR_ACCESS_TOKEN = CognitoLogin.login(TestUser.UIB_PUBLISHING_CURATOR.userId).get("accessToken");
     private static final Map<String, String> creatorHeaders = new HashMap<>();
     private static final Map<String, String> curatorHeaders = new HashMap<>();
     private static final Map<String, String> identifierMap = new HashMap<>();
@@ -26,37 +26,61 @@ public class PublicationApiTest {
     private static final String PUBLISH_INCOMPLETE_PUBLICATION_TITLE = "Integration test publication " + UUID.randomUUID().toString();
     private static final String DELETE_PUBLICATION_TITLE = "Integration test publication " + UUID.randomUUID().toString();
     private static final String UNAUTHORIZED_DELETE_PUBLICATION_TITLE = "Integration test publication " + UUID.randomUUID().toString();
+    private static final String PUBLISH_PUBLICATION_TITLE = "Integration test publication" + UUID.randomUUID().toString();
+
 
     static {
         creatorHeaders.put("Content-Type", "application/x-www-form-urlencoded");
         creatorHeaders.put("Authorization", "Bearer " + CREATOR_ACCESS_TOKEN);
         curatorHeaders.put("Content-Type", "application/x-www-form-urlencoded");
-        curatorHeaders.put("Authorization", "Bearer " + CURATOR_ACCESS_TOKEN);
+        curatorHeaders.put("Authorization", "Bearer " + PUBLISHING_CURATOR_ACCESS_TOKEN);
     }
 
     @BeforeAll
     public static void createTestData() {
 
-       
-        String getIdentifier = PublicationFactory.createDraftPublication(USER_ID);
+        String getIdentifier = PublicationFactory.createDraftPublication(TestUser.UIB_CREATOR).jsonPath().get("identifier");
         identifierMap.put(GET_PUBLICATION_TITLE, getIdentifier);
 
-        String deleteIdentifier = PublicationFactory.createDraftPublication(USER_ID);
+        String deleteIdentifier = PublicationFactory.createDraftPublication(TestUser.UIB_CREATOR).jsonPath().get("identifier");
         identifierMap.put(DELETE_PUBLICATION_TITLE, deleteIdentifier);
 
-        String deleteUnauthorizedIdentifier = PublicationFactory.createDraftPublication(USER_ID);
+        String deleteUnauthorizedIdentifier = PublicationFactory.createDraftPublication(TestUser.UIB_CREATOR).jsonPath().get("identifier");
         identifierMap.put(UNAUTHORIZED_DELETE_PUBLICATION_TITLE, deleteUnauthorizedIdentifier);
 
-        String publishIncompleteIdentifier = PublicationFactory.createDraftPublication(USER_ID);
+        String publishIncompleteIdentifier = PublicationFactory.createDraftPublication(TestUser.UIB_CREATOR).jsonPath().get("identifier");
         identifierMap.put(PUBLISH_INCOMPLETE_PUBLICATION_TITLE, publishIncompleteIdentifier);
+
+        Response createResponse = PublicationFactory.createDraftPublication(TestUser.UIB_CREATOR);
+        String publishIdentifier = createResponse.jsonPath().get("identifier");
+        identifierMap.put(PUBLISH_PUBLICATION_TITLE, publishIdentifier);
+        Map<String, Object> responseBody = createResponse.body().jsonPath().getMap("");
+
+        Map<String, ?> entityDescription = PublicationFactory.createEntityDescription(PUBLISH_PUBLICATION_TITLE, Category.ACADEMIC_ARTICLE, List.of(TestUser.UIB_CREATOR));
+        responseBody.put("entityDescription", entityDescription);
+
+        PublicationFactory.updatePublication(TestUser.UIB_CREATOR, responseBody);
 
     }
     
     @Test
-    public void testPublishing() {
+    public void publishReturnStatusCode202() {
         
-        PublicationFactory.createPublishedPublication(CURATOR_USER_ID, "Publish test", PublicationFactory.Category.ACADEMIC_ARTICLE, CURATOR_USER_ID);
+        String identifier = identifierMap.get(PUBLISH_PUBLICATION_TITLE);
+
+        given()
+            .log().all()
+            .filter(new AllureRestAssured())
+            .baseUri(BASE_URI)
+            .headers(curatorHeaders)
+            .accept(ContentType.JSON)
+            .contentType(ContentType.JSON)
+        .when()
+            .post("/publication/" + identifier + "/publish")
+        .then()
+            .statusCode(202);
     }
+
 
     @Test
     public void createReturnStatusCode201() {
@@ -167,4 +191,131 @@ public class PublicationApiTest {
             .statusCode(400);
 
     }
+
+    // @Test
+    // public void testDelete1(){
+    //     String identifier = PublicationFactory.createDraftPublication(TestUser.BIBSYS_CREATOR).jsonPath().get("identifier");
+
+    //     given()
+    //         .log().all()
+    //         .filter(new AllureRestAssured())
+    //         .headers(creatorHeaders)
+    //     .when()
+    //         .delete("/publication/" + identifier)
+    //     .then()
+    //         .statusCode(202);
+    // }
+
+    // @Test
+    // public void testDelete2(){
+    //     String identifier = PublicationFactory.createDraftPublication(TestUser.BIBSYS_CREATOR).jsonPath().get("identifier");
+
+    //     given()
+    //         .log().all()
+    //         .filter(new AllureRestAssured())
+    //         .headers(creatorHeaders)
+    //     .when()
+    //         .delete("/publication/" + identifier)
+    //     .then()
+    //         .statusCode(202);
+    // }
+
+    // @Test
+    // public void testDelete3(){
+    //     String identifier = PublicationFactory.createDraftPublication(TestUser.BIBSYS_CREATOR).jsonPath().get("identifier");
+
+    //     given()
+    //         .log().all()
+    //         .filter(new AllureRestAssured())
+    //         .headers(creatorHeaders)
+    //     .when()
+    //         .delete("/publication/" + identifier)
+    //     .then()
+    //         .statusCode(202);
+    // }
+
+    // @Test
+    // public void testDelete4(){
+    //     String identifier = PublicationFactory.createDraftPublication(TestUser.BIBSYS_CREATOR).jsonPath().get("identifier");
+
+    //     given()
+    //         .log().all()
+    //         .filter(new AllureRestAssured())
+    //         .headers(creatorHeaders)
+    //     .when()
+    //         .delete("/publication/" + identifier)
+    //     .then()
+    //         .statusCode(202);
+    // }
+
+    // @Test
+    // public void testDelete5(){
+    //     String identifier = PublicationFactory.createDraftPublication(TestUser.BIBSYS_CREATOR).jsonPath().get("identifier");
+
+    //     given()
+    //         .log().all()
+    //         .filter(new AllureRestAssured())
+    //         .headers(creatorHeaders)
+    //     .when()
+    //         .delete("/publication/" + identifier)
+    //     .then()
+    //         .statusCode(202);
+    // }
+
+    // @Test
+    // public void testDelete6(){
+    //     String identifier = PublicationFactory.createDraftPublication(TestUser.BIBSYS_CREATOR).jsonPath().get("identifier");
+
+    //     given()
+    //         .log().all()
+    //         .filter(new AllureRestAssured())
+    //         .headers(creatorHeaders)
+    //     .when()
+    //         .delete("/publication/" + identifier)
+    //     .then()
+    //         .statusCode(202);
+    // }
+
+    // @Test
+    // public void testDelete7(){
+    //     String identifier = PublicationFactory.createDraftPublication(TestUser.BIBSYS_CREATOR).jsonPath().get("identifier");
+
+    //     given()
+    //         .log().all()
+    //         .filter(new AllureRestAssured())
+    //         .headers(creatorHeaders)
+    //     .when()
+    //         .delete("/publication/" + identifier)
+    //     .then()
+    //         .statusCode(202);
+    // }
+
+    // @Test
+    // public void testDelete8(){
+    //     String identifier = PublicationFactory.createDraftPublication(TestUser.BIBSYS_CREATOR).jsonPath().get("identifier");
+
+    //     given()
+    //         .log().all()
+    //         .filter(new AllureRestAssured())
+    //         .headers(creatorHeaders)
+    //     .when()
+    //         .delete("/publication/" + identifier)
+    //     .then()
+    //         .statusCode(202);
+    // }
+
+    // @Test
+    // public void testDelete9(){
+    //     String identifier = PublicationFactory.createDraftPublication(TestUser.BIBSYS_CREATOR).jsonPath().get("identifier");
+
+    //     given()
+    //         .log().all()
+    //         .filter(new AllureRestAssured())
+    //         .headers(creatorHeaders)
+    //     .when()
+    //         .delete("/publication/" + identifier)
+    //     .then()
+    //         .statusCode(202);
+    // }
+
 }

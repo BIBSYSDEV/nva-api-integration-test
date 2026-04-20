@@ -1,0 +1,22 @@
+{
+    "reference": {
+        "type": "Reference",
+        "publicationInstance": {
+            "type": "AcademicArticle",
+            "volume": "3",
+            "issue": "1",
+            "pages": {
+                "illustrated": "false",
+                "type": "Range",
+                "end": "20",
+                "begin": "10"
+            }
+        },
+        "publicationContext": {
+            "type": "Journal",
+            "volume": "3",
+            "issue": "1",
+            "id": "https://api.e2e.nva.aws.unit.no/publication-channels-v2/serial-publication/7ECF363E-84A8-4328-B8D0-38A9BF93E356"
+        }
+    }
+}
