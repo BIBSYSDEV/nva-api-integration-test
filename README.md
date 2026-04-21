@@ -2,36 +2,6 @@
 
 This project is a simple API testing application built using Java and Gradle.
 
-## Project Structure
-
-```
-api-test
-├── build.gradle
-├── settings.gradle
-├── gradle.properties
-├── gradlew
-├── gradlew.bat
-├── gradle
-│   └── wrapper
-│       └── gradle-wrapper.properties
-├── src
-│   ├── main
-│   │   ├── java
-│   │   │   └── com
-│   │   │       └── example
-│   │   │           └── App.java
-│   │   └── resources
-│   │       └── application.properties
-│   └── test
-│       ├── java
-│       │   └── com
-│       │       └── example
-│       │           └── AppTest.java
-│       └── resources
-├── .gitignore
-└── README.md
-```
-
 ## Setup Instructions
 
 1. Clone the repository:
@@ -41,7 +11,7 @@ api-test
 
 2. Navigate to the project directory:
    ```
-   cd api-test
+   cd nva-api-integration-test
    ```
 
 3. Run the Gradle wrapper to build the project:
@@ -60,6 +30,11 @@ Before running the application run
 . login.bash <aws_profile>
 ```
 to set up aws credentials
+
+```
+npm install -g allure
+```
+to set up allure report
 
 To run the application, use the following command:
 ```
@@ -80,6 +55,15 @@ or for Windows:
 ```
 gradlew.bat test
 ```
+
+## Generate report
+
+Run
+```
+allure generate allure-results --clean --single-file
+```
+to generate allure report
+
 
 ## License
 

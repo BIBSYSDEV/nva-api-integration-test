@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import io.restassured.RestAssured;
+import static io.restassured.RestAssured.given;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 
@@ -28,10 +29,16 @@ public class PublicationFactory {
         headers.put("Authorization", "Bearer " + ACCESS_TOKEN);
 
         RestAssured.baseURI = BASE_URI;
-        Response createResponse = RestAssured.given()
+        Response createResponse = 
+            given()
                 .log().all()
                 .headers(headers)
-                .post("/publication");
+                .post("/publication")
+            .then()
+                .log().all()
+                .statusCode(201)
+            .extract()
+                .response();
 
         return createResponse;
     }
@@ -43,11 +50,15 @@ public class PublicationFactory {
         creatorHeaders.put("Content-Type", "application/json");
         creatorHeaders.put("Accept", "application/json");
 
-        Response updateResponse = RestAssured.given()
-                .log().all()
+        Response updateResponse = 
+            given()
                 .headers(creatorHeaders)
                 .body(payload)
-                .put("/publication/" + payload.get("identifier"));
+                .put("/publication/" + payload.get("identifier"))
+            .then()
+                .statusCode(200)
+            .extract()
+                .response();
 
         return updateResponse;
     }
@@ -71,7 +82,8 @@ public class PublicationFactory {
     }
 
     public static Map<String, Object> createEntityDescription(String title, Category category, List<TestUser> contributorList) {
-        File entityDescriptionFile = new File("src/main/resources/metadata/EntityDescription.json");
+        
+        File entityDescriptionFile = new File(PublicationFactory.class.getResource("metadata/EntityDescription.json").getFile());
         JsonPath entityDescriptionJsonPath = new JsonPath(entityDescriptionFile);
         
         Map<String, Object> entityDescription = entityDescriptionJsonPath.getMap("entityDescription");
@@ -93,7 +105,7 @@ public class PublicationFactory {
 
     private static Map<String, Object> createReference(Category category) {
 
-        File referenceFile = new File("src/main/resources/metadata/" + category.value + "Reference.json");
+        File referenceFile = new File(PublicationFactory.class.getResource("metadata/" + category.value + "Reference.json").getFile());
         JsonPath referenceJsonPath = new JsonPath(referenceFile);
         Map<String, Object> publicationContext = referenceJsonPath.getMap("reference.publicationContext");
         publicationContext.put("id", publicationContext.get("id") + "/" + YEAR);
@@ -112,9 +124,8 @@ public class PublicationFactory {
         curatorHeaders.put("Accept", "application/json");
 
         RestAssured.given()
-                .log().all()
                 .headers(curatorHeaders)
-                .post("publication/" + identifier + "/publish");
+                .post("/publication/" + identifier + "/publish");
     }
 
     public static List<Map<String, Object>> createContributors(List<TestUser> users) {
@@ -122,7 +133,7 @@ public class PublicationFactory {
         List<Map<String, Object>> contributors = new ArrayList<>();
         final AtomicInteger sequence = new AtomicInteger(1);
         users.forEach(user -> {
-            File contributorFile = new File("src/main/resources/metadata/Contributor.json");
+            File contributorFile = new File(PublicationFactory.class.getResource("metadata/Contributor.json").getFile());
             JsonPath contributorJsonPath = new JsonPath(contributorFile);
             Map<String, Object> contributor = contributorJsonPath.getMap("");
             Integer i = sequence.getAndIncrement();
@@ -147,13 +158,6 @@ public class PublicationFactory {
             contributors.add(contributor);
         });
         
-
         return contributors;
-    }
-
-    public static Map<String, ?> createPublicationMetaData(String user, String title, Category category) {
-        Map<String, ?> metadata = new HashMap<>();
-
-        return metadata;
     }
 }
