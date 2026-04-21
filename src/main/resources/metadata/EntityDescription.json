@@ -1,0 +1,20 @@
+{
+    "entityDescription": {
+        "type": "EntityDescription",
+        "reference": {
+            "type": "Reference",
+            "publicationInstance": {
+            },
+            "publicationContext": {
+            }
+        },
+        "mainTitle": "",
+        "contributors": [],
+        "publicationDate": {
+            "type": "PublicationDate",
+            "month": "",
+            "year": "",
+            "day": ""
+        }
+    }
+}
