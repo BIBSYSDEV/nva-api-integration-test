@@ -2,7 +2,7 @@ package no.sikt;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
+import static java.util.Objects.nonNull;
 import java.util.UUID;
 
 import io.restassured.RestAssured;
@@ -14,12 +14,10 @@ import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueRespon
 import software.amazon.awssdk.services.ssm.SsmClient;
 import software.amazon.awssdk.services.ssm.model.GetParameterRequest;
 import software.amazon.awssdk.services.ssm.model.GetParameterResponse;
-import software.amazon.awssdk.services.ssm.model.ParameterNotFoundException;
-import software.amazon.awssdk.services.ssm.model.SsmException;
 
 class CognitoLogin {
 
-    private static final String REGION = Objects.nonNull(System.getenv("AWS_REGION")) ? System.getenv("AWS_REGION")
+    public static final String REGION = nonNull(System.getenv("AWS_REGION")) ? System.getenv("AWS_REGION")
             : "eu-west-1";
 
     private static final String COGNITO_URI = getCognitoUriFromParameterStore();
@@ -45,18 +43,13 @@ class CognitoLogin {
         return response.secretString();
     }
 
-    private static String getClientIdFromParameterStore() {
-        String env = System.getenv("AWS_CLIENT_ID");
-        if (Objects.nonNull(env) && !env.isEmpty()) {
-            return env;
-        }
-
+    public static String getValueFromParameterStore(String name) {
         try (SsmClient ssm = SsmClient.builder()
                 .region(Region.of(REGION))
                 .build()) {
 
             GetParameterRequest request = GetParameterRequest.builder()
-                    .name("CognitoUserPoolAppClientId")
+                    .name(name)
                     .withDecryption(false)
                     .build();
 
@@ -66,40 +59,23 @@ class CognitoLogin {
             throw new RuntimeException("Failed to fetch CLIENT_ID from Parameter Store", e);
         }
     }
-
-    private static String getCognitoUriFromParameterStore() {
-        String env = System.getenv("COGNITO_URI");
-        if (Objects.nonNull(env) && !env.isEmpty()) {
+    
+    private static String getClientIdFromParameterStore() {
+        String env = System.getenv("AWS_CLIENT_ID");
+        if (nonNull(env) && !env.isEmpty()) {
             return env;
         }
 
-        try (SsmClient ssm = SsmClient.builder()
-                .region(Region.of(REGION))
-                .build()) {
+        return getValueFromParameterStore("CognitoUserPoolAppClientId");
+    }
 
-            GetParameterRequest request = GetParameterRequest.builder()
-                    .name("/NVA/CognitoUri")
-                    .withDecryption(false)
-                    .build();
-
-            GetParameterResponse response = ssm.getParameter(request);
-
-            if (Objects.isNull(response) || Objects.isNull(response.parameter()) || Objects.isNull(response.parameter().value())
-                    || response.parameter().value().isEmpty()) {
-                throw new RuntimeException("Parameter '/NVA/CognitoUri' was not found or contains no value. "
-                        + "Set environment variable COGNITO_URI or create the parameter in Parameter Store.");
-            }
-
-            String value = response.parameter().value();
-            return value;
-        } catch (ParameterNotFoundException pnfe) {
-            throw new RuntimeException("Cognito URI parameter '/NVA/CognitoUri' not found in Parameter Store. "
-                    + "Set environment variable COGNITO_URI or create the parameter.", pnfe);
-        } catch (SsmException ssmEx) {
-            throw new RuntimeException("AWS SSM error while fetching '/NVA/CognitoUri': " + ssmEx.getMessage(), ssmEx);
-        } catch (Exception e) {
-            throw new RuntimeException("Unexpected error fetching Cognito URI from Parameter Store", e);
+    private static String getCognitoUriFromParameterStore() {
+        String env = System.getenv("COGNITO_URI");
+        if (nonNull(env) && !env.isEmpty()) {
+            return env;
         }
+
+        return getValueFromParameterStore("/NVA/CognitoUri");
     }
 
     /**
@@ -168,7 +144,7 @@ class CognitoLogin {
 
         if (response.statusCode() == 302) {
             String location = response.getHeader("Location");
-            if (Objects.nonNull(location) && location.contains("?code=")) {
+            if (nonNull(location) && location.contains("?code=")) {
                 return location.split("\\?code=")[1];
             }
         }

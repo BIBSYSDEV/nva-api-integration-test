@@ -30,7 +30,7 @@ public class PublicationApiTest {
     @BeforeAll
     public static void init() {
 
-        RestAssured.baseURI = PublicationFactory.getBaseUriFromParameterStore();
+        PublicationFactory.setBaseUriFromParameterStore();
 
         RestAssured.filters(new AllureRestAssured());
         LogConfig logConfig = LogConfig.logConfig()
@@ -76,7 +76,6 @@ public class PublicationApiTest {
 
         given()
             .log().all()
-            .filter(new AllureRestAssured())
             .headers(curatorHeaders)
             .accept(ContentType.JSON)
         .when()
@@ -90,7 +89,6 @@ public class PublicationApiTest {
     public void createReturnStatusCode201() {
         given()
             .log().all()
-            .filter(new AllureRestAssured())
             .headers(creatorHeaders)
             .accept(ContentType.JSON)
         .when()
@@ -106,7 +104,6 @@ public class PublicationApiTest {
 
         given()
             .log().all()
-            .filter(new AllureRestAssured())
             .headers(creatorHeaders)
         .when()
             .delete("/publication/" + identifier)
@@ -119,7 +116,6 @@ public class PublicationApiTest {
 
         given()
             .log().all()
-            .filter(new AllureRestAssured())
             .headers(creatorHeaders)
         .when()
             .delete("/publication/" + UUID.randomUUID().toString())
@@ -133,7 +129,6 @@ public class PublicationApiTest {
 
         given()
             .log().all()
-            .filter(new AllureRestAssured())
         .when()
             .delete("/publication/" + identifier)
         .then()
@@ -146,7 +141,6 @@ public class PublicationApiTest {
 
         given()
             .log().all()
-            .filter(new AllureRestAssured())
             .accept(ContentType.JSON)
             .contentType(ContentType.JSON)
         .when()
@@ -160,7 +154,6 @@ public class PublicationApiTest {
 
         given()
             .log().all()
-            .filter(new AllureRestAssured())
             .headers(creatorHeaders)
             .accept(ContentType.JSON)
             .contentType(ContentType.JSON)
@@ -176,7 +169,6 @@ public class PublicationApiTest {
 
         given()
             .log().all()
-            .filter(new AllureRestAssured())
             .headers(curatorHeaders)
             .accept(ContentType.JSON)
             .contentType(ContentType.JSON)
