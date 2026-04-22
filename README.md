@@ -60,10 +60,15 @@ gradlew.bat test
 
 Run
 ```
-allure generate allure-results --clean --single-file
+allure generate --open
 ```
 to generate allure report
 
+If you have problems viewing the report, try running
+```
+allure serve allure-results&
+```
+to start a local webserver for the report.
 
 ## License
 
