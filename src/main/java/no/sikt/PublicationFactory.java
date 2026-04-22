@@ -1,6 +1,5 @@
 package no.sikt;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -13,9 +12,6 @@ import io.restassured.RestAssured;
 import static io.restassured.RestAssured.given;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
-import software.amazon.awssdk.regions.Region;
-import software.amazon.awssdk.services.ssm.SsmClient;
-import software.amazon.awssdk.services.ssm.model.GetParameterRequest;
 
 public class PublicationFactory {
 
@@ -55,11 +51,9 @@ public class PublicationFactory {
         }
         var createResponse = 
             given()
-                .log().all()
                 .headers(headers)
                 .post("/publication")
             .then()
-                .log().all()
                 .statusCode(201)
             .extract()
                 .response();

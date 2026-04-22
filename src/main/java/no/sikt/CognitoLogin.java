@@ -14,8 +14,6 @@ import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueRespon
 import software.amazon.awssdk.services.ssm.SsmClient;
 import software.amazon.awssdk.services.ssm.model.GetParameterRequest;
 import software.amazon.awssdk.services.ssm.model.GetParameterResponse;
-import software.amazon.awssdk.services.ssm.model.ParameterNotFoundException;
-import software.amazon.awssdk.services.ssm.model.SsmException;
 
 class CognitoLogin {
 
