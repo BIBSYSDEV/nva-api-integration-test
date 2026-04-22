@@ -10,15 +10,14 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import io.qameta.allure.restassured.AllureRestAssured;
+import io.restassured.RestAssured;
 import static io.restassured.RestAssured.given;
+import io.restassured.config.LogConfig;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 
 public class PublicationApiTest {
 
-    private static final String BASE_URI = "https://api.e2e.nva.aws.unit.no";
-    private static final String CREATOR_ACCESS_TOKEN = CognitoLogin.login(TestUser.UIB_CREATOR.userId).get("accessToken");
-    private static final String PUBLISHING_CURATOR_ACCESS_TOKEN = CognitoLogin.login(TestUser.UIB_PUBLISHING_CURATOR.userId).get("accessToken");
     private static final Map<String, String> creatorHeaders = new HashMap<>();
     private static final Map<String, String> curatorHeaders = new HashMap<>();
     private static final Map<String, String> identifierMap = new HashMap<>();
@@ -26,18 +25,25 @@ public class PublicationApiTest {
     private static final String PUBLISH_INCOMPLETE_PUBLICATION_TITLE = "Integration test publication " + UUID.randomUUID().toString();
     private static final String DELETE_PUBLICATION_TITLE = "Integration test publication " + UUID.randomUUID().toString();
     private static final String UNAUTHORIZED_DELETE_PUBLICATION_TITLE = "Integration test publication " + UUID.randomUUID().toString();
-    private static final String PUBLISH_PUBLICATION_TITLE = "Integration test publication" + UUID.randomUUID().toString();
-
-
-    static {
-        creatorHeaders.put("Content-Type", "application/x-www-form-urlencoded");
-        creatorHeaders.put("Authorization", "Bearer " + CREATOR_ACCESS_TOKEN);
-        curatorHeaders.put("Content-Type", "application/x-www-form-urlencoded");
-        curatorHeaders.put("Authorization", "Bearer " + PUBLISHING_CURATOR_ACCESS_TOKEN);
-    }
-
+    private static final String PUBLISH_PUBLICATION_TITLE = "Integration test publication " + UUID.randomUUID().toString();
+    
     @BeforeAll
-    public static void createTestData() {
+    public static void init() {
+
+        RestAssured.baseURI = PublicationFactory.getBaseUriFromParameterStore();
+
+        RestAssured.filters(new AllureRestAssured());
+        LogConfig logConfig = LogConfig.logConfig()
+            .enableLoggingOfRequestAndResponseIfValidationFails()
+            .blacklistHeaders(List.of("Authorization"));
+        RestAssured.config = RestAssured.config().logConfig(logConfig);
+        
+        final String creatorAccessToken = CognitoLogin.login(TestUser.UIB_CREATOR.userId).get("accessToken");
+        final String publishingCuratorAccessToken = CognitoLogin.login(TestUser.UIB_PUBLISHING_CURATOR.userId).get("accessToken");
+        creatorHeaders.put("Content-Type", "application/x-www-form-urlencoded");
+        creatorHeaders.put("Authorization", "Bearer " + creatorAccessToken);
+        curatorHeaders.put("Content-Type", "application/x-www-form-urlencoded");
+        curatorHeaders.put("Authorization", "Bearer " + publishingCuratorAccessToken);
 
         String getIdentifier = PublicationFactory.createDraftPublication(TestUser.UIB_CREATOR).jsonPath().get("identifier");
         identifierMap.put(GET_PUBLICATION_TITLE, getIdentifier);
@@ -71,10 +77,8 @@ public class PublicationApiTest {
         given()
             .log().all()
             .filter(new AllureRestAssured())
-            .baseUri(BASE_URI)
             .headers(curatorHeaders)
             .accept(ContentType.JSON)
-            .contentType(ContentType.JSON)
         .when()
             .post("/publication/" + identifier + "/publish")
         .then()
@@ -87,10 +91,8 @@ public class PublicationApiTest {
         given()
             .log().all()
             .filter(new AllureRestAssured())
-            .baseUri(BASE_URI)
             .headers(creatorHeaders)
             .accept(ContentType.JSON)
-            .contentType(ContentType.JSON)
         .when()
             .post("/publication/")
         .then()
@@ -115,8 +117,6 @@ public class PublicationApiTest {
     @Test
     public void deleteWithWrongIdentifierReturnStatusCode404() {
 
-
-
         given()
             .log().all()
             .filter(new AllureRestAssured())
@@ -128,13 +128,12 @@ public class PublicationApiTest {
     }
 
     @Test
-    public void deleteWithUnauthorizedUserReturnStatusCode401() {
+    public void deleteWithUnauthenticatedUserReturnStatusCode401() {
         String identifier = identifierMap.get(UNAUTHORIZED_DELETE_PUBLICATION_TITLE);
 
         given()
             .log().all()
             .filter(new AllureRestAssured())
-            // .headers(headers)
         .when()
             .delete("/publication/" + identifier)
         .then()
@@ -148,7 +147,6 @@ public class PublicationApiTest {
         given()
             .log().all()
             .filter(new AllureRestAssured())
-            .baseUri(BASE_URI)
             .accept(ContentType.JSON)
             .contentType(ContentType.JSON)
         .when()
@@ -163,7 +161,6 @@ public class PublicationApiTest {
         given()
             .log().all()
             .filter(new AllureRestAssured())
-            .baseUri(BASE_URI)
             .headers(creatorHeaders)
             .accept(ContentType.JSON)
             .contentType(ContentType.JSON)
@@ -180,7 +177,6 @@ public class PublicationApiTest {
         given()
             .log().all()
             .filter(new AllureRestAssured())
-            .baseUri(BASE_URI)
             .headers(curatorHeaders)
             .accept(ContentType.JSON)
             .contentType(ContentType.JSON)
@@ -191,131 +187,4 @@ public class PublicationApiTest {
             .statusCode(400);
 
     }
-
-    // @Test
-    // public void testDelete1(){
-    //     String identifier = PublicationFactory.createDraftPublication(TestUser.BIBSYS_CREATOR).jsonPath().get("identifier");
-
-    //     given()
-    //         .log().all()
-    //         .filter(new AllureRestAssured())
-    //         .headers(creatorHeaders)
-    //     .when()
-    //         .delete("/publication/" + identifier)
-    //     .then()
-    //         .statusCode(202);
-    // }
-
-    // @Test
-    // public void testDelete2(){
-    //     String identifier = PublicationFactory.createDraftPublication(TestUser.BIBSYS_CREATOR).jsonPath().get("identifier");
-
-    //     given()
-    //         .log().all()
-    //         .filter(new AllureRestAssured())
-    //         .headers(creatorHeaders)
-    //     .when()
-    //         .delete("/publication/" + identifier)
-    //     .then()
-    //         .statusCode(202);
-    // }
-
-    // @Test
-    // public void testDelete3(){
-    //     String identifier = PublicationFactory.createDraftPublication(TestUser.BIBSYS_CREATOR).jsonPath().get("identifier");
-
-    //     given()
-    //         .log().all()
-    //         .filter(new AllureRestAssured())
-    //         .headers(creatorHeaders)
-    //     .when()
-    //         .delete("/publication/" + identifier)
-    //     .then()
-    //         .statusCode(202);
-    // }
-
-    // @Test
-    // public void testDelete4(){
-    //     String identifier = PublicationFactory.createDraftPublication(TestUser.BIBSYS_CREATOR).jsonPath().get("identifier");
-
-    //     given()
-    //         .log().all()
-    //         .filter(new AllureRestAssured())
-    //         .headers(creatorHeaders)
-    //     .when()
-    //         .delete("/publication/" + identifier)
-    //     .then()
-    //         .statusCode(202);
-    // }
-
-    // @Test
-    // public void testDelete5(){
-    //     String identifier = PublicationFactory.createDraftPublication(TestUser.BIBSYS_CREATOR).jsonPath().get("identifier");
-
-    //     given()
-    //         .log().all()
-    //         .filter(new AllureRestAssured())
-    //         .headers(creatorHeaders)
-    //     .when()
-    //         .delete("/publication/" + identifier)
-    //     .then()
-    //         .statusCode(202);
-    // }
-
-    // @Test
-    // public void testDelete6(){
-    //     String identifier = PublicationFactory.createDraftPublication(TestUser.BIBSYS_CREATOR).jsonPath().get("identifier");
-
-    //     given()
-    //         .log().all()
-    //         .filter(new AllureRestAssured())
-    //         .headers(creatorHeaders)
-    //     .when()
-    //         .delete("/publication/" + identifier)
-    //     .then()
-    //         .statusCode(202);
-    // }
-
-    // @Test
-    // public void testDelete7(){
-    //     String identifier = PublicationFactory.createDraftPublication(TestUser.BIBSYS_CREATOR).jsonPath().get("identifier");
-
-    //     given()
-    //         .log().all()
-    //         .filter(new AllureRestAssured())
-    //         .headers(creatorHeaders)
-    //     .when()
-    //         .delete("/publication/" + identifier)
-    //     .then()
-    //         .statusCode(202);
-    // }
-
-    // @Test
-    // public void testDelete8(){
-    //     String identifier = PublicationFactory.createDraftPublication(TestUser.BIBSYS_CREATOR).jsonPath().get("identifier");
-
-    //     given()
-    //         .log().all()
-    //         .filter(new AllureRestAssured())
-    //         .headers(creatorHeaders)
-    //     .when()
-    //         .delete("/publication/" + identifier)
-    //     .then()
-    //         .statusCode(202);
-    // }
-
-    // @Test
-    // public void testDelete9(){
-    //     String identifier = PublicationFactory.createDraftPublication(TestUser.BIBSYS_CREATOR).jsonPath().get("identifier");
-
-    //     given()
-    //         .log().all()
-    //         .filter(new AllureRestAssured())
-    //         .headers(creatorHeaders)
-    //     .when()
-    //         .delete("/publication/" + identifier)
-    //     .then()
-    //         .statusCode(202);
-    // }
-
 }

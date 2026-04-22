@@ -2,12 +2,11 @@ package no.sikt;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
-import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
-import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient;
 import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueRequest;
@@ -20,13 +19,8 @@ import software.amazon.awssdk.services.ssm.model.SsmException;
 
 class CognitoLogin {
 
-    private static final String AWS_ACCESS_KEY_ID = System.getenv("AWS_ACCESS_KEY_ID");
-    private static final String AWS_SECRET_ACCESS_KEY = System.getenv("AWS_SECRET_ACCESS_KEY");
-    private static final String AWS_SESSION_TOKEN = System.getenv("AWS_SESSION_TOKEN");
-    private static final String REGION = System.getenv("AWS_REGION") != null ? System.getenv("AWS_REGION")
+    private static final String REGION = Objects.nonNull(System.getenv("AWS_REGION")) ? System.getenv("AWS_REGION")
             : "eu-west-1";
-    private static final AwsSessionCredentials credentials = AwsSessionCredentials.create(
-            AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN);
 
     private static final String COGNITO_URI = getCognitoUriFromParameterStore();
     private static final String CLIENT_ID = getClientIdFromParameterStore();
@@ -41,7 +35,6 @@ class CognitoLogin {
 
         SecretsManagerClient secretsManager = SecretsManagerClient.builder()
                 .region(Region.of(REGION))
-                .credentialsProvider(StaticCredentialsProvider.create(credentials))
                 .build();
 
         GetSecretValueRequest request = GetSecretValueRequest.builder()
@@ -54,13 +47,12 @@ class CognitoLogin {
 
     private static String getClientIdFromParameterStore() {
         String env = System.getenv("AWS_CLIENT_ID");
-        if (env != null && !env.isEmpty()) {
+        if (Objects.nonNull(env) && !env.isEmpty()) {
             return env;
         }
 
         try (SsmClient ssm = SsmClient.builder()
                 .region(Region.of(REGION))
-                .credentialsProvider(StaticCredentialsProvider.create(credentials))
                 .build()) {
 
             GetParameterRequest request = GetParameterRequest.builder()
@@ -77,13 +69,12 @@ class CognitoLogin {
 
     private static String getCognitoUriFromParameterStore() {
         String env = System.getenv("COGNITO_URI");
-        if (env != null && !env.isEmpty()) {
+        if (Objects.nonNull(env) && !env.isEmpty()) {
             return env;
         }
 
         try (SsmClient ssm = SsmClient.builder()
                 .region(Region.of(REGION))
-                .credentialsProvider(StaticCredentialsProvider.create(credentials))
                 .build()) {
 
             GetParameterRequest request = GetParameterRequest.builder()
@@ -93,7 +84,7 @@ class CognitoLogin {
 
             GetParameterResponse response = ssm.getParameter(request);
 
-            if (response == null || response.parameter() == null || response.parameter().value() == null
+            if (Objects.isNull(response) || Objects.isNull(response.parameter()) || Objects.isNull(response.parameter().value())
                     || response.parameter().value().isEmpty()) {
                 throw new RuntimeException("Parameter '/NVA/CognitoUri' was not found or contains no value. "
                         + "Set environment variable COGNITO_URI or create the parameter in Parameter Store.");
@@ -177,7 +168,7 @@ class CognitoLogin {
 
         if (response.statusCode() == 302) {
             String location = response.getHeader("Location");
-            if (location != null && location.contains("?code=")) {
+            if (Objects.nonNull(location) && location.contains("?code=")) {
                 return location.split("\\?code=")[1];
             }
         }
