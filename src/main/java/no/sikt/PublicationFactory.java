@@ -6,20 +6,53 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import io.restassured.RestAssured;
 import static io.restassured.RestAssured.given;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.ssm.SsmClient;
+import software.amazon.awssdk.services.ssm.model.GetParameterRequest;
+import software.amazon.awssdk.services.ssm.model.GetParameterResponse;
 
 public class PublicationFactory {
-
-    private static final String BASE_URI = "https://api.e2e.nva.aws.unit.no";
 
     private static final String YEAR = Integer.toString(Calendar.getInstance().get(Calendar.YEAR));
     private static final String MONTH = Integer.toString(Calendar.getInstance().get(Calendar.MONTH) + 1);
     private static final String DAY = Integer.toString(Calendar.getInstance().get(Calendar.DAY_OF_MONTH)); 
+
+    private static final String REGION = Objects.nonNull(System.getenv("AWS_REGION")) ? System.getenv("AWS_REGION")
+            : "eu-west-1";
+
+    public static String getBaseUriFromParameterStore() {
+
+        try (SsmClient ssm = SsmClient.builder()
+            .region(Region.of(REGION))
+            .build()) {
+
+            GetParameterRequest request = GetParameterRequest.builder()
+                .name("/NVA/ApiDomain")
+                .withDecryption(false)
+                .build();
+                    
+            GetParameterResponse response = ssm.getParameter(request);
+
+            if (Objects.isNull(response) || Objects.isNull(response.parameter()) || Objects.isNull(response.parameter().value())
+                    || response.parameter().value().isEmpty()) {
+                throw new RuntimeException("Parameter '/NVA/ApiDomain' was not found or contains no value.");
+            }
+
+            String value = response.parameter().value();
+
+            return "https://" + value;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to fetch BASE_URI from Parameter Store", e);
+        }
+
+    }
 
     public static Response createDraftPublication(TestUser user) {
 
@@ -28,7 +61,9 @@ public class PublicationFactory {
         headers.put("Content-Type", "application/x-www-form-urlencoded");
         headers.put("Authorization", "Bearer " + ACCESS_TOKEN);
 
-        RestAssured.baseURI = BASE_URI;
+        String baseUri = getBaseUriFromParameterStore();
+
+        RestAssured.baseURI = baseUri;
         Response createResponse = 
             given()
                 .log().all()

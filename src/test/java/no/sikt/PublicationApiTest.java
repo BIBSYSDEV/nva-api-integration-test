@@ -18,7 +18,6 @@ import io.restassured.response.Response;
 
 public class PublicationApiTest {
 
-    private static final String BASE_URI = "https://api.e2e.nva.aws.unit.no";
     private static final Map<String, String> creatorHeaders = new HashMap<>();
     private static final Map<String, String> curatorHeaders = new HashMap<>();
     private static final Map<String, String> identifierMap = new HashMap<>();
@@ -30,6 +29,8 @@ public class PublicationApiTest {
     
     @BeforeAll
     public static void init() {
+
+        RestAssured.baseURI = PublicationFactory.getBaseUriFromParameterStore();
 
         RestAssured.filters(new AllureRestAssured());
         LogConfig logConfig = LogConfig.logConfig()
@@ -76,7 +77,6 @@ public class PublicationApiTest {
         given()
             .log().all()
             .filter(new AllureRestAssured())
-            .baseUri(BASE_URI)
             .headers(curatorHeaders)
             .accept(ContentType.JSON)
             // .contentType(ContentType.JSON)
@@ -92,7 +92,6 @@ public class PublicationApiTest {
         given()
             .log().all()
             .filter(new AllureRestAssured())
-            .baseUri(BASE_URI)
             .headers(creatorHeaders)
             .accept(ContentType.JSON)
             // .contentType(ContentType.JSON)
@@ -137,7 +136,6 @@ public class PublicationApiTest {
         given()
             .log().all()
             .filter(new AllureRestAssured())
-            // .headers(headers)
         .when()
             .delete("/publication/" + identifier)
         .then()
@@ -151,7 +149,6 @@ public class PublicationApiTest {
         given()
             .log().all()
             .filter(new AllureRestAssured())
-            .baseUri(BASE_URI)
             .accept(ContentType.JSON)
             .contentType(ContentType.JSON)
         .when()
@@ -166,7 +163,6 @@ public class PublicationApiTest {
         given()
             .log().all()
             .filter(new AllureRestAssured())
-            .baseUri(BASE_URI)
             .headers(creatorHeaders)
             .accept(ContentType.JSON)
             .contentType(ContentType.JSON)
@@ -183,7 +179,6 @@ public class PublicationApiTest {
         given()
             .log().all()
             .filter(new AllureRestAssured())
-            .baseUri(BASE_URI)
             .headers(curatorHeaders)
             .accept(ContentType.JSON)
             .contentType(ContentType.JSON)
