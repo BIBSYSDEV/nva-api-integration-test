@@ -5,7 +5,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import static java.util.Objects.isNull;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import io.restassured.RestAssured;
@@ -23,7 +23,7 @@ public class PublicationFactory {
 
     public static void setBaseUriFromParameterStore() {
 
-        if(Objects.isNull(baseUri)){
+        if(isNull(baseUri)){
             var value = CognitoLogin.getValueFromParameterStore("/NVA/ApiDomain");
 
             baseUri = "https://" + value;
@@ -33,7 +33,7 @@ public class PublicationFactory {
 
     private static JsonPath loadJsonResource(String resourcePath) {
         var resourceStream = PublicationFactory.class.getResourceAsStream(resourcePath);
-        if (Objects.isNull(resourceStream)) {
+        if (isNull(resourceStream)) {
             throw new RuntimeException("Resource not found on classpath: " + resourcePath);
         }
         return new JsonPath(resourceStream);
@@ -46,7 +46,7 @@ public class PublicationFactory {
         headers.put("Content-Type", "application/x-www-form-urlencoded");
         headers.put("Authorization", "Bearer " + ACCESS_TOKEN);
 
-        if(Objects.isNull(baseUri)){
+        if(isNull(baseUri)){
             setBaseUriFromParameterStore();
         }
         var createResponse = 

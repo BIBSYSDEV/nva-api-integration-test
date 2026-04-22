@@ -2,7 +2,7 @@ package no.sikt;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
+import static java.util.Objects.nonNull;
 import java.util.UUID;
 
 import io.restassured.RestAssured;
@@ -17,7 +17,7 @@ import software.amazon.awssdk.services.ssm.model.GetParameterResponse;
 
 class CognitoLogin {
 
-    public static final String REGION = Objects.nonNull(System.getenv("AWS_REGION")) ? System.getenv("AWS_REGION")
+    public static final String REGION = nonNull(System.getenv("AWS_REGION")) ? System.getenv("AWS_REGION")
             : "eu-west-1";
 
     private static final String COGNITO_URI = getCognitoUriFromParameterStore();
@@ -62,7 +62,7 @@ class CognitoLogin {
     
     private static String getClientIdFromParameterStore() {
         String env = System.getenv("AWS_CLIENT_ID");
-        if (Objects.nonNull(env) && !env.isEmpty()) {
+        if (nonNull(env) && !env.isEmpty()) {
             return env;
         }
 
@@ -71,7 +71,7 @@ class CognitoLogin {
 
     private static String getCognitoUriFromParameterStore() {
         String env = System.getenv("COGNITO_URI");
-        if (Objects.nonNull(env) && !env.isEmpty()) {
+        if (nonNull(env) && !env.isEmpty()) {
             return env;
         }
 
@@ -144,7 +144,7 @@ class CognitoLogin {
 
         if (response.statusCode() == 302) {
             String location = response.getHeader("Location");
-            if (Objects.nonNull(location) && location.contains("?code=")) {
+            if (nonNull(location) && location.contains("?code=")) {
                 return location.split("\\?code=")[1];
             }
         }
