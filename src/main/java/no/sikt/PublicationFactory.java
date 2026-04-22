@@ -83,7 +83,7 @@ public class PublicationFactory {
 
     public static Map<String, Object> createEntityDescription(String title, Category category, List<TestUser> contributorList) {
         
-        File entityDescriptionFile = new File(PublicationFactory.class.getResource("metadata/EntityDescription.json").getFile());
+        File entityDescriptionFile = new File(PublicationFactory.class.getResource("/metadata/EntityDescription.json").getFile());
         JsonPath entityDescriptionJsonPath = new JsonPath(entityDescriptionFile);
         
         Map<String, Object> entityDescription = entityDescriptionJsonPath.getMap("entityDescription");
@@ -105,7 +105,7 @@ public class PublicationFactory {
 
     private static Map<String, Object> createReference(Category category) {
 
-        File referenceFile = new File(PublicationFactory.class.getResource("metadata/" + category.value + "Reference.json").getFile());
+        File referenceFile = new File(PublicationFactory.class.getResource("/metadata/" + category.value + "Reference.json").getFile());
         JsonPath referenceJsonPath = new JsonPath(referenceFile);
         Map<String, Object> publicationContext = referenceJsonPath.getMap("reference.publicationContext");
         publicationContext.put("id", publicationContext.get("id") + "/" + YEAR);
@@ -133,7 +133,7 @@ public class PublicationFactory {
         List<Map<String, Object>> contributors = new ArrayList<>();
         final AtomicInteger sequence = new AtomicInteger(1);
         users.forEach(user -> {
-            File contributorFile = new File(PublicationFactory.class.getResource("metadata/Contributor.json").getFile());
+            File contributorFile = new File(PublicationFactory.class.getResource("/metadata/Contributor.json").getFile());
             JsonPath contributorJsonPath = new JsonPath(contributorFile);
             Map<String, Object> contributor = contributorJsonPath.getMap("");
             Integer i = sequence.getAndIncrement();
