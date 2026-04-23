@@ -2,10 +2,6 @@ plugins {
     id 'nva.api.integration.testing.root-module-conventions'
 }
 
-group = 'no.sikt'
-version = '1.0-SNAPSHOT'
-
-
 tasks.withType(Test).configureEach {
     useJUnitPlatform()
     if (project.hasProperty('awsProfile')) {

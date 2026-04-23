@@ -8,6 +8,6 @@ nva {
         minClassCoverage = 0.800 // FIXME: Add test coverage and bump to 1
     }
     spotless {
-        enabled = false
+        enabled = false // FIXME: Reformat and enable this
     }
 }
