@@ -27,7 +27,7 @@ This project is a simple API testing application built using Java and Gradle.
 
 Before running the application run
 ```
-. login.bash <aws_profile>
+. ./login.bash <aws_profile>
 ```
 to set up aws credentials
 
