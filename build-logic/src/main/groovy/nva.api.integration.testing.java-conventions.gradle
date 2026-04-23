@@ -11,3 +11,29 @@ nva {
         enabled = false // FIXME: Reformat and enable this
     }
 }
+
+dependencies {
+    implementation platform("software.amazon.awssdk:bom:${nvaCatalog.versions.aws.sdk2.asProvider().get()}")
+    implementation 'software.amazon.awssdk:secretsmanager'
+    implementation 'software.amazon.awssdk:ssm'
+    runtimeOnly 'software.amazon.awssdk:sso'
+    runtimeOnly 'software.amazon.awssdk:ssooidc'
+
+    implementation 'io.rest-assured:rest-assured:6.0.0'
+    testImplementation 'io.rest-assured:json-schema-validator:5.5.6'
+    testImplementation 'io.rest-assured:xml-path:5.5.6'
+
+    testImplementation platform("io.qameta.allure:allure-bom:2.25.0")
+    testImplementation "io.qameta.allure:allure-rest-assured"
+    testImplementation "io.qameta.allure:allure-junit5"
+
+    testImplementation nvaCatalog.junit.jupiter
+    testImplementation nvaCatalog.junit.platform.launcher
+    testImplementation nvaCatalog.hamcrest
+}
+
+tasks.withType(Test).configureEach {
+    if (project.hasProperty('awsProfile')) {
+        systemProperty 'aws.profile', project.awsProfile
+    }
+}
