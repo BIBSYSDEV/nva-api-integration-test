@@ -7,7 +7,4 @@ nva {
         minMethodCoverage = 0.800 // FIXME: Add test coverage and bump to 1
         minClassCoverage = 0.800 // FIXME: Add test coverage and bump to 1
     }
-    spotless {
-        enabled = false // FIXME: Reformat and enable this
-    }
 }
