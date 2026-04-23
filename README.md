@@ -2,7 +2,7 @@
 
 This project is a simple API testing application built using Java and Gradle.
 
-## Setup Instructions
+## Setup instructions
 
 1. Clone the repository:
    ```
@@ -22,47 +22,33 @@ This project is a simple API testing application built using Java and Gradle.
    ```
    gradlew.bat build
    ```
+   
+4. Install Allure for reports:
+   ```
+   npm install -g allure
+   ```
 
 ## Usage
 
-Before running the application run
-```
-. ./login.bash <aws_profile>
-```
-to set up aws credentials
+This assumes you have configured AWS CLI with an SSO session named `sikt` and an account profile named `nva-e2e`.
 
+Log in once per session (the SSO token is reused across profiles under the `sikt` session):
 ```
-npm install -g allure
-```
-to set up allure report
-
-To run the application, use the following command:
-```
-./gradlew run
-```
-or for Windows:
-```
-gradlew.bat run
+aws sso login --sso-session sikt
 ```
 
-## Testing
-
-To run the tests, execute:
+Then pass the profile to any Gradle task via `-PawsProfile=<profile>`:
 ```
-./gradlew test
-```
-or for Windows:
-```
-gradlew.bat test
+./gradlew build -PawsProfile=nva-e2e
+./gradlew test -PawsProfile=nva-e2e --rerun-tasks
 ```
 
 ## Generate report
 
-Run
+Generate Allure report and open it in the browser:
 ```
 allure generate --open
 ```
-to generate allure report
 
 If you have problems viewing the report, try running
 ```
