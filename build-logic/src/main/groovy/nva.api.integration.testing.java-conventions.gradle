@@ -7,9 +7,6 @@ nva {
     pmd {
         ignoreFailures = true // FIXME: Fix violations and enable this
     }
-    spotless {
-        enabled = false // FIXME: Reformat and enable this
-    }
 }
 
 dependencies {
