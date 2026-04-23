@@ -10,3 +10,4 @@ build
 allure-results
 allure-report
 .vscode
+.idea
