@@ -1,41 +1,5 @@
 plugins {
-    id 'java'
-}
-
-group = 'no.sikt'
-version = '1.0-SNAPSHOT'
-
-java {
-    toolchain {
-        languageVersion = org.gradle.jvm.toolchain.JavaLanguageVersion.of(21)
-    }
-}
-
-repositories {
-    mavenCentral() 
-}
-
-
-dependencies {
-
-    implementation platform("software.amazon.awssdk:bom:2.42.36")
-    implementation 'software.amazon.awssdk:secretsmanager'
-    implementation 'software.amazon.awssdk:ssm'
-    runtimeOnly 'software.amazon.awssdk:sso'
-    runtimeOnly 'software.amazon.awssdk:ssooidc'
-    
-    implementation 'io.rest-assured:rest-assured:6.0.0'
-    testImplementation 'io.rest-assured:json-schema-validator:5.5.6'
-    testImplementation 'io.rest-assured:xml-path:5.5.6'
-
-    testImplementation platform("io.qameta.allure:allure-bom:2.25.0")
-    testImplementation "io.qameta.allure:allure-rest-assured"
-    testImplementation "io.qameta.allure:allure-junit5"
-
-
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
-    testImplementation 'org.hamcrest:hamcrest:2.2'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.10.0'
+    id 'nva.api.integration.testing.root-module-conventions'
 }
 
 tasks.withType(Test).configureEach {
