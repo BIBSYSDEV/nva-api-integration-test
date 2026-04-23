@@ -1,0 +1,13 @@
+plugins {
+    id 'nva.java-conventions'
+    id 'java-test-fixtures'
+}
+
+nva {
+    pmd {
+        rulesetFile = rootProject.file('config/pmd/ruleset.xml')
+    }
+    spotless {
+        enabled = false
+    }
+}

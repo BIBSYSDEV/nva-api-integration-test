@@ -1,0 +1,13 @@
+plugins {
+    id 'nva.root-module-conventions'
+}
+
+nva {
+    jacoco {
+        minMethodCoverage = 0.800 // FIXME: Add test coverage and bump to 1
+        minClassCoverage = 0.800 // FIXME: Add test coverage and bump to 1
+    }
+    spotless {
+        enabled = false
+    }
+}
