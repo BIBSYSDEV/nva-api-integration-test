@@ -1,8 +1,10 @@
 package no.sikt;
 
 import static java.util.Objects.nonNull;
+import static org.hamcrest.Matchers.stringContainsInOrder;
 
 import io.restassured.RestAssured;
+import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,7 +19,7 @@ import software.amazon.awssdk.services.ssm.model.GetParameterResponse;
 
 class CognitoLogin {
 
-  public static final String REGION =
+  /* default */ static final String REGION =
       nonNull(System.getenv("AWS_REGION")) ? System.getenv("AWS_REGION") : "eu-west-1";
 
   private static final String COGNITO_URI = getCognitoUriFromParameterStore();
@@ -25,21 +27,23 @@ class CognitoLogin {
   private static final String REDIRECT_URI = "https://e2e.nva.aws.unit.no";
 
   private static String secretPassword = "";
+  private static final int RESPONSE_OK = 200;
 
   /** Get password AWS Secrets Manager. */
   private static String fetchPasswordFromSecretsManager() {
+    try (SecretsManagerClient secretsManager =
+        SecretsManagerClient.builder().region(Region.of(REGION)).build()) {
 
-    SecretsManagerClient secretsManager =
-        SecretsManagerClient.builder().region(Region.of(REGION)).build();
+      GetSecretValueRequest request =
+          GetSecretValueRequest.builder().secretId("TestUserPassword").build();
 
-    GetSecretValueRequest request =
-        GetSecretValueRequest.builder().secretId("TestUserPassword").build();
-
-    GetSecretValueResponse response = secretsManager.getSecretValue(request);
-    return response.secretString();
+      GetSecretValueResponse response = secretsManager.getSecretValue(request);
+      return response.secretString();
+    }
   }
 
-  public static String getValueFromParameterStore(String name) {
+  /* default */
+  static String getValueFromParameterStore(String name) {
     try (SsmClient ssm = SsmClient.builder().region(Region.of(REGION)).build()) {
 
       GetParameterRequest request =
@@ -47,31 +51,23 @@ class CognitoLogin {
 
       GetParameterResponse response = ssm.getParameter(request);
       return response.parameter().value();
-    } catch (Exception e) {
-      throw new RuntimeException("Failed to fetch CLIENT_ID from Parameter Store", e);
     }
   }
 
   private static String getClientIdFromParameterStore() {
     String env = System.getenv("AWS_CLIENT_ID");
-    if (nonNull(env) && !env.isEmpty()) {
-      return env;
-    }
 
-    return getValueFromParameterStore("CognitoUserPoolAppClientId");
+    return nonNull(env) ? env : getValueFromParameterStore("CognitoUserPoolAppClientId");
   }
 
   private static String getCognitoUriFromParameterStore() {
     String env = System.getenv("COGNITO_URI");
-    if (nonNull(env) && !env.isEmpty()) {
-      return env;
-    }
-
-    return getValueFromParameterStore("/NVA/CognitoUri");
+    return nonNull(env) ? env : getValueFromParameterStore("/NVA/CognitoUri");
   }
 
+  /* default */
   /** Logg in as a Cognito-bruker and return tokens. */
-  public static Map<String, String> login(String userId) {
+  static Map<String, String> login(String userId) {
     if (secretPassword.isEmpty()) {
       secretPassword = fetchPasswordFromSecretsManager();
     }
@@ -90,21 +86,22 @@ class CognitoLogin {
     body.put("code", code);
 
     // Get tokens from Cognito
-    Response response =
+    JsonPath response =
         RestAssured.given()
             .headers(headers)
             .formParams(body)
-            .post(String.format("%s/oauth2/token", COGNITO_URI));
+            .post(String.format("%s/oauth2/token", COGNITO_URI))
+            .then()
+            .statusCode(RESPONSE_OK)
+            .extract()
+            .response()
+            .jsonPath();
 
-    if (response.statusCode() == 200) {
-      Map<String, String> tokens = new HashMap<>();
-      tokens.put("accessToken", response.jsonPath().getString("access_token"));
-      tokens.put("idToken", response.jsonPath().getString("id_token"));
-      tokens.put("refreshToken", response.jsonPath().getString("refresh_token"));
-      return tokens;
-    } else {
-      throw new RuntimeException("Failed to login: " + response.getBody().asString());
-    }
+    Map<String, String> tokens = new HashMap<>();
+    tokens.put("accessToken", response.getString("access_token"));
+    tokens.put("idToken", response.getString("id_token"));
+    tokens.put("refreshToken", response.getString("refresh_token"));
+    return tokens;
   }
 
   /** Gets an authorization code */
@@ -126,17 +123,18 @@ class CognitoLogin {
     body.put("password", password);
 
     // Get code
-    Response response = RestAssured.given().headers(headers).formParams(body).post(url);
+    Response response =
+        RestAssured.given()
+            .headers(headers)
+            .formParams(body)
+            .post(url)
+            .then()
+            .statusCode(302)
+            .header("Location", stringContainsInOrder("?code="))
+            .extract()
+            .response();
 
-    if (response.statusCode() == 302) {
-      String location = response.getHeader("Location");
-      if (nonNull(location) && location.contains("?code=")) {
-        return location.split("\\?code=")[1];
-      }
-    }
-
-    throw new RuntimeException(
-        "Failed to get authorization code. Response: " + response.getBody().asString());
+    return response.getHeader("Location").split("\\?code=", -1)[1];
   }
 
   /** Generate uri to login to Cognito */
