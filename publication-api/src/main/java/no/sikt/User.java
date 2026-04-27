@@ -2,6 +2,7 @@ package no.sikt;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Stream;
 
 public record User(String name, String userId, String cristinId, Collection<String> affiliations) {
 
@@ -13,7 +14,7 @@ public record User(String name, String userId, String cristinId, Collection<Stri
     this(name, userId, cristinId, List.of(affiliations));
   }
 
-  public Builder builder() {
+  public static Builder builder() {
     return new Builder();
   }
 
@@ -50,6 +51,11 @@ public record User(String name, String userId, String cristinId, Collection<Stri
 
     public Builder withAffiliations(Collection<String> affiliations) {
       this.affiliations = affiliations;
+      return this;
+    }
+
+    public Builder withAffiliations(Affiliation... affiliations) {
+      this.affiliations = Stream.of(affiliations).map(Affiliation::getValue).toList();
       return this;
     }
 

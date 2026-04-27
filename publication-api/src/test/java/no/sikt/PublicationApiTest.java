@@ -143,7 +143,7 @@ class PublicationApiTest {
         .body(IDENTIFIER, notNullValue())
         .body("status", equalTo("DRAFT"))
         .body("resourceOwner.owner", equalTo(UserFixtures.UIB_CREATOR.cristinId()))
-        .body("resourceOwner.ownerAffiliation", equalTo(Affiliation.UIB.value))
+        .body("resourceOwner.ownerAffiliation", equalTo(Affiliation.UIB.getValue()))
         .body("publisher.type", equalTo("Organization"))
         .body("publisher.id", equalTo(customerUib))
         .body("createdDate", startsWith(today))
@@ -215,7 +215,7 @@ class PublicationApiTest {
         .body(IDENTIFIER, equalTo(identifier))
         .body("status", equalTo("DRAFT"))
         .body("resourceOwner.owner", equalTo(UserFixtures.UIB_CREATOR.cristinId()))
-        .body("resourceOwner.ownerAffiliation", equalTo(Affiliation.UIB.value))
+        .body("resourceOwner.ownerAffiliation", equalTo(Affiliation.UIB.getValue()))
         .body("publisher.type", equalTo("Organization"))
         .body("publisher.id", equalTo(customerUib));
   }
