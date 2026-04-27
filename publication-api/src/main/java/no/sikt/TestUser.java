@@ -1,5 +1,9 @@
 package no.sikt;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public enum TestUser {
   UIB_CREATOR(
       "Creator UiB ApiTestUser",
@@ -34,7 +38,7 @@ public enum TestUser {
 
   public final String userId;
   public final String cristinId;
-  public final String[] affiliations;
+  public final List<String> affiliations = new ArrayList<>();
   public final String cristinIdentifier;
   public final String name;
 
@@ -42,7 +46,7 @@ public enum TestUser {
     this.name = name;
     this.userId = userId;
     this.cristinId = cristinId;
-    this.affiliations = affiliations;
+    this.affiliations.addAll(Arrays.asList(affiliations));
     cristinIdentifier = cristinId.split("@", -1)[0];
   }
 }

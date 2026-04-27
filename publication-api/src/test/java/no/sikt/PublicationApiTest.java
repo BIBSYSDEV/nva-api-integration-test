@@ -19,7 +19,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-@SuppressWarnings("UnitTestShoudIncludeAssert")
+@SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
 class PublicationApiTest {
 
   private static final Map<String, String> CREATOR_HEADERS = new HashMap<>();
@@ -40,13 +40,13 @@ class PublicationApiTest {
   private static final PublicationFactory PUBLICATION_FACTORY = new PublicationFactory();
   private static final String PUBLICATION_PATH = "/publication/";
 
-  @SuppressWarnings({"UnitTestShouldIncludeAssert", "unused"})
+  @SuppressWarnings({"unused"})
   @BeforeAll
   static void init() {
 
     PUBLICATION_FACTORY.setBaseUriFromParameterStore();
-    customerUib = RestAssured.baseURI + "/customer/a228aba6-932b-4f53-b2de-31ad8daf9f8d";
     RestAssured.filters(new AllureRestAssured());
+    customerUib = RestAssured.baseURI + "/customer/a228aba6-932b-4f53-b2de-31ad8daf9f8d";
     var logConfig =
         LogConfig.logConfig()
             .enableLoggingOfRequestAndResponseIfValidationFails()

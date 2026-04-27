@@ -7,7 +7,6 @@ import io.restassured.RestAssured;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -26,7 +25,7 @@ public class PublicationFactory {
 
   private static final String APPLICATION_JSON = "application/json";
 
-  public void setBaseUriFromParameterStore() {
+  /* default */ void setBaseUriFromParameterStore() {
 
     if (isNull(baseUri)) {
       var value = CognitoLogin.getValueFromParameterStore("/NVA/ApiDomain");
@@ -39,12 +38,12 @@ public class PublicationFactory {
   private JsonPath loadJsonResource(String resourcePath) {
     var resourceStream = PublicationFactory.class.getResourceAsStream(resourcePath);
     if (isNull(resourceStream)) {
-      throw new RuntimeException("Resource not found on classpath: " + resourcePath);
+      throw new IllegalArgumentException("Resource not found on classpath: " + resourcePath);
     }
     return new JsonPath(resourceStream);
   }
 
-  public Response createDraftPublication(TestUser user) {
+  /* default */ Response createDraftPublication(TestUser user) {
 
     var accessToken = CognitoLogin.login(user.userId).get("accessToken");
     Map<String, String> headers = new HashMap<>();
@@ -63,7 +62,7 @@ public class PublicationFactory {
         .response();
   }
 
-  public Response updatePublication(TestUser user, Map<String, Object> payload) {
+  /* default */ Response updatePublication(TestUser user, Map<String, Object> payload) {
     var creatorAccessToken = CognitoLogin.login(user.userId).get("accessToken");
     Map<String, String> creatorHeaders = new HashMap<>();
     creatorHeaders.put("Authorization", "Bearer " + creatorAccessToken);
@@ -81,7 +80,7 @@ public class PublicationFactory {
         .response();
   }
 
-  public String createPublishedPublication(
+  /* default */ String createPublishedPublication(
       TestUser user,
       String title,
       Category category,
@@ -105,7 +104,7 @@ public class PublicationFactory {
     return createResponse.jsonPath().get("identifier");
   }
 
-  public Map<String, Object> createEntityDescription(
+  /* default */ Map<String, Object> createEntityDescription(
       String title, Category category, List<TestUser> contributorList) {
 
     var entityDescriptionJsonPath = loadJsonResource("/metadata/EntityDescription.json");
@@ -128,7 +127,7 @@ public class PublicationFactory {
     return entityDescription;
   }
 
-  private Map<String, Object> createReference(Category category) {
+  /* default */ Map<String, Object> createReference(Category category) {
 
     var referenceJsonPath = loadJsonResource("/metadata/" + category.value + "Reference.json");
     Map<String, Object> publicationContext =
@@ -141,7 +140,7 @@ public class PublicationFactory {
     return reference;
   }
 
-  public void publish(String curator, String identifier) {
+  /* default */ void publish(String curator, String identifier) {
     var curatorAccessToken = CognitoLogin.login(curator).get("accessToken");
     Map<String, String> curatorHeaders = new HashMap<>();
     curatorHeaders.put("Authorization", "Bearer " + curatorAccessToken);
@@ -156,7 +155,7 @@ public class PublicationFactory {
         .statusCode(202);
   }
 
-  public List<Map<String, Object>> createContributors(List<TestUser> users) {
+  /* default */ List<Map<String, Object>> createContributors(List<TestUser> users) {
 
     List<Map<String, Object>> contributors = new ArrayList<>();
     final var sequence = new AtomicInteger(1);
@@ -174,15 +173,14 @@ public class PublicationFactory {
           contributor.put("identity", identity);
 
           List<Map<String, Object>> affiliations = new ArrayList<>();
-          Arrays.stream(user.affiliations)
-              .forEach(
-                  userAffiliation -> {
-                    Map<String, Object> affiliation = new HashMap<>();
-                    affiliation.put("type", "Organization");
-                    affiliation.put("id", userAffiliation);
-                    affiliations.add(affiliation);
-                    contributor.put("affiliations", affiliations);
-                  });
+          user.affiliations.forEach(
+              userAffiliation -> {
+                Map<String, Object> affiliation = new HashMap<>();
+                affiliation.put("type", "Organization");
+                affiliation.put("id", userAffiliation);
+                affiliations.add(affiliation);
+                contributor.put("affiliations", affiliations);
+              });
 
           contributors.add(contributor);
         });
