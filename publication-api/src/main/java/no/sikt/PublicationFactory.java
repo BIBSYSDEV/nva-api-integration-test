@@ -43,9 +43,9 @@ public class PublicationFactory {
     return new JsonPath(resourceStream);
   }
 
-  /* default */ Response createDraftPublication(TestUser user) {
+  /* default */ Response createDraftPublication(User user) {
 
-    var accessToken = CognitoLogin.login(user.userId).get("accessToken");
+    var accessToken = CognitoLogin.login(user.userId()).get("accessToken");
     Map<String, String> headers = new HashMap<>();
     headers.put("Content-Type", "application/x-www-form-urlencoded");
     headers.put("Authorization", "Bearer " + accessToken);
@@ -62,8 +62,8 @@ public class PublicationFactory {
         .response();
   }
 
-  /* default */ Response updatePublication(TestUser user, Map<String, Object> payload) {
-    var creatorAccessToken = CognitoLogin.login(user.userId).get("accessToken");
+  /* default */ Response updatePublication(User user, Map<String, Object> payload) {
+    var creatorAccessToken = CognitoLogin.login(user.userId()).get("accessToken");
     Map<String, String> creatorHeaders = new HashMap<>();
     creatorHeaders.put("Authorization", "Bearer " + creatorAccessToken);
     creatorHeaders.put("Content-Type", APPLICATION_JSON);
@@ -81,11 +81,7 @@ public class PublicationFactory {
   }
 
   /* default */ String createPublishedPublication(
-      TestUser user,
-      String title,
-      Category category,
-      List<TestUser> contributorList,
-      String curator) {
+      User user, String title, Category category, List<User> contributorList, String curator) {
 
     var createResponse = createDraftPublication(user);
 
@@ -105,7 +101,7 @@ public class PublicationFactory {
   }
 
   /* default */ Map<String, Object> createEntityDescription(
-      String title, Category category, List<TestUser> contributorList) {
+      String title, Category category, List<User> contributorList) {
 
     var entityDescriptionJsonPath = loadJsonResource("/metadata/EntityDescription.json");
 
@@ -155,7 +151,7 @@ public class PublicationFactory {
         .statusCode(202);
   }
 
-  /* default */ List<Map<String, Object>> createContributors(List<TestUser> users) {
+  /* default */ List<Map<String, Object>> createContributors(List<User> users) {
 
     List<Map<String, Object>> contributors = new ArrayList<>();
     final var sequence = new AtomicInteger(1);
@@ -167,20 +163,21 @@ public class PublicationFactory {
           contributor.put("sequence", i.toString());
           Map<String, Object> identity = new HashMap<>();
           identity.put("type", "Identity");
-          identity.put("id", user.cristinId);
+          identity.put("id", user.cristinId());
           identity.put("verificationStatus", "Verified");
-          identity.put("name", user.name);
+          identity.put("name", user.name());
           contributor.put("identity", identity);
 
           List<Map<String, Object>> affiliations = new ArrayList<>();
-          user.affiliations.forEach(
-              userAffiliation -> {
-                Map<String, Object> affiliation = new HashMap<>();
-                affiliation.put("type", "Organization");
-                affiliation.put("id", userAffiliation);
-                affiliations.add(affiliation);
-                contributor.put("affiliations", affiliations);
-              });
+          user.affiliations()
+              .forEach(
+                  userAffiliation -> {
+                    Map<String, Object> affiliation = new HashMap<>();
+                    affiliation.put("type", "Organization");
+                    affiliation.put("id", userAffiliation);
+                    affiliations.add(affiliation);
+                    contributor.put("affiliations", affiliations);
+                  });
 
           contributors.add(contributor);
         });

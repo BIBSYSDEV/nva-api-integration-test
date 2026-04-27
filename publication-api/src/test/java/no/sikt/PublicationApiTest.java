@@ -54,41 +54,55 @@ class PublicationApiTest {
     RestAssured.config = RestAssured.config().logConfig(logConfig);
 
     final var creatorAccessToken =
-        CognitoLogin.login(TestUser.UIB_CREATOR.userId).get("accessToken");
+        CognitoLogin.login(UserFixtures.UIB_CREATOR.userId()).get("accessToken");
     final var publishingCuratorAccessToken =
-        CognitoLogin.login(TestUser.UIB_PUBLISHING_CURATOR.userId).get("accessToken");
+        CognitoLogin.login(UserFixtures.UIB_PUBLISHING_CURATOR.userId()).get("accessToken");
     CREATOR_HEADERS.put("Content-Type", "application/x-www-form-urlencoded");
     CREATOR_HEADERS.put("Authorization", "Bearer " + creatorAccessToken);
     CURATOR_HEADERS.put("Content-Type", "application/x-www-form-urlencoded");
     CURATOR_HEADERS.put("Authorization", "Bearer " + publishingCuratorAccessToken);
 
     String getIdentifier =
-        PUBLICATION_FACTORY.createDraftPublication(TestUser.UIB_CREATOR).jsonPath().get(IDENTIFIER);
+        PUBLICATION_FACTORY
+            .createDraftPublication(UserFixtures.UIB_CREATOR)
+            .jsonPath()
+            .get(IDENTIFIER);
     IDENTIFIER_MAP.put(GET_PUBLICATION_TITLE, getIdentifier);
 
     String deleteIdentifier =
-        PUBLICATION_FACTORY.createDraftPublication(TestUser.UIB_CREATOR).jsonPath().get(IDENTIFIER);
+        PUBLICATION_FACTORY
+            .createDraftPublication(UserFixtures.UIB_CREATOR)
+            .jsonPath()
+            .get(IDENTIFIER);
     IDENTIFIER_MAP.put(DELETE_PUBLICATION_TITLE, deleteIdentifier);
 
     String deleteUnauthorizedIdentifier =
-        PUBLICATION_FACTORY.createDraftPublication(TestUser.UIB_CREATOR).jsonPath().get(IDENTIFIER);
+        PUBLICATION_FACTORY
+            .createDraftPublication(UserFixtures.UIB_CREATOR)
+            .jsonPath()
+            .get(IDENTIFIER);
     IDENTIFIER_MAP.put(UNAUTHORIZED_DELETE_PUBLICATION_TITLE, deleteUnauthorizedIdentifier);
 
     String publishIncompleteIdentifier =
-        PUBLICATION_FACTORY.createDraftPublication(TestUser.UIB_CREATOR).jsonPath().get(IDENTIFIER);
+        PUBLICATION_FACTORY
+            .createDraftPublication(UserFixtures.UIB_CREATOR)
+            .jsonPath()
+            .get(IDENTIFIER);
     IDENTIFIER_MAP.put(PUBLISH_INCOMPLETE_PUBLICATION_TITLE, publishIncompleteIdentifier);
 
-    var createResponse = PUBLICATION_FACTORY.createDraftPublication(TestUser.UIB_CREATOR);
+    var createResponse = PUBLICATION_FACTORY.createDraftPublication(UserFixtures.UIB_CREATOR);
     String publishIdentifier = createResponse.jsonPath().get(IDENTIFIER);
     IDENTIFIER_MAP.put(PUBLISH_PUBLICATION_TITLE, publishIdentifier);
     Map<String, Object> responseBody = createResponse.body().jsonPath().getMap("");
 
     Map<String, ?> entityDescription =
         PUBLICATION_FACTORY.createEntityDescription(
-            PUBLISH_PUBLICATION_TITLE, Category.ACADEMIC_ARTICLE, List.of(TestUser.UIB_CREATOR));
+            PUBLISH_PUBLICATION_TITLE,
+            Category.ACADEMIC_ARTICLE,
+            List.of(UserFixtures.UIB_CREATOR));
     responseBody.put("entityDescription", entityDescription);
 
-    PUBLICATION_FACTORY.updatePublication(TestUser.UIB_CREATOR, responseBody);
+    PUBLICATION_FACTORY.updatePublication(UserFixtures.UIB_CREATOR, responseBody);
   }
 
   @Test
@@ -128,7 +142,7 @@ class PublicationApiTest {
         .body("type", equalTo("Publication"))
         .body(IDENTIFIER, notNullValue())
         .body("status", equalTo("DRAFT"))
-        .body("resourceOwner.owner", equalTo(TestUser.UIB_CREATOR.cristinId))
+        .body("resourceOwner.owner", equalTo(UserFixtures.UIB_CREATOR.cristinId()))
         .body("resourceOwner.ownerAffiliation", equalTo(Affiliation.UIB.value))
         .body("publisher.type", equalTo("Organization"))
         .body("publisher.id", equalTo(customerUib))
@@ -200,7 +214,7 @@ class PublicationApiTest {
         .statusCode(200)
         .body(IDENTIFIER, equalTo(identifier))
         .body("status", equalTo("DRAFT"))
-        .body("resourceOwner.owner", equalTo(TestUser.UIB_CREATOR.cristinId))
+        .body("resourceOwner.owner", equalTo(UserFixtures.UIB_CREATOR.cristinId()))
         .body("resourceOwner.ownerAffiliation", equalTo(Affiliation.UIB.value))
         .body("publisher.type", equalTo("Organization"))
         .body("publisher.id", equalTo(customerUib));
