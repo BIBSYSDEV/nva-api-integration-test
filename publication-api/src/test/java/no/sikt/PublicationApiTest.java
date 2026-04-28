@@ -221,7 +221,7 @@ class PublicationApiTest {
   }
 
   @Test
-  void retreiveWithWrongIdentifierReturnStatusCode404() {
+  void shouldReturnNotFoundWhenFetchingUnknownIdentifier() {
     var randomIdentifier = UUID.randomUUID().toString();
 
     given()
