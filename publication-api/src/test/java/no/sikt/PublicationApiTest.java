@@ -182,7 +182,7 @@ class PublicationApiTest {
   }
 
   @Test
-  void deleteWithUnauthenticatedUserReturnStatusCode401() {
+  void shouldReturnUnauthorizedWhenDeletingWithoutAuthentication() {
     var identifier = IDENTIFIER_MAP.get(UNAUTHORIZED_DELETE_PUBLICATION_TITLE);
 
     given()
