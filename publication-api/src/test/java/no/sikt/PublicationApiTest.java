@@ -151,7 +151,7 @@ class PublicationApiTest {
   }
 
   @Test
-  void deleteReturnStatusCode202() {
+  void shouldDeleteDraftWhenRequestedByOwner() {
     var identifier = IDENTIFIER_MAP.get(DELETE_PUBLICATION_TITLE);
 
     given()
