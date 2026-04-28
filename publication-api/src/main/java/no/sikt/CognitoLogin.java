@@ -29,6 +29,8 @@ class CognitoLogin {
   private static String secretPassword = "";
   private static final int RESPONSE_OK = 200;
 
+  private CognitoLogin() {}
+
   /** Get password AWS Secrets Manager. */
   private static String fetchPasswordFromSecretsManager() {
     try (SecretsManagerClient secretsManager =
