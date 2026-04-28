@@ -3,6 +3,12 @@ plugins {
     id 'java-test-fixtures'
 }
 
+nva {
+    errorprone {
+        allErrorsAsWarnings = false
+    }
+}
+
 dependencies {
     implementation platform("software.amazon.awssdk:bom:${nvaCatalog.versions.aws.sdk2.asProvider().get()}")
     implementation 'software.amazon.awssdk:secretsmanager'
