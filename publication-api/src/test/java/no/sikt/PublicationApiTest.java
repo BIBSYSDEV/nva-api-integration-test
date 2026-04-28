@@ -198,7 +198,7 @@ class PublicationApiTest {
   }
 
   @Test
-  void retreiveDraftPublicationReturnStatusCode200() {
+  void shouldReturnDraftPublicationWhenFetchedByIdentifier() {
     var identifier = IDENTIFIER_MAP.get(GET_PUBLICATION_TITLE);
 
     given()
