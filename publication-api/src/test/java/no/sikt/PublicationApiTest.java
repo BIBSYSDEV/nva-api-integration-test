@@ -241,7 +241,7 @@ class PublicationApiTest {
   }
 
   @Test
-  void publishWithIncompleteMetadataReturnStatusCode400() {
+  void shouldRejectPublishWhenMetadataIsIncomplete() {
     var identifier = IDENTIFIER_MAP.get(PUBLISH_INCOMPLETE_PUBLICATION_TITLE);
 
     given()
