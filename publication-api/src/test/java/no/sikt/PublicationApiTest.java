@@ -106,7 +106,7 @@ class PublicationApiTest {
   }
 
   @Test
-  void publishReturnStatusCode202() {
+  void shouldPublishDraftWhenRequestedByCurator() {
 
     var identifier = IDENTIFIER_MAP.get(PUBLISH_PUBLICATION_TITLE);
 
