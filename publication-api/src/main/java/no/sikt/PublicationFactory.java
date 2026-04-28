@@ -47,11 +47,13 @@ public class PublicationFactory {
   }
 
   public Response createDraftPublication(User user) {
-
     var accessToken = CognitoLogin.login(user.userId()).get("accessToken");
-    Map<String, String> headers = new HashMap<>();
-    headers.put(CONTENT_TYPE, "application/x-www-form-urlencoded");
-    headers.put(AUTHORIZATION, JWT_PREFIX + accessToken);
+    var headers =
+        Map.of(
+            AUTHORIZATION,
+            JWT_PREFIX + accessToken,
+            CONTENT_TYPE,
+            "application/x-www-form-urlencoded");
 
     if (isNull(baseUri)) {
       setBaseUriFromParameterStore();
@@ -66,15 +68,19 @@ public class PublicationFactory {
   }
 
   public Response updatePublication(User user, Map<String, Object> payload) {
-    var creatorAccessToken = CognitoLogin.login(user.userId()).get("accessToken");
-    Map<String, String> creatorHeaders = new HashMap<>();
-    creatorHeaders.put(AUTHORIZATION, JWT_PREFIX + creatorAccessToken);
-    creatorHeaders.put(CONTENT_TYPE, APPLICATION_JSON.getMimeType());
-    creatorHeaders.put(ACCEPT, APPLICATION_JSON.getMimeType());
+    var accessToken = CognitoLogin.login(user.userId()).get("accessToken");
+    var headers =
+        Map.of(
+            AUTHORIZATION,
+            JWT_PREFIX + accessToken,
+            ACCEPT,
+            APPLICATION_JSON.getMimeType(),
+            CONTENT_TYPE,
+            APPLICATION_JSON.getMimeType());
 
     setBaseUriFromParameterStore();
     return given()
-        .headers(creatorHeaders)
+        .headers(headers)
         .body(payload)
         .put("/publication/" + payload.get("identifier"))
         .then()
@@ -140,18 +146,18 @@ public class PublicationFactory {
   }
 
   public void publish(String curator, String identifier) {
-    var curatorAccessToken = CognitoLogin.login(curator).get("accessToken");
-    Map<String, String> curatorHeaders = new HashMap<>();
-    curatorHeaders.put(AUTHORIZATION, JWT_PREFIX + curatorAccessToken);
-    curatorHeaders.put(CONTENT_TYPE, APPLICATION_JSON.getMimeType());
-    curatorHeaders.put(ACCEPT, APPLICATION_JSON.getMimeType());
+    var accessToken = CognitoLogin.login(curator).get("accessToken");
+    var headers =
+        Map.of(
+            AUTHORIZATION,
+            JWT_PREFIX + accessToken,
+            ACCEPT,
+            APPLICATION_JSON.getMimeType(),
+            CONTENT_TYPE,
+            APPLICATION_JSON.getMimeType());
 
     setBaseUriFromParameterStore();
-    given()
-        .headers(curatorHeaders)
-        .post("/publication/" + identifier + "/publish")
-        .then()
-        .statusCode(202);
+    given().headers(headers).post("/publication/" + identifier + "/publish").then().statusCode(202);
   }
 
   public List<Map<String, Object>> createContributors(List<User> users) {
