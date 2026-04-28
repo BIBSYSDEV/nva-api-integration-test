@@ -1,46 +1,52 @@
 package no.sikt;
 
-import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.startsWith;
-
-import io.qameta.allure.restassured.AllureRestAssured;
-import io.restassured.RestAssured;
-import io.restassured.config.LogConfig;
-import io.restassured.http.ContentType;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.startsWith;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-public class PublicationApiTest {
+import io.qameta.allure.restassured.AllureRestAssured;
+import io.restassured.RestAssured;
+import static io.restassured.RestAssured.given;
+import io.restassured.config.LogConfig;
+import io.restassured.http.ContentType;
 
-  private static final Map<String, String> creatorHeaders = new HashMap<>();
-  private static final Map<String, String> curatorHeaders = new HashMap<>();
-  private static final Map<String, String> identifierMap = new HashMap<>();
-  private static final String GET_PUBLICATION_TITLE =
-      "Integration test publication " + UUID.randomUUID().toString();
+@SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
+class PublicationApiTest {
+
+  private static final Map<String, String> CREATOR_HEADERS = new HashMap<>();
+  private static final Map<String, String> CURATOR_HEADERS = new HashMap<>();
+  private static final Map<String, String> IDENTIFIER_MAP = new HashMap<>();
+  private static final String IDENTIFIER = "identifier";
+
+  private static final String TITLE_ROOT = "Integration test publication ";
+  private static final String GET_PUBLICATION_TITLE = TITLE_ROOT + UUID.randomUUID().toString();
   private static final String PUBLISH_INCOMPLETE_PUBLICATION_TITLE =
-      "Integration test publication " + UUID.randomUUID().toString();
-  private static final String DELETE_PUBLICATION_TITLE =
-      "Integration test publication " + UUID.randomUUID().toString();
+      TITLE_ROOT + UUID.randomUUID().toString();
+  private static final String DELETE_PUBLICATION_TITLE = TITLE_ROOT + UUID.randomUUID().toString();
   private static final String UNAUTHORIZED_DELETE_PUBLICATION_TITLE =
-      "Integration test publication " + UUID.randomUUID().toString();
-  private static final String PUBLISH_PUBLICATION_TITLE =
-      "Integration test publication " + UUID.randomUUID().toString();
-  private static String CUSTOMER_UIB;
+      TITLE_ROOT + UUID.randomUUID().toString();
+  private static final String PUBLISH_PUBLICATION_TITLE = TITLE_ROOT + UUID.randomUUID().toString();
+  private static String customerUib;
+
+  private static final PublicationFactory PUBLICATION_FACTORY = new PublicationFactory();
+  private static final String PUBLICATION_PATH = "/publication/";
 
   @BeforeAll
-  public static void init() {
+  static void init() {
 
-    PublicationFactory.setBaseUriFromParameterStore();
-    CUSTOMER_UIB = RestAssured.baseURI + "/customer/a228aba6-932b-4f53-b2de-31ad8daf9f8d";
+    PUBLICATION_FACTORY.setBaseUriFromParameterStore();
     RestAssured.filters(new AllureRestAssured());
+    customerUib = RestAssured.baseURI + "/customer/a228aba6-932b-4f53-b2de-31ad8daf9f8d";
     var logConfig =
         LogConfig.logConfig()
             .enableLoggingOfRequestAndResponseIfValidationFails()
@@ -48,63 +54,69 @@ public class PublicationApiTest {
     RestAssured.config = RestAssured.config().logConfig(logConfig);
 
     final var creatorAccessToken =
-        CognitoLogin.login(TestUser.UIB_CREATOR.userId).get("accessToken");
+        CognitoLogin.login(UserFixtures.UIB_CREATOR.userId()).get("accessToken");
     final var publishingCuratorAccessToken =
-        CognitoLogin.login(TestUser.UIB_PUBLISHING_CURATOR.userId).get("accessToken");
-    creatorHeaders.put("Content-Type", "application/x-www-form-urlencoded");
-    creatorHeaders.put("Authorization", "Bearer " + creatorAccessToken);
-    curatorHeaders.put("Content-Type", "application/x-www-form-urlencoded");
-    curatorHeaders.put("Authorization", "Bearer " + publishingCuratorAccessToken);
+        CognitoLogin.login(UserFixtures.UIB_PUBLISHING_CURATOR.userId()).get("accessToken");
+    CREATOR_HEADERS.put("Content-Type", "application/x-www-form-urlencoded");
+    CREATOR_HEADERS.put("Authorization", "Bearer " + creatorAccessToken);
+    CURATOR_HEADERS.put("Content-Type", "application/x-www-form-urlencoded");
+    CURATOR_HEADERS.put("Authorization", "Bearer " + publishingCuratorAccessToken);
 
     String getIdentifier =
-        PublicationFactory.createDraftPublication(TestUser.UIB_CREATOR)
+        PUBLICATION_FACTORY
+            .createDraftPublication(UserFixtures.UIB_CREATOR)
             .jsonPath()
-            .get("identifier");
-    identifierMap.put(GET_PUBLICATION_TITLE, getIdentifier);
+            .get(IDENTIFIER);
+    IDENTIFIER_MAP.put(GET_PUBLICATION_TITLE, getIdentifier);
 
     String deleteIdentifier =
-        PublicationFactory.createDraftPublication(TestUser.UIB_CREATOR)
+        PUBLICATION_FACTORY
+            .createDraftPublication(UserFixtures.UIB_CREATOR)
             .jsonPath()
-            .get("identifier");
-    identifierMap.put(DELETE_PUBLICATION_TITLE, deleteIdentifier);
+            .get(IDENTIFIER);
+    IDENTIFIER_MAP.put(DELETE_PUBLICATION_TITLE, deleteIdentifier);
 
     String deleteUnauthorizedIdentifier =
-        PublicationFactory.createDraftPublication(TestUser.UIB_CREATOR)
+        PUBLICATION_FACTORY
+            .createDraftPublication(UserFixtures.UIB_CREATOR)
             .jsonPath()
-            .get("identifier");
-    identifierMap.put(UNAUTHORIZED_DELETE_PUBLICATION_TITLE, deleteUnauthorizedIdentifier);
+            .get(IDENTIFIER);
+    IDENTIFIER_MAP.put(UNAUTHORIZED_DELETE_PUBLICATION_TITLE, deleteUnauthorizedIdentifier);
 
     String publishIncompleteIdentifier =
-        PublicationFactory.createDraftPublication(TestUser.UIB_CREATOR)
+        PUBLICATION_FACTORY
+            .createDraftPublication(UserFixtures.UIB_CREATOR)
             .jsonPath()
-            .get("identifier");
-    identifierMap.put(PUBLISH_INCOMPLETE_PUBLICATION_TITLE, publishIncompleteIdentifier);
+            .get(IDENTIFIER);
+    IDENTIFIER_MAP.put(PUBLISH_INCOMPLETE_PUBLICATION_TITLE, publishIncompleteIdentifier);
 
-    var createResponse = PublicationFactory.createDraftPublication(TestUser.UIB_CREATOR);
-    String publishIdentifier = createResponse.jsonPath().get("identifier");
-    identifierMap.put(PUBLISH_PUBLICATION_TITLE, publishIdentifier);
+    var createResponse = PUBLICATION_FACTORY.createDraftPublication(UserFixtures.UIB_CREATOR);
+    String publishIdentifier = createResponse.jsonPath().get(IDENTIFIER);
+    IDENTIFIER_MAP.put(PUBLISH_PUBLICATION_TITLE, publishIdentifier);
     Map<String, Object> responseBody = createResponse.body().jsonPath().getMap("");
 
     Map<String, ?> entityDescription =
-        PublicationFactory.createEntityDescription(
-            PUBLISH_PUBLICATION_TITLE, Category.ACADEMIC_ARTICLE, List.of(TestUser.UIB_CREATOR));
+        PUBLICATION_FACTORY.createEntityDescription(
+            PUBLISH_PUBLICATION_TITLE,
+            Category.ACADEMIC_ARTICLE,
+            List.of(UserFixtures.UIB_CREATOR));
     responseBody.put("entityDescription", entityDescription);
 
-    PublicationFactory.updatePublication(TestUser.UIB_CREATOR, responseBody);
+    PUBLICATION_FACTORY.updatePublication(UserFixtures.UIB_CREATOR, responseBody);
   }
 
   @Test
-  public void publishReturnStatusCode202() {
+  void shouldPublishDraftWhenRequestedByCurator() {
 
-    var identifier = identifierMap.get(PUBLISH_PUBLICATION_TITLE);
+    var identifier = IDENTIFIER_MAP.get(PUBLISH_PUBLICATION_TITLE);
 
     given()
         .log()
         .all()
-        .headers(curatorHeaders)
+        .headers(CURATOR_HEADERS)
         .accept(ContentType.JSON)
         .when()
-        .post("/publication/" + identifier + "/publish")
+        .post(PUBLICATION_PATH + identifier + "/publish")
         .then()
         .log()
         .all()
@@ -112,41 +124,42 @@ public class PublicationApiTest {
   }
 
   @Test
-  public void createReturnStatusCode201() {
-    var today = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+  void shouldCreateDraftPublicationOwnedByCreator() {
+    var today =
+        LocalDate.now(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
     given()
         .log()
         .all()
-        .headers(creatorHeaders)
+        .headers(CREATOR_HEADERS)
         .accept(ContentType.JSON)
         .when()
-        .post("/publication/")
+        .post(PUBLICATION_PATH)
         .then()
         .log()
         .all()
         .statusCode(201)
         .body("type", equalTo("Publication"))
-        .body("identifier", notNullValue())
+        .body(IDENTIFIER, notNullValue())
         .body("status", equalTo("DRAFT"))
-        .body("resourceOwner.owner", equalTo(TestUser.UIB_CREATOR.cristinId))
-        .body("resourceOwner.ownerAffiliation", equalTo(TestUser.UIB_CREATOR.affiliations.get(0)))
+        .body("resourceOwner.owner", equalTo(UserFixtures.UIB_CREATOR.cristinId()))
+        .body("resourceOwner.ownerAffiliation", equalTo(Affiliation.UIB.getValue()))
         .body("publisher.type", equalTo("Organization"))
-        .body("publisher.id", equalTo(CUSTOMER_UIB))
+        .body("publisher.id", equalTo(customerUib))
         .body("createdDate", startsWith(today))
         .body("modifiedDate", startsWith(today));
   }
 
   @Test
-  public void deleteReturnStatusCode202() {
-    var identifier = identifierMap.get(DELETE_PUBLICATION_TITLE);
+  void shouldDeleteDraftWhenRequestedByOwner() {
+    var identifier = IDENTIFIER_MAP.get(DELETE_PUBLICATION_TITLE);
 
     given()
         .log()
         .all()
-        .headers(creatorHeaders)
+        .headers(CREATOR_HEADERS)
         .when()
-        .delete("/publication/" + identifier)
+        .delete(PUBLICATION_PATH + identifier)
         .then()
         .log()
         .all()
@@ -154,14 +167,14 @@ public class PublicationApiTest {
   }
 
   @Test
-  public void deleteWithWrongIdentifierReturnStatusCode404() {
+  void shouldReturnNotFoundWhenDeletingUnknownIdentifier() {
 
     given()
         .log()
         .all()
-        .headers(creatorHeaders)
+        .headers(CREATOR_HEADERS)
         .when()
-        .delete("/publication/" + UUID.randomUUID().toString())
+        .delete(PUBLICATION_PATH + UUID.randomUUID().toString())
         .then()
         .log()
         .all()
@@ -169,14 +182,14 @@ public class PublicationApiTest {
   }
 
   @Test
-  public void deleteWithUnauthenticatedUserReturnStatusCode401() {
-    var identifier = identifierMap.get(UNAUTHORIZED_DELETE_PUBLICATION_TITLE);
+  void shouldReturnUnauthorizedWhenDeletingWithoutAuthentication() {
+    var identifier = IDENTIFIER_MAP.get(UNAUTHORIZED_DELETE_PUBLICATION_TITLE);
 
     given()
         .log()
         .all()
         .when()
-        .delete("/publication/" + identifier)
+        .delete(PUBLICATION_PATH + identifier)
         .then()
         .log()
         .all()
@@ -185,8 +198,8 @@ public class PublicationApiTest {
   }
 
   @Test
-  public void getDraftPublicationReturnStatusCode200() {
-    var identifier = identifierMap.get(GET_PUBLICATION_TITLE);
+  void shouldReturnDraftPublicationWhenFetchedByIdentifier() {
+    var identifier = IDENTIFIER_MAP.get(GET_PUBLICATION_TITLE);
 
     given()
         .log()
@@ -194,31 +207,31 @@ public class PublicationApiTest {
         .accept(ContentType.JSON)
         .contentType(ContentType.JSON)
         .when()
-        .get("/publication/" + identifier)
+        .get(PUBLICATION_PATH + identifier)
         .then()
         .log()
         .all()
         .statusCode(200)
-        .body("identifier", equalTo(identifier))
+        .body(IDENTIFIER, equalTo(identifier))
         .body("status", equalTo("DRAFT"))
-        .body("resourceOwner.owner", equalTo(TestUser.UIB_CREATOR.cristinId))
-        .body("resourceOwner.ownerAffiliation", equalTo(TestUser.UIB_CREATOR.affiliations.get(0)))
+        .body("resourceOwner.owner", equalTo(UserFixtures.UIB_CREATOR.cristinId()))
+        .body("resourceOwner.ownerAffiliation", equalTo(Affiliation.UIB.getValue()))
         .body("publisher.type", equalTo("Organization"))
-        .body("publisher.id", equalTo(CUSTOMER_UIB));
+        .body("publisher.id", equalTo(customerUib));
   }
 
   @Test
-  public void getWithWrongIdentifierReturnStatusCode404() {
+  void shouldReturnNotFoundWhenFetchingUnknownIdentifier() {
     var randomIdentifier = UUID.randomUUID().toString();
 
     given()
         .log()
         .all()
-        .headers(creatorHeaders)
+        .headers(CREATOR_HEADERS)
         .accept(ContentType.JSON)
         .contentType(ContentType.JSON)
         .when()
-        .get("/publication/" + randomIdentifier)
+        .get(PUBLICATION_PATH + randomIdentifier)
         .then()
         .log()
         .all()
@@ -228,17 +241,17 @@ public class PublicationApiTest {
   }
 
   @Test
-  public void publishWithIncompleteMetadataReturnStatusCode400() {
-    var identifier = identifierMap.get(PUBLISH_INCOMPLETE_PUBLICATION_TITLE);
+  void shouldRejectPublishWhenMetadataIsIncomplete() {
+    var identifier = IDENTIFIER_MAP.get(PUBLISH_INCOMPLETE_PUBLICATION_TITLE);
 
     given()
         .log()
         .all()
-        .headers(curatorHeaders)
+        .headers(CURATOR_HEADERS)
         .accept(ContentType.JSON)
         .contentType(ContentType.JSON)
         .when()
-        .post("/publication/" + identifier + "/publish")
+        .post(PUBLICATION_PATH + identifier + "/publish")
         .then()
         .log()
         .all()

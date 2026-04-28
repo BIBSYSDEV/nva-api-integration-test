@@ -1,17 +1,17 @@
 package no.sikt;
 
-import static io.restassured.RestAssured.given;
-import static java.util.Objects.isNull;
-
-import io.restassured.RestAssured;
-import io.restassured.path.json.JsonPath;
-import io.restassured.response.Response;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import static java.util.Objects.isNull;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import io.restassured.RestAssured;
+import static io.restassured.RestAssured.given;
+import io.restassured.path.json.JsonPath;
+import io.restassured.response.Response;
 
 public class PublicationFactory {
 
@@ -23,7 +23,9 @@ public class PublicationFactory {
 
   private static String baseUri;
 
-  public static void setBaseUriFromParameterStore() {
+  private static final String APPLICATION_JSON = "application/json";
+
+  public void setBaseUriFromParameterStore() {
 
     if (isNull(baseUri)) {
       var value = CognitoLogin.getValueFromParameterStore("/NVA/ApiDomain");
@@ -33,57 +35,53 @@ public class PublicationFactory {
     }
   }
 
-  private static JsonPath loadJsonResource(String resourcePath) {
+  private JsonPath loadJsonResource(String resourcePath) {
     var resourceStream = PublicationFactory.class.getResourceAsStream(resourcePath);
     if (isNull(resourceStream)) {
-      throw new RuntimeException("Resource not found on classpath: " + resourcePath);
+      throw new IllegalArgumentException("Resource not found on classpath: " + resourcePath);
     }
     return new JsonPath(resourceStream);
   }
 
-  public static Response createDraftPublication(TestUser user) {
+  public Response createDraftPublication(User user) {
 
-    var ACCESS_TOKEN = CognitoLogin.login(user.userId).get("accessToken");
+    var accessToken = CognitoLogin.login(user.userId()).get("accessToken");
     Map<String, String> headers = new HashMap<>();
     headers.put("Content-Type", "application/x-www-form-urlencoded");
-    headers.put("Authorization", "Bearer " + ACCESS_TOKEN);
+    headers.put("Authorization", "Bearer " + accessToken);
 
     if (isNull(baseUri)) {
       setBaseUriFromParameterStore();
     }
-    var createResponse =
-        given().headers(headers).post("/publication").then().statusCode(201).extract().response();
-
-    return createResponse;
+    return given()
+        .headers(headers)
+        .post("/publication")
+        .then()
+        .statusCode(201)
+        .extract()
+        .response();
   }
 
-  public static Response updatePublication(TestUser user, Map<String, Object> payload) {
-    var CREATOR_ACCESS_TOKEN = CognitoLogin.login(user.userId).get("accessToken");
+  public Response updatePublication(User user, Map<String, Object> payload) {
+    var creatorAccessToken = CognitoLogin.login(user.userId()).get("accessToken");
     Map<String, String> creatorHeaders = new HashMap<>();
-    creatorHeaders.put("Authorization", "Bearer " + CREATOR_ACCESS_TOKEN);
-    creatorHeaders.put("Content-Type", "application/json");
-    creatorHeaders.put("Accept", "application/json");
+    creatorHeaders.put("Authorization", "Bearer " + creatorAccessToken);
+    creatorHeaders.put("Content-Type", APPLICATION_JSON);
+    creatorHeaders.put("Accept", APPLICATION_JSON);
 
     setBaseUriFromParameterStore();
-    var updateResponse =
-        given()
-            .headers(creatorHeaders)
-            .body(payload)
-            .put("/publication/" + payload.get("identifier"))
-            .then()
-            .statusCode(200)
-            .extract()
-            .response();
-
-    return updateResponse;
+    return given()
+        .headers(creatorHeaders)
+        .body(payload)
+        .put("/publication/" + payload.get("identifier"))
+        .then()
+        .statusCode(200)
+        .extract()
+        .response();
   }
 
-  public static String createPublishedPublication(
-      TestUser user,
-      String title,
-      Category category,
-      List<TestUser> contributorList,
-      String curator) {
+  public String createPublishedPublication(
+      User user, String title, Category category, List<User> contributorList, String curator) {
 
     var createResponse = createDraftPublication(user);
 
@@ -102,8 +100,8 @@ public class PublicationFactory {
     return createResponse.jsonPath().get("identifier");
   }
 
-  public static Map<String, Object> createEntityDescription(
-      String title, Category category, List<TestUser> contributorList) {
+  public Map<String, Object> createEntityDescription(
+      String title, Category category, List<User> contributorList) {
 
     var entityDescriptionJsonPath = loadJsonResource("/metadata/EntityDescription.json");
 
@@ -125,9 +123,9 @@ public class PublicationFactory {
     return entityDescription;
   }
 
-  private static Map<String, Object> createReference(Category category) {
+  public Map<String, Object> createReference(Category category) {
 
-    var referenceJsonPath = loadJsonResource("/metadata/" + category.value + "Reference.json");
+    var referenceJsonPath = loadJsonResource("/metadata/" + category.getValue() + "Reference.json");
     Map<String, Object> publicationContext =
         referenceJsonPath.getMap("reference.publicationContext");
     publicationContext.put("id", publicationContext.get("id") + "/" + YEAR);
@@ -138,18 +136,22 @@ public class PublicationFactory {
     return reference;
   }
 
-  public static void publish(String curator, String identifier) {
-    var CURATOR_ACCESS_TOKEN = CognitoLogin.login(curator).get("accessToken");
+  public void publish(String curator, String identifier) {
+    var curatorAccessToken = CognitoLogin.login(curator).get("accessToken");
     Map<String, String> curatorHeaders = new HashMap<>();
-    curatorHeaders.put("Authorization", "Bearer " + CURATOR_ACCESS_TOKEN);
-    curatorHeaders.put("Content-Type", "application/json");
-    curatorHeaders.put("Accept", "application/json");
+    curatorHeaders.put("Authorization", "Bearer " + curatorAccessToken);
+    curatorHeaders.put("Content-Type", APPLICATION_JSON);
+    curatorHeaders.put("Accept", APPLICATION_JSON);
 
     setBaseUriFromParameterStore();
-    RestAssured.given().headers(curatorHeaders).post("/publication/" + identifier + "/publish");
+    given()
+        .headers(curatorHeaders)
+        .post("/publication/" + identifier + "/publish")
+        .then()
+        .statusCode(202);
   }
 
-  public static List<Map<String, Object>> createContributors(List<TestUser> users) {
+  public List<Map<String, Object>> createContributors(List<User> users) {
 
     List<Map<String, Object>> contributors = new ArrayList<>();
     final var sequence = new AtomicInteger(1);
@@ -161,20 +163,21 @@ public class PublicationFactory {
           contributor.put("sequence", i.toString());
           Map<String, Object> identity = new HashMap<>();
           identity.put("type", "Identity");
-          identity.put("id", user.cristinId);
+          identity.put("id", user.cristinId());
           identity.put("verificationStatus", "Verified");
-          identity.put("name", user.name);
+          identity.put("name", user.name());
           contributor.put("identity", identity);
 
           List<Map<String, Object>> affiliations = new ArrayList<>();
-          user.affiliations.forEach(
-              userAffiliation -> {
-                Map<String, Object> affiliation = new HashMap<>();
-                affiliation.put("type", "Organization");
-                affiliation.put("id", userAffiliation);
-                affiliations.add(affiliation);
-                contributor.put("affiliations", affiliations);
-              });
+          user.affiliations()
+              .forEach(
+                  userAffiliation -> {
+                    Map<String, Object> affiliation = new HashMap<>();
+                    affiliation.put("type", "Organization");
+                    affiliation.put("id", userAffiliation);
+                    affiliations.add(affiliation);
+                    contributor.put("affiliations", affiliations);
+                  });
 
           contributors.add(contributor);
         });

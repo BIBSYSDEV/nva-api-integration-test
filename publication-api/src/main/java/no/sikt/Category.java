@@ -1,6 +1,7 @@
 package no.sikt;
 
-public enum Category {
+@SuppressWarnings("PMD.ExcessivePublicCount")
+enum Category {
   ACADEMIC_ARTICLE("AcademicArticle"),
   ACADEMIC_REVIEW_ARTICLE("AcademicLiteratureReview"),
   COMMENTARY("JournalLetter"),
@@ -73,9 +74,13 @@ public enum Category {
 
   MAP("Map");
 
-  public final String value;
+  private final String value;
 
-  private Category(String value) {
+  public String getValue() {
+    return value;
+  }
+
+  Category(String value) {
     this.value = value;
   }
 }
