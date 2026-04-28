@@ -1,7 +1,7 @@
 package no.sikt;
 
 @SuppressWarnings("PMD.ExcessivePublicCount")
-enum Category {
+public enum Category {
   ACADEMIC_ARTICLE("AcademicArticle"),
   ACADEMIC_REVIEW_ARTICLE("AcademicLiteratureReview"),
   COMMENTARY("JournalLetter"),

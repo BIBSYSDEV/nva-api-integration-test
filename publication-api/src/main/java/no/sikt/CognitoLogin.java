@@ -19,7 +19,7 @@ import software.amazon.awssdk.services.ssm.model.GetParameterResponse;
 
 class CognitoLogin {
 
-  /* default */ static final String REGION =
+  private static final String REGION =
       nonNull(System.getenv("AWS_REGION")) ? System.getenv("AWS_REGION") : "eu-west-1";
 
   private static final String COGNITO_URI = getCognitoUriFromParameterStore();
@@ -44,8 +44,7 @@ class CognitoLogin {
     }
   }
 
-  /* default */
-  static String getValueFromParameterStore(String name) {
+  public static String getValueFromParameterStore(String name) {
     try (SsmClient ssm = SsmClient.builder().region(Region.of(REGION)).build()) {
 
       GetParameterRequest request =
@@ -67,9 +66,8 @@ class CognitoLogin {
     return nonNull(env) ? env : getValueFromParameterStore("/NVA/CognitoUri");
   }
 
-  /* default */
   /** Logg in as a Cognito-bruker and return tokens. */
-  static Map<String, String> login(String userId) {
+  public static Map<String, String> login(String userId) {
     if (secretPassword.isEmpty()) {
       secretPassword = fetchPasswordFromSecretsManager();
     }
