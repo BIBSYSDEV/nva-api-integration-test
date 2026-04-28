@@ -1,11 +1,8 @@
 package no.sikt;
 
-import static io.restassured.RestAssured.given;
 import static java.util.Objects.isNull;
-import static org.apache.http.HttpHeaders.ACCEPT;
-import static org.apache.http.HttpHeaders.AUTHORIZATION;
-import static org.apache.http.HttpHeaders.CONTENT_TYPE;
-import static org.apache.http.entity.ContentType.APPLICATION_JSON;
+import static no.sikt.Requests.givenAuthenticatedFormRequestAsUser;
+import static no.sikt.Requests.givenAuthenticatedJsonRequestAsUser;
 
 import io.restassured.RestAssured;
 import io.restassured.path.json.JsonPath;
@@ -24,7 +21,6 @@ public class PublicationFactory {
       Integer.toString(Calendar.getInstance().get(Calendar.MONTH) + 1);
   private static final String DAY =
       Integer.toString(Calendar.getInstance().get(Calendar.DAY_OF_MONTH));
-  private static final String JWT_PREFIX = "Bearer ";
 
   private static String baseUri;
 
@@ -47,19 +43,8 @@ public class PublicationFactory {
   }
 
   public Response createDraftPublication(User user) {
-    var accessToken = CognitoLogin.login(user.userId()).get("accessToken");
-    var headers =
-        Map.of(
-            AUTHORIZATION,
-            JWT_PREFIX + accessToken,
-            CONTENT_TYPE,
-            "application/x-www-form-urlencoded");
-
-    if (isNull(baseUri)) {
-      setBaseUriFromParameterStore();
-    }
-    return given()
-        .headers(headers)
+    setBaseUriFromParameterStore();
+    return givenAuthenticatedFormRequestAsUser(user)
         .post("/publication")
         .then()
         .statusCode(201)
@@ -68,19 +53,8 @@ public class PublicationFactory {
   }
 
   public Response updatePublication(User user, Map<String, Object> payload) {
-    var accessToken = CognitoLogin.login(user.userId()).get("accessToken");
-    var headers =
-        Map.of(
-            AUTHORIZATION,
-            JWT_PREFIX + accessToken,
-            ACCEPT,
-            APPLICATION_JSON.getMimeType(),
-            CONTENT_TYPE,
-            APPLICATION_JSON.getMimeType());
-
     setBaseUriFromParameterStore();
-    return given()
-        .headers(headers)
+    return givenAuthenticatedJsonRequestAsUser(user)
         .body(payload)
         .put("/publication/" + payload.get("identifier"))
         .then()
@@ -145,18 +119,11 @@ public class PublicationFactory {
   }
 
   public void publish(String curator, String identifier) {
-    var accessToken = CognitoLogin.login(curator).get("accessToken");
-    var headers =
-        Map.of(
-            AUTHORIZATION,
-            JWT_PREFIX + accessToken,
-            ACCEPT,
-            APPLICATION_JSON.getMimeType(),
-            CONTENT_TYPE,
-            APPLICATION_JSON.getMimeType());
-
     setBaseUriFromParameterStore();
-    given().headers(headers).post("/publication/" + identifier + "/publish").then().statusCode(202);
+    givenAuthenticatedJsonRequestAsUser(curator)
+        .post("/publication/" + identifier + "/publish")
+        .then()
+        .statusCode(202);
   }
 
   public List<Map<String, Object>> createContributors(List<User> users) {

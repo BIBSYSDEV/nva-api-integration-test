@@ -1,6 +1,8 @@
 package no.sikt;
 
 import static io.restassured.RestAssured.given;
+import static no.sikt.Requests.givenAuthenticatedJsonRequest;
+import static no.sikt.Requests.givenAuthenticatedRequest;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.startsWith;
@@ -22,8 +24,6 @@ import org.junit.jupiter.api.Test;
 @SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
 class PublicationApiTest {
 
-  private static final Map<String, String> CREATOR_HEADERS = new HashMap<>();
-  private static final Map<String, String> CURATOR_HEADERS = new HashMap<>();
   private static final Map<String, String> IDENTIFIER_MAP = new HashMap<>();
   private static final String IDENTIFIER = "identifier";
 
@@ -34,7 +34,10 @@ class PublicationApiTest {
   private static final String UNAUTHORIZED_DELETE_PUBLICATION_TITLE =
       TITLE_ROOT + UUID.randomUUID();
   private static final String PUBLISH_PUBLICATION_TITLE = TITLE_ROOT + UUID.randomUUID();
+
   private static String customerUib;
+  private static String creatorAccessToken;
+  private static String curatorAccessToken;
 
   private static final PublicationFactory PUBLICATION_FACTORY = new PublicationFactory();
   private static final String PUBLICATION_PATH = "/publication/";
@@ -51,14 +54,9 @@ class PublicationApiTest {
             .blacklistHeaders(List.of("Authorization"));
     RestAssured.config = RestAssured.config().logConfig(logConfig);
 
-    final var creatorAccessToken =
-        CognitoLogin.login(UserFixtures.UIB_CREATOR.userId()).get("accessToken");
-    final var publishingCuratorAccessToken =
+    creatorAccessToken = CognitoLogin.login(UserFixtures.UIB_CREATOR.userId()).get("accessToken");
+    curatorAccessToken =
         CognitoLogin.login(UserFixtures.UIB_PUBLISHING_CURATOR.userId()).get("accessToken");
-    CREATOR_HEADERS.put("Content-Type", "application/x-www-form-urlencoded");
-    CREATOR_HEADERS.put("Authorization", "Bearer " + creatorAccessToken);
-    CURATOR_HEADERS.put("Content-Type", "application/x-www-form-urlencoded");
-    CURATOR_HEADERS.put("Authorization", "Bearer " + publishingCuratorAccessToken);
 
     var getIdentifier =
         PUBLICATION_FACTORY
@@ -108,10 +106,9 @@ class PublicationApiTest {
 
     var identifier = IDENTIFIER_MAP.get(PUBLISH_PUBLICATION_TITLE);
 
-    given()
+    givenAuthenticatedRequest(curatorAccessToken)
         .log()
         .all()
-        .headers(CURATOR_HEADERS)
         .accept(ContentType.JSON)
         .when()
         .post(PUBLICATION_PATH + identifier + "/publish")
@@ -126,10 +123,9 @@ class PublicationApiTest {
     var today =
         LocalDate.now(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
-    given()
+    givenAuthenticatedRequest(creatorAccessToken)
         .log()
         .all()
-        .headers(CREATOR_HEADERS)
         .accept(ContentType.JSON)
         .when()
         .post(PUBLICATION_PATH)
@@ -152,10 +148,9 @@ class PublicationApiTest {
   void shouldDeleteDraftWhenRequestedByOwner() {
     var identifier = IDENTIFIER_MAP.get(DELETE_PUBLICATION_TITLE);
 
-    given()
+    givenAuthenticatedRequest(creatorAccessToken)
         .log()
         .all()
-        .headers(CREATOR_HEADERS)
         .when()
         .delete(PUBLICATION_PATH + identifier)
         .then()
@@ -167,10 +162,9 @@ class PublicationApiTest {
   @Test
   void shouldReturnNotFoundWhenDeletingUnknownIdentifier() {
 
-    given()
+    givenAuthenticatedRequest(creatorAccessToken)
         .log()
         .all()
-        .headers(CREATOR_HEADERS)
         .when()
         .delete(PUBLICATION_PATH + UUID.randomUUID())
         .then()
@@ -222,12 +216,9 @@ class PublicationApiTest {
   void shouldReturnNotFoundWhenFetchingUnknownIdentifier() {
     var randomIdentifier = UUID.randomUUID().toString();
 
-    given()
+    givenAuthenticatedJsonRequest(creatorAccessToken)
         .log()
         .all()
-        .headers(CREATOR_HEADERS)
-        .accept(ContentType.JSON)
-        .contentType(ContentType.JSON)
         .when()
         .get(PUBLICATION_PATH + randomIdentifier)
         .then()
@@ -242,12 +233,9 @@ class PublicationApiTest {
   void shouldRejectPublishWhenMetadataIsIncomplete() {
     var identifier = IDENTIFIER_MAP.get(PUBLISH_INCOMPLETE_PUBLICATION_TITLE);
 
-    given()
+    givenAuthenticatedJsonRequest(curatorAccessToken)
         .log()
         .all()
-        .headers(CURATOR_HEADERS)
-        .accept(ContentType.JSON)
-        .contentType(ContentType.JSON)
         .when()
         .post(PUBLICATION_PATH + identifier + "/publish")
         .then()
