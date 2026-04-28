@@ -167,7 +167,7 @@ class PublicationApiTest {
   }
 
   @Test
-  void deleteWithWrongIdentifierReturnStatusCode404() {
+  void shouldReturnNotFoundWhenDeletingUnknownIdentifier() {
 
     given()
         .log()
