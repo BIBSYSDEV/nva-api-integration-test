@@ -124,7 +124,7 @@ class PublicationApiTest {
   }
 
   @Test
-  void createReturnStatusCode201() {
+  void shouldCreateDraftPublicationOwnedByCreator() {
     var today =
         LocalDate.now(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
