@@ -2,6 +2,10 @@ package no.sikt;
 
 import static io.restassured.RestAssured.given;
 import static java.util.Objects.isNull;
+import static org.apache.http.HttpHeaders.ACCEPT;
+import static org.apache.http.HttpHeaders.AUTHORIZATION;
+import static org.apache.http.HttpHeaders.CONTENT_TYPE;
+import static org.apache.http.entity.ContentType.APPLICATION_JSON;
 
 import io.restassured.RestAssured;
 import io.restassured.path.json.JsonPath;
@@ -20,10 +24,9 @@ public class PublicationFactory {
       Integer.toString(Calendar.getInstance().get(Calendar.MONTH) + 1);
   private static final String DAY =
       Integer.toString(Calendar.getInstance().get(Calendar.DAY_OF_MONTH));
+  private static final String JWT_PREFIX = "Bearer ";
 
   private static String baseUri;
-
-  private static final String APPLICATION_JSON = "application/json";
 
   public void setBaseUriFromParameterStore() {
 
@@ -47,8 +50,8 @@ public class PublicationFactory {
 
     var accessToken = CognitoLogin.login(user.userId()).get("accessToken");
     Map<String, String> headers = new HashMap<>();
-    headers.put("Content-Type", "application/x-www-form-urlencoded");
-    headers.put("Authorization", "Bearer " + accessToken);
+    headers.put(CONTENT_TYPE, "application/x-www-form-urlencoded");
+    headers.put(AUTHORIZATION, JWT_PREFIX + accessToken);
 
     if (isNull(baseUri)) {
       setBaseUriFromParameterStore();
@@ -65,9 +68,9 @@ public class PublicationFactory {
   public Response updatePublication(User user, Map<String, Object> payload) {
     var creatorAccessToken = CognitoLogin.login(user.userId()).get("accessToken");
     Map<String, String> creatorHeaders = new HashMap<>();
-    creatorHeaders.put("Authorization", "Bearer " + creatorAccessToken);
-    creatorHeaders.put("Content-Type", APPLICATION_JSON);
-    creatorHeaders.put("Accept", APPLICATION_JSON);
+    creatorHeaders.put(AUTHORIZATION, JWT_PREFIX + creatorAccessToken);
+    creatorHeaders.put(CONTENT_TYPE, APPLICATION_JSON.getMimeType());
+    creatorHeaders.put(ACCEPT, APPLICATION_JSON.getMimeType());
 
     setBaseUriFromParameterStore();
     return given()
@@ -139,9 +142,9 @@ public class PublicationFactory {
   public void publish(String curator, String identifier) {
     var curatorAccessToken = CognitoLogin.login(curator).get("accessToken");
     Map<String, String> curatorHeaders = new HashMap<>();
-    curatorHeaders.put("Authorization", "Bearer " + curatorAccessToken);
-    curatorHeaders.put("Content-Type", APPLICATION_JSON);
-    curatorHeaders.put("Accept", APPLICATION_JSON);
+    curatorHeaders.put(AUTHORIZATION, JWT_PREFIX + curatorAccessToken);
+    curatorHeaders.put(CONTENT_TYPE, APPLICATION_JSON.getMimeType());
+    curatorHeaders.put(ACCEPT, APPLICATION_JSON.getMimeType());
 
     setBaseUriFromParameterStore();
     given()
