@@ -74,8 +74,11 @@ enum Category {
 
   MAP("Map");
 
-  /* default */
-  final String value;
+  private final String value;
+
+  public String getValue() {
+    return value;
+  }
 
   Category(String value) {
     this.value = value;

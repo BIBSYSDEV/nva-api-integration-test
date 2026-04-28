@@ -1,14 +1,5 @@
 package no.sikt;
 
-import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.startsWith;
-
-import io.qameta.allure.restassured.AllureRestAssured;
-import io.restassured.RestAssured;
-import io.restassured.config.LogConfig;
-import io.restassured.http.ContentType;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -16,8 +7,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.startsWith;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+
+import io.qameta.allure.restassured.AllureRestAssured;
+import io.restassured.RestAssured;
+import static io.restassured.RestAssured.given;
+import io.restassured.config.LogConfig;
+import io.restassured.http.ContentType;
 
 @SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
 class PublicationApiTest {
@@ -40,7 +41,6 @@ class PublicationApiTest {
   private static final PublicationFactory PUBLICATION_FACTORY = new PublicationFactory();
   private static final String PUBLICATION_PATH = "/publication/";
 
-  @SuppressWarnings({"unused"})
   @BeforeAll
   static void init() {
 

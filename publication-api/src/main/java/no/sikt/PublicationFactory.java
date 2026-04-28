@@ -1,17 +1,17 @@
 package no.sikt;
 
-import static io.restassured.RestAssured.given;
-import static java.util.Objects.isNull;
-
-import io.restassured.RestAssured;
-import io.restassured.path.json.JsonPath;
-import io.restassured.response.Response;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import static java.util.Objects.isNull;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import io.restassured.RestAssured;
+import static io.restassured.RestAssured.given;
+import io.restassured.path.json.JsonPath;
+import io.restassured.response.Response;
 
 public class PublicationFactory {
 
@@ -25,7 +25,7 @@ public class PublicationFactory {
 
   private static final String APPLICATION_JSON = "application/json";
 
-  /* default */ void setBaseUriFromParameterStore() {
+  public void setBaseUriFromParameterStore() {
 
     if (isNull(baseUri)) {
       var value = CognitoLogin.getValueFromParameterStore("/NVA/ApiDomain");
@@ -43,7 +43,7 @@ public class PublicationFactory {
     return new JsonPath(resourceStream);
   }
 
-  /* default */ Response createDraftPublication(User user) {
+  public Response createDraftPublication(User user) {
 
     var accessToken = CognitoLogin.login(user.userId()).get("accessToken");
     Map<String, String> headers = new HashMap<>();
@@ -62,7 +62,7 @@ public class PublicationFactory {
         .response();
   }
 
-  /* default */ Response updatePublication(User user, Map<String, Object> payload) {
+  public Response updatePublication(User user, Map<String, Object> payload) {
     var creatorAccessToken = CognitoLogin.login(user.userId()).get("accessToken");
     Map<String, String> creatorHeaders = new HashMap<>();
     creatorHeaders.put("Authorization", "Bearer " + creatorAccessToken);
@@ -80,7 +80,7 @@ public class PublicationFactory {
         .response();
   }
 
-  /* default */ String createPublishedPublication(
+  public String createPublishedPublication(
       User user, String title, Category category, List<User> contributorList, String curator) {
 
     var createResponse = createDraftPublication(user);
@@ -100,7 +100,7 @@ public class PublicationFactory {
     return createResponse.jsonPath().get("identifier");
   }
 
-  /* default */ Map<String, Object> createEntityDescription(
+  public Map<String, Object> createEntityDescription(
       String title, Category category, List<User> contributorList) {
 
     var entityDescriptionJsonPath = loadJsonResource("/metadata/EntityDescription.json");
@@ -123,9 +123,9 @@ public class PublicationFactory {
     return entityDescription;
   }
 
-  /* default */ Map<String, Object> createReference(Category category) {
+  public Map<String, Object> createReference(Category category) {
 
-    var referenceJsonPath = loadJsonResource("/metadata/" + category.value + "Reference.json");
+    var referenceJsonPath = loadJsonResource("/metadata/" + category.getValue() + "Reference.json");
     Map<String, Object> publicationContext =
         referenceJsonPath.getMap("reference.publicationContext");
     publicationContext.put("id", publicationContext.get("id") + "/" + YEAR);
@@ -136,7 +136,7 @@ public class PublicationFactory {
     return reference;
   }
 
-  /* default */ void publish(String curator, String identifier) {
+  public void publish(String curator, String identifier) {
     var curatorAccessToken = CognitoLogin.login(curator).get("accessToken");
     Map<String, String> curatorHeaders = new HashMap<>();
     curatorHeaders.put("Authorization", "Bearer " + curatorAccessToken);
@@ -151,7 +151,7 @@ public class PublicationFactory {
         .statusCode(202);
   }
 
-  /* default */ List<Map<String, Object>> createContributors(List<User> users) {
+  public List<Map<String, Object>> createContributors(List<User> users) {
 
     List<Map<String, Object>> contributors = new ArrayList<>();
     final var sequence = new AtomicInteger(1);
