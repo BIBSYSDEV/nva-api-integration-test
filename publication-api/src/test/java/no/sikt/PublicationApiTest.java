@@ -60,36 +60,36 @@ class PublicationApiTest {
     CURATOR_HEADERS.put("Content-Type", "application/x-www-form-urlencoded");
     CURATOR_HEADERS.put("Authorization", "Bearer " + publishingCuratorAccessToken);
 
-    String getIdentifier =
+    var getIdentifier =
         PUBLICATION_FACTORY
             .createDraftPublication(UserFixtures.UIB_CREATOR)
             .jsonPath()
-            .get(IDENTIFIER);
+            .getString(IDENTIFIER);
     IDENTIFIER_MAP.put(GET_PUBLICATION_TITLE, getIdentifier);
 
-    String deleteIdentifier =
+    var deleteIdentifier =
         PUBLICATION_FACTORY
             .createDraftPublication(UserFixtures.UIB_CREATOR)
             .jsonPath()
-            .get(IDENTIFIER);
+            .getString(IDENTIFIER);
     IDENTIFIER_MAP.put(DELETE_PUBLICATION_TITLE, deleteIdentifier);
 
-    String deleteUnauthorizedIdentifier =
+    var deleteUnauthorizedIdentifier =
         PUBLICATION_FACTORY
             .createDraftPublication(UserFixtures.UIB_CREATOR)
             .jsonPath()
-            .get(IDENTIFIER);
+            .getString(IDENTIFIER);
     IDENTIFIER_MAP.put(UNAUTHORIZED_DELETE_PUBLICATION_TITLE, deleteUnauthorizedIdentifier);
 
-    String publishIncompleteIdentifier =
+    var publishIncompleteIdentifier =
         PUBLICATION_FACTORY
             .createDraftPublication(UserFixtures.UIB_CREATOR)
             .jsonPath()
-            .get(IDENTIFIER);
+            .getString(IDENTIFIER);
     IDENTIFIER_MAP.put(PUBLISH_INCOMPLETE_PUBLICATION_TITLE, publishIncompleteIdentifier);
 
     var createResponse = PUBLICATION_FACTORY.createDraftPublication(UserFixtures.UIB_CREATOR);
-    String publishIdentifier = createResponse.jsonPath().get(IDENTIFIER);
+    var publishIdentifier = createResponse.jsonPath().getString(IDENTIFIER);
     IDENTIFIER_MAP.put(PUBLISH_PUBLICATION_TITLE, publishIdentifier);
     Map<String, Object> responseBody = createResponse.body().jsonPath().getMap("");
 

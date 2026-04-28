@@ -94,12 +94,11 @@ public class PublicationFactory {
 
     var createResponse = createDraftPublication(user);
 
-    String identifier = createResponse.body().jsonPath().get("identifier");
+    var identifier = createResponse.body().jsonPath().getString("identifier");
     Map<String, Object> responseBody = createResponse.body().jsonPath().getMap("");
     responseBody.remove("@context");
 
-    Map<String, Object> entityDescription =
-        createEntityDescription(title, category, contributorList);
+    var entityDescription = createEntityDescription(title, category, contributorList);
     responseBody.put("entityDescription", entityDescription);
 
     updatePublication(user, responseBody);
@@ -168,8 +167,7 @@ public class PublicationFactory {
         user -> {
           var contributorJsonPath = loadJsonResource("/metadata/Contributor.json");
           Map<String, Object> contributor = contributorJsonPath.getMap("");
-          Integer i = sequence.getAndIncrement();
-          contributor.put("sequence", i.toString());
+          contributor.put("sequence", String.valueOf(sequence.getAndIncrement()));
           Map<String, Object> identity = new HashMap<>();
           identity.put("type", "Identity");
           identity.put("id", user.cristinId());
