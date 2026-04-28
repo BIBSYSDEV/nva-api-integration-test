@@ -29,13 +29,13 @@ class PublicationApiTest {
   private static final String IDENTIFIER = "identifier";
 
   private static final String TITLE_ROOT = "Integration test publication ";
-  private static final String GET_PUBLICATION_TITLE = TITLE_ROOT + UUID.randomUUID().toString();
+  private static final String GET_PUBLICATION_TITLE = TITLE_ROOT + UUID.randomUUID();
   private static final String PUBLISH_INCOMPLETE_PUBLICATION_TITLE =
-      TITLE_ROOT + UUID.randomUUID().toString();
-  private static final String DELETE_PUBLICATION_TITLE = TITLE_ROOT + UUID.randomUUID().toString();
+      TITLE_ROOT + UUID.randomUUID();
+  private static final String DELETE_PUBLICATION_TITLE = TITLE_ROOT + UUID.randomUUID();
   private static final String UNAUTHORIZED_DELETE_PUBLICATION_TITLE =
-      TITLE_ROOT + UUID.randomUUID().toString();
-  private static final String PUBLISH_PUBLICATION_TITLE = TITLE_ROOT + UUID.randomUUID().toString();
+      TITLE_ROOT + UUID.randomUUID();
+  private static final String PUBLISH_PUBLICATION_TITLE = TITLE_ROOT + UUID.randomUUID();
   private static String customerUib;
 
   private static final PublicationFactory PUBLICATION_FACTORY = new PublicationFactory();
@@ -174,7 +174,7 @@ class PublicationApiTest {
         .all()
         .headers(CREATOR_HEADERS)
         .when()
-        .delete(PUBLICATION_PATH + UUID.randomUUID().toString())
+        .delete(PUBLICATION_PATH + UUID.randomUUID())
         .then()
         .log()
         .all()
