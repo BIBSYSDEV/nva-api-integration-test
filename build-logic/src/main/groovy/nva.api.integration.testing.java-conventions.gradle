@@ -3,12 +3,6 @@ plugins {
     id 'java-test-fixtures'
 }
 
-nva {
-    pmd {
-        ignoreFailures = true // FIXME: Fix violations and enable this
-    }
-}
-
 dependencies {
     implementation platform("software.amazon.awssdk:bom:${nvaCatalog.versions.aws.sdk2.asProvider().get()}")
     implementation 'software.amazon.awssdk:secretsmanager'
