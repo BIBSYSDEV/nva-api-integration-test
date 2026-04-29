@@ -4,8 +4,8 @@ plugins {
 }
 
 nva {
-    pmd {
-        ignoreFailures = true // FIXME: Fix violations and enable this
+    errorprone {
+        allErrorsAsWarnings = false
     }
 }
 
