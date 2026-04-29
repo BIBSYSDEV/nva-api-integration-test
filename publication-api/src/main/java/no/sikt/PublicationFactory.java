@@ -1,17 +1,18 @@
 package no.sikt;
 
-import static io.restassured.RestAssured.given;
-import static java.util.Objects.isNull;
-
-import io.restassured.RestAssured;
-import io.restassured.path.json.JsonPath;
-import io.restassured.response.Response;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import static java.util.Objects.isNull;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import io.restassured.RestAssured;
+import io.restassured.path.json.JsonPath;
+import io.restassured.response.Response;
+import static no.sikt.Requests.givenAuthenticatedFormRequestAsUser;
+import static no.sikt.Requests.givenAuthenticatedJsonRequestAsUser;
 
 public class PublicationFactory {
 
@@ -22,8 +23,6 @@ public class PublicationFactory {
       Integer.toString(Calendar.getInstance().get(Calendar.DAY_OF_MONTH));
 
   private static String baseUri;
-
-  private static final String APPLICATION_JSON = "application/json";
 
   public void setBaseUriFromParameterStore() {
 
@@ -44,17 +43,8 @@ public class PublicationFactory {
   }
 
   public Response createDraftPublication(User user) {
-
-    var accessToken = CognitoLogin.login(user.userId()).get("accessToken");
-    Map<String, String> headers = new HashMap<>();
-    headers.put("Content-Type", "application/x-www-form-urlencoded");
-    headers.put("Authorization", "Bearer " + accessToken);
-
-    if (isNull(baseUri)) {
-      setBaseUriFromParameterStore();
-    }
-    return given()
-        .headers(headers)
+    setBaseUriFromParameterStore();
+    return givenAuthenticatedFormRequestAsUser(user)
         .post("/publication")
         .then()
         .statusCode(201)
@@ -63,15 +53,8 @@ public class PublicationFactory {
   }
 
   public Response updatePublication(User user, Map<String, Object> payload) {
-    var creatorAccessToken = CognitoLogin.login(user.userId()).get("accessToken");
-    Map<String, String> creatorHeaders = new HashMap<>();
-    creatorHeaders.put("Authorization", "Bearer " + creatorAccessToken);
-    creatorHeaders.put("Content-Type", APPLICATION_JSON);
-    creatorHeaders.put("Accept", APPLICATION_JSON);
-
     setBaseUriFromParameterStore();
-    return given()
-        .headers(creatorHeaders)
+    return givenAuthenticatedJsonRequestAsUser(user)
         .body(payload)
         .put("/publication/" + payload.get("identifier"))
         .then()
@@ -85,12 +68,11 @@ public class PublicationFactory {
 
     var createResponse = createDraftPublication(user);
 
-    String identifier = createResponse.body().jsonPath().get("identifier");
+    var identifier = createResponse.body().jsonPath().getString("identifier");
     Map<String, Object> responseBody = createResponse.body().jsonPath().getMap("");
     responseBody.remove("@context");
 
-    Map<String, Object> entityDescription =
-        createEntityDescription(title, category, contributorList);
+    var entityDescription = createEntityDescription(title, category, contributorList);
     responseBody.put("entityDescription", entityDescription);
 
     updatePublication(user, responseBody);
@@ -137,15 +119,8 @@ public class PublicationFactory {
   }
 
   public void publish(String curator, String identifier) {
-    var curatorAccessToken = CognitoLogin.login(curator).get("accessToken");
-    Map<String, String> curatorHeaders = new HashMap<>();
-    curatorHeaders.put("Authorization", "Bearer " + curatorAccessToken);
-    curatorHeaders.put("Content-Type", APPLICATION_JSON);
-    curatorHeaders.put("Accept", APPLICATION_JSON);
-
     setBaseUriFromParameterStore();
-    given()
-        .headers(curatorHeaders)
+    givenAuthenticatedJsonRequestAsUser(curator)
         .post("/publication/" + identifier + "/publish")
         .then()
         .statusCode(202);
@@ -159,8 +134,7 @@ public class PublicationFactory {
         user -> {
           var contributorJsonPath = loadJsonResource("/metadata/Contributor.json");
           Map<String, Object> contributor = contributorJsonPath.getMap("");
-          Integer i = sequence.getAndIncrement();
-          contributor.put("sequence", i.toString());
+          contributor.put("sequence", String.valueOf(sequence.getAndIncrement()));
           Map<String, Object> identity = new HashMap<>();
           identity.put("type", "Identity");
           identity.put("id", user.cristinId());
