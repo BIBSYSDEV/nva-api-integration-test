@@ -1,18 +1,18 @@
 package no.sikt;
 
+import static java.util.Objects.isNull;
+import static no.sikt.Requests.givenAuthenticatedFormRequestAsUser;
+import static no.sikt.Requests.givenAuthenticatedJsonRequestAsUser;
+
+import io.restassured.RestAssured;
+import io.restassured.path.json.JsonPath;
+import io.restassured.response.Response;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import static java.util.Objects.isNull;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import io.restassured.RestAssured;
-import io.restassured.path.json.JsonPath;
-import io.restassured.response.Response;
-import static no.sikt.Requests.givenAuthenticatedFormRequestAsUser;
-import static no.sikt.Requests.givenAuthenticatedJsonRequestAsUser;
 
 public class PublicationFactory {
 

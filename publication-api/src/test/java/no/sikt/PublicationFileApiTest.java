@@ -1,6 +1,8 @@
 package no.sikt;
 
 import static io.restassured.RestAssured.given;
+import static no.sikt.Requests.givenAuthenticatedJsonRequest;
+
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.startsWith;
@@ -10,6 +12,7 @@ import io.restassured.RestAssured;
 import io.restassured.config.LogConfig;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
+
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -20,11 +23,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import io.restassured.http.Header;
+
 @SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
-class PiblicationFIleApiTest {
+class PublicationFileApiTest {
 
   private static final String URL = "url";
   private static final String PARTS = "parts";
@@ -38,7 +44,9 @@ class PiblicationFIleApiTest {
   private static final String TYPE = "type";
   private static final String IDENTIFIER = "identifier";
 
-  private static final Map<String, String> CREATOR_HEADERS = new HashMap<>();
+  private static final String EXAMPLE_FILE = "example.txt";
+  private static final String FILE_ERROR_MESSAGE = "Unable to read " + EXAMPLE_FILE;
+
   private static final Map<String, String> IDENTIFIER_MAP = new HashMap<>();
 
   private static final String TITLE_ROOT = "Integration test publication ";
@@ -49,6 +57,8 @@ class PiblicationFIleApiTest {
 
   private static final PublicationFactory PUBLICATION_FACTORY = new PublicationFactory();
   private static final String PUBLICATION_PATH = "/publication/";
+
+  private static String creatorAccessToken;
 
   @BeforeAll
   static void init() {
@@ -61,10 +71,7 @@ class PiblicationFIleApiTest {
             .blacklistHeaders(List.of("Authorization"));
     RestAssured.config = RestAssured.config().logConfig(logConfig);
 
-    final var creatorAccessToken =
-        CognitoLogin.login(UserFixtures.UIB_CREATOR.userId()).get("accessToken");
-    CREATOR_HEADERS.put("Content-Type", "application/x-www-form-urlencoded");
-    CREATOR_HEADERS.put("Authorization", "Bearer " + creatorAccessToken);
+    creatorAccessToken = CognitoLogin.login(UserFixtures.UIB_CREATOR.userId()).get("accessToken");
 
     String createUploadIdentifier =
         PUBLICATION_FACTORY
@@ -96,28 +103,22 @@ class PiblicationFIleApiTest {
   }
 
   private Map<String, Object> createFilePayload(String fileName) {
-    Map<String, Object> payload = new HashMap<>();
     try (var resourceStream =
         PublicationFactory.class.getResourceAsStream(
             fileName.startsWith("/") ? fileName : "/" + fileName)) {
       var fileSize = resourceStream.readAllBytes().length;
-      payload =
-          Map.of("size", Integer.toString(fileSize), MIMETYPE, TEXT_PLAIN, FILE_NAME, fileName);
+      return Map.of("size", Integer.toString(fileSize), MIMETYPE, TEXT_PLAIN, FILE_NAME, fileName);
     } catch (IOException e) {
       throw new IllegalArgumentException("Unable to read " + fileName, e);
     }
-    return payload;
   }
 
   @Test
   void shouldReturnUploadIdAndKeyWhenCreatingFileUpload() {
     var identifier = IDENTIFIER_MAP.get(CREATE_UPLOAD_PUBLICATION_TITLE);
-    Map<String, Object> payload = createFilePayload("example.txt");
+    Map<String, Object> payload = createFilePayload(EXAMPLE_FILE);
 
-    given()
-        .headers(CREATOR_HEADERS)
-        .accept(ContentType.JSON)
-        .contentType(ContentType.JSON)
+    givenAuthenticatedJsonRequest(creatorAccessToken)
         .body(payload)
         .when()
         .post(PUBLICATION_PATH + identifier + "/file-upload/create")
@@ -130,23 +131,17 @@ class PiblicationFIleApiTest {
   @Test
   void shouldReturnUploadUrlWhenPrepareFile() {
     var identifier = IDENTIFIER_MAP.get(PREPARE_PUBLICATION_TITLE);
-    var fileName = "example.txt";
-    var createResponse = getCreateResponse(identifier, fileName);
+    var createResponse = getCreateResponse(identifier, EXAMPLE_FILE);
 
     var uploadId = createResponse.jsonPath().getString(UPLOAD_ID);
     var key = createResponse.jsonPath().getString(KEY);
 
-    try (var resourceStream =
-        PublicationFactory.class.getResourceAsStream(
-            fileName.startsWith("/") ? fileName : "/" + fileName)) {
+    try (var resourceStream = PublicationFactory.class.getResourceAsStream("/" + EXAMPLE_FILE)) {
       var fileAsString = new String(resourceStream.readAllBytes(), StandardCharsets.UTF_8);
       Map<String, Object> preparePayload =
           Map.of(NUMBER, "1", UPLOAD_ID, uploadId, KEY, key, BODY, fileAsString);
 
-      given()
-          .headers(CREATOR_HEADERS)
-          .accept(ContentType.JSON)
-          .contentType(ContentType.JSON)
+      givenAuthenticatedJsonRequest(creatorAccessToken)
           .body(preparePayload)
           .when()
           .post(PUBLICATION_PATH + identifier + "/file-upload/prepare")
@@ -155,22 +150,19 @@ class PiblicationFIleApiTest {
           .body(URL, notNullValue())
           .body(URL, startsWith("https://nva-resource-storage"));
     } catch (IOException e) {
-      throw new IllegalArgumentException("Unable to read " + fileName, e);
+      throw new IllegalArgumentException(FILE_ERROR_MESSAGE, e);
     }
   }
 
   @Test
   void shouldReturnEtagInHeaderWhenPostingToPresignedUrl() {
     var identifier = IDENTIFIER_MAP.get(COMPLETE_PUBLICATION_TITLE);
-    var fileName = "example.txt";
-    var createResponse = getCreateResponse(identifier, fileName);
+    var createResponse = getCreateResponse(identifier, EXAMPLE_FILE);
 
     var uploadId = createResponse.jsonPath().getString(UPLOAD_ID);
     var key = createResponse.jsonPath().getString(KEY);
 
-    try (var resourceStream =
-        PublicationFactory.class.getResourceAsStream(
-            fileName.startsWith("/") ? fileName : "/" + fileName)) {
+    try (var resourceStream = PublicationFactory.class.getResourceAsStream("/" + EXAMPLE_FILE)) {
       var fileAsString = new String(resourceStream.readAllBytes(), StandardCharsets.UTF_8);
       var uploadResponse = getPrepareResponse(identifier, uploadId, key, fileAsString);
 
@@ -179,33 +171,29 @@ class PiblicationFIleApiTest {
       Map<String, Object> presignedPayload = Map.of("data", fileAsString);
 
       given()
-          .log()
-          .all()
           .accept(ContentType.TEXT)
           .contentType(ContentType.JSON)
           .body(presignedPayload)
           .when()
           .put(uploadUrl)
           .then()
-          .statusCode(200);
+          .statusCode(200)
+          .header("ETag", notNullValue());
 
     } catch (IOException e) {
-      throw new IllegalArgumentException("Unable to read " + fileName, e);
+      throw new IllegalArgumentException(FILE_ERROR_MESSAGE, e);
     }
   }
 
   @Test
   void shouldReturnFileMetaDataWhenCompleteUpload() {
     var identifier = IDENTIFIER_MAP.get(COMPLETE_PUBLICATION_TITLE);
-    var fileName = "example.txt";
-    var createResponse = getCreateResponse(identifier, fileName);
+    var createResponse = getCreateResponse(identifier, EXAMPLE_FILE);
 
     var uploadId = createResponse.jsonPath().getString(UPLOAD_ID);
     var key = createResponse.jsonPath().getString(KEY);
 
-    try (var resourceStream =
-        PublicationFactory.class.getResourceAsStream(
-            fileName.startsWith("/") ? fileName : "/" + fileName)) {
+    try (var resourceStream = PublicationFactory.class.getResourceAsStream("/" + EXAMPLE_FILE)) {
       var fileAsString = new String(resourceStream.readAllBytes(), StandardCharsets.UTF_8);
       var uploadResponse = getPrepareResponse(identifier, uploadId, key, fileAsString);
 
@@ -228,20 +216,15 @@ class PiblicationFIleApiTest {
               PARTS,
               new Object[] {parts});
 
-      given()
-          .headers(CREATOR_HEADERS)
-          .accept(ContentType.JSON)
-          .contentType(ContentType.JSON)
+      givenAuthenticatedJsonRequest(creatorAccessToken)
           .body(completePayload)
           .when()
           .post(PUBLICATION_PATH + identifier + "/file-upload/complete")
           .then()
-          .log()
-          .all()
           .statusCode(200)
           .body(TYPE, equalTo("UploadedFile"))
           .body("identifier", notNullValue())
-          .body("name", equalTo(fileName))
+          .body("name", equalTo(EXAMPLE_FILE))
           .body("mimeType", equalTo(TEXT_PLAIN))
           .appendRootPath("rightsRetentionStrategy")
           .body(TYPE, equalTo("NullRightsRetentionStrategy"))
@@ -252,14 +235,12 @@ class PiblicationFIleApiTest {
           .body("uploadedBy", equalTo(UserFixtures.UIB_CREATOR.cristinId()))
           .body("uploadedDate", startsWith(today));
     } catch (IOException e) {
-      throw new IllegalArgumentException("Unable to read " + fileName, e);
+      throw new IllegalArgumentException(FILE_ERROR_MESSAGE, e);
     }
   }
 
-  private void completeUpload(
-      String identifier, String fileName, String uploadId, String key, String eTag) {
-    var today =
-        LocalDate.now(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+  @SuppressWarnings("unused")
+  private Response completeUpload(String identifier, String uploadId, String key, String eTag) {
     Map<String, Object> parts = Map.of("etag", eTag, "partNumber", "1");
     Map<String, Object> completePayload =
         Map.of(
@@ -272,45 +253,28 @@ class PiblicationFIleApiTest {
             PARTS,
             new Object[] {parts});
 
-    given()
-        .headers(CREATOR_HEADERS)
-        .accept(ContentType.JSON)
-        .contentType(ContentType.JSON)
+    return givenAuthenticatedJsonRequest(creatorAccessToken)
         .body(completePayload)
         .when()
         .post(PUBLICATION_PATH + identifier + "/file-upload/complete")
         .then()
-        .log()
-        .all()
         .statusCode(200)
-        .body(TYPE, equalTo("UploadedFile"))
-        .body("identifier", notNullValue())
-        .body("name", equalTo(fileName))
-        .body("mimeType", equalTo(TEXT_PLAIN))
-        .appendRootPath("rightsRetentionStrategy")
-        .body(TYPE, equalTo("NullRightsRetentionStrategy"))
-        .body("configuredType", equalTo("NullRightsRetentionStrategy"))
-        .detachRootPath("rightsRetentionStrategy")
-        .appendRootPath("uploadDetails")
-        .body(TYPE, equalTo("UserUploadDetails"))
-        .body("uploadedBy", equalTo(UserFixtures.UIB_CREATOR.cristinId()))
-        .body("uploadedDate", startsWith(today));
+        .extract()
+        .response();
   }
 
   private Response getPresignedResponse(String fileAsString, String uploadUrl) {
     Map<String, Object> presignedPayload = Map.of("data", fileAsString);
-    var presignedResponse =
-        given()
-            .accept(ContentType.TEXT)
-            .contentType(ContentType.JSON)
-            .body(presignedPayload)
-            .when()
-            .put(uploadUrl)
-            .then()
-            .statusCode(200)
-            .extract()
-            .response();
-    return presignedResponse;
+    return given()
+        .accept(ContentType.TEXT)
+        .contentType(ContentType.JSON)
+        .body(presignedPayload)
+        .when()
+        .put(uploadUrl)
+        .then()
+        .statusCode(200)
+        .extract()
+        .response();
   }
 
   private Response getPrepareResponse(
@@ -318,36 +282,26 @@ class PiblicationFIleApiTest {
     Map<String, Object> preparePayload =
         Map.of(NUMBER, "1", UPLOAD_ID, uploadId, KEY, key, BODY, fileAsString);
 
-    var prepareResponse =
-        given()
-            .headers(CREATOR_HEADERS)
-            .accept(ContentType.JSON)
-            .contentType(ContentType.JSON)
-            .body(preparePayload)
-            .when()
-            .post(PUBLICATION_PATH + identifier + "/file-upload/prepare")
-            .then()
-            .statusCode(200)
-            .extract()
-            .response();
-    return prepareResponse;
+    return givenAuthenticatedJsonRequest(creatorAccessToken)
+        .body(preparePayload)
+        .when()
+        .post(PUBLICATION_PATH + identifier + "/file-upload/prepare")
+        .then()
+        .statusCode(200)
+        .extract()
+        .response();
   }
 
   private Response getCreateResponse(String identifier, String fileName) {
     Map<String, Object> createPayload = createFilePayload(fileName);
 
-    var createResponse =
-        given()
-            .headers(CREATOR_HEADERS)
-            .accept(ContentType.JSON)
-            .contentType(ContentType.JSON)
-            .body(createPayload)
-            .when()
-            .post(PUBLICATION_PATH + identifier + "/file-upload/create")
-            .then()
-            .statusCode(200)
-            .extract()
-            .response();
-    return createResponse;
+    return givenAuthenticatedJsonRequest(creatorAccessToken)
+        .body(createPayload)
+        .when()
+        .post(PUBLICATION_PATH + identifier + "/file-upload/create")
+        .then()
+        .statusCode(200)
+        .extract()
+        .response();
   }
 }

@@ -1,5 +1,16 @@
 package no.sikt;
 
+import static io.restassured.RestAssured.given;
+import static no.sikt.Requests.givenAuthenticatedJsonRequest;
+import static no.sikt.Requests.givenAuthenticatedRequest;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.startsWith;
+
+import io.qameta.allure.restassured.AllureRestAssured;
+import io.restassured.RestAssured;
+import io.restassured.config.LogConfig;
+import io.restassured.http.ContentType;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -7,20 +18,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.startsWith;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-
-import io.qameta.allure.restassured.AllureRestAssured;
-import io.restassured.RestAssured;
-import static io.restassured.RestAssured.given;
-import io.restassured.config.LogConfig;
-import io.restassured.http.ContentType;
-import static no.sikt.Requests.givenAuthenticatedJsonRequest;
-import static no.sikt.Requests.givenAuthenticatedRequest;
 
 @SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
 class PublicationApiTest {
@@ -109,8 +108,6 @@ class PublicationApiTest {
     var identifier = IDENTIFIER_MAP.get(PUBLISH_PUBLICATION_TITLE);
 
     givenAuthenticatedRequest(curatorAccessToken)
-        .log()
-        .all()
         .accept(ContentType.JSON)
         .when()
         .post(PUBLICATION_PATH + identifier + "/publish")
@@ -124,8 +121,6 @@ class PublicationApiTest {
         LocalDate.now(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
     givenAuthenticatedRequest(creatorAccessToken)
-        .log()
-        .all()
         .accept(ContentType.JSON)
         .when()
         .post(PUBLICATION_PATH)
@@ -151,8 +146,6 @@ class PublicationApiTest {
     var identifier = IDENTIFIER_MAP.get(DELETE_PUBLICATION_TITLE);
 
     givenAuthenticatedRequest(creatorAccessToken)
-        .log()
-        .all()
         .when()
         .delete(PUBLICATION_PATH + identifier)
         .then()
@@ -163,8 +156,6 @@ class PublicationApiTest {
   void shouldReturnNotFoundWhenDeletingUnknownIdentifier() {
 
     givenAuthenticatedRequest(creatorAccessToken)
-        .log()
-        .all()
         .when()
         .delete(PUBLICATION_PATH + UUID.randomUUID())
         .then()
@@ -210,8 +201,6 @@ class PublicationApiTest {
     var randomIdentifier = UUID.randomUUID().toString();
 
     givenAuthenticatedJsonRequest(creatorAccessToken)
-        .log()
-        .all()
         .when()
         .get(PUBLICATION_PATH + randomIdentifier)
         .then()
@@ -225,8 +214,6 @@ class PublicationApiTest {
     var identifier = IDENTIFIER_MAP.get(PUBLISH_INCOMPLETE_PUBLICATION_TITLE);
 
     givenAuthenticatedJsonRequest(curatorAccessToken)
-        .log()
-        .all()
         .when()
         .post(PUBLICATION_PATH + identifier + "/publish")
         .then()
