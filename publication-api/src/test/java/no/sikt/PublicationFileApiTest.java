@@ -204,8 +204,8 @@ class PublicationFileApiTest {
 
       var today =
           LocalDate.now(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-      Map<String, Object> parts = Map.of("etag", eTag, "partNumber", "1");
-      Map<String, Object> completePayload =
+      var parts = Map.of("etag", eTag, "partNumber", "1");
+      var completePayload =
           Map.of(
               UPLOAD_ID,
               uploadId,
