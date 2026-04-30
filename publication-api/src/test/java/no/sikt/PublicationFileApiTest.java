@@ -1,18 +1,5 @@
 package no.sikt;
 
-import static io.restassured.RestAssured.given;
-import static no.sikt.Requests.givenAuthenticatedJsonRequest;
-
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.startsWith;
-
-import io.qameta.allure.restassured.AllureRestAssured;
-import io.restassured.RestAssured;
-import io.restassured.config.LogConfig;
-import io.restassured.http.ContentType;
-import io.restassured.response.Response;
-
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -24,10 +11,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.startsWith;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import io.restassured.http.Header;
+import io.qameta.allure.restassured.AllureRestAssured;
+import io.restassured.RestAssured;
+import static io.restassured.RestAssured.given;
+import io.restassured.config.LogConfig;
+import io.restassured.http.ContentType;
+import io.restassured.response.Response;
+import static no.sikt.Requests.givenAuthenticatedJsonRequest;
 
 @SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
 class PublicationFileApiTest {
@@ -73,50 +69,49 @@ class PublicationFileApiTest {
 
     creatorAccessToken = CognitoLogin.login(UserFixtures.UIB_CREATOR.userId()).get("accessToken");
 
-    String createUploadIdentifier =
+    var createUploadIdentifier =
         PUBLICATION_FACTORY
             .createDraftPublication(UserFixtures.UIB_CREATOR)
             .jsonPath()
-            .get(IDENTIFIER);
+            .getString(IDENTIFIER);
     IDENTIFIER_MAP.put(CREATE_UPLOAD_PUBLICATION_TITLE, createUploadIdentifier);
 
-    String prepareIdentifier =
+    var prepareIdentifier =
         PUBLICATION_FACTORY
             .createDraftPublication(UserFixtures.UIB_CREATOR)
             .jsonPath()
-            .get(IDENTIFIER);
+            .getString(IDENTIFIER);
     IDENTIFIER_MAP.put(PREPARE_PUBLICATION_TITLE, prepareIdentifier);
 
-    String presignedUrlIdentifier =
+    var presignedUrlIdentifier =
         PUBLICATION_FACTORY
             .createDraftPublication(UserFixtures.UIB_CREATOR)
             .jsonPath()
-            .get(IDENTIFIER);
+            .getString(IDENTIFIER);
     IDENTIFIER_MAP.put(PRESIGNED_URL_PUBLICATION_TITLE, presignedUrlIdentifier);
 
-    String completeIdentifier =
+    var completeIdentifier =
         PUBLICATION_FACTORY
             .createDraftPublication(UserFixtures.UIB_CREATOR)
             .jsonPath()
-            .get(IDENTIFIER);
+            .getString(IDENTIFIER);
     IDENTIFIER_MAP.put(COMPLETE_PUBLICATION_TITLE, completeIdentifier);
   }
 
-  private Map<String, Object> createFilePayload(String fileName) {
+  private Map<String, Object> createFilePayload() {
     try (var resourceStream =
-        PublicationFactory.class.getResourceAsStream(
-            fileName.startsWith("/") ? fileName : "/" + fileName)) {
+        PublicationFactory.class.getResourceAsStream("/" + FILE_NAME)) {
       var fileSize = resourceStream.readAllBytes().length;
-      return Map.of("size", Integer.toString(fileSize), MIMETYPE, TEXT_PLAIN, FILE_NAME, fileName);
+      return Map.of("size", Integer.toString(fileSize), MIMETYPE, TEXT_PLAIN, FILE_NAME, FILE_NAME);
     } catch (IOException e) {
-      throw new IllegalArgumentException("Unable to read " + fileName, e);
+      throw new IllegalArgumentException("Unable to read " + FILE_NAME, e);
     }
   }
 
   @Test
   void shouldReturnUploadIdAndKeyWhenCreatingFileUpload() {
     var identifier = IDENTIFIER_MAP.get(CREATE_UPLOAD_PUBLICATION_TITLE);
-    var payload = createFilePayload(EXAMPLE_FILE);
+    var payload = createFilePayload();
 
     givenAuthenticatedJsonRequest(creatorAccessToken)
         .body(payload)
@@ -131,7 +126,7 @@ class PublicationFileApiTest {
   @Test
   void shouldReturnUploadUrlWhenPrepareFile() {
     var identifier = IDENTIFIER_MAP.get(PREPARE_PUBLICATION_TITLE);
-    var createResponse = getCreateResponse(identifier, EXAMPLE_FILE);
+    var createResponse = createFileUpload(identifier);
 
     var uploadId = createResponse.jsonPath().getString(UPLOAD_ID);
     var key = createResponse.jsonPath().getString(KEY);
@@ -156,15 +151,15 @@ class PublicationFileApiTest {
 
   @Test
   void shouldReturnEtagInHeaderWhenPostingToPresignedUrl() {
-    var identifier = IDENTIFIER_MAP.get(COMPLETE_PUBLICATION_TITLE);
-    var createResponse = getCreateResponse(identifier, EXAMPLE_FILE);
+    var identifier = IDENTIFIER_MAP.get(PRESIGNED_URL_PUBLICATION_TITLE);
+    var createResponse = createFileUpload(identifier);
 
     var uploadId = createResponse.jsonPath().getString(UPLOAD_ID);
     var key = createResponse.jsonPath().getString(KEY);
 
     try (var resourceStream = PublicationFactory.class.getResourceAsStream("/" + EXAMPLE_FILE)) {
       var fileAsString = new String(resourceStream.readAllBytes(), StandardCharsets.UTF_8);
-      var uploadResponse = getPrepareResponse(identifier, uploadId, key, fileAsString);
+      var uploadResponse = prepareFileUpload(identifier, uploadId, key, fileAsString);
 
       var uploadUrl = uploadResponse.jsonPath().getString(URL);
       uploadUrl = URLDecoder.decode(uploadUrl, StandardCharsets.UTF_8);
@@ -188,18 +183,18 @@ class PublicationFileApiTest {
   @Test
   void shouldReturnFileMetaDataWhenCompleteUpload() {
     var identifier = IDENTIFIER_MAP.get(COMPLETE_PUBLICATION_TITLE);
-    var createResponse = getCreateResponse(identifier, EXAMPLE_FILE);
+    var createResponse = createFileUpload(identifier);
 
     var uploadId = createResponse.jsonPath().getString(UPLOAD_ID);
     var key = createResponse.jsonPath().getString(KEY);
 
     try (var resourceStream = PublicationFactory.class.getResourceAsStream("/" + EXAMPLE_FILE)) {
       var fileAsString = new String(resourceStream.readAllBytes(), StandardCharsets.UTF_8);
-      var uploadResponse = getPrepareResponse(identifier, uploadId, key, fileAsString);
+      var uploadResponse = prepareFileUpload(identifier, uploadId, key, fileAsString);
 
       var uploadUrl = uploadResponse.jsonPath().getString(URL);
       uploadUrl = URLDecoder.decode(uploadUrl, StandardCharsets.UTF_8);
-      var presignedResponse = getPresignedResponse(fileAsString, uploadUrl);
+      var presignedResponse = uploadToPresignedUrl(fileAsString, uploadUrl);
       var eTag = presignedResponse.headers().getValue("ETag");
 
       var today =
@@ -238,7 +233,7 @@ class PublicationFileApiTest {
       throw new IllegalArgumentException(FILE_ERROR_MESSAGE, e);
     }
   }
-
+  // TODO needed for delete tests
   @SuppressWarnings("unused")
   private Response completeUpload(String identifier, String uploadId, String key, String eTag) {
     Map<String, Object> parts = Map.of("etag", eTag, "partNumber", "1");
@@ -263,8 +258,8 @@ class PublicationFileApiTest {
         .response();
   }
 
-  private Response getPresignedResponse(String fileAsString, String uploadUrl) {
-    var presignedPayload = Map.of("data", fileAsString);
+  private Response uploadToPresignedUrl(String fileAsString, String uploadUrl) {
+    Map<String, Object> presignedPayload = Map.of("data", fileAsString);
     return given()
         .accept(ContentType.TEXT)
         .contentType(ContentType.JSON)
@@ -277,7 +272,7 @@ class PublicationFileApiTest {
         .response();
   }
 
-  private Response getPrepareResponse(
+  private Response prepareFileUpload(
       String identifier, String uploadId, String key, String fileAsString) {
     var preparePayload =
         Map.of(NUMBER, "1", UPLOAD_ID, uploadId, KEY, key, BODY, fileAsString);
@@ -292,8 +287,8 @@ class PublicationFileApiTest {
         .response();
   }
 
-  private Response getCreateResponse(String identifier, String fileName) {
-    Map<String, Object> createPayload = createFilePayload(fileName);
+  private Response createFileUpload(String identifier) {
+    Map<String, Object> createPayload = createFilePayload();
 
     return givenAuthenticatedJsonRequest(creatorAccessToken)
         .body(createPayload)
