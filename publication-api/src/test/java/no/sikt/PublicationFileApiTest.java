@@ -279,7 +279,7 @@ class PublicationFileApiTest {
 
   private Response getPrepareResponse(
       String identifier, String uploadId, String key, String fileAsString) {
-    Map<String, Object> preparePayload =
+    var preparePayload =
         Map.of(NUMBER, "1", UPLOAD_ID, uploadId, KEY, key, BODY, fileAsString);
 
     return givenAuthenticatedJsonRequest(creatorAccessToken)
