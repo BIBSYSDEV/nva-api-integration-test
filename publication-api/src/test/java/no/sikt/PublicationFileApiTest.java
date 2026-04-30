@@ -264,7 +264,7 @@ class PublicationFileApiTest {
   }
 
   private Response getPresignedResponse(String fileAsString, String uploadUrl) {
-    Map<String, Object> presignedPayload = Map.of("data", fileAsString);
+    var presignedPayload = Map.of("data", fileAsString);
     return given()
         .accept(ContentType.TEXT)
         .contentType(ContentType.JSON)
