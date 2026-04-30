@@ -25,7 +25,6 @@ import org.junit.jupiter.api.Test;
 class PublicationApiTest {
 
   private static final Map<String, String> IDENTIFIER_MAP = new HashMap<>();
-  private static final String IDENTIFIER = "identifier";
 
   private static final String TITLE_ROOT = "Integration test publication ";
   private static final String GET_PUBLICATION_TITLE = TITLE_ROOT + UUID.randomUUID();
@@ -41,6 +40,8 @@ class PublicationApiTest {
 
   private static final PublicationFactory PUBLICATION_FACTORY = new PublicationFactory();
   private static final String PUBLICATION_PATH = "/publication/";
+  private static final String IDENTIFIER = "identifier";
+  private static final String RESOURCE_OWNER = "resourceOwner";
 
   @BeforeAll
   static void init() {
@@ -107,14 +108,10 @@ class PublicationApiTest {
     var identifier = IDENTIFIER_MAP.get(PUBLISH_PUBLICATION_TITLE);
 
     givenAuthenticatedRequest(curatorAccessToken)
-        .log()
-        .all()
         .accept(ContentType.JSON)
         .when()
         .post(PUBLICATION_PATH + identifier + "/publish")
         .then()
-        .log()
-        .all()
         .statusCode(202);
   }
 
@@ -124,22 +121,22 @@ class PublicationApiTest {
         LocalDate.now(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
     givenAuthenticatedRequest(creatorAccessToken)
-        .log()
-        .all()
         .accept(ContentType.JSON)
         .when()
         .post(PUBLICATION_PATH)
         .then()
-        .log()
-        .all()
         .statusCode(201)
         .body("type", equalTo("Publication"))
         .body(IDENTIFIER, notNullValue())
         .body("status", equalTo("DRAFT"))
-        .body("resourceOwner.owner", equalTo(UserFixtures.UIB_CREATOR.cristinId()))
-        .body("resourceOwner.ownerAffiliation", equalTo(Affiliation.UIB.getValue()))
-        .body("publisher.type", equalTo("Organization"))
-        .body("publisher.id", equalTo(customerUib))
+        .appendRootPath(RESOURCE_OWNER)
+        .body("owner", equalTo(UserFixtures.UIB_CREATOR.cristinId()))
+        .body("ownerAffiliation", equalTo(Affiliation.UIB.getValue()))
+        .detachRootPath(RESOURCE_OWNER)
+        .appendRootPath("publisher")
+        .body("type", equalTo("Organization"))
+        .body("id", equalTo(customerUib))
+        .detachRootPath("publisher")
         .body("createdDate", startsWith(today))
         .body("modifiedDate", startsWith(today));
   }
@@ -149,13 +146,9 @@ class PublicationApiTest {
     var identifier = IDENTIFIER_MAP.get(DELETE_PUBLICATION_TITLE);
 
     givenAuthenticatedRequest(creatorAccessToken)
-        .log()
-        .all()
         .when()
         .delete(PUBLICATION_PATH + identifier)
         .then()
-        .log()
-        .all()
         .statusCode(202);
   }
 
@@ -163,13 +156,9 @@ class PublicationApiTest {
   void shouldReturnNotFoundWhenDeletingUnknownIdentifier() {
 
     givenAuthenticatedRequest(creatorAccessToken)
-        .log()
-        .all()
         .when()
         .delete(PUBLICATION_PATH + UUID.randomUUID())
         .then()
-        .log()
-        .all()
         .statusCode(404);
   }
 
@@ -178,13 +167,9 @@ class PublicationApiTest {
     var identifier = IDENTIFIER_MAP.get(UNAUTHORIZED_DELETE_PUBLICATION_TITLE);
 
     given()
-        .log()
-        .all()
         .when()
         .delete(PUBLICATION_PATH + identifier)
         .then()
-        .log()
-        .all()
         .statusCode(401)
         .body("message", equalTo("Unauthorized"));
   }
@@ -194,22 +179,21 @@ class PublicationApiTest {
     var identifier = IDENTIFIER_MAP.get(GET_PUBLICATION_TITLE);
 
     given()
-        .log()
-        .all()
         .accept(ContentType.JSON)
         .contentType(ContentType.JSON)
         .when()
         .get(PUBLICATION_PATH + identifier)
         .then()
-        .log()
-        .all()
         .statusCode(200)
         .body(IDENTIFIER, equalTo(identifier))
         .body("status", equalTo("DRAFT"))
-        .body("resourceOwner.owner", equalTo(UserFixtures.UIB_CREATOR.cristinId()))
-        .body("resourceOwner.ownerAffiliation", equalTo(Affiliation.UIB.getValue()))
-        .body("publisher.type", equalTo("Organization"))
-        .body("publisher.id", equalTo(customerUib));
+        .appendRootPath(RESOURCE_OWNER)
+        .body("owner", equalTo(UserFixtures.UIB_CREATOR.cristinId()))
+        .body("ownerAffiliation", equalTo(Affiliation.UIB.getValue()))
+        .detachRootPath(RESOURCE_OWNER)
+        .appendRootPath("publisher")
+        .body("type", equalTo("Organization"))
+        .body("id", equalTo(customerUib));
   }
 
   @Test
@@ -217,13 +201,9 @@ class PublicationApiTest {
     var randomIdentifier = UUID.randomUUID().toString();
 
     givenAuthenticatedJsonRequest(creatorAccessToken)
-        .log()
-        .all()
         .when()
         .get(PUBLICATION_PATH + randomIdentifier)
         .then()
-        .log()
-        .all()
         .statusCode(404)
         .body("title", equalTo("Not Found"))
         .body("detail", equalTo("Publication not found: " + randomIdentifier));
@@ -234,13 +214,9 @@ class PublicationApiTest {
     var identifier = IDENTIFIER_MAP.get(PUBLISH_INCOMPLETE_PUBLICATION_TITLE);
 
     givenAuthenticatedJsonRequest(curatorAccessToken)
-        .log()
-        .all()
         .when()
         .post(PUBLICATION_PATH + identifier + "/publish")
         .then()
-        .log()
-        .all()
         .statusCode(400)
         .body("title", equalTo("Bad Request"))
         .body("detail", equalTo("Resource is not publishable!"));
