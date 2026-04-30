@@ -214,7 +214,7 @@ class PublicationFileApiTest {
               TYPE,
               "InternalCompleteUpload",
               PARTS,
-              new Object[] {parts});
+             List.of(parts));
 
       givenAuthenticatedJsonRequest(creatorAccessToken)
           .body(completePayload)
