@@ -116,7 +116,7 @@ class PublicationFileApiTest {
   @Test
   void shouldReturnUploadIdAndKeyWhenCreatingFileUpload() {
     var identifier = IDENTIFIER_MAP.get(CREATE_UPLOAD_PUBLICATION_TITLE);
-    Map<String, Object> payload = createFilePayload(EXAMPLE_FILE);
+    var payload = createFilePayload(EXAMPLE_FILE);
 
     givenAuthenticatedJsonRequest(creatorAccessToken)
         .body(payload)
