@@ -3,10 +3,12 @@ package no.sikt;
 import static io.restassured.RestAssured.given;
 import static no.sikt.Requests.givenAuthenticatedJsonRequest;
 import static no.sikt.Requests.givenAuthenticatedRequest;
+import static no.sikt.Requests.givenUnauthenticatedJsonRequest;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.startsWith;
 
+import io.qameta.allure.Description;
 import io.qameta.allure.restassured.AllureRestAssured;
 import io.restassured.RestAssured;
 import io.restassured.config.LogConfig;
@@ -19,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
@@ -43,6 +46,12 @@ class PublicationApiTest {
   private static final String IDENTIFIER = "identifier";
   private static final String RESOURCE_OWNER = "resourceOwner";
 
+  private static void createDraftTestPublication(String title, User user) {
+    var identifier =
+        PUBLICATION_FACTORY.createDraftPublication(user).jsonPath().getString(IDENTIFIER);
+    IDENTIFIER_MAP.put(title, identifier);
+  }
+
   @BeforeAll
   static void init() {
 
@@ -59,33 +68,10 @@ class PublicationApiTest {
     curatorAccessToken =
         CognitoLogin.login(UserFixtures.UIB_PUBLISHING_CURATOR.userId()).get("accessToken");
 
-    var getIdentifier =
-        PUBLICATION_FACTORY
-            .createDraftPublication(UserFixtures.UIB_CREATOR)
-            .jsonPath()
-            .getString(IDENTIFIER);
-    IDENTIFIER_MAP.put(GET_PUBLICATION_TITLE, getIdentifier);
-
-    var deleteIdentifier =
-        PUBLICATION_FACTORY
-            .createDraftPublication(UserFixtures.UIB_CREATOR)
-            .jsonPath()
-            .getString(IDENTIFIER);
-    IDENTIFIER_MAP.put(DELETE_PUBLICATION_TITLE, deleteIdentifier);
-
-    var deleteUnauthorizedIdentifier =
-        PUBLICATION_FACTORY
-            .createDraftPublication(UserFixtures.UIB_CREATOR)
-            .jsonPath()
-            .getString(IDENTIFIER);
-    IDENTIFIER_MAP.put(UNAUTHORIZED_DELETE_PUBLICATION_TITLE, deleteUnauthorizedIdentifier);
-
-    var publishIncompleteIdentifier =
-        PUBLICATION_FACTORY
-            .createDraftPublication(UserFixtures.UIB_CREATOR)
-            .jsonPath()
-            .getString(IDENTIFIER);
-    IDENTIFIER_MAP.put(PUBLISH_INCOMPLETE_PUBLICATION_TITLE, publishIncompleteIdentifier);
+    createDraftTestPublication(GET_PUBLICATION_TITLE, UserFixtures.UIB_CREATOR);
+    createDraftTestPublication(DELETE_PUBLICATION_TITLE, UserFixtures.UIB_CREATOR);
+    createDraftTestPublication(UNAUTHORIZED_DELETE_PUBLICATION_TITLE, UserFixtures.UIB_CREATOR);
+    createDraftTestPublication(PUBLISH_INCOMPLETE_PUBLICATION_TITLE, UserFixtures.UIB_CREATOR);
 
     var createResponse = PUBLICATION_FACTORY.createDraftPublication(UserFixtures.UIB_CREATOR);
     var publishIdentifier = createResponse.jsonPath().getString(IDENTIFIER);
@@ -103,6 +89,8 @@ class PublicationApiTest {
   }
 
   @Test
+  @DisplayName("Curator publish draft publication")
+  @Description("A Curator calling publish should return statuscode 202 Accepted")
   void shouldPublishDraftWhenRequestedByCurator() {
 
     var identifier = IDENTIFIER_MAP.get(PUBLISH_PUBLICATION_TITLE);
@@ -116,6 +104,10 @@ class PublicationApiTest {
   }
 
   @Test
+  @DisplayName("Creator create draft publication")
+  @Description(
+      "A Creator calling create publication should return publication metadata and statuscode 201"
+          + " Created")
   void shouldCreateDraftPublicationOwnedByCreator() {
     var today =
         LocalDate.now(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
@@ -142,6 +134,8 @@ class PublicationApiTest {
   }
 
   @Test
+  @DisplayName("Delete draft publication")
+  @Description("A Creator calling delete on own publication should return 202 Accepted")
   void shouldDeleteDraftWhenRequestedByOwner() {
     var identifier = IDENTIFIER_MAP.get(DELETE_PUBLICATION_TITLE);
 
@@ -153,6 +147,8 @@ class PublicationApiTest {
   }
 
   @Test
+  @DisplayName("Deleting non-existing draft publication")
+  @Description("A Creator calling delete on non-existing publication should return 404 Not Found")
   void shouldReturnNotFoundWhenDeletingUnknownIdentifier() {
 
     givenAuthenticatedRequest(creatorAccessToken)
@@ -163,10 +159,12 @@ class PublicationApiTest {
   }
 
   @Test
+  @DisplayName("Non authorized user tries to delete publication")
+  @Description("A non authorized user calling delete should return 401 Unauhtorized")
   void shouldReturnUnauthorizedWhenDeletingWithoutAuthentication() {
     var identifier = IDENTIFIER_MAP.get(UNAUTHORIZED_DELETE_PUBLICATION_TITLE);
 
-    given()
+    givenUnauthenticatedJsonRequest()
         .when()
         .delete(PUBLICATION_PATH + identifier)
         .then()
@@ -175,6 +173,9 @@ class PublicationApiTest {
   }
 
   @Test
+  @DisplayName("Fetch publication by identifier")
+  @Description(
+      "Fetch publication by identifier should return publication metadata and statuscode 200 Ok")
   void shouldReturnDraftPublicationWhenFetchedByIdentifier() {
     var identifier = IDENTIFIER_MAP.get(GET_PUBLICATION_TITLE);
 
@@ -197,6 +198,8 @@ class PublicationApiTest {
   }
 
   @Test
+  @DisplayName("Fetch non-existing publication")
+  @Description("Fetch non-existing publication should return statuscode 404 Not Found")
   void shouldReturnNotFoundWhenFetchingUnknownIdentifier() {
     var randomIdentifier = UUID.randomUUID().toString();
 
@@ -210,6 +213,8 @@ class PublicationApiTest {
   }
 
   @Test
+  @DisplayName("Publish incomplete publication")
+  @Description("Publishing an incomplete publication should return 400 Bad Request")
   void shouldRejectPublishWhenMetadataIsIncomplete() {
     var identifier = IDENTIFIER_MAP.get(PUBLISH_INCOMPLETE_PUBLICATION_TITLE);
 

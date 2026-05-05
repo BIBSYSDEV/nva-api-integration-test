@@ -1,12 +1,11 @@
 package no.sikt;
 
 import static io.restassured.RestAssured.given;
-import static org.apache.http.HttpHeaders.ACCEPT;
 import static org.apache.http.HttpHeaders.AUTHORIZATION;
 import static org.apache.http.HttpHeaders.CONTENT_TYPE;
 import static org.apache.http.entity.ContentType.APPLICATION_FORM_URLENCODED;
-import static org.apache.http.entity.ContentType.APPLICATION_JSON;
 
+import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
 
 public final class Requests {
@@ -30,8 +29,12 @@ public final class Requests {
 
   public static RequestSpecification givenAuthenticatedJsonRequest(String accessToken) {
     return givenAuthenticatedRequest(accessToken)
-        .header(CONTENT_TYPE, APPLICATION_JSON.getMimeType())
-        .header(ACCEPT, APPLICATION_JSON.getMimeType());
+        .contentType(ContentType.JSON)
+        .accept(ContentType.JSON);
+  }
+
+  public static RequestSpecification givenUnauthenticatedJsonRequest() {
+    return given().contentType(ContentType.JSON).accept(ContentType.JSON);
   }
 
   public static RequestSpecification givenAuthenticatedJsonRequestAsUser(User user) {
