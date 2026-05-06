@@ -1,28 +1,32 @@
 package no.sikt;
 
-import static io.restassured.RestAssured.given;
-import static no.sikt.Requests.givenAuthenticatedJsonRequest;
-import static no.sikt.Requests.givenAuthenticatedRequest;
-import static no.sikt.Requests.givenUnauthenticatedJsonRequest;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.startsWith;
-
-import io.qameta.allure.Description;
-import io.qameta.allure.restassured.AllureRestAssured;
-import io.restassured.RestAssured;
-import io.restassured.config.LogConfig;
-import io.restassured.http.ContentType;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.startsWith;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+import io.qameta.allure.Allure;
+import io.qameta.allure.Description;
+import io.qameta.allure.restassured.AllureRestAssured;
+import io.restassured.RestAssured;
+import static io.restassured.RestAssured.given;
+import io.restassured.config.LogConfig;
+import io.restassured.http.ContentType;
+import static no.sikt.Requests.givenAuthenticatedJsonRequest;
+import static no.sikt.Requests.givenAuthenticatedRequest;
+import static no.sikt.Requests.givenUnauthenticatedJsonRequest;
 
 @SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
 class PublicationApiTest {
@@ -217,13 +221,20 @@ class PublicationApiTest {
   @Description("Publishing an incomplete publication should return 400 Bad Request")
   void shouldRejectPublishWhenMetadataIsIncomplete() {
     var identifier = IDENTIFIER_MAP.get(PUBLISH_INCOMPLETE_PUBLICATION_TITLE);
-
+    
     givenAuthenticatedJsonRequest(curatorAccessToken)
-        .when()
-        .post(PUBLICATION_PATH + identifier + "/publish")
-        .then()
-        .statusCode(400)
-        .body("title", equalTo("Bad Request"))
-        .body("detail", equalTo("Resource is not publishable!"));
+    .when()
+    .post(PUBLICATION_PATH + identifier + "/publish")
+    .then()
+    .statusCode(400)
+    .body("title", equalTo("Bad Request"))
+    .body("detail", equalTo("Resource is not publishable!"));
+
+  }
+  
+  @AfterEach
+  void removeAttachments() {
+    Allure.getLifecycle()
+        .updateTestCase(testResult -> testResult.setAttachments(new ArrayList<>()));
   }
 }

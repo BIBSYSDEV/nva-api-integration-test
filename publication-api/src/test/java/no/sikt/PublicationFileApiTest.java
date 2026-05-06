@@ -1,31 +1,35 @@
 package no.sikt;
 
-import static io.restassured.RestAssured.given;
-import static no.sikt.Requests.givenAuthenticatedJsonRequest;
-import static no.sikt.Requests.givenUnauthenticatedJsonRequest;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.startsWith;
-
-import io.qameta.allure.Description;
-import io.qameta.allure.restassured.AllureRestAssured;
-import io.restassured.RestAssured;
-import io.restassured.config.LogConfig;
-import io.restassured.http.ContentType;
-import io.restassured.response.Response;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.startsWith;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+import io.qameta.allure.Allure;
+import io.qameta.allure.Description;
+import io.qameta.allure.restassured.AllureRestAssured;
+import io.restassured.RestAssured;
+import static io.restassured.RestAssured.given;
+import io.restassured.config.LogConfig;
+import io.restassured.http.ContentType;
+import io.restassured.response.Response;
+import static no.sikt.Requests.givenAuthenticatedJsonRequest;
+import static no.sikt.Requests.givenUnauthenticatedJsonRequest;
 
 @SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
 class PublicationFileApiTest {
@@ -44,25 +48,6 @@ class PublicationFileApiTest {
 
   private static final String EXAMPLE_FILE = "example.txt";
 
-  private static final Map<String, String> IDENTIFIER_MAP = new HashMap<>();
-
-  private static final String TITLE_ROOT = "Integration test publication ";
-  private static final String CREATE_UPLOAD_PUBLICATION_TITLE = TITLE_ROOT + UUID.randomUUID();
-  private static final String CREATE_UPLOAD_PUBLICATION_UNAUTHORIZED_TITLE =
-      TITLE_ROOT + UUID.randomUUID();
-  private static final String PREPARE_PUBLICATION_TITLE = TITLE_ROOT + UUID.randomUUID();
-  private static final String PREPARE_PUBLICATION_NO_CREATE_TITLE = TITLE_ROOT + UUID.randomUUID();
-  private static final String PREPARE_PUBLICATION_MISSING_PAYLOAD_TITLE =
-      TITLE_ROOT + UUID.randomUUID();
-  private static final String PREPARE_PUBLICATION_WRONG_PAYLOAD_TITLE =
-      TITLE_ROOT + UUID.randomUUID();
-  private static final String PRESIGNED_URL_PUBLICATION_TITLE = TITLE_ROOT + UUID.randomUUID();
-  private static final String COMPLETE_PUBLICATION_TITLE = TITLE_ROOT + UUID.randomUUID();
-  private static final String COMPLETE_PUBLICATION_UNAUTHORIZED_TITLE =
-      TITLE_ROOT + UUID.randomUUID();
-  private static final String COMPLETE_PUBLICATION_MISSING_ETAG_TITLE =
-      TITLE_ROOT + UUID.randomUUID();
-
   private static final PublicationFactory PUBLICATION_FACTORY = new PublicationFactory();
   private static final String PUBLICATION_PATH = "/publication/";
 
@@ -71,12 +56,6 @@ class PublicationFileApiTest {
   private static int fileSize;
 
   private static final Map<String, Object> CREATE_PAYLOAD = new HashMap<>();
-
-  private static void createDraftTestPublication(String title, User user) {
-    var identifier =
-        PUBLICATION_FACTORY.createDraftPublication(user).jsonPath().getString(IDENTIFIER);
-    IDENTIFIER_MAP.put(title, identifier);
-  }
 
   @BeforeAll
   static void init() {
@@ -90,18 +69,6 @@ class PublicationFileApiTest {
     RestAssured.config = RestAssured.config().logConfig(logConfig);
 
     creatorAccessToken = CognitoLogin.login(UserFixtures.UIB_CREATOR.userId()).get("accessToken");
-
-    createDraftTestPublication(CREATE_UPLOAD_PUBLICATION_TITLE, UserFixtures.UIB_CREATOR);
-    createDraftTestPublication(
-        CREATE_UPLOAD_PUBLICATION_UNAUTHORIZED_TITLE, UserFixtures.UIB_CREATOR);
-    createDraftTestPublication(PREPARE_PUBLICATION_TITLE, UserFixtures.UIB_CREATOR);
-    createDraftTestPublication(PREPARE_PUBLICATION_NO_CREATE_TITLE, UserFixtures.UIB_CREATOR);
-    createDraftTestPublication(PREPARE_PUBLICATION_MISSING_PAYLOAD_TITLE, UserFixtures.UIB_CREATOR);
-    createDraftTestPublication(PREPARE_PUBLICATION_WRONG_PAYLOAD_TITLE, UserFixtures.UIB_CREATOR);
-    createDraftTestPublication(PRESIGNED_URL_PUBLICATION_TITLE, UserFixtures.UIB_CREATOR);
-    createDraftTestPublication(COMPLETE_PUBLICATION_TITLE, UserFixtures.UIB_CREATOR);
-    createDraftTestPublication(COMPLETE_PUBLICATION_UNAUTHORIZED_TITLE, UserFixtures.UIB_CREATOR);
-    createDraftTestPublication(COMPLETE_PUBLICATION_MISSING_ETAG_TITLE, UserFixtures.UIB_CREATOR);
 
     try (var resourceStream = PublicationFactory.class.getResourceAsStream("/" + EXAMPLE_FILE)) {
       var bytes = resourceStream.readAllBytes();
@@ -123,7 +90,11 @@ class PublicationFileApiTest {
   @DisplayName("file-upload/create returns uploadId and key")
   @Description("Calling file-upload/create should return uploadId and key with statuscode 200")
   void shouldReturnUploadIdAndKeyWhenCreatingFileUpload() {
-    var identifier = IDENTIFIER_MAP.get(CREATE_UPLOAD_PUBLICATION_TITLE);
+    var identifier =
+        PUBLICATION_FACTORY
+            .createDraftPublication(UserFixtures.UIB_CREATOR)
+            .jsonPath()
+            .getString(IDENTIFIER);
 
     givenAuthenticatedJsonRequest(creatorAccessToken)
         .body(CREATE_PAYLOAD)
@@ -140,7 +111,11 @@ class PublicationFileApiTest {
   @Description(
       "Calling file-upload/create with no authorization should return statuscode 401 Unauthorized")
   void shouldReturnUnauthorizedWhenCreateWithoutAuthorization() {
-    var identifier = IDENTIFIER_MAP.get(CREATE_UPLOAD_PUBLICATION_UNAUTHORIZED_TITLE);
+    var identifier =
+        PUBLICATION_FACTORY
+            .createDraftPublication(UserFixtures.UIB_CREATOR)
+            .jsonPath()
+            .getString(IDENTIFIER);
 
     givenUnauthenticatedJsonRequest()
         .body(CREATE_PAYLOAD)
@@ -156,7 +131,11 @@ class PublicationFileApiTest {
       "Calling file-upload/create with non-existing identifier should return statuscode 404 Not"
           + " Found")
   void shouldReturnNotFoundWhenCreateWithNonExistingIdentifier() {
-    var identifier = UUID.randomUUID().toString();
+    var identifier =
+        PUBLICATION_FACTORY
+            .createDraftPublication(UserFixtures.UIB_CREATOR)
+            .jsonPath()
+            .getString(IDENTIFIER);
 
     givenAuthenticatedJsonRequest(creatorAccessToken)
         .body(CREATE_PAYLOAD)
@@ -174,7 +153,11 @@ class PublicationFileApiTest {
   @DisplayName("file-upload/prepare returns presigned URL")
   @Description("Calling file-upload/prepare should return presigned URL and status code 200 OK")
   void shouldReturnUploadUrlWhenPrepareFile() {
-    var identifier = IDENTIFIER_MAP.get(PREPARE_PUBLICATION_TITLE);
+    var identifier =
+        PUBLICATION_FACTORY
+            .createDraftPublication(UserFixtures.UIB_CREATOR)
+            .jsonPath()
+            .getString(IDENTIFIER);
     var createResponse = createFileUpload(identifier);
 
     var uploadId = createResponse.jsonPath().getString(UPLOAD_ID);
@@ -197,7 +180,11 @@ class PublicationFileApiTest {
   @Description(
       "Calling file-upload/prepare with no authorization should return statuscode 401 Unauthorized")
   void shouldReturnUnauthorizedWhenPrepareWithoutAuthorization() {
-    var identifier = IDENTIFIER_MAP.get(PREPARE_PUBLICATION_TITLE);
+    var identifier =
+        PUBLICATION_FACTORY
+            .createDraftPublication(UserFixtures.UIB_CREATOR)
+            .jsonPath()
+            .getString(IDENTIFIER);
     var createResponse = createFileUpload(identifier);
 
     var uploadId = createResponse.jsonPath().getString(UPLOAD_ID);
@@ -236,7 +223,11 @@ class PublicationFileApiTest {
       "Calling file-upload/prepare without calling file-upload/create should return statuscode 400"
           + " Bad Request")
   void shouldReturnBadRequestWhenPrepareFileWithoutCreate() {
-    var identifier = IDENTIFIER_MAP.get(PREPARE_PUBLICATION_NO_CREATE_TITLE);
+    var identifier =
+        PUBLICATION_FACTORY
+            .createDraftPublication(UserFixtures.UIB_CREATOR)
+            .jsonPath()
+            .getString(IDENTIFIER);
     var preparePayload = Map.of(NUMBER, "1", UPLOAD_ID, UPLOAD_ID, KEY, KEY, BODY, fileAsString);
 
     givenAuthenticatedJsonRequest(creatorAccessToken)
@@ -252,7 +243,11 @@ class PublicationFileApiTest {
   @Description(
       "Calling file-upload/prepare wrong uploadId should return statuscode 400 Bad Request")
   void shouldReturnBadRequestWhenPrepareFileWithWrongUploadId() {
-    var identifier = IDENTIFIER_MAP.get(PREPARE_PUBLICATION_WRONG_PAYLOAD_TITLE);
+    var identifier =
+        PUBLICATION_FACTORY
+            .createDraftPublication(UserFixtures.UIB_CREATOR)
+            .jsonPath()
+            .getString(IDENTIFIER);
     var createResponse = createFileUpload(identifier);
     var key = createResponse.jsonPath().getString(KEY);
     var uploadId = UPLOAD_ID;
@@ -271,7 +266,11 @@ class PublicationFileApiTest {
   @Description(
       "Calling file-upload/prepare missing uploadId should return statuscode 400 Bad Request")
   void shouldReturnBadRequestWhenPrepareFileWithMissingUploadId() {
-    var identifier = IDENTIFIER_MAP.get(PREPARE_PUBLICATION_WRONG_PAYLOAD_TITLE);
+    var identifier =
+        PUBLICATION_FACTORY
+            .createDraftPublication(UserFixtures.UIB_CREATOR)
+            .jsonPath()
+            .getString(IDENTIFIER);
     var createResponse = createFileUpload(identifier);
     var key = createResponse.jsonPath().getString(KEY);
 
@@ -289,7 +288,11 @@ class PublicationFileApiTest {
   @DisplayName("file-upload/prepare with wrong key")
   @Description("Calling file-upload/prepare wrong key should return statuscode 400 Bad Request")
   void shouldReturnBadRequestWhenPrepareFileWithWrongKey() {
-    var identifier = IDENTIFIER_MAP.get(PREPARE_PUBLICATION_WRONG_PAYLOAD_TITLE);
+    var identifier =
+        PUBLICATION_FACTORY
+            .createDraftPublication(UserFixtures.UIB_CREATOR)
+            .jsonPath()
+            .getString(IDENTIFIER);
     var createResponse = createFileUpload(identifier);
     var uploadId = createResponse.jsonPath().getString(UPLOAD_ID);
     var key = KEY;
@@ -307,7 +310,11 @@ class PublicationFileApiTest {
   @DisplayName("file-upload/prepare with missing key")
   @Description("Calling file-upload/prepare missing key should return statuscode 400 Bad Request")
   void shouldReturnBadRequestWhenPrepareFileWithMissingKey() {
-    var identifier = IDENTIFIER_MAP.get(PREPARE_PUBLICATION_WRONG_PAYLOAD_TITLE);
+    var identifier =
+        PUBLICATION_FACTORY
+            .createDraftPublication(UserFixtures.UIB_CREATOR)
+            .jsonPath()
+            .getString(IDENTIFIER);
     var createResponse = createFileUpload(identifier);
     var uploadId = createResponse.jsonPath().getString(UPLOAD_ID);
     var preparePayload = Map.of(NUMBER, "1", UPLOAD_ID, uploadId, BODY, fileAsString);
@@ -324,7 +331,11 @@ class PublicationFileApiTest {
   @DisplayName("Presigned url")
   @Description("Calling presigned url should return ETag and statuscode 200")
   void shouldReturnEtagInHeaderWhenPostingToPresignedUrl() {
-    var identifier = IDENTIFIER_MAP.get(PRESIGNED_URL_PUBLICATION_TITLE);
+    var identifier =
+        PUBLICATION_FACTORY
+            .createDraftPublication(UserFixtures.UIB_CREATOR)
+            .jsonPath()
+            .getString(IDENTIFIER);
     var uploadUrl = createAndPrepareFileUpload(identifier);
     var presignedPayload = Map.of("data", fileAsString);
 
@@ -351,7 +362,11 @@ class PublicationFileApiTest {
   @DisplayName("file-upload/complete returns file metadata")
   @Description("Calling file-upload/complete should return file metadata and statuscode 200")
   void shouldReturnFileMetaDataWhenCompleteUpload() {
-    var identifier = IDENTIFIER_MAP.get(COMPLETE_PUBLICATION_TITLE);
+    var identifier =
+        PUBLICATION_FACTORY
+            .createDraftPublication(UserFixtures.UIB_CREATOR)
+            .jsonPath()
+            .getString(IDENTIFIER);
     var createResponse = createFileUpload(identifier);
 
     var uploadId = createResponse.jsonPath().getString(UPLOAD_ID);
@@ -387,7 +402,11 @@ class PublicationFileApiTest {
       "Calling file-upload/complete with no authorization should return statuscode 401"
           + " Unauthorized")
   void shouldReturnUnauthorizedWhenCompleteWithoutAuthorization() {
-    var identifier = IDENTIFIER_MAP.get(COMPLETE_PUBLICATION_UNAUTHORIZED_TITLE);
+    var identifier =
+        PUBLICATION_FACTORY
+            .createDraftPublication(UserFixtures.UIB_CREATOR)
+            .jsonPath()
+            .getString(IDENTIFIER);
     var createResponse = createFileUpload(identifier);
 
     var uploadId = createResponse.jsonPath().getString(UPLOAD_ID);
@@ -406,14 +425,18 @@ class PublicationFileApiTest {
   @DisplayName("file-upload/complete with missing ETag")
   @Description("Calling file-upload/complete with missing ETag should return 401 Unauthorized")
   void shouldReturnUnauthorizedWhenCompleteWithMissingETag() {
-    var identifier = IDENTIFIER_MAP.get(COMPLETE_PUBLICATION_UNAUTHORIZED_TITLE);
+    var identifier =
+        PUBLICATION_FACTORY
+            .createDraftPublication(UserFixtures.UIB_CREATOR)
+            .jsonPath()
+            .getString(IDENTIFIER);
     var createResponse = createFileUpload(identifier);
 
     var uploadId = createResponse.jsonPath().getString(UPLOAD_ID);
     var key = createResponse.jsonPath().getString(KEY);
     prepareAndUpload(identifier, uploadId, key);
 
-    givenUnauthenticatedJsonRequest()
+    givenAuthenticatedJsonRequest(creatorAccessToken)
         .body(completePayload(uploadId, key, ""))
         .when()
         .post(fileUploadCompletePath(identifier))
@@ -505,5 +528,11 @@ class PublicationFileApiTest {
         .statusCode(200)
         .extract()
         .response();
+  }
+
+  @AfterEach
+  void removeAttachments() {
+    Allure.getLifecycle()
+        .updateTestCase(testResult -> testResult.setAttachments(new ArrayList<>()));
   }
 }
