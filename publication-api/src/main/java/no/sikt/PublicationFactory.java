@@ -4,7 +4,6 @@ import static java.util.Objects.isNull;
 import static no.sikt.Requests.givenAuthenticatedFormRequestAsUser;
 import static no.sikt.Requests.givenAuthenticatedJsonRequestAsUser;
 
-import io.restassured.RestAssured;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import java.util.ArrayList;
@@ -22,18 +21,6 @@ public class PublicationFactory {
   private static final String DAY =
       Integer.toString(Calendar.getInstance().get(Calendar.DAY_OF_MONTH));
 
-  private static String baseUri;
-
-  public void setBaseUriFromParameterStore() {
-
-    if (isNull(baseUri)) {
-      var value = CognitoLogin.getValueFromParameterStore("/NVA/ApiDomain");
-
-      baseUri = "https://" + value;
-      RestAssured.baseURI = baseUri;
-    }
-  }
-
   private JsonPath loadJsonResource(String resourcePath) {
     var resourceStream = PublicationFactory.class.getResourceAsStream(resourcePath);
     if (isNull(resourceStream)) {
@@ -43,7 +30,6 @@ public class PublicationFactory {
   }
 
   public Response createDraftPublication(User user) {
-    setBaseUriFromParameterStore();
     return givenAuthenticatedFormRequestAsUser(user)
         .post("/publication")
         .then()
@@ -53,7 +39,6 @@ public class PublicationFactory {
   }
 
   public Response updatePublication(User user, Map<String, Object> payload) {
-    setBaseUriFromParameterStore();
     return givenAuthenticatedJsonRequestAsUser(user)
         .body(payload)
         .put("/publication/" + payload.get("identifier"))
@@ -119,7 +104,6 @@ public class PublicationFactory {
   }
 
   public void publish(String curator, String identifier) {
-    setBaseUriFromParameterStore();
     givenAuthenticatedJsonRequestAsUser(curator)
         .post("/publication/" + identifier + "/publish")
         .then()

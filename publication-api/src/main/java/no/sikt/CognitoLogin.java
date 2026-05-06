@@ -88,6 +88,7 @@ public final class CognitoLogin {
     // Get tokens from Cognito
     JsonPath response =
         RestAssured.given()
+            .noFilters()
             .headers(headers)
             .formParams(body)
             .post(String.format("%s/oauth2/token", COGNITO_URI))
@@ -125,6 +126,7 @@ public final class CognitoLogin {
     // Get code
     Response response =
         RestAssured.given()
+            .noFilters()
             .headers(headers)
             .formParams(body)
             .post(url)
