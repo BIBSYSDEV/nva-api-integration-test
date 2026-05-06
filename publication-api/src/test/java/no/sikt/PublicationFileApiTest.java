@@ -71,7 +71,10 @@ class PublicationFileApiTest {
   static void init() {
 
     PUBLICATION_FACTORY.setBaseUriFromParameterStore();
-    RestAssured.filters(new AllureRestAssured());
+    RestAssured.filters(
+        new AllureRestAssured()
+            .setRequestTemplate("sanitized-http-request.ftl")
+            .setResponseTemplate("sanitized-http-response.ftl"));
     var logConfig =
         LogConfig.logConfig()
             .enableLoggingOfRequestAndResponseIfValidationFails()
