@@ -160,7 +160,7 @@ class PublicationApiTest {
 
   @Test
   @DisplayName("Non authorized user tries to delete publication")
-  @Description("A non authorized user calling delete should return 401 Unauhtorized")
+  @Description("A non authorized user calling delete should return 401 Unauthorized")
   void shouldReturnUnauthorizedWhenDeletingWithoutAuthentication() {
     var identifier = IDENTIFIER_MAP.get(UNAUTHORIZED_DELETE_PUBLICATION_TITLE);
 
