@@ -412,7 +412,7 @@ class PublicationFileApiTest extends IntegrationTestBase {
   @Test
   @Disabled // TODO: Fix bug NP-51214
   @DisplayName("file-upload/complete with missing ETag")
-  @Description("Calling file-upload/complete with missing ETag should return 40 bad Request")
+  @Description("Calling file-upload/complete with missing ETag should return 400 Bad Request")
   void shouldReturnUnauthorizedWhenCompleteWithMissingETag() {
     var identifier =
         PUBLICATION_FACTORY
