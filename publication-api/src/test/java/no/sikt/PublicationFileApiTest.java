@@ -104,8 +104,9 @@ class PublicationFileApiTest {
     createDraftTestPublication(COMPLETE_PUBLICATION_MISSING_ETAG_TITLE, UserFixtures.UIB_CREATOR);
 
     try (var resourceStream = PublicationFactory.class.getResourceAsStream("/" + EXAMPLE_FILE)) {
-      fileSize = resourceStream.readAllBytes().length;
-      fileAsString = new String(resourceStream.readAllBytes(), StandardCharsets.UTF_8);
+      var bytes = resourceStream.readAllBytes();
+      fileSize = bytes.length;
+      fileAsString = new String(bytes, StandardCharsets.UTF_8);
     } catch (IOException e) {
       throw new IllegalArgumentException("Could not read file " + EXAMPLE_FILE, e);
     }
