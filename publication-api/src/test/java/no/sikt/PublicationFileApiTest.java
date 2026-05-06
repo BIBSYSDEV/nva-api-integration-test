@@ -9,9 +9,6 @@ import static org.hamcrest.Matchers.startsWith;
 
 import io.qameta.allure.Allure;
 import io.qameta.allure.Description;
-import io.qameta.allure.restassured.AllureRestAssured;
-import io.restassured.RestAssured;
-import io.restassured.config.LogConfig;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import java.io.IOException;
@@ -31,7 +28,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
-class PublicationFileApiTest {
+class PublicationFileApiTest extends IntegrationTestBase {
 
   private static final String URL = "url";
   private static final String PARTS = "parts";
@@ -69,20 +66,7 @@ class PublicationFileApiTest {
 
   @BeforeAll
   static void init() {
-
-    PUBLICATION_FACTORY.setBaseUriFromParameterStore();
-    RestAssured.filters(
-        new AllureRestAssured()
-            .setRequestTemplate("sanitized-http-request.ftl")
-            .setResponseTemplate("sanitized-http-response.ftl"));
-    var logConfig =
-        LogConfig.logConfig()
-            .enableLoggingOfRequestAndResponseIfValidationFails()
-            .blacklistHeaders(List.of("Authorization"));
-    RestAssured.config = RestAssured.config().logConfig(logConfig);
-
     creatorAccessToken = CognitoLogin.login(UserFixtures.UIB_CREATOR.userId()).get("accessToken");
-
     CREATE_PAYLOAD.putAll(createFilePayload());
   }
 
