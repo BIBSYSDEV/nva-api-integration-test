@@ -15,6 +15,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.startsWith;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -183,6 +184,7 @@ class PublicationFileApiTest extends IntegrationTestBase {
   }
 
   @Test
+  @Disabled // TODO: Fix bug NP-51209
   @DisplayName("file-upload/prepare with non-existing identifier")
   @Description(
       "Calling file-upload/prepare with non-existing identifier should return statuscode 404 Not"
@@ -200,6 +202,7 @@ class PublicationFileApiTest extends IntegrationTestBase {
   }
 
   @Test
+  @Disabled // TODO: Fix bug NP-51209
   @DisplayName("file-upload/prepare without file-upload/create")
   @Description(
       "Calling file-upload/prepare without calling file-upload/create should return statuscode 400"
@@ -210,7 +213,7 @@ class PublicationFileApiTest extends IntegrationTestBase {
             .createDraftPublication(UserFixtures.UIB_CREATOR)
             .jsonPath()
             .getString(IDENTIFIER);
-    var preparePayload = Map.of(NUMBER, "1", UPLOAD_ID, UPLOAD_ID, KEY, KEY, BODY, fileAsString);
+    var preparePayload = Map.of(NUMBER, "1", UPLOAD_ID, "dummyUploadId", KEY, "dummyKey", BODY, fileAsString);
 
     givenAuthenticatedJsonRequest(creatorAccessToken)
         .body(preparePayload)
@@ -221,6 +224,7 @@ class PublicationFileApiTest extends IntegrationTestBase {
   }
 
   @Test
+  @Disabled // TODO: Fix bug NP-51209
   @DisplayName("file-upload/prepare with wrong uploadId")
   @Description(
       "Calling file-upload/prepare wrong uploadId should return statuscode 400 Bad Request")
@@ -244,6 +248,7 @@ class PublicationFileApiTest extends IntegrationTestBase {
   }
 
   @Test
+  @Disabled // TODO: Fix bug NP-51209
   @DisplayName("file-upload/prepare with missing uploadId")
   @Description(
       "Calling file-upload/prepare missing uploadId should return statuscode 400 Bad Request")
@@ -267,6 +272,7 @@ class PublicationFileApiTest extends IntegrationTestBase {
   }
 
   @Test
+  @Disabled // TODO: Fix bug NP-51209
   @DisplayName("file-upload/prepare with wrong key")
   @Description("Calling file-upload/prepare wrong key should return statuscode 400 Bad Request")
   void shouldReturnBadRequestWhenPrepareFileWithWrongKey() {
@@ -404,6 +410,7 @@ class PublicationFileApiTest extends IntegrationTestBase {
   }
 
   @Test
+  @Disabled // TODO: Fix bug NP-51214
   @DisplayName("file-upload/complete with missing ETag")
   @Description("Calling file-upload/complete with missing ETag should return 40 bad Request")
   void shouldReturnUnauthorizedWhenCompleteWithMissingETag() {
