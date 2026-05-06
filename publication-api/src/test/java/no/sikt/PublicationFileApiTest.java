@@ -1,15 +1,5 @@
 package no.sikt;
 
-import static io.restassured.RestAssured.given;
-import static no.sikt.Requests.givenAuthenticatedJsonRequest;
-import static no.sikt.Requests.givenUnauthenticatedJsonRequest;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.startsWith;
-
-import io.qameta.allure.Description;
-import io.restassured.http.ContentType;
-import io.restassured.response.Response;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -20,9 +10,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.startsWith;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+import io.qameta.allure.Description;
+import static io.restassured.RestAssured.given;
+import io.restassured.http.ContentType;
+import io.restassured.response.Response;
+import static no.sikt.Requests.givenAuthenticatedJsonRequest;
+import static no.sikt.Requests.givenUnauthenticatedJsonRequest;
 
 @SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
 class PublicationFileApiTest extends IntegrationTestBase {
@@ -404,7 +405,7 @@ class PublicationFileApiTest extends IntegrationTestBase {
 
   @Test
   @DisplayName("file-upload/complete with missing ETag")
-  @Description("Calling file-upload/complete with missing ETag should return 401 Unauthorized")
+  @Description("Calling file-upload/complete with missing ETag should return 40 bad Request")
   void shouldReturnUnauthorizedWhenCompleteWithMissingETag() {
     var identifier =
         PUBLICATION_FACTORY
@@ -422,7 +423,7 @@ class PublicationFileApiTest extends IntegrationTestBase {
         .when()
         .post(fileUploadCompletePath(identifier))
         .then()
-        .statusCode(401);
+        .statusCode(400);
   }
 
   // TODO needed for delete tests
