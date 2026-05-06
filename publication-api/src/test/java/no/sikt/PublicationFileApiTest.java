@@ -7,7 +7,6 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.startsWith;
 
-import io.qameta.allure.Allure;
 import io.qameta.allure.Description;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
@@ -17,12 +16,10 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -510,12 +507,5 @@ class PublicationFileApiTest extends IntegrationTestBase {
         .statusCode(200)
         .extract()
         .response();
-  }
-
-  // Removes attachments from Allure report so as to not expose headers
-  @AfterEach
-  void removeAttachments() {
-    Allure.getLifecycle()
-        .updateTestCase(testResult -> testResult.setAttachments(new ArrayList<>()));
   }
 }
