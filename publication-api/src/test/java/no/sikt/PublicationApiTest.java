@@ -8,7 +8,6 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.startsWith;
 
-import io.qameta.allure.Allure;
 import io.qameta.allure.Description;
 import io.qameta.allure.restassured.AllureRestAssured;
 import io.restassured.RestAssured;
@@ -17,12 +16,10 @@ import io.restassured.http.ContentType;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -59,7 +56,10 @@ class PublicationApiTest {
   static void init() {
 
     PUBLICATION_FACTORY.setBaseUriFromParameterStore();
-    RestAssured.filters(new AllureRestAssured());
+    RestAssured.filters(
+        new AllureRestAssured()
+            .setRequestTemplate("sanitized-http-request.ftl")
+            .setResponseTemplate("sanitized-http-response.ftl"));
     customerUib = RestAssured.baseURI + "/customer/a228aba6-932b-4f53-b2de-31ad8daf9f8d";
     var logConfig =
         LogConfig.logConfig()
@@ -228,11 +228,5 @@ class PublicationApiTest {
         .statusCode(400)
         .body("title", equalTo("Bad Request"))
         .body("detail", equalTo("Resource is not publishable!"));
-  }
-
-  @AfterEach
-  void removeAttachments() {
-    Allure.getLifecycle()
-        .updateTestCase(testResult -> testResult.setAttachments(new ArrayList<>()));
   }
 }
