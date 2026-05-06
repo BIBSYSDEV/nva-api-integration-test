@@ -171,8 +171,8 @@ class PublicationFileApiTest {
   }
 
   @Test
-  @DisplayName("file-upload/prepare returns presigned url")
-  @Description("Calling file-upload/prepare shoul return presigned url and statuscode 200 Ok")
+  @DisplayName("file-upload/prepare returns presigned URL")
+  @Description("Calling file-upload/prepare should return presigned URL and status code 200 OK")
   void shouldReturnUploadUrlWhenPrepareFile() {
     var identifier = IDENTIFIER_MAP.get(PREPARE_PUBLICATION_TITLE);
     var createResponse = createFileUpload(identifier);
