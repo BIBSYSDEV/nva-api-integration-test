@@ -1,5 +1,19 @@
 package no.sikt;
 
+import static io.restassured.RestAssured.given;
+import static no.sikt.Requests.givenAuthenticatedJsonRequest;
+import static no.sikt.Requests.givenUnauthenticatedJsonRequest;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.startsWith;
+
+import io.qameta.allure.Allure;
+import io.qameta.allure.Description;
+import io.qameta.allure.restassured.AllureRestAssured;
+import io.restassured.RestAssured;
+import io.restassured.config.LogConfig;
+import io.restassured.http.ContentType;
+import io.restassured.response.Response;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -11,25 +25,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.startsWith;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import io.qameta.allure.Allure;
-import io.qameta.allure.Description;
-import io.qameta.allure.restassured.AllureRestAssured;
-import io.restassured.RestAssured;
-import static io.restassured.RestAssured.given;
-import io.restassured.config.LogConfig;
-import io.restassured.http.ContentType;
-import io.restassured.response.Response;
-import static no.sikt.Requests.givenAuthenticatedJsonRequest;
-import static no.sikt.Requests.givenUnauthenticatedJsonRequest;
 
 @SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
 class PublicationFileApiTest {
@@ -53,9 +52,20 @@ class PublicationFileApiTest {
 
   private static String creatorAccessToken;
   private static String fileAsString;
-  private static int fileSize;
 
   private static final Map<String, Object> CREATE_PAYLOAD = new HashMap<>();
+
+  private static Map<String, Object> createFilePayload() {
+    try (var resourceStream = PublicationFactory.class.getResourceAsStream("/" + EXAMPLE_FILE)) {
+      var bytes = resourceStream.readAllBytes();
+      var fileSize = bytes.length;
+      fileAsString = new String(bytes, StandardCharsets.UTF_8);
+      return Map.of(
+          "size", Integer.toString(fileSize), MIMETYPE, TEXT_PLAIN, FILE_NAME, EXAMPLE_FILE);
+    } catch (IOException e) {
+      throw new IllegalArgumentException("Could not read file " + EXAMPLE_FILE, e);
+    }
+  }
 
   @BeforeAll
   static void init() {
@@ -70,16 +80,7 @@ class PublicationFileApiTest {
 
     creatorAccessToken = CognitoLogin.login(UserFixtures.UIB_CREATOR.userId()).get("accessToken");
 
-    try (var resourceStream = PublicationFactory.class.getResourceAsStream("/" + EXAMPLE_FILE)) {
-      var bytes = resourceStream.readAllBytes();
-      fileSize = bytes.length;
-      fileAsString = new String(bytes, StandardCharsets.UTF_8);
-    } catch (IOException e) {
-      throw new IllegalArgumentException("Could not read file " + EXAMPLE_FILE, e);
-    }
-
-    CREATE_PAYLOAD.putAll(
-        Map.of("size", Integer.toString(fileSize), MIMETYPE, TEXT_PLAIN, FILE_NAME, EXAMPLE_FILE));
+    CREATE_PAYLOAD.putAll(createFilePayload());
   }
 
   private String fileUploadCreatePath(String identifier) {
@@ -131,11 +132,7 @@ class PublicationFileApiTest {
       "Calling file-upload/create with non-existing identifier should return statuscode 404 Not"
           + " Found")
   void shouldReturnNotFoundWhenCreateWithNonExistingIdentifier() {
-    var identifier =
-        PUBLICATION_FACTORY
-            .createDraftPublication(UserFixtures.UIB_CREATOR)
-            .jsonPath()
-            .getString(IDENTIFIER);
+    var identifier = UUID.randomUUID().toString();
 
     givenAuthenticatedJsonRequest(creatorAccessToken)
         .body(CREATE_PAYLOAD)
@@ -517,11 +514,9 @@ class PublicationFileApiTest {
   }
 
   private Response createFileUpload(String identifier) {
-    var createPayload =
-        Map.of("size", Integer.toString(fileSize), MIMETYPE, TEXT_PLAIN, FILE_NAME, EXAMPLE_FILE);
 
     return givenAuthenticatedJsonRequest(creatorAccessToken)
-        .body(createPayload)
+        .body(CREATE_PAYLOAD)
         .when()
         .post(fileUploadCreatePath(identifier))
         .then()
@@ -530,6 +525,7 @@ class PublicationFileApiTest {
         .response();
   }
 
+  // Removes attachments from Allure report so as to not expose headers
   @AfterEach
   void removeAttachments() {
     Allure.getLifecycle()
