@@ -1,5 +1,15 @@
 package no.sikt;
 
+import static io.restassured.RestAssured.given;
+import static no.sikt.Requests.givenAuthenticatedJsonRequest;
+import static no.sikt.Requests.givenUnauthenticatedJsonRequest;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.startsWith;
+
+import io.qameta.allure.Description;
+import io.restassured.http.ContentType;
+import io.restassured.response.Response;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -10,21 +20,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.startsWith;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import io.qameta.allure.Description;
-import static io.restassured.RestAssured.given;
-import io.restassured.http.ContentType;
-import io.restassured.response.Response;
-import static no.sikt.Requests.givenAuthenticatedJsonRequest;
-import static no.sikt.Requests.givenUnauthenticatedJsonRequest;
 
 @SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
 class PublicationFileApiTest extends IntegrationTestBase {
@@ -213,7 +212,8 @@ class PublicationFileApiTest extends IntegrationTestBase {
             .createDraftPublication(UserFixtures.UIB_CREATOR)
             .jsonPath()
             .getString(IDENTIFIER);
-    var preparePayload = Map.of(NUMBER, "1", UPLOAD_ID, "dummyUploadId", KEY, "dummyKey", BODY, fileAsString);
+    var preparePayload =
+        Map.of(NUMBER, "1", UPLOAD_ID, "dummyUploadId", KEY, "dummyKey", BODY, fileAsString);
 
     givenAuthenticatedJsonRequest(creatorAccessToken)
         .body(preparePayload)
