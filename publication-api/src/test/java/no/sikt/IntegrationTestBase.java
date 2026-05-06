@@ -10,7 +10,7 @@ class IntegrationTestBase {
 
   @BeforeAll
   static void configureRestAssured() {
-    new PublicationFactory().setBaseUriFromParameterStore();
+    RestAssured.baseURI = "https://" + CognitoLogin.getValueFromParameterStore("/NVA/ApiDomain");
     RestAssured.replaceFiltersWith(
         new AllureRestAssured()
             .setRequestTemplate("sanitized-http-request.ftl")
