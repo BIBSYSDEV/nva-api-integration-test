@@ -9,9 +9,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.startsWith;
 
 import io.qameta.allure.Description;
-import io.qameta.allure.restassured.AllureRestAssured;
 import io.restassured.RestAssured;
-import io.restassured.config.LogConfig;
 import io.restassured.http.ContentType;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -25,7 +23,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
-class PublicationApiTest {
+class PublicationApiTest extends IntegrationTestBase {
 
   private static final Map<String, String> IDENTIFIER_MAP = new HashMap<>();
 
@@ -55,17 +53,7 @@ class PublicationApiTest {
   @BeforeAll
   static void init() {
 
-    PUBLICATION_FACTORY.setBaseUriFromParameterStore();
-    RestAssured.filters(
-        new AllureRestAssured()
-            .setRequestTemplate("sanitized-http-request.ftl")
-            .setResponseTemplate("sanitized-http-response.ftl"));
     customerUib = RestAssured.baseURI + "/customer/a228aba6-932b-4f53-b2de-31ad8daf9f8d";
-    var logConfig =
-        LogConfig.logConfig()
-            .enableLoggingOfRequestAndResponseIfValidationFails()
-            .blacklistHeaders(List.of("Authorization"));
-    RestAssured.config = RestAssured.config().logConfig(logConfig);
 
     creatorAccessToken = CognitoLogin.login(UserFixtures.UIB_CREATOR.userId()).get("accessToken");
     curatorAccessToken =
