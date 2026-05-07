@@ -1,19 +1,24 @@
-package no.sikt;
+package no.sikt.publication.identifier;
 
-import static io.restassured.RestAssured.given;
-import static no.sikt.Requests.givenAuthenticatedJsonRequest;
-import static org.hamcrest.Matchers.equalTo;
-
-import io.qameta.allure.Description;
-import io.restassured.RestAssured;
-import io.restassured.http.ContentType;
 import java.util.UUID;
+
+import static org.hamcrest.Matchers.equalTo;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import io.qameta.allure.Description;
+import io.restassured.RestAssured;
+import static io.restassured.RestAssured.given;
+import io.restassured.http.ContentType;
+import no.sikt.Affiliation;
+import no.sikt.CognitoLogin;
+import static no.sikt.Requests.givenAuthenticatedJsonRequest;
+import no.sikt.UserFixtures;
+import no.sikt.publication.IntegrationTestBase;
+
 @SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
-class PublicationFetchApiTest extends IntegrationTestBase {
+class FetchApiTest extends IntegrationTestBase {
 
   private static final String IDENTIFIER = "identifier";
   private static final String RESOURCE_OWNER = "resourceOwner";
@@ -28,14 +33,12 @@ class PublicationFetchApiTest extends IntegrationTestBase {
 
   @Test
   @DisplayName("Fetch publication by identifier")
-  @Description(
-      "Fetch publication by identifier should return publication metadata and statuscode 200 Ok")
+  @Description("Fetch publication by identifier should return publication metadata and statuscode 200 Ok")
   void shouldReturnDraftPublicationWhenFetchedByIdentifier() {
-    var identifier =
-        PUBLICATION_FACTORY
-            .createDraftPublication(UserFixtures.UIB_CREATOR)
-            .jsonPath()
-            .getString(IDENTIFIER);
+    var identifier = PUBLICATION_FACTORY
+        .createDraftPublication(UserFixtures.UIB_CREATOR)
+        .jsonPath()
+        .getString(IDENTIFIER);
 
     given()
         .accept(ContentType.JSON)

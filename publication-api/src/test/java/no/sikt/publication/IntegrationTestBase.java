@@ -1,15 +1,19 @@
-package no.sikt;
+package no.sikt.publication;
+
+import java.util.List;
+
+import org.junit.jupiter.api.BeforeAll;
 
 import io.qameta.allure.restassured.AllureRestAssured;
 import io.restassured.RestAssured;
 import io.restassured.config.LogConfig;
-import java.util.List;
-import org.junit.jupiter.api.BeforeAll;
+import no.sikt.CognitoLogin;
+import no.sikt.PublicationFactory;
 
-class IntegrationTestBase {
+public class IntegrationTestBase {
 
-  /* default */ static final String PUBLICATION_PATH = "/publication/";
-  /* default */ static final PublicationFactory PUBLICATION_FACTORY = new PublicationFactory();
+  public static final String PUBLICATION_PATH = "/publication/";
+  public static final PublicationFactory PUBLICATION_FACTORY = new PublicationFactory();
 
   @BeforeAll
   static void configureRestAssured() {
