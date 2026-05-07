@@ -1,4 +1,4 @@
-package no.sikt;
+package no.sikt.nva.apitest.base;
 
 import static java.util.Objects.nonNull;
 import static org.hamcrest.Matchers.stringContainsInOrder;

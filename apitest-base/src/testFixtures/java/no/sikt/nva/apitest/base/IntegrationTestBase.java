@@ -1,4 +1,4 @@
-package no.sikt;
+package no.sikt.nva.apitest.base;
 
 import io.qameta.allure.restassured.AllureRestAssured;
 import io.restassured.RestAssured;
@@ -6,7 +6,7 @@ import io.restassured.config.LogConfig;
 import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
 
-class IntegrationTestBase {
+public class IntegrationTestBase {
 
   @BeforeAll
   static void configureRestAssured() {

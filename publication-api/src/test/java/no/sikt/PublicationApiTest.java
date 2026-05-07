@@ -1,9 +1,9 @@
 package no.sikt;
 
 import static io.restassured.RestAssured.given;
-import static no.sikt.Requests.givenAuthenticatedJsonRequest;
-import static no.sikt.Requests.givenAuthenticatedRequest;
-import static no.sikt.Requests.givenUnauthenticatedJsonRequest;
+import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequest;
+import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedRequest;
+import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.startsWith;
@@ -18,12 +18,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import no.sikt.nva.apitest.base.Affiliation;
+import no.sikt.nva.apitest.base.CognitoLogin;
+import no.sikt.nva.apitest.base.User;
+import no.sikt.nva.apitest.base.UserFixtures;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
-class PublicationApiTest extends IntegrationTestBase {
+class PublicationApiTest extends no.sikt.nva.apitest.base.IntegrationTestBase {
 
   private static final Map<String, String> IDENTIFIER_MAP = new HashMap<>();
 

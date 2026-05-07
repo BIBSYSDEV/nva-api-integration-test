@@ -1,8 +1,8 @@
 package no.sikt;
 
 import static java.util.Objects.isNull;
-import static no.sikt.Requests.givenAuthenticatedFormRequestAsUser;
-import static no.sikt.Requests.givenAuthenticatedJsonRequestAsUser;
+import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedFormRequestAsUser;
+import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
 
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import no.sikt.nva.apitest.base.User;
 
 public class PublicationFactory {
 
