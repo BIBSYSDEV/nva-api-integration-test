@@ -1,22 +1,21 @@
-package no.sikt.publication.identifier;
+package no.sikt.nva.apitest.publication.identifier;
 
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
+import static no.sikt.Requests.givenAuthenticatedJsonRequest;
+import static no.sikt.Requests.givenAuthenticatedRequest;
 import static org.hamcrest.Matchers.equalTo;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 
 import io.qameta.allure.Description;
 import io.restassured.http.ContentType;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import no.sikt.Category;
 import no.sikt.CognitoLogin;
-import static no.sikt.Requests.givenAuthenticatedJsonRequest;
-import static no.sikt.Requests.givenAuthenticatedRequest;
 import no.sikt.UserFixtures;
-import no.sikt.publication.IntegrationTestBase;
+import no.sikt.nva.apitest.publication.IntegrationTestBase;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 @SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
 class PublishApiTest extends IntegrationTestBase {
@@ -39,8 +38,9 @@ class PublishApiTest extends IntegrationTestBase {
     Map<String, Object> responseBody = createResponse.body().jsonPath().getMap("");
 
     String publishPublicationTitle = "Integration test publication " + UUID.randomUUID();
-    Map<String, ?> entityDescription = PUBLICATION_FACTORY.createEntityDescription(
-        publishPublicationTitle, Category.ACADEMIC_ARTICLE, List.of(UserFixtures.UIB_CREATOR));
+    Map<String, ?> entityDescription =
+        PUBLICATION_FACTORY.createEntityDescription(
+            publishPublicationTitle, Category.ACADEMIC_ARTICLE, List.of(UserFixtures.UIB_CREATOR));
     responseBody.put("entityDescription", entityDescription);
 
     PUBLICATION_FACTORY.updatePublication(UserFixtures.UIB_CREATOR, responseBody);
@@ -57,10 +57,11 @@ class PublishApiTest extends IntegrationTestBase {
   @DisplayName("Publish incomplete publication")
   @Description("Publishing an incomplete publication should return 400 Bad Request")
   void shouldRejectPublishWhenMetadataIsIncomplete() {
-    var identifier = PUBLICATION_FACTORY
-        .createDraftPublication(UserFixtures.UIB_CREATOR)
-        .jsonPath()
-        .getString(IDENTIFIER);
+    var identifier =
+        PUBLICATION_FACTORY
+            .createDraftPublication(UserFixtures.UIB_CREATOR)
+            .jsonPath()
+            .getString(IDENTIFIER);
 
     givenAuthenticatedJsonRequest(curatorAccessToken)
         .when()

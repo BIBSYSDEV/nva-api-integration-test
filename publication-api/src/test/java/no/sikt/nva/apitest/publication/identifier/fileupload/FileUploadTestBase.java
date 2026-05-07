@@ -1,23 +1,21 @@
-package no.sikt.publication.identifier.fileUpload;
+package no.sikt.nva.apitest.publication.identifier.fileupload;
 
+import static io.restassured.RestAssured.given;
+import static no.sikt.Requests.givenAuthenticatedJsonRequest;
+
+import com.google.common.annotations.VisibleForTesting;
+import io.restassured.http.ContentType;
+import io.restassured.response.Response;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.junit.jupiter.api.BeforeAll;
-
-import com.google.common.annotations.VisibleForTesting;
-
-import static io.restassured.RestAssured.given;
-import io.restassured.http.ContentType;
-import io.restassured.response.Response;
 import no.sikt.CognitoLogin;
 import no.sikt.PublicationFactory;
-import static no.sikt.Requests.givenAuthenticatedJsonRequest;
 import no.sikt.UserFixtures;
-import no.sikt.publication.IntegrationTestBase;
+import no.sikt.nva.apitest.publication.IntegrationTestBase;
+import org.junit.jupiter.api.BeforeAll;
 
 public class FileUploadTestBase extends IntegrationTestBase {
 
@@ -81,15 +79,16 @@ public class FileUploadTestBase extends IntegrationTestBase {
   @SuppressWarnings("unused")
   public Response completeUpload(String identifier, String uploadId, String key, String eTag) {
     Map<String, Object> parts = Map.of("etag", eTag, "partNumber", "1");
-    Map<String, Object> completePayload = Map.of(
-        UPLOAD_ID,
-        uploadId,
-        KEY,
-        key,
-        TYPE,
-        "InternalCompleteUpload",
-        PARTS,
-        new Object[] { parts });
+    Map<String, Object> completePayload =
+        Map.of(
+            UPLOAD_ID,
+            uploadId,
+            KEY,
+            key,
+            TYPE,
+            "InternalCompleteUpload",
+            PARTS,
+            new Object[] {parts});
 
     return givenAuthenticatedJsonRequest(creatorAccessToken)
         .body(completePayload)
@@ -118,16 +117,17 @@ public class FileUploadTestBase extends IntegrationTestBase {
 
   public String prepareFileUpload(String identifier, String uploadId, String key) {
     var preparePayload = Map.of(NUMBER, "1", UPLOAD_ID, uploadId, KEY, key, BODY, fileAsString);
-    var url = givenAuthenticatedJsonRequest(creatorAccessToken)
-        .body(preparePayload)
-        .when()
-        .post(fileUploadPreparePath(identifier))
-        .then()
-        .statusCode(200)
-        .extract()
-        .response()
-        .jsonPath()
-        .getString(URL);
+    var url =
+        givenAuthenticatedJsonRequest(creatorAccessToken)
+            .body(preparePayload)
+            .when()
+            .post(fileUploadPreparePath(identifier))
+            .then()
+            .statusCode(200)
+            .extract()
+            .response()
+            .jsonPath()
+            .getString(URL);
 
     return URLDecoder.decode(url, StandardCharsets.UTF_8);
   }

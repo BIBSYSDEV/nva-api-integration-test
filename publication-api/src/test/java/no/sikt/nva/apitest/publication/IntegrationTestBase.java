@@ -1,14 +1,12 @@
-package no.sikt.publication;
-
-import java.util.List;
-
-import org.junit.jupiter.api.BeforeAll;
+package no.sikt.nva.apitest.publication;
 
 import io.qameta.allure.restassured.AllureRestAssured;
 import io.restassured.RestAssured;
 import io.restassured.config.LogConfig;
+import java.util.List;
 import no.sikt.CognitoLogin;
 import no.sikt.PublicationFactory;
+import org.junit.jupiter.api.BeforeAll;
 
 public class IntegrationTestBase {
 

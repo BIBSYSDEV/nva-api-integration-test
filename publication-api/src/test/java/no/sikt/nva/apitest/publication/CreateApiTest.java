@@ -1,23 +1,22 @@
-package no.sikt.publication;
+package no.sikt.nva.apitest.publication;
 
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-
+import static no.sikt.Requests.givenAuthenticatedRequest;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.startsWith;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 
 import io.qameta.allure.Description;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import no.sikt.Affiliation;
 import no.sikt.CognitoLogin;
-import static no.sikt.Requests.givenAuthenticatedRequest;
 import no.sikt.UserFixtures;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 @SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
 class CreateApiTest extends IntegrationTestBase {
@@ -38,10 +37,12 @@ class CreateApiTest extends IntegrationTestBase {
 
   @Test
   @DisplayName("Creator create draft publication")
-  @Description("A Creator calling create publication should return publication metadata and statuscode 201"
-      + " Created")
+  @Description(
+      "A Creator calling create publication should return publication metadata and statuscode 201"
+          + " Created")
   void shouldCreateDraftPublicationOwnedByCreator() {
-    var today = LocalDate.now(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+    var today =
+        LocalDate.now(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
     givenAuthenticatedRequest(creatorAccessToken)
         .accept(ContentType.JSON)

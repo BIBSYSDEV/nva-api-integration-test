@@ -1,18 +1,17 @@
-package no.sikt.publication.identifier;
+package no.sikt.nva.apitest.publication.identifier;
 
-import java.util.UUID;
-
+import static no.sikt.Requests.givenAuthenticatedRequest;
+import static no.sikt.Requests.givenUnauthenticatedJsonRequest;
 import static org.hamcrest.Matchers.equalTo;
+
+import io.qameta.allure.Description;
+import java.util.UUID;
+import no.sikt.CognitoLogin;
+import no.sikt.UserFixtures;
+import no.sikt.nva.apitest.publication.IntegrationTestBase;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import io.qameta.allure.Description;
-import no.sikt.CognitoLogin;
-import static no.sikt.Requests.givenAuthenticatedRequest;
-import static no.sikt.Requests.givenUnauthenticatedJsonRequest;
-import no.sikt.UserFixtures;
-import no.sikt.publication.IntegrationTestBase;
 
 @SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
 class DeleteApiTest extends IntegrationTestBase {
@@ -29,10 +28,11 @@ class DeleteApiTest extends IntegrationTestBase {
   @DisplayName("Delete draft publication")
   @Description("A Creator calling delete on own publication should return 202 Accepted")
   void shouldDeleteDraftWhenRequestedByOwner() {
-    var identifier = PUBLICATION_FACTORY
-        .createDraftPublication(UserFixtures.UIB_CREATOR)
-        .jsonPath()
-        .getString(IDENTIFIER);
+    var identifier =
+        PUBLICATION_FACTORY
+            .createDraftPublication(UserFixtures.UIB_CREATOR)
+            .jsonPath()
+            .getString(IDENTIFIER);
 
     givenAuthenticatedRequest(creatorAccessToken)
         .when()
@@ -57,10 +57,11 @@ class DeleteApiTest extends IntegrationTestBase {
   @DisplayName("Non authorized user tries to delete publication")
   @Description("A non authorized user calling delete should return 401 Unauthorized")
   void shouldReturnUnauthorizedWhenDeletingWithoutAuthentication() {
-    var identifier = PUBLICATION_FACTORY
-        .createDraftPublication(UserFixtures.UIB_CREATOR)
-        .jsonPath()
-        .getString(IDENTIFIER);
+    var identifier =
+        PUBLICATION_FACTORY
+            .createDraftPublication(UserFixtures.UIB_CREATOR)
+            .jsonPath()
+            .getString(IDENTIFIER);
 
     givenUnauthenticatedJsonRequest()
         .when()

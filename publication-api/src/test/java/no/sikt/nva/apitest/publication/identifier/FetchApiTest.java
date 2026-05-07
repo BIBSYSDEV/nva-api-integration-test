@@ -1,21 +1,20 @@
-package no.sikt.publication.identifier;
+package no.sikt.nva.apitest.publication.identifier;
 
-import java.util.UUID;
-
+import static io.restassured.RestAssured.given;
+import static no.sikt.Requests.givenAuthenticatedJsonRequest;
 import static org.hamcrest.Matchers.equalTo;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 
 import io.qameta.allure.Description;
 import io.restassured.RestAssured;
-import static io.restassured.RestAssured.given;
 import io.restassured.http.ContentType;
+import java.util.UUID;
 import no.sikt.Affiliation;
 import no.sikt.CognitoLogin;
-import static no.sikt.Requests.givenAuthenticatedJsonRequest;
 import no.sikt.UserFixtures;
-import no.sikt.publication.IntegrationTestBase;
+import no.sikt.nva.apitest.publication.IntegrationTestBase;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 @SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
 class FetchApiTest extends IntegrationTestBase {
@@ -33,12 +32,14 @@ class FetchApiTest extends IntegrationTestBase {
 
   @Test
   @DisplayName("Fetch publication by identifier")
-  @Description("Fetch publication by identifier should return publication metadata and statuscode 200 Ok")
+  @Description(
+      "Fetch publication by identifier should return publication metadata and statuscode 200 Ok")
   void shouldReturnDraftPublicationWhenFetchedByIdentifier() {
-    var identifier = PUBLICATION_FACTORY
-        .createDraftPublication(UserFixtures.UIB_CREATOR)
-        .jsonPath()
-        .getString(IDENTIFIER);
+    var identifier =
+        PUBLICATION_FACTORY
+            .createDraftPublication(UserFixtures.UIB_CREATOR)
+            .jsonPath()
+            .getString(IDENTIFIER);
 
     given()
         .accept(ContentType.JSON)
