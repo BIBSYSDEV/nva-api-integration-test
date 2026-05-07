@@ -1,6 +1,6 @@
 package no.sikt.nva.apitest.publication;
 
-import static no.sikt.Requests.givenAuthenticatedRequest;
+import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedRequest;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.startsWith;
@@ -11,15 +11,15 @@ import io.restassured.http.ContentType;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import no.sikt.Affiliation;
-import no.sikt.CognitoLogin;
-import no.sikt.UserFixtures;
+import no.sikt.nva.apitest.base.Affiliation;
+import no.sikt.nva.apitest.base.CognitoLogin;
+import no.sikt.nva.apitest.base.UserFixtures;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
-class CreateApiTest extends IntegrationTestBase {
+class CreateApiTest extends PublicationTestBase {
 
   private static String customerUib;
   private static String creatorAccessToken;

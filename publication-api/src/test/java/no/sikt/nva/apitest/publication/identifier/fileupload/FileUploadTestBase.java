@@ -1,9 +1,8 @@
 package no.sikt.nva.apitest.publication.identifier.fileupload;
 
 import static io.restassured.RestAssured.given;
-import static no.sikt.Requests.givenAuthenticatedJsonRequest;
+import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequest;
 
-import com.google.common.annotations.VisibleForTesting;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import java.io.IOException;
@@ -11,13 +10,13 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
-import no.sikt.CognitoLogin;
 import no.sikt.PublicationFactory;
-import no.sikt.UserFixtures;
-import no.sikt.nva.apitest.publication.IntegrationTestBase;
+import no.sikt.nva.apitest.base.CognitoLogin;
+import no.sikt.nva.apitest.base.UserFixtures;
+import no.sikt.nva.apitest.publication.PublicationTestBase;
 import org.junit.jupiter.api.BeforeAll;
 
-public class FileUploadTestBase extends IntegrationTestBase {
+public class FileUploadTestBase extends PublicationTestBase {
 
   private static final String URL = "url";
   private static final String PARTS = "parts";
@@ -100,7 +99,6 @@ public class FileUploadTestBase extends IntegrationTestBase {
         .response();
   }
 
-  @VisibleForTesting
   public Response uploadToPresignedUrl(String uploadUrl) {
     Map<String, Object> presignedPayload = Map.of("data", fileAsString);
     return given()

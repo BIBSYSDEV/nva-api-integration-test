@@ -1,3 +1,16 @@
 plugins {
     id 'nva.api.integration.testing.java-conventions'
 }
+
+dependencies {
+    testFixturesApi(libs.rest.assured.core)
+    testFixturesApi(project(':apitest-base'))
+    testFixturesApi(testFixtures(project(':apitest-base')))
+    testFixturesImplementation(libs.rest.assured.json.path)
+    testImplementation(libs.allure.java.commons)
+    testImplementation(nvaCatalog.hamcrest)
+    testImplementation(nvaCatalog.junit.jupiter.api)
+    testImplementation(testFixtures(project(':apitest-base')))
+    testRuntimeOnly(nvaCatalog.junit.jupiter.engine)
+    testRuntimeOnly(nvaCatalog.junit.platform.launcher)
+}

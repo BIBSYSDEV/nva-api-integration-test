@@ -1,11 +1,11 @@
 package no.sikt.nva.apitest.publication.identifier.fileupload;
 
-import static no.sikt.Requests.givenUnauthenticatedJsonRequest;
+import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
 import static org.hamcrest.Matchers.notNullValue;
 
 import io.qameta.allure.Description;
 import java.util.Map;
-import no.sikt.UserFixtures;
+import no.sikt.nva.apitest.base.UserFixtures;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

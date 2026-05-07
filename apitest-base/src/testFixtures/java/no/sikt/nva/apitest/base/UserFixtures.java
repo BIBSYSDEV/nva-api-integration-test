@@ -1,4 +1,4 @@
-package no.sikt;
+package no.sikt.nva.apitest.base;
 
 public final class UserFixtures {
   public static final User UIB_CREATOR =

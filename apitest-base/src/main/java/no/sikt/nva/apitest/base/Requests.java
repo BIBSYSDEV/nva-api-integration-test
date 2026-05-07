@@ -1,4 +1,4 @@
-package no.sikt;
+package no.sikt.nva.apitest.base;
 
 import static io.restassured.RestAssured.given;
 import static org.apache.http.HttpHeaders.AUTHORIZATION;

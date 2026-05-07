@@ -1,4 +1,4 @@
-package no.sikt;
+package no.sikt.nva.apitest.base;
 
 import java.util.Collection;
 import java.util.List;

@@ -1,0 +1,25 @@
+plugins {
+    id 'nva.api.integration.testing.java-conventions'
+}
+
+dependencies {
+    api(libs.rest.assured.core)
+    implementation('software.amazon.awssdk:aws-core')
+    implementation('software.amazon.awssdk:regions')
+    implementation('software.amazon.awssdk:secretsmanager')
+    implementation('software.amazon.awssdk:ssm')
+    implementation(libs.rest.assured.json.path)
+    implementation(nvaCatalog.hamcrest)
+    implementation(nvaCatalog.httpcore4)
+    runtimeOnly('software.amazon.awssdk:sso')
+    runtimeOnly('software.amazon.awssdk:ssooidc')
+    runtimeOnly(nvaCatalog.jackson.core)
+    runtimeOnly(nvaCatalog.jackson.databind)
+    testFixturesAnnotationProcessor(nvaCatalog.errorprone)
+    testFixturesImplementation(libs.allure.rest.assured)
+    testFixturesImplementation(nvaCatalog.junit.jupiter.api)
+    testFixturesRuntimeOnly(libs.allure.java.commons)
+    testFixturesRuntimeOnly(libs.allure.junit5)
+    testFixturesRuntimeOnly(nvaCatalog.junit.jupiter.engine)
+    testFixturesRuntimeOnly(nvaCatalog.junit.platform.launcher)
+}

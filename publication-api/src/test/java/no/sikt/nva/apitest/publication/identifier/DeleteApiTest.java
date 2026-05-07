@@ -1,20 +1,20 @@
 package no.sikt.nva.apitest.publication.identifier;
 
-import static no.sikt.Requests.givenAuthenticatedRequest;
-import static no.sikt.Requests.givenUnauthenticatedJsonRequest;
+import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedRequest;
+import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
 import static org.hamcrest.Matchers.equalTo;
 
 import io.qameta.allure.Description;
 import java.util.UUID;
-import no.sikt.CognitoLogin;
-import no.sikt.UserFixtures;
-import no.sikt.nva.apitest.publication.IntegrationTestBase;
+import no.sikt.nva.apitest.base.CognitoLogin;
+import no.sikt.nva.apitest.base.UserFixtures;
+import no.sikt.nva.apitest.publication.PublicationTestBase;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
-class DeleteApiTest extends IntegrationTestBase {
+class DeleteApiTest extends PublicationTestBase {
 
   private static final String IDENTIFIER = "identifier";
   private static String creatorAccessToken;
