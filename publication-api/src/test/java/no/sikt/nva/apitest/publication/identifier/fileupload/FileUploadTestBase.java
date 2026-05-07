@@ -13,10 +13,10 @@ import java.util.Map;
 import no.sikt.PublicationFactory;
 import no.sikt.nva.apitest.base.CognitoLogin;
 import no.sikt.nva.apitest.base.UserFixtures;
-import no.sikt.nva.apitest.publication.IntegrationTestBase;
+import no.sikt.nva.apitest.publication.PublicationTestBase;
 import org.junit.jupiter.api.BeforeAll;
 
-public class FileUploadTestBase extends IntegrationTestBase {
+public class FileUploadTestBase extends PublicationTestBase {
 
   private static final String URL = "url";
   private static final String PARTS = "parts";

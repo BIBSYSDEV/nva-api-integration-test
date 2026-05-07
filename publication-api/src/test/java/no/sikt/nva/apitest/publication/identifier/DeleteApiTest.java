@@ -8,13 +8,13 @@ import io.qameta.allure.Description;
 import java.util.UUID;
 import no.sikt.nva.apitest.base.CognitoLogin;
 import no.sikt.nva.apitest.base.UserFixtures;
-import no.sikt.nva.apitest.publication.IntegrationTestBase;
+import no.sikt.nva.apitest.publication.PublicationTestBase;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
-class DeleteApiTest extends IntegrationTestBase {
+class DeleteApiTest extends PublicationTestBase {
 
   private static final String IDENTIFIER = "identifier";
   private static String creatorAccessToken;

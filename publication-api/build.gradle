@@ -10,6 +10,7 @@ dependencies {
     testImplementation(libs.allure.java.commons)
     testImplementation(nvaCatalog.hamcrest)
     testImplementation(nvaCatalog.junit.jupiter.api)
+    testImplementation(testFixtures(project(':apitest-base')))
     testRuntimeOnly(nvaCatalog.junit.jupiter.engine)
     testRuntimeOnly(nvaCatalog.junit.platform.launcher)
 }

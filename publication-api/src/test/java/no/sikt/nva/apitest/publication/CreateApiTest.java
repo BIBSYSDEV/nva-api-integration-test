@@ -19,7 +19,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
-class CreateApiTest extends IntegrationTestBase {
+class CreateApiTest extends PublicationTestBase {
 
   private static String customerUib;
   private static String creatorAccessToken;

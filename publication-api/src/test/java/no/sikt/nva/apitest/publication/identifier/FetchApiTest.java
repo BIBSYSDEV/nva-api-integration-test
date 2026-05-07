@@ -11,13 +11,13 @@ import java.util.UUID;
 import no.sikt.nva.apitest.base.Affiliation;
 import no.sikt.nva.apitest.base.CognitoLogin;
 import no.sikt.nva.apitest.base.UserFixtures;
-import no.sikt.nva.apitest.publication.IntegrationTestBase;
+import no.sikt.nva.apitest.publication.PublicationTestBase;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
-class FetchApiTest extends IntegrationTestBase {
+class FetchApiTest extends PublicationTestBase {
 
   private static final String IDENTIFIER = "identifier";
   private static final String RESOURCE_OWNER = "resourceOwner";
