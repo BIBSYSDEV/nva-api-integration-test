@@ -3,6 +3,11 @@ package no.sikt;
 import static java.util.Objects.isNull;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedFormRequestAsUser;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
+import static no.sikt.nva.apitest.publication.PublicationFields.CONTEXT_FIELD;
+import static no.sikt.nva.apitest.publication.PublicationFields.ENTITY_DESCRIPTION_FIELD;
+import static no.sikt.nva.apitest.publication.PublicationFields.IDENTIFIER_FIELD;
+import static no.sikt.nva.apitest.publication.PublicationPaths.publicationPath;
+import static no.sikt.nva.apitest.publication.PublicationPaths.publishPublicationPath;
 
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
@@ -13,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import no.sikt.nva.apitest.base.User;
+import no.sikt.nva.apitest.publication.PublicationPaths;
 
 public class PublicationFactory {
 
@@ -32,7 +38,7 @@ public class PublicationFactory {
 
   public Response createDraftPublication(User user) {
     return givenAuthenticatedFormRequestAsUser(user)
-        .post("/publication")
+        .post(PublicationPaths.createPublicationPath())
         .then()
         .statusCode(201)
         .extract()
@@ -42,7 +48,7 @@ public class PublicationFactory {
   public Response updatePublication(User user, Map<String, Object> payload) {
     return givenAuthenticatedJsonRequestAsUser(user)
         .body(payload)
-        .put("/publication/" + payload.get("identifier"))
+        .put(publicationPath(payload.get(IDENTIFIER_FIELD).toString()))
         .then()
         .statusCode(200)
         .extract()
@@ -54,18 +60,18 @@ public class PublicationFactory {
 
     var createResponse = createDraftPublication(user);
 
-    var identifier = createResponse.body().jsonPath().getString("identifier");
+    var identifier = createResponse.body().jsonPath().getString(IDENTIFIER_FIELD);
     Map<String, Object> responseBody = createResponse.body().jsonPath().getMap("");
-    responseBody.remove("@context");
+    responseBody.remove(CONTEXT_FIELD);
 
     var entityDescription = createEntityDescription(title, category, contributorList);
-    responseBody.put("entityDescription", entityDescription);
+    responseBody.put(ENTITY_DESCRIPTION_FIELD, entityDescription);
 
     updatePublication(user, responseBody);
 
     publish(curator, identifier);
 
-    return createResponse.jsonPath().get("identifier");
+    return createResponse.jsonPath().get(IDENTIFIER_FIELD);
   }
 
   public Map<String, Object> createEntityDescription(
@@ -73,7 +79,8 @@ public class PublicationFactory {
 
     var entityDescriptionJsonPath = loadJsonResource("/metadata/EntityDescription.json");
 
-    Map<String, Object> entityDescription = entityDescriptionJsonPath.getMap("entityDescription");
+    Map<String, Object> entityDescription =
+        entityDescriptionJsonPath.getMap(ENTITY_DESCRIPTION_FIELD);
     entityDescription.put("mainTitle", title);
 
     Map<String, Object> publicationDate =
@@ -106,7 +113,7 @@ public class PublicationFactory {
 
   public void publish(String curator, String identifier) {
     givenAuthenticatedJsonRequestAsUser(curator)
-        .post("/publication/" + identifier + "/publish")
+        .post(publishPublicationPath(identifier))
         .then()
         .statusCode(202);
   }

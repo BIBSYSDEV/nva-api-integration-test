@@ -2,6 +2,7 @@ package no.sikt.nva.apitest.publication.identifier.fileupload;
 
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequest;
 import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
+import static no.sikt.nva.apitest.publication.PublicationPaths.fileUploadCompletePath;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.startsWith;
@@ -25,7 +26,6 @@ class CompleteApiTest extends FileUploadTestBase {
   private static final String UPLOAD_ID = "uploadId";
   private static final String KEY = "key";
   private static final String TYPE = "type";
-  private static final String IDENTIFIER = "identifier";
   private static final String EXAMPLE_FILE = "example.txt";
 
   private Map<String, Object> completePayload(String uploadId, String key, String eTag) {
@@ -38,11 +38,7 @@ class CompleteApiTest extends FileUploadTestBase {
   @DisplayName("file-upload/complete returns file metadata")
   @Description("Calling file-upload/complete should return file metadata and statuscode 200")
   void shouldReturnFileMetaDataWhenCompleteUpload() {
-    var identifier =
-        PUBLICATION_FACTORY
-            .createDraftPublication(UserFixtures.UIB_CREATOR)
-            .jsonPath()
-            .getString(IDENTIFIER);
+    var identifier = setupDraftPublication();
     var createResponse = createFileUpload(identifier);
 
     var uploadId = createResponse.jsonPath().getString(UPLOAD_ID);
@@ -78,11 +74,7 @@ class CompleteApiTest extends FileUploadTestBase {
       "Calling file-upload/complete with no authorization should return statuscode 401"
           + " Unauthorized")
   void shouldReturnUnauthorizedWhenCompleteWithoutAuthorization() {
-    var identifier =
-        PUBLICATION_FACTORY
-            .createDraftPublication(UserFixtures.UIB_CREATOR)
-            .jsonPath()
-            .getString(IDENTIFIER);
+    var identifier = setupDraftPublication();
     var createResponse = createFileUpload(identifier);
 
     var uploadId = createResponse.jsonPath().getString(UPLOAD_ID);
@@ -102,11 +94,7 @@ class CompleteApiTest extends FileUploadTestBase {
   @DisplayName("file-upload/complete with missing ETag")
   @Description("Calling file-upload/complete with missing ETag should return 400 Bad Request")
   void shouldReturnUnauthorizedWhenCompleteWithMissingETag() {
-    var identifier =
-        PUBLICATION_FACTORY
-            .createDraftPublication(UserFixtures.UIB_CREATOR)
-            .jsonPath()
-            .getString(IDENTIFIER);
+    var identifier = setupDraftPublication();
     var createResponse = createFileUpload(identifier);
 
     var uploadId = createResponse.jsonPath().getString(UPLOAD_ID);

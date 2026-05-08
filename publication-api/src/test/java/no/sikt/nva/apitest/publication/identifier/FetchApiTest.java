@@ -2,6 +2,9 @@ package no.sikt.nva.apitest.publication.identifier;
 
 import static io.restassured.RestAssured.given;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequest;
+import static no.sikt.nva.apitest.publication.PublicationFields.IDENTIFIER_FIELD;
+import static no.sikt.nva.apitest.publication.PublicationFields.RESOURCE_OWNER_FIELD;
+import static no.sikt.nva.apitest.publication.PublicationPaths.publicationPath;
 import static org.hamcrest.Matchers.equalTo;
 
 import io.qameta.allure.Description;
@@ -19,8 +22,6 @@ import org.junit.jupiter.api.Test;
 @SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
 class FetchApiTest extends PublicationTestBase {
 
-  private static final String IDENTIFIER = "identifier";
-  private static final String RESOURCE_OWNER = "resourceOwner";
   private static String creatorAccessToken;
   private static String customerUib;
 
@@ -35,25 +36,21 @@ class FetchApiTest extends PublicationTestBase {
   @Description(
       "Fetch publication by identifier should return publication metadata and statuscode 200 Ok")
   void shouldReturnDraftPublicationWhenFetchedByIdentifier() {
-    var identifier =
-        PUBLICATION_FACTORY
-            .createDraftPublication(UserFixtures.UIB_CREATOR)
-            .jsonPath()
-            .getString(IDENTIFIER);
+    var identifier = setupDraftPublication();
 
     given()
         .accept(ContentType.JSON)
         .contentType(ContentType.JSON)
         .when()
-        .get(PUBLICATION_PATH + identifier)
+        .get(publicationPath(identifier))
         .then()
         .statusCode(200)
-        .body(IDENTIFIER, equalTo(identifier))
+        .body(IDENTIFIER_FIELD, equalTo(identifier))
         .body("status", equalTo("DRAFT"))
-        .appendRootPath(RESOURCE_OWNER)
+        .appendRootPath(RESOURCE_OWNER_FIELD)
         .body("owner", equalTo(UserFixtures.UIB_CREATOR.cristinId()))
         .body("ownerAffiliation", equalTo(Affiliation.UIB.getValue()))
-        .detachRootPath(RESOURCE_OWNER)
+        .detachRootPath(RESOURCE_OWNER_FIELD)
         .appendRootPath("publisher")
         .body("type", equalTo("Organization"))
         .body("id", equalTo(customerUib));
@@ -67,7 +64,7 @@ class FetchApiTest extends PublicationTestBase {
 
     givenAuthenticatedJsonRequest(creatorAccessToken)
         .when()
-        .get(PUBLICATION_PATH + randomIdentifier)
+        .get(publicationPath(randomIdentifier))
         .then()
         .statusCode(404)
         .body("title", equalTo("Not Found"))
