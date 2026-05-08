@@ -2,11 +2,11 @@ package no.sikt.nva.apitest.publication.identifier.fileupload;
 
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequest;
 import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
+import static no.sikt.nva.apitest.publication.PublicationPaths.fileUploadCreatePath;
 import static org.hamcrest.Matchers.notNullValue;
 
 import io.qameta.allure.Description;
 import java.util.UUID;
-import no.sikt.nva.apitest.base.UserFixtures;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -15,17 +15,12 @@ class CreateApiTest extends FileUploadTestBase {
 
   private static final String UPLOAD_ID = "uploadId";
   private static final String KEY = "key";
-  private static final String IDENTIFIER = "identifier";
 
   @Test
   @DisplayName("file-upload/create returns uploadId and key")
   @Description("Calling file-upload/create should return uploadId and key with statuscode 200")
   void shouldReturnUploadIdAndKeyWhenCreatingFileUpload() {
-    var identifier =
-        PUBLICATION_FACTORY
-            .createDraftPublication(UserFixtures.UIB_CREATOR)
-            .jsonPath()
-            .getString(IDENTIFIER);
+    var identifier = setupDraftPublication();
 
     givenAuthenticatedJsonRequest(getCreatorAccessToken())
         .body(CREATE_PAYLOAD)
@@ -42,11 +37,7 @@ class CreateApiTest extends FileUploadTestBase {
   @Description(
       "Calling file-upload/create with no authorization should return statuscode 401 Unauthorized")
   void shouldReturnUnauthorizedWhenCreateWithoutAuthorization() {
-    var identifier =
-        PUBLICATION_FACTORY
-            .createDraftPublication(UserFixtures.UIB_CREATOR)
-            .jsonPath()
-            .getString(IDENTIFIER);
+    var identifier = setupDraftPublication();
 
     givenUnauthenticatedJsonRequest()
         .body(CREATE_PAYLOAD)

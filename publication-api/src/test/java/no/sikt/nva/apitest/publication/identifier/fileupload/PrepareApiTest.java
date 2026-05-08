@@ -2,13 +2,13 @@ package no.sikt.nva.apitest.publication.identifier.fileupload;
 
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequest;
 import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
+import static no.sikt.nva.apitest.publication.PublicationPaths.fileUploadPreparePath;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.startsWith;
 
 import io.qameta.allure.Description;
 import java.util.Map;
 import java.util.UUID;
-import no.sikt.nva.apitest.base.UserFixtures;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,17 +21,12 @@ class PrepareApiTest extends FileUploadTestBase {
   private static final String NUMBER = "number";
   private static final String UPLOAD_ID = "uploadId";
   private static final String KEY = "key";
-  private static final String IDENTIFIER = "identifier";
 
   @Test
   @DisplayName("file-upload/prepare returns presigned URL")
   @Description("Calling file-upload/prepare should return presigned URL and status code 200 OK")
   void shouldReturnUploadUrlWhenPrepareFile() {
-    var identifier =
-        PUBLICATION_FACTORY
-            .createDraftPublication(UserFixtures.UIB_CREATOR)
-            .jsonPath()
-            .getString(IDENTIFIER);
+    var identifier = setupDraftPublication();
     var createResponse = createFileUpload(identifier);
 
     var uploadId = createResponse.jsonPath().getString(UPLOAD_ID);
@@ -55,11 +50,7 @@ class PrepareApiTest extends FileUploadTestBase {
   @Description(
       "Calling file-upload/prepare with no authorization should return statuscode 401 Unauthorized")
   void shouldReturnUnauthorizedWhenPrepareWithoutAuthorization() {
-    var identifier =
-        PUBLICATION_FACTORY
-            .createDraftPublication(UserFixtures.UIB_CREATOR)
-            .jsonPath()
-            .getString(IDENTIFIER);
+    var identifier = setupDraftPublication();
     var createResponse = createFileUpload(identifier);
 
     var uploadId = createResponse.jsonPath().getString(UPLOAD_ID);
@@ -102,11 +93,7 @@ class PrepareApiTest extends FileUploadTestBase {
       "Calling file-upload/prepare without calling file-upload/create should return statuscode 400"
           + " Bad Request")
   void shouldReturnBadRequestWhenPrepareFileWithoutCreate() {
-    var identifier =
-        PUBLICATION_FACTORY
-            .createDraftPublication(UserFixtures.UIB_CREATOR)
-            .jsonPath()
-            .getString(IDENTIFIER);
+    var identifier = setupDraftPublication();
     var preparePayload =
         Map.of(NUMBER, "1", UPLOAD_ID, "dummyUploadId", KEY, "dummyKey", BODY, getFileAsString());
 
@@ -124,11 +111,7 @@ class PrepareApiTest extends FileUploadTestBase {
   @Description(
       "Calling file-upload/prepare wrong uploadId should return statuscode 400 Bad Request")
   void shouldReturnBadRequestWhenPrepareFileWithWrongUploadId() {
-    var identifier =
-        PUBLICATION_FACTORY
-            .createDraftPublication(UserFixtures.UIB_CREATOR)
-            .jsonPath()
-            .getString(IDENTIFIER);
+    var identifier = setupDraftPublication();
     var createResponse = createFileUpload(identifier);
     var key = createResponse.jsonPath().getString(KEY);
     var uploadId = UPLOAD_ID;
@@ -149,11 +132,7 @@ class PrepareApiTest extends FileUploadTestBase {
   @Description(
       "Calling file-upload/prepare missing uploadId should return statuscode 400 Bad Request")
   void shouldReturnBadRequestWhenPrepareFileWithMissingUploadId() {
-    var identifier =
-        PUBLICATION_FACTORY
-            .createDraftPublication(UserFixtures.UIB_CREATOR)
-            .jsonPath()
-            .getString(IDENTIFIER);
+    var identifier = setupDraftPublication();
     var createResponse = createFileUpload(identifier);
     var key = createResponse.jsonPath().getString(KEY);
 
@@ -172,11 +151,7 @@ class PrepareApiTest extends FileUploadTestBase {
   @DisplayName("file-upload/prepare with wrong key")
   @Description("Calling file-upload/prepare wrong key should return statuscode 400 Bad Request")
   void shouldReturnBadRequestWhenPrepareFileWithWrongKey() {
-    var identifier =
-        PUBLICATION_FACTORY
-            .createDraftPublication(UserFixtures.UIB_CREATOR)
-            .jsonPath()
-            .getString(IDENTIFIER);
+    var identifier = setupDraftPublication();
     var createResponse = createFileUpload(identifier);
     var uploadId = createResponse.jsonPath().getString(UPLOAD_ID);
     var key = KEY;
@@ -195,11 +170,7 @@ class PrepareApiTest extends FileUploadTestBase {
   @DisplayName("file-upload/prepare with missing key")
   @Description("Calling file-upload/prepare missing key should return statuscode 400 Bad Request")
   void shouldReturnBadRequestWhenPrepareFileWithMissingKey() {
-    var identifier =
-        PUBLICATION_FACTORY
-            .createDraftPublication(UserFixtures.UIB_CREATOR)
-            .jsonPath()
-            .getString(IDENTIFIER);
+    var identifier = setupDraftPublication();
     var createResponse = createFileUpload(identifier);
     var uploadId = createResponse.jsonPath().getString(UPLOAD_ID);
     var preparePayload = Map.of(NUMBER, "1", UPLOAD_ID, uploadId, BODY, getFileAsString());

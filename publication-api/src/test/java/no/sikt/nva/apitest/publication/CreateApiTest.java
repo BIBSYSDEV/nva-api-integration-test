@@ -1,6 +1,8 @@
 package no.sikt.nva.apitest.publication;
 
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedRequest;
+import static no.sikt.nva.apitest.publication.PublicationFields.IDENTIFIER_FIELD;
+import static no.sikt.nva.apitest.publication.PublicationFields.RESOURCE_OWNER_FIELD;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.startsWith;
@@ -24,9 +26,6 @@ class CreateApiTest extends PublicationTestBase {
   private static String customerUib;
   private static String creatorAccessToken;
 
-  private static final String IDENTIFIER = "identifier";
-  private static final String RESOURCE_OWNER = "resourceOwner";
-
   @BeforeAll
   static void init() {
 
@@ -47,16 +46,16 @@ class CreateApiTest extends PublicationTestBase {
     givenAuthenticatedRequest(creatorAccessToken)
         .accept(ContentType.JSON)
         .when()
-        .post(PUBLICATION_PATH)
+        .post(PublicationPaths.createPublicationPath())
         .then()
         .statusCode(201)
         .body("type", equalTo("Publication"))
-        .body(IDENTIFIER, notNullValue())
+        .body(IDENTIFIER_FIELD, notNullValue())
         .body("status", equalTo("DRAFT"))
-        .appendRootPath(RESOURCE_OWNER)
+        .appendRootPath(RESOURCE_OWNER_FIELD)
         .body("owner", equalTo(UserFixtures.UIB_CREATOR.cristinId()))
         .body("ownerAffiliation", equalTo(Affiliation.UIB.getValue()))
-        .detachRootPath(RESOURCE_OWNER)
+        .detachRootPath(RESOURCE_OWNER_FIELD)
         .appendRootPath("publisher")
         .body("type", equalTo("Organization"))
         .body("id", equalTo(customerUib))

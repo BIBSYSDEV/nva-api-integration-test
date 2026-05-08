@@ -2,6 +2,9 @@ package no.sikt.nva.apitest.publication.identifier.fileupload;
 
 import static io.restassured.RestAssured.given;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequest;
+import static no.sikt.nva.apitest.publication.PublicationPaths.fileUploadCompletePath;
+import static no.sikt.nva.apitest.publication.PublicationPaths.fileUploadCreatePath;
+import static no.sikt.nva.apitest.publication.PublicationPaths.fileUploadPreparePath;
 
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
@@ -54,18 +57,6 @@ public class FileUploadTestBase extends PublicationTestBase {
 
   public static String getFileAsString() {
     return fileAsString;
-  }
-
-  public String fileUploadCreatePath(String identifier) {
-    return PUBLICATION_PATH + identifier + "/file-upload/create";
-  }
-
-  public String fileUploadPreparePath(String identifier) {
-    return PUBLICATION_PATH + identifier + "/file-upload/prepare";
-  }
-
-  public String fileUploadCompletePath(String identifier) {
-    return PUBLICATION_PATH + identifier + "/file-upload/complete";
   }
 
   @BeforeAll

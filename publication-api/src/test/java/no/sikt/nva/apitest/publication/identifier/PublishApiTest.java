@@ -2,6 +2,8 @@ package no.sikt.nva.apitest.publication.identifier;
 
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequest;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedRequest;
+import static no.sikt.nva.apitest.publication.PublicationFields.IDENTIFIER_FIELD;
+import static no.sikt.nva.apitest.publication.PublicationPaths.publishPublicationPath;
 import static org.hamcrest.Matchers.equalTo;
 
 import io.qameta.allure.Description;
@@ -20,7 +22,6 @@ import org.junit.jupiter.api.Test;
 @SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
 class PublishApiTest extends PublicationTestBase {
 
-  private static final String IDENTIFIER = "identifier";
   private static String curatorAccessToken;
 
   @BeforeAll
@@ -34,7 +35,7 @@ class PublishApiTest extends PublicationTestBase {
   void shouldPublishDraftWhenRequestedByCurator() {
 
     var createResponse = PUBLICATION_FACTORY.createDraftPublication(UserFixtures.UIB_CREATOR);
-    var identifier = createResponse.jsonPath().getString(IDENTIFIER);
+    var identifier = createResponse.jsonPath().getString(IDENTIFIER_FIELD);
     Map<String, Object> responseBody = createResponse.body().jsonPath().getMap("");
 
     String publishPublicationTitle = "Integration test publication " + UUID.randomUUID();
@@ -48,7 +49,7 @@ class PublishApiTest extends PublicationTestBase {
     givenAuthenticatedRequest(curatorAccessToken)
         .accept(ContentType.JSON)
         .when()
-        .post(PUBLICATION_PATH + identifier + "/publish")
+        .post(publishPublicationPath(identifier))
         .then()
         .statusCode(202);
   }
@@ -57,15 +58,11 @@ class PublishApiTest extends PublicationTestBase {
   @DisplayName("Publish incomplete publication")
   @Description("Publishing an incomplete publication should return 400 Bad Request")
   void shouldRejectPublishWhenMetadataIsIncomplete() {
-    var identifier =
-        PUBLICATION_FACTORY
-            .createDraftPublication(UserFixtures.UIB_CREATOR)
-            .jsonPath()
-            .getString(IDENTIFIER);
+    var identifier = setupDraftPublication();
 
     givenAuthenticatedJsonRequest(curatorAccessToken)
         .when()
-        .post(PUBLICATION_PATH + identifier + "/publish")
+        .post(publishPublicationPath(identifier))
         .then()
         .statusCode(400)
         .body("title", equalTo("Bad Request"))
