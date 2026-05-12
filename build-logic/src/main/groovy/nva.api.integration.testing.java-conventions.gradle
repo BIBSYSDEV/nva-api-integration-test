@@ -21,4 +21,15 @@ tasks.withType(Test).configureEach {
     if (project.hasProperty('awsProfile')) {
         systemProperty 'aws.profile', project.awsProfile
     }
+    systemProperty 'junit.jupiter.execution.parallel.enabled', 'true'
+    systemProperty 'junit.jupiter.execution.parallel.mode.default', 'concurrent'
+    systemProperty 'junit.jupiter.execution.parallel.mode.classes.default', 'concurrent'
+    systemProperty 'junit.jupiter.execution.parallel.config.strategy', 'dynamic'
+    systemProperty 'junit.jupiter.execution.timeout.default', '2m'
+
+    testLogging {
+        events = ['failed', 'skipped']
+        exceptionFormat = 'full'
+        showStandardStreams = false
+    }
 }
