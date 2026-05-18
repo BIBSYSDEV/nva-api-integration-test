@@ -6,7 +6,9 @@ phases:
       java: corretto21
       nodejs: 24
     commands:
-      - npm install -g allure-commandline --save-dev
+      - wget https://github.com
+      - unzip allure-3.0.0.zip -d /opt/
+      - ln -s /opt/allure-3/bin/allure /usr/local/bin/allure
       - allure --version
 
   build:
@@ -15,4 +17,4 @@ phases:
   post_build:
     commands:
       - allure generate
-      - aws s3 cp allure-report s3://$API_TESTREPORTS_BUCKET --recursive
+      - aws s3 cp allure-report s3://$TESTREPORTS_BUCKET --recursive
