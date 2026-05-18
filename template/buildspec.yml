@@ -8,12 +8,12 @@ phases:
     commands:
       - npm install allure
       - ln -s /opt/allure-3/bin/allure /usr/local/bin/allure
-      - allure --version
+      - npx allure --version
 
   build:
     commands:
       - ./gradlew test
   post_build:
     commands:
-      - allure generate
+      - npx allure generate
       - aws s3 cp allure-report s3://$TESTREPORTS_BUCKET --recursive
