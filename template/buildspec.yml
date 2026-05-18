@@ -6,9 +6,7 @@ phases:
       java: corretto21
       nodejs: 24
     commands:
-      - wget https://github.com
-      - unzip allure-3.0.0.zip -d /opt/
-      - ln -s /opt/allure-3/bin/allure /usr/local/bin/allure
+      - npm install allure
       - allure --version
 
   build:
