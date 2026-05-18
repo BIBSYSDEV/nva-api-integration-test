@@ -11,3 +11,7 @@ allure-results
 allure-report
 .vscode
 .idea
+
+package-lock.json
+package.json
+node_modules

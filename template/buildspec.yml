@@ -15,5 +15,5 @@ phases:
       - ./gradlew test
   post_build:
     commands:
-      - npx allure generate
+      - npx allure awesome allure-results --single-file
       - aws s3 cp allure-report s3://$TESTREPORTS_BUCKET --recursive
