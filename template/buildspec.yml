@@ -1,0 +1,10 @@
+version: 0.2
+
+phases:
+  build:
+    commands:
+      - ./gradlew test
+  post-build:
+    commands:
+      - allure generate
+      - aws s3 cp allure-report s3://$API_TESTREPORTS_BUCKET --recursive
