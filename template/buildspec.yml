@@ -1,5 +1,5 @@
 version: 0.2
-  
+
 phases:
   install:
     runtime-versions:
@@ -15,5 +15,5 @@ phases:
       - ./gradlew test
   post_build:
     commands:
-      - npx allure awesome allure-results --single-file
+      - npx allure awesome publication-api/build/allure-results --single-file
       - aws s3 cp allure-report s3://$TESTREPORTS_BUCKET --recursive
