@@ -18,6 +18,8 @@ import no.sikt.nva.apitest.publication.PublicationTestBase;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 @SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
 class PublishApiTest extends PublicationTestBase {
@@ -29,19 +31,23 @@ class PublishApiTest extends PublicationTestBase {
     curatorAccessToken = CognitoLogin.login(UserFixtures.UIB_CREATOR.userId()).get("accessToken");
   }
 
-  @Test
+  @ParameterizedTest
+  @EnumSource(
+      value = Category.class,
+      names = {"ACADEMIC_ARTICLE", "ACADEMIC_MONOGRAPH"})
   @DisplayName("Curator publish draft publication")
   @Description("A Curator calling publish should return statuscode 202 Accepted")
-  void shouldPublishDraftWhenRequestedByCurator() {
+  void shouldPublishDraftWhenRequestedByCurator(Category category) {
 
     var createResponse = PUBLICATION_FACTORY.createDraftPublication(UserFixtures.UIB_CREATOR);
     var identifier = createResponse.jsonPath().getString(IDENTIFIER_FIELD);
     Map<String, Object> responseBody = createResponse.body().jsonPath().getMap("");
 
-    String publishPublicationTitle = "Integration test publication " + UUID.randomUUID();
+    String publishPublicationTitle =
+        "Integration test publication " + category.name() + " " + UUID.randomUUID();
     Map<String, ?> entityDescription =
         PUBLICATION_FACTORY.createEntityDescription(
-            publishPublicationTitle, Category.ACADEMIC_ARTICLE, List.of(UserFixtures.UIB_CREATOR));
+            publishPublicationTitle, category, List.of(UserFixtures.UIB_CREATOR));
     responseBody.put("entityDescription", entityDescription);
 
     PUBLICATION_FACTORY.updatePublication(UserFixtures.UIB_CREATOR, responseBody);

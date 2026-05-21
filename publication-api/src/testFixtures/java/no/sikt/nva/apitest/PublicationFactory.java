@@ -1,4 +1,4 @@
-package no.sikt;
+package no.sikt.nva.apitest;
 
 import static java.util.Objects.isNull;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedFormRequestAsUser;
@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import no.sikt.Category;
 import no.sikt.nva.apitest.base.User;
 import no.sikt.nva.apitest.publication.PublicationPaths;
 
@@ -56,7 +57,7 @@ public class PublicationFactory {
   }
 
   public String createPublishedPublication(
-      User user, String title, Category category, List<User> contributorList, String curator) {
+      User user, String title, Category category, List<User> contributorList, User curator) {
 
     var createResponse = createDraftPublication(user);
 
@@ -111,8 +112,8 @@ public class PublicationFactory {
     return reference;
   }
 
-  public void publish(String curator, String identifier) {
-    givenAuthenticatedJsonRequestAsUser(curator)
+  public void publish(User curator, String identifier) {
+    givenAuthenticatedJsonRequestAsUser(curator.userId())
         .post(publishPublicationPath(identifier))
         .then()
         .statusCode(202);

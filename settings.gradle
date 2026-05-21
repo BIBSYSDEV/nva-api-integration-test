@@ -47,3 +47,4 @@ rootProject.name = 'nva-api-integration-test'
 
 include 'apitest-base'
 include 'publication-api'
+include 'bibtex'

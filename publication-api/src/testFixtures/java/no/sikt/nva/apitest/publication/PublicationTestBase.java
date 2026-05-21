@@ -2,7 +2,7 @@ package no.sikt.nva.apitest.publication;
 
 import static no.sikt.nva.apitest.publication.PublicationFields.IDENTIFIER_FIELD;
 
-import no.sikt.PublicationFactory;
+import no.sikt.nva.apitest.PublicationFactory;
 import no.sikt.nva.apitest.base.IntegrationTestBase;
 import no.sikt.nva.apitest.base.UserFixtures;
 

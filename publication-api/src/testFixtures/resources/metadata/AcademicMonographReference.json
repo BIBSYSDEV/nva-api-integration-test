@@ -1,0 +1,28 @@
+{
+  "reference": {
+    "type": "Reference",
+    "publicationInstance": {
+      "type": "AcademicMonograph",
+      "pages" : {
+        "type" : "MonographPages",
+        "pages" : "150",
+        "illustrated" : false
+      }
+  },
+    "publicationContext": {
+      "type": "Book",
+      "series" : {
+        "type" : "UnconfirmedSeries"
+      },
+    "isbnList": [
+        "9783161484100"
+      ],
+      "publisher": {
+        "type": "Publisher",
+        "name": "Routledge",
+        "id": "https://api.e2e.nva.aws.unit.no/publication-channels-v2/publisher/DC752087-7122-4D3A-9E4F-382AA2F39D2C",
+        "valid": "true"
+      }
+    }
+  }
+}
