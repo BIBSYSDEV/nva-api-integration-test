@@ -1,25 +1,25 @@
 package no.sikt.nva;
 
+import static java.util.Objects.isNull;
+import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedFormRequestAsUser;
+import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
+import static no.sikt.nva.apitest.publication.PublicationFields.CONTEXT_FIELD;
+import static no.sikt.nva.apitest.publication.PublicationFields.ENTITY_DESCRIPTION_FIELD;
+import static no.sikt.nva.apitest.publication.PublicationFields.IDENTIFIER_FIELD;
+import static no.sikt.nva.apitest.publication.PublicationPaths.publicationPath;
+import static no.sikt.nva.apitest.publication.PublicationPaths.publishPublicationPath;
+
+import io.restassured.path.json.JsonPath;
+import io.restassured.response.Response;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import static java.util.Objects.isNull;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import io.restassured.path.json.JsonPath;
-import io.restassured.response.Response;
 import no.sikt.Category;
-import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedFormRequestAsUser;
-import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
 import no.sikt.nva.apitest.base.User;
-import static no.sikt.nva.apitest.publication.PublicationFields.CONTEXT_FIELD;
-import static no.sikt.nva.apitest.publication.PublicationFields.ENTITY_DESCRIPTION_FIELD;
-import static no.sikt.nva.apitest.publication.PublicationFields.IDENTIFIER_FIELD;
 import no.sikt.nva.apitest.publication.PublicationPaths;
-import static no.sikt.nva.apitest.publication.PublicationPaths.publicationPath;
-import static no.sikt.nva.apitest.publication.PublicationPaths.publishPublicationPath;
 
 public class PublicationFactory {
 

@@ -1,5 +1,14 @@
 package no.sikt.nva.apitest.search.resources;
 
+import static io.restassured.RestAssured.given;
+import static no.sikt.Category.ACADEMIC_ARTICLE;
+import static no.sikt.Category.ACADEMIC_MONOGRAPH;
+import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
+import static no.sikt.nva.apitest.base.UserFixtures.UIB_PUBLISHING_CURATOR;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import io.restassured.RestAssured;
+import io.restassured.parsing.Parser;
 import java.time.Month;
 import java.time.format.TextStyle;
 import java.util.Calendar;
@@ -9,20 +18,10 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Stream;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import no.sikt.Category;
+import no.sikt.nva.apitest.search.SearchTestBase;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
-
-import io.restassured.RestAssured;
-import static io.restassured.RestAssured.given;
-import io.restassured.parsing.Parser;
-import no.sikt.Category;
-import static no.sikt.Category.ACADEMIC_ARTICLE;
-import static no.sikt.Category.ACADEMIC_MONOGRAPH;
-import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
-import static no.sikt.nva.apitest.base.UserFixtures.UIB_PUBLISHING_CURATOR;
-import no.sikt.nva.apitest.search.SearchTestBase;
 
 class BibTexTest extends SearchTestBase {
 
@@ -94,26 +93,27 @@ class BibTexTest extends SearchTestBase {
               .extract()
               .asString();
 
-      if (!responseBody.isEmpty()) {
-        indexed = true;
-
-        var expectation = BIBTEX_EXPECTATIONS.get(category);
-        var allExpectations = Stream.concat(
-                expectation.expectations().stream(),
-                Stream.of(
-                    "@" + expectation.bibtexType() + "{" + identifier,
-                    "url = {https://api.e2e.nva.aws.unit.no/publication/" + identifier + "}",
-                    "title = {" + title + "}",
-                    "month = {" + MONTH_SHORT_NAME + "}",
-                    "year = {" + YEAR + "}"))
-            .toList();
-
-        allExpectations.forEach(expected -> assertTrue(responseBody.contains(expected)));
-      } else {
+      if (responseBody.isEmpty()) {
         try {
           Thread.sleep(1000);
         } catch (InterruptedException e) { // NOPMD - intentionally ignored, wait for search index
         }
+      } else {
+        indexed = true;
+
+        var expectation = BIBTEX_EXPECTATIONS.get(category);
+        var allExpectations =
+            Stream.concat(
+                    expectation.expectations().stream(),
+                    Stream.of(
+                        "@" + expectation.bibtexType() + "{" + identifier,
+                        "url = {https://api.e2e.nva.aws.unit.no/publication/" + identifier + "}",
+                        "title = {" + title + "}",
+                        "month = {" + MONTH_SHORT_NAME + "}",
+                        "year = {" + YEAR + "}"))
+                .toList();
+
+        allExpectations.forEach(expected -> assertTrue(responseBody.contains(expected)));
       }
     }
 
