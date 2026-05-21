@@ -1,14 +1,5 @@
-package no.sikt.nva.apitest.search.resources;
+package no.sikt.nva.apitest.search.resources.bibtex;
 
-import static io.restassured.RestAssured.given;
-import static no.sikt.Category.ACADEMIC_ARTICLE;
-import static no.sikt.Category.ACADEMIC_MONOGRAPH;
-import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
-import static no.sikt.nva.apitest.base.UserFixtures.UIB_PUBLISHING_CURATOR;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import io.restassured.RestAssured;
-import io.restassured.parsing.Parser;
 import java.time.Month;
 import java.time.format.TextStyle;
 import java.util.Calendar;
@@ -18,10 +9,20 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Stream;
-import no.sikt.Category;
-import no.sikt.nva.apitest.search.SearchTestBase;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
+
+import io.restassured.RestAssured;
+import static io.restassured.RestAssured.given;
+import io.restassured.parsing.Parser;
+import no.sikt.Category;
+import static no.sikt.Category.ACADEMIC_ARTICLE;
+import static no.sikt.Category.ACADEMIC_MONOGRAPH;
+import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
+import static no.sikt.nva.apitest.base.UserFixtures.UIB_PUBLISHING_CURATOR;
+import no.sikt.nva.apitest.search.SearchTestBase;
 
 class BibTexTest extends SearchTestBase {
 
