@@ -1,27 +1,28 @@
 package no.sikt.nva.apitest.search.resources;
 
-import static io.restassured.RestAssured.given;
-import static no.sikt.Category.ACADEMIC_ARTICLE;
-import static no.sikt.Category.ACADEMIC_MONOGRAPH;
-import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
-import static no.sikt.nva.apitest.base.UserFixtures.UIB_PUBLISHING_CURATOR;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import io.restassured.RestAssured;
-import io.restassured.parsing.Parser;
 import java.time.Month;
 import java.time.format.TextStyle;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
-import no.sikt.Category;
-import no.sikt.nva.apitest.search.SearchTestBase;
+import java.util.stream.Stream;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
+
+import io.restassured.RestAssured;
+import static io.restassured.RestAssured.given;
+import io.restassured.parsing.Parser;
+import no.sikt.Category;
+import static no.sikt.Category.ACADEMIC_ARTICLE;
+import static no.sikt.Category.ACADEMIC_MONOGRAPH;
+import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
+import static no.sikt.nva.apitest.base.UserFixtures.UIB_PUBLISHING_CURATOR;
+import no.sikt.nva.apitest.search.SearchTestBase;
 
 class BibTexTest extends SearchTestBase {
 
@@ -34,7 +35,7 @@ class BibTexTest extends SearchTestBase {
   private static final Map<Category, BibTexExpectation> BIBTEX_EXPECTATIONS =
       new EnumMap<>(Category.class);
 
-  private record BibTexExpectation(String type, List<String> expectations) {}
+  private record BibTexExpectation(String bibtexType, List<String> expectations) {}
 
   static {
     BIBTEX_EXPECTATIONS.put(
@@ -75,10 +76,10 @@ class BibTexTest extends SearchTestBase {
         PUBLICATION_FACTORY.createPublishedPublication(
             UIB_CREATOR, title, category, List.of(UIB_CREATOR), UIB_PUBLISHING_CURATOR);
 
-    var retry = true;
+    var indexed = false;
     var count = 0;
 
-    while (retry && count < 3) {
+    while (!indexed && count < 3) {
       count++;
 
       var responseBody =
@@ -93,19 +94,21 @@ class BibTexTest extends SearchTestBase {
               .extract()
               .asString();
 
-      if (responseBody != null && !responseBody.isEmpty()) {
-        retry = false;
+      if (!responseBody.isEmpty()) {
+        indexed = true;
 
-        var expectations = new ArrayList<>(BIBTEX_EXPECTATIONS.get(category).expectations());
-        expectations.addAll(
-            List.of(
-                "@" + BIBTEX_EXPECTATIONS.get(category).type() + "{" + identifier,
-                "url = {https://api.e2e.nva.aws.unit.no/publication/" + identifier + "}",
-                "title = {" + title + "}",
-                "month = {" + MONTH_SHORT_NAME + "}",
-                "year = {" + YEAR + "}"));
+        var expectation = BIBTEX_EXPECTATIONS.get(category);
+        var allExpectations = Stream.concat(
+                expectation.expectations().stream(),
+                Stream.of(
+                    "@" + expectation.bibtexType() + "{" + identifier,
+                    "url = {https://api.e2e.nva.aws.unit.no/publication/" + identifier + "}",
+                    "title = {" + title + "}",
+                    "month = {" + MONTH_SHORT_NAME + "}",
+                    "year = {" + YEAR + "}"))
+            .toList();
 
-        expectations.forEach(assertion -> assertTrue(responseBody.contains(assertion)));
+        allExpectations.forEach(expected -> assertTrue(responseBody.contains(expected)));
       } else {
         try {
           Thread.sleep(1000);
@@ -114,6 +117,6 @@ class BibTexTest extends SearchTestBase {
       }
     }
 
-    assertTrue(!retry, "Publication was not indexed after 3 attempts");
+    assertTrue(indexed, "Publication was not indexed after 3 attempts");
   }
 }
