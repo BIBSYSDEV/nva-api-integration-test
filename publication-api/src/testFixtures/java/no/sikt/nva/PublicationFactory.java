@@ -1,27 +1,27 @@
 package no.sikt.nva;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import static java.util.Objects.isNull;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import io.restassured.path.json.JsonPath;
-import io.restassured.response.Response;
-import no.sikt.Category;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_DAY;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_MONTH;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_YEAR;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedFormRequestAsUser;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
-import no.sikt.nva.apitest.base.User;
 import static no.sikt.nva.apitest.publication.PublicationFields.CONTEXT_FIELD;
 import static no.sikt.nva.apitest.publication.PublicationFields.ENTITY_DESCRIPTION_FIELD;
 import static no.sikt.nva.apitest.publication.PublicationFields.IDENTIFIER_FIELD;
-import no.sikt.nva.apitest.publication.PublicationPaths;
 import static no.sikt.nva.apitest.publication.PublicationPaths.publicationPath;
 import static no.sikt.nva.apitest.publication.PublicationPaths.publishPublicationPath;
+
+import io.restassured.path.json.JsonPath;
+import io.restassured.response.Response;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+import no.sikt.Category;
+import no.sikt.nva.apitest.base.User;
+import no.sikt.nva.apitest.publication.PublicationPaths;
 
 public class PublicationFactory {
 
@@ -76,10 +76,12 @@ public class PublicationFactory {
 
     var entityDescriptionJsonPath = loadJsonResource("/metadata/EntityDescription.json");
 
-    Map<String, Object> entityDescription = entityDescriptionJsonPath.getMap(ENTITY_DESCRIPTION_FIELD);
+    Map<String, Object> entityDescription =
+        entityDescriptionJsonPath.getMap(ENTITY_DESCRIPTION_FIELD);
     entityDescription.put("mainTitle", title);
 
-    Map<String, Object> publicationDate = entityDescriptionJsonPath.getMap("entityDescription.publicationDate");
+    Map<String, Object> publicationDate =
+        entityDescriptionJsonPath.getMap("entityDescription.publicationDate");
     publicationDate.put("day", CURRENT_DAY);
     publicationDate.put("month", CURRENT_MONTH);
     publicationDate.put("year", CURRENT_YEAR);
@@ -96,7 +98,8 @@ public class PublicationFactory {
   public Map<String, Object> createReference(Category category) {
 
     var referenceJsonPath = loadJsonResource("/metadata/" + category.getValue() + "Reference.json");
-    Map<String, Object> publicationContext = referenceJsonPath.getMap("reference.publicationContext");
+    Map<String, Object> publicationContext =
+        referenceJsonPath.getMap("reference.publicationContext");
     publicationContext.put("id", publicationContext.get("id") + "/" + CURRENT_YEAR);
 
     Map<String, Object> reference = referenceJsonPath.getMap("reference");
