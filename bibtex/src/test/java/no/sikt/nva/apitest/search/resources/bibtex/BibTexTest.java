@@ -26,7 +26,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 class BibTexTest extends SearchTestBase {
 
-  private Stream<Arguments> publicationsInBibTexFormatProvider() {
+  private static Stream<Arguments> publicationsInBibTexFormatProvider() {
     return Stream.of(
         argumentSet("AcademicArticle", ACADEMIC_ARTICLE, EXPECTED_BIBTEX_ACADEMIC_ARTICLE),
         argumentSet("AcademicMonograph", ACADEMIC_MONOGRAPH, EXPECTED_BIBTEX_ACADEMIC_MONOGRAPH));
