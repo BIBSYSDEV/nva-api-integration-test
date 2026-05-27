@@ -1,6 +1,7 @@
 [versions]
 rest-assured = "6.0.0"
 allure = "2.25.0"
+awaitility = "4.3.0"
 
 [libraries]
 rest-assured-bom = { module = "io.rest-assured:rest-assured-bom", version.ref = "rest-assured" }
@@ -11,3 +12,5 @@ allure-bom = { module = "io.qameta.allure:allure-bom", version.ref = "allure" }
 allure-rest-assured = { module = "io.qameta.allure:allure-rest-assured" }
 allure-java-commons = { module = "io.qameta.allure:allure-java-commons" }
 allure-junit5 = { module = "io.qameta.allure:allure-junit5" }
+
+awaitility-core = { group = "org.awaitility", name = "awaitility", version.ref = "awaitility" }
