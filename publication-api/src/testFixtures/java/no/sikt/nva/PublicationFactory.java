@@ -1,6 +1,9 @@
-package no.sikt;
+package no.sikt.nva;
 
 import static java.util.Objects.isNull;
+import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_DAY;
+import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_MONTH;
+import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_YEAR;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedFormRequestAsUser;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
 import static no.sikt.nva.apitest.publication.PublicationFields.CONTEXT_FIELD;
@@ -12,21 +15,15 @@ import static no.sikt.nva.apitest.publication.PublicationPaths.publishPublicatio
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import no.sikt.Category;
 import no.sikt.nva.apitest.base.User;
 import no.sikt.nva.apitest.publication.PublicationPaths;
 
 public class PublicationFactory {
-
-  private static final String YEAR = Integer.toString(Calendar.getInstance().get(Calendar.YEAR));
-  private static final String MONTH =
-      Integer.toString(Calendar.getInstance().get(Calendar.MONTH) + 1);
-  private static final String DAY =
-      Integer.toString(Calendar.getInstance().get(Calendar.DAY_OF_MONTH));
 
   private JsonPath loadJsonResource(String resourcePath) {
     var resourceStream = PublicationFactory.class.getResourceAsStream(resourcePath);
@@ -56,7 +53,7 @@ public class PublicationFactory {
   }
 
   public String createPublishedPublication(
-      User user, String title, Category category, List<User> contributorList, String curator) {
+      User user, String title, Category category, List<User> contributorList, User curator) {
 
     var createResponse = createDraftPublication(user);
 
@@ -85,9 +82,9 @@ public class PublicationFactory {
 
     Map<String, Object> publicationDate =
         entityDescriptionJsonPath.getMap("entityDescription.publicationDate");
-    publicationDate.put("day", DAY);
-    publicationDate.put("month", MONTH);
-    publicationDate.put("year", YEAR);
+    publicationDate.put("day", CURRENT_DAY);
+    publicationDate.put("month", CURRENT_MONTH);
+    publicationDate.put("year", CURRENT_YEAR);
     entityDescription.put("publicationDate", publicationDate);
 
     Map<String, Object> reference = createReference(category);
@@ -103,7 +100,7 @@ public class PublicationFactory {
     var referenceJsonPath = loadJsonResource("/metadata/" + category.getValue() + "Reference.json");
     Map<String, Object> publicationContext =
         referenceJsonPath.getMap("reference.publicationContext");
-    publicationContext.put("id", publicationContext.get("id") + "/" + YEAR);
+    publicationContext.put("id", publicationContext.get("id") + "/" + CURRENT_YEAR);
 
     Map<String, Object> reference = referenceJsonPath.getMap("reference");
     reference.put("publicationContext", publicationContext);
@@ -111,8 +108,8 @@ public class PublicationFactory {
     return reference;
   }
 
-  public void publish(String curator, String identifier) {
-    givenAuthenticatedJsonRequestAsUser(curator)
+  public void publish(User curator, String identifier) {
+    givenAuthenticatedJsonRequestAsUser(curator.userId())
         .post(publishPublicationPath(identifier))
         .then()
         .statusCode(202);

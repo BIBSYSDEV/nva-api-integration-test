@@ -6,7 +6,7 @@ phases:
       java: corretto21
       nodejs: 24
     commands:
-      - npm install allure
+      - npm install allure@3.8.2
       - ln -s /opt/allure-3/bin/allure /usr/local/bin/allure
       - npx allure --version
 
@@ -15,5 +15,7 @@ phases:
       - ./gradlew test
   post_build:
     commands:
-      - npx allure awesome publication-api/build/allure-results --single-file
+      - if [[ ! -d "allure-results" ]]; then mkdir allure-results; fi
+      - cp */build/allure-results/* allure-results
+      - npx allure awesome allure-results --single-file
       - aws s3 cp allure-report s3://$TESTREPORTS_BUCKET --recursive
