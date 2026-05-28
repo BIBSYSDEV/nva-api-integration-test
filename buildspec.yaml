@@ -15,7 +15,7 @@ phases:
       - ./gradlew test
   post_build:
     commands:
-      - if [[ ! -d "allure-results" ]]; then mkdir allure-results; fi
+      - mkdir -p allure-results
       - cp */build/allure-results/* allure-results
       - npx allure awesome allure-results --single-file
       - aws s3 cp allure-report s3://$TESTREPORTS_BUCKET --recursive
