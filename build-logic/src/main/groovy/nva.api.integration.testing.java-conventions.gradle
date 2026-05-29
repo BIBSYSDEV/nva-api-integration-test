@@ -5,12 +5,12 @@ plugins {
 
 nva {
     errorprone {
-        allErrorsAsWarnings = false
+        allErrorsAsWarnings = true
     }
 }
 
 dependencies {
-    implementation(platform("software.amazon.awssdk:bom:${nvaCatalog.versions.aws.sdk2.asProvider().get()}"))
+    implementation(platform(nvaCatalog.aws.sdk2.bom))
     implementation(platform(libs.rest.assured.bom))
     testFixturesImplementation(platform(libs.allure.bom))
     testFixturesImplementation(platform(libs.rest.assured.bom))

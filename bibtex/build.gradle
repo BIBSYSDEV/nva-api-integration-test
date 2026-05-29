@@ -3,18 +3,16 @@ plugins {
 }
 
 dependencies {
-    testFixturesApi(libs.rest.assured.core)
-    testFixturesApi(project(':apitest-base'))
     testFixturesApi(testFixtures(project(':apitest-base')))
     testFixturesApi(testFixtures(project(':publication-api')))
-    testFixturesImplementation(libs.rest.assured.json.path)
     testImplementation(libs.awaitility.core)
-    testImplementation(libs.allure.java.commons)
-    testImplementation(nvaCatalog.hamcrest)
+    testImplementation(libs.rest.assured.core)
     testImplementation(nvaCatalog.junit.jupiter.api)
     testImplementation(nvaCatalog.junit.jupiter.params)
+    testImplementation(project(':apitest-base'))
     testImplementation(testFixtures(project(':apitest-base')))
     testImplementation(testFixtures(project(':publication-api')))
+    testRuntimeOnly(libs.allure.java.commons)
     testRuntimeOnly(nvaCatalog.junit.jupiter.engine)
     testRuntimeOnly(nvaCatalog.junit.platform.launcher)
 }
