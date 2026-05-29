@@ -5,7 +5,7 @@ plugins {
 
 nva {
     errorprone {
-        allErrorsAsWarnings = false
+        allErrorsAsWarnings = true
     }
 }
 
