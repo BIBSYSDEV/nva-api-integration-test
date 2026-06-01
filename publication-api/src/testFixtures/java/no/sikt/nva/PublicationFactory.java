@@ -12,6 +12,7 @@ import static no.sikt.nva.apitest.publication.PublicationFields.IDENTIFIER_FIELD
 import static no.sikt.nva.apitest.publication.PublicationPaths.publicationPath;
 import static no.sikt.nva.apitest.publication.PublicationPaths.publishPublicationPath;
 
+import io.restassured.RestAssured;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import java.util.ArrayList;
@@ -69,6 +70,59 @@ public class PublicationFactory {
     publish(curator, identifier);
 
     return createResponse.jsonPath().get(IDENTIFIER_FIELD);
+  }
+
+  public String createChapterInAnthology(
+      User user,
+      String title,
+      Category category,
+      List<User> contributorList,
+      User curator,
+      String anthologyIdentifier,
+      List<User> anthologyEditorList) {
+
+    var createResponse = createDraftPublication(user);
+
+    var identifier = createResponse.body().jsonPath().getString(IDENTIFIER_FIELD);
+    Map<String, Object> responseBody = createResponse.body().jsonPath().getMap("");
+    responseBody.remove(CONTEXT_FIELD);
+
+    var entityDescription = createEntityDescription(title, category, contributorList);
+    ((Map<String, Object>)
+            ((Map<String, Object>) entityDescription.get("reference")).get("publicationContext"))
+        .put("id", RestAssured.baseURI + "/publication/" + anthologyIdentifier);
+    responseBody.put(ENTITY_DESCRIPTION_FIELD, entityDescription);
+
+    updatePublication(user, responseBody);
+
+    publish(curator, identifier);
+
+    return createResponse.jsonPath().get(IDENTIFIER_FIELD);
+  }
+
+  public String createAnthologyForChapter(
+      User user, String title, User curator, List<User> anthologyEditorList) {
+    var anthologyTitle = "Anthology for " + title;
+    var anthologyCreateResponse = createDraftPublication(user);
+
+    var anthologyIdentifier = anthologyCreateResponse.body().jsonPath().getString(IDENTIFIER_FIELD);
+    Map<String, Object> anthologyResponseBody =
+        anthologyCreateResponse.body().jsonPath().getMap("");
+    anthologyResponseBody.remove(CONTEXT_FIELD);
+
+    var anthologyEntityDescription =
+        createEntityDescription(anthologyTitle, Category.BOOK_ANTHOLOGY, anthologyEditorList);
+    var contributors = (List<Map<String, Object>>) anthologyEntityDescription.get("contributors");
+
+    contributors.forEach(
+        contributor -> {
+          ((Map<String, Object>) contributor.get("role")).put("type", "Editor");
+        });
+    anthologyResponseBody.put(ENTITY_DESCRIPTION_FIELD, anthologyEntityDescription);
+    updatePublication(user, anthologyResponseBody);
+
+    publish(curator, anthologyIdentifier);
+    return anthologyIdentifier;
   }
 
   public Map<String, Object> createEntityDescription(

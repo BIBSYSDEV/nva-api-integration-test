@@ -3,12 +3,14 @@ package no.sikt.nva.apitest.search.resources.bibtex;
 import static io.restassured.RestAssured.given;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static no.sikt.Category.ACADEMIC_ARTICLE;
+import static no.sikt.Category.ACADEMIC_CHAPTER;
 import static no.sikt.Category.ACADEMIC_MONOGRAPH;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_MONTH_SHORT_NAME;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_YEAR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_PUBLISHING_CURATOR;
 import static no.sikt.nva.apitest.search.BibTexExpectationFixtures.EXPECTED_BIBTEX_ACADEMIC_ARTICLE;
+import static no.sikt.nva.apitest.search.BibTexExpectationFixtures.EXPECTED_BIBTEX_ACADEMIC_CHAPTER;
 import static no.sikt.nva.apitest.search.BibTexExpectationFixtures.EXPECTED_BIBTEX_ACADEMIC_MONOGRAPH;
 import static org.awaitility.Awaitility.with;
 import static org.awaitility.pollinterval.FibonacciPollInterval.fibonacci;
@@ -34,7 +36,8 @@ class BibTexTest extends SearchTestBase {
   private static Stream<Arguments> publicationsInBibTexFormatProvider() {
     return Stream.of(
         argumentSet("AcademicArticle", ACADEMIC_ARTICLE, EXPECTED_BIBTEX_ACADEMIC_ARTICLE),
-        argumentSet("AcademicMonograph", ACADEMIC_MONOGRAPH, EXPECTED_BIBTEX_ACADEMIC_MONOGRAPH));
+        argumentSet("AcademicMonograph", ACADEMIC_MONOGRAPH, EXPECTED_BIBTEX_ACADEMIC_MONOGRAPH),
+        argumentSet("AcademicChapter", ACADEMIC_CHAPTER, EXPECTED_BIBTEX_ACADEMIC_CHAPTER));
   }
 
   @ParameterizedTest
@@ -47,9 +50,23 @@ class BibTexTest extends SearchTestBase {
     var titleUuid = UUID.randomUUID().toString();
 
     var title = "BibTex Integration test publication " + titleUuid;
+    var anthologyIdentifier =
+        category == ACADEMIC_CHAPTER
+            ? PUBLICATION_FACTORY.createAnthologyForChapter(
+                UIB_CREATOR, title, UIB_PUBLISHING_CURATOR, List.of(UIB_CREATOR))
+            : "";
     var identifier =
-        PUBLICATION_FACTORY.createPublishedPublication(
-            UIB_CREATOR, title, category, List.of(UIB_CREATOR), UIB_PUBLISHING_CURATOR);
+        category == ACADEMIC_CHAPTER
+            ? PUBLICATION_FACTORY.createChapterInAnthology(
+                UIB_CREATOR,
+                title,
+                category,
+                List.of(UIB_CREATOR),
+                UIB_PUBLISHING_CURATOR,
+                anthologyIdentifier,
+                List.of(UIB_CREATOR))
+            : PUBLICATION_FACTORY.createPublishedPublication(
+                UIB_CREATOR, title, category, List.of(UIB_CREATOR), UIB_PUBLISHING_CURATOR);
 
     with()
         .pollInterval(fibonacci().with().unit(SECONDS))
@@ -59,6 +76,27 @@ class BibTexTest extends SearchTestBase {
 
     var responseBody = getResponseBody(titleUuid);
     var allExpectations = buildAllExpectations(expectation, title, identifier);
+
+    // if (category == ACADEMIC_CHAPTER) {
+    //   allExpectations =
+    //       Stream.concat(
+    //               allExpectations.stream(),
+    //               buildAllExpectations(
+    //                   EXPECTED_BIBTEX_BOOK_ANTHOLOGY, "Anthology for " + title,
+    // anthologyIdentifier)
+    //                   .stream())
+    //           .toList();
+    // }
+
+    // given()
+    // .param("query", titleUuid)
+    // .accept("text/x-bibtex")
+    // .when()
+    // .get("/search/resources")
+    // .then()
+    // .statusCode(200)
+    // .contentType("text/x-bibtex")
+    // .body("testing", Matchers.notNullValue());
 
     allExpectations.forEach(expected -> assertTrue(responseBody.contains(expected)));
   }
@@ -85,7 +123,8 @@ class BibTexTest extends SearchTestBase {
                 "url = {" + RestAssured.baseURI + "/publication/" + identifier + "}",
                 "title = {" + title + "}",
                 "month = {" + CURRENT_MONTH_SHORT_NAME + "}",
-                "year = {" + CURRENT_YEAR + "}"))
+                "year = {" + CURRENT_YEAR + "}",
+                "}"))
         .toList();
   }
 }
