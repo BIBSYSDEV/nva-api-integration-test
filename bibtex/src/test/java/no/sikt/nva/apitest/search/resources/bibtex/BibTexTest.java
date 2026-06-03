@@ -1,35 +1,42 @@
 package no.sikt.nva.apitest.search.resources.bibtex;
 
-import static io.restassured.RestAssured.given;
+import java.util.List;
+import java.util.UUID;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import java.util.stream.Stream;
+
+import org.assertj.core.api.SoftAssertions;
+import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
+import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
+import static org.awaitility.Awaitility.with;
+import static org.awaitility.pollinterval.FibonacciPollInterval.fibonacci;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import static org.junit.jupiter.params.provider.Arguments.argumentSet;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import io.restassured.RestAssured;
+import static io.restassured.RestAssured.given;
+import io.restassured.parsing.Parser;
+import no.sikt.Category;
 import static no.sikt.Category.ACADEMIC_ARTICLE;
 import static no.sikt.Category.ACADEMIC_MONOGRAPH;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_MONTH_SHORT_NAME;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_YEAR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_PUBLISHING_CURATOR;
+import no.sikt.nva.apitest.search.BibTexExpectation;
 import static no.sikt.nva.apitest.search.BibTexExpectationFixtures.EXPECTED_BIBTEX_ACADEMIC_ARTICLE;
 import static no.sikt.nva.apitest.search.BibTexExpectationFixtures.EXPECTED_BIBTEX_ACADEMIC_MONOGRAPH;
-import static org.awaitility.Awaitility.with;
-import static org.awaitility.pollinterval.FibonacciPollInterval.fibonacci;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.params.provider.Arguments.argumentSet;
-
-import io.restassured.RestAssured;
-import io.restassured.parsing.Parser;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Stream;
-import no.sikt.Category;
-import no.sikt.nva.apitest.search.BibTexExpectation;
 import no.sikt.nva.apitest.search.SearchTestBase;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 
 @SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
+@ExtendWith(SoftAssertionsExtension.class)
 class BibTexTest extends SearchTestBase {
+
+  @InjectSoftAssertions private SoftAssertions softly;
 
   private static Stream<Arguments> publicationsInBibTexFormatProvider() {
     return Stream.of(
@@ -60,7 +67,7 @@ class BibTexTest extends SearchTestBase {
     var responseBody = getResponseBody(titleUuid);
     var allExpectations = buildAllExpectations(expectation, title, identifier);
 
-    allExpectations.forEach(expected -> assertTrue(responseBody.contains(expected)));
+    allExpectations.forEach(expected -> softly.assertThat(responseBody).contains(expected));
   }
 
   private String getResponseBody(String titleUuid) {
