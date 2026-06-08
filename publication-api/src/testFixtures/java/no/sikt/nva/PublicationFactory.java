@@ -154,8 +154,12 @@ public class PublicationFactory {
     var referenceJsonPath = loadJsonResource("/metadata/" + category.getValue() + "Reference.json");
     Map<String, Object> publicationContext =
         referenceJsonPath.getMap("reference.publicationContext");
-    publicationContext.put("id", publicationContext.get("id") + "/" + CURRENT_YEAR);
-
+    if (publicationContext.containsKey("publisher")) {
+      Map<String, Object> publisher =
+          referenceJsonPath.get("reference.publicationContext.publisher");
+      publisher.put("id", publisher.get("id") + "/" + CURRENT_YEAR);
+      publicationContext.put("publisher", publisher);
+    }
     Map<String, Object> reference = referenceJsonPath.getMap("reference");
     reference.put("publicationContext", publicationContext);
 

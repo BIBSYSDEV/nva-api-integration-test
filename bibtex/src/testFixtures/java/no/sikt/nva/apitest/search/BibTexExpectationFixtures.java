@@ -4,6 +4,9 @@ import java.util.List;
 
 public class BibTexExpectationFixtures {
 
+  private static final String ISBN = "isbn = {9783161484100}";
+  private static final String MONOGRAPH_PAGES = "pages = {150}";
+
   public static final BibTexExpectation EXPECTED_BIBTEX_ACADEMIC_ARTICLE =
       new BibTexExpectation(
           "article",
@@ -18,24 +21,40 @@ public class BibTexExpectationFixtures {
       new BibTexExpectation(
           "book",
           List.of(
-              "isbn = {9783161484100}",
+              ISBN,
               "note = {nva type: AcademicMonograph}",
-              "pages = {150}",
+              MONOGRAPH_PAGES,
               "publisher = {Springer Nature}"));
   public static final BibTexExpectation EXPECTED_BIBTEX_BOOK_ANTHOLOGY =
       new BibTexExpectation(
           "book",
           List.of(
-              "isbn = {9783161484100}",
+              ISBN,
               "note = {nva type: BookAnthology}",
-              "pages = {150}",
+              MONOGRAPH_PAGES,
               "publisher = {Springer Nature}"));
+  public static final BibTexExpectation EXPECTED_BIBTEX_DEGREE_PHD =
+      new BibTexExpectation(
+          "phdthesis",
+          List.of(
+              ISBN,
+              "note = {nva type: DegreePhd}",
+              MONOGRAPH_PAGES,
+              "school = {SINTEF akademisk forlag}"));
   public static final BibTexExpectation EXPECTED_BIBTEX_ACADEMIC_CHAPTER =
       new BibTexExpectation(
           "inbook",
           List.of(
-              "isbn = {9783161484100}",
+              ISBN,
               "note = {nva type: AcademicChapter}",
               "pages = {1--20}",
               "publisher = {Springer Nature}"));
+  public static final BibTexExpectation EXPECTED_BIBTEX_REPORT_RESEARCH =
+      new BibTexExpectation(
+          "techreport",
+          List.of(
+              ISBN,
+              "note = {nva type: ReportResearch}",
+              MONOGRAPH_PAGES,
+              "institution = {SINTEF akademisk forlag}"));
 }
