@@ -1,7 +1,0 @@
-{
-  "java.compile.nullAnalysis.mode": "disabled",
-  "java.project.sourcePaths": [
-    "bibtex/src/testFixtures"
-  ],
-  "java.configuration.updateBuildConfiguration": "automatic"
-}
