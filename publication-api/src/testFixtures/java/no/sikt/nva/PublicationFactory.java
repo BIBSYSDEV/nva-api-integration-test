@@ -12,6 +12,7 @@ import static no.sikt.nva.apitest.publication.PublicationFields.IDENTIFIER_FIELD
 import static no.sikt.nva.apitest.publication.PublicationPaths.publicationPath;
 import static no.sikt.nva.apitest.publication.PublicationPaths.publishPublicationPath;
 
+import io.restassured.RestAssured;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import java.util.ArrayList;
@@ -71,6 +72,58 @@ public class PublicationFactory {
     return createResponse.jsonPath().get(IDENTIFIER_FIELD);
   }
 
+  public String createChapterInAnthology(
+      User user,
+      String title,
+      Category category,
+      List<User> contributorList,
+      User curator,
+      String anthologyIdentifier) {
+
+    var createResponse = createDraftPublication(user);
+
+    var identifier = createResponse.body().jsonPath().getString(IDENTIFIER_FIELD);
+    Map<String, Object> responseBody = createResponse.body().jsonPath().getMap("");
+    responseBody.remove(CONTEXT_FIELD);
+
+    var entityDescription = createEntityDescription(title, category, contributorList);
+    ((Map<String, Object>)
+            ((Map<String, Object>) entityDescription.get("reference")).get("publicationContext"))
+        .put("id", RestAssured.baseURI + publicationPath(anthologyIdentifier));
+    responseBody.put(ENTITY_DESCRIPTION_FIELD, entityDescription);
+
+    updatePublication(user, responseBody);
+
+    publish(curator, identifier);
+
+    return createResponse.jsonPath().get(IDENTIFIER_FIELD);
+  }
+
+  public String createAnthologyForChapter(
+      User user, String title, User curator, List<User> anthologyEditorList) {
+    var anthologyTitle = "Anthology for " + title;
+    var anthologyCreateResponse = createDraftPublication(user);
+
+    var anthologyIdentifier = anthologyCreateResponse.body().jsonPath().getString(IDENTIFIER_FIELD);
+    Map<String, Object> anthologyResponseBody =
+        anthologyCreateResponse.body().jsonPath().getMap("");
+    anthologyResponseBody.remove(CONTEXT_FIELD);
+
+    var anthologyEntityDescription =
+        createEntityDescription(anthologyTitle, Category.BOOK_ANTHOLOGY, anthologyEditorList);
+    var contributors = (List<Map<String, Object>>) anthologyEntityDescription.get("contributors");
+
+    contributors.forEach(
+        contributor -> {
+          ((Map<String, Object>) contributor.get("role")).put("type", "Editor");
+        });
+    anthologyResponseBody.put(ENTITY_DESCRIPTION_FIELD, anthologyEntityDescription);
+    updatePublication(user, anthologyResponseBody);
+
+    publish(curator, anthologyIdentifier);
+    return anthologyIdentifier;
+  }
+
   public Map<String, Object> createEntityDescription(
       String title, Category category, List<User> contributorList) {
 
@@ -100,8 +153,12 @@ public class PublicationFactory {
     var referenceJsonPath = loadJsonResource("/metadata/" + category.getValue() + "Reference.json");
     Map<String, Object> publicationContext =
         referenceJsonPath.getMap("reference.publicationContext");
-    publicationContext.put("id", publicationContext.get("id") + "/" + CURRENT_YEAR);
-
+    if (publicationContext.containsKey("publisher")) {
+      Map<String, Object> publisher =
+          referenceJsonPath.get("reference.publicationContext.publisher");
+      publisher.put("id", publisher.get("id") + "/" + CURRENT_YEAR);
+      publicationContext.put("publisher", publisher);
+    }
     Map<String, Object> reference = referenceJsonPath.getMap("reference");
     reference.put("publicationContext", publicationContext);
 
@@ -119,10 +176,11 @@ public class PublicationFactory {
 
     List<Map<String, Object>> contributors = new ArrayList<>();
     final var sequence = new AtomicInteger(1);
+    var contributorJsonPath = loadJsonResource("/metadata/Contributor.json");
     users.forEach(
         user -> {
-          var contributorJsonPath = loadJsonResource("/metadata/Contributor.json");
-          Map<String, Object> contributor = contributorJsonPath.getMap("");
+          Map<String, Object> contributor = new HashMap<>();
+          contributor.putAll(contributorJsonPath.getMap(""));
           contributor.put("sequence", String.valueOf(sequence.getAndIncrement()));
           Map<String, Object> identity = new HashMap<>();
           identity.put("type", "Identity");
@@ -139,8 +197,8 @@ public class PublicationFactory {
                     affiliation.put("type", "Organization");
                     affiliation.put("id", userAffiliation);
                     affiliations.add(affiliation);
-                    contributor.put("affiliations", affiliations);
                   });
+          contributor.put("affiliations", affiliations);
 
           contributors.add(contributor);
         });

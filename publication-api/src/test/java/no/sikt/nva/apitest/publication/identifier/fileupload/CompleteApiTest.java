@@ -2,10 +2,9 @@ package no.sikt.nva.apitest.publication.identifier.fileupload;
 
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequest;
 import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
+import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
+import static no.sikt.nva.apitest.publication.PublicationFields.IDENTIFIER_FIELD;
 import static no.sikt.nva.apitest.publication.PublicationPaths.fileUploadCompletePath;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.startsWith;
 
 import io.qameta.allure.Description;
 import java.time.LocalDate;
@@ -13,19 +12,20 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
-import no.sikt.nva.apitest.base.UserFixtures;
+import org.assertj.core.api.SoftAssertions;
+import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
+import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
+@ExtendWith(SoftAssertionsExtension.class)
 @SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
 class CompleteApiTest extends FileUploadTestBase {
 
-  private static final String PARTS = "parts";
-  private static final String TEXT_PLAIN = "text/plain";
-  private static final String UPLOAD_ID = "uploadId";
-  private static final String KEY = "key";
-  private static final String TYPE = "type";
+  @InjectSoftAssertions private SoftAssertions softly;
+
   private static final String EXAMPLE_FILE = "example.txt";
 
   private Map<String, Object> completePayload(String uploadId, String key, String eTag) {
@@ -48,24 +48,31 @@ class CompleteApiTest extends FileUploadTestBase {
     var today =
         LocalDate.now(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
-    givenAuthenticatedJsonRequest(getCreatorAccessToken())
-        .body(completePayload(uploadId, key, eTag))
-        .when()
-        .post(fileUploadCompletePath(identifier))
-        .then()
-        .statusCode(200)
-        .body(TYPE, equalTo("UploadedFile"))
-        .body("identifier", notNullValue())
-        .body("name", equalTo(EXAMPLE_FILE))
-        .body("mimeType", equalTo(TEXT_PLAIN))
-        .appendRootPath("rightsRetentionStrategy")
-        .body(TYPE, equalTo("NullRightsRetentionStrategy"))
-        .body("configuredType", equalTo("NullRightsRetentionStrategy"))
-        .detachRootPath("rightsRetentionStrategy")
-        .appendRootPath("uploadDetails")
-        .body(TYPE, equalTo("UserUploadDetails"))
-        .body("uploadedBy", equalTo(UserFixtures.UIB_CREATOR.cristinId()))
-        .body("uploadedDate", startsWith(today));
+    var response =
+        givenAuthenticatedJsonRequest(getCreatorAccessToken())
+            .body(completePayload(uploadId, key, eTag))
+            .when()
+            .post(fileUploadCompletePath(identifier))
+            .then()
+            .statusCode(200)
+            .extract()
+            .jsonPath();
+
+    softly.assertThat(response.getString(TYPE)).isEqualTo("UploadedFile");
+    softly.assertThat(response.getString(IDENTIFIER_FIELD)).isNotNull();
+    softly.assertThat(response.getString("name")).isEqualTo(EXAMPLE_FILE);
+    softly.assertThat(response.getString("mimeType")).isEqualTo(TEXT_PLAIN);
+    softly
+        .assertThat(response.getString("rightsRetentionStrategy.type"))
+        .isEqualTo("NullRightsRetentionStrategy");
+    softly
+        .assertThat(response.getString("rightsRetentionStrategy.configuredType"))
+        .isEqualTo("NullRightsRetentionStrategy");
+    softly.assertThat(response.getString("uploadDetails.type")).isEqualTo("UserUploadDetails");
+    softly
+        .assertThat(response.getString("uploadDetails.uploadedBy"))
+        .isEqualTo(UIB_CREATOR.cristinId());
+    softly.assertThat(response.getString("uploadDetails.uploadedDate")).startsWith(today);
   }
 
   @Test

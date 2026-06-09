@@ -1,14 +1,13 @@
 package no.sikt.nva.apitest.publication.identifier.fileupload;
 
 import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import io.qameta.allure.Description;
 import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-@SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
 class PresignedUrlApiTest extends FileUploadTestBase {
 
   @Test
@@ -19,12 +18,16 @@ class PresignedUrlApiTest extends FileUploadTestBase {
     var uploadUrl = createAndPrepareFileUpload(identifier);
     var presignedPayload = Map.of("data", getFileAsString());
 
-    givenUnauthenticatedJsonRequest()
-        .body(presignedPayload)
-        .when()
-        .put(uploadUrl)
-        .then()
-        .statusCode(200)
-        .header("ETag", notNullValue());
+    var etag =
+        givenUnauthenticatedJsonRequest()
+            .body(presignedPayload)
+            .when()
+            .put(uploadUrl)
+            .then()
+            .statusCode(200)
+            .extract()
+            .header("ETag");
+
+    assertThat(etag).isNotNull();
   }
 }

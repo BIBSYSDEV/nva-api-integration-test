@@ -21,16 +21,16 @@ import org.junit.jupiter.api.BeforeAll;
 
 public class FileUploadTestBase extends PublicationTestBase {
 
-  private static final String URL = "url";
-  private static final String PARTS = "parts";
-  private static final String BODY = "body";
-  private static final String NUMBER = "number";
+  protected static final String URL = "url";
+  protected static final String PARTS = "parts";
+  protected static final String BODY = "body";
+  protected static final String NUMBER = "number";
   private static final String FILE_NAME = "filename";
-  private static final String TEXT_PLAIN = "text/plain";
+  protected static final String TEXT_PLAIN = "text/plain";
   private static final String MIMETYPE = "mimetype";
-  private static final String UPLOAD_ID = "uploadId";
-  private static final String KEY = "key";
-  private static final String TYPE = "type";
+  protected static final String UPLOAD_ID = "uploadId";
+  protected static final String KEY = "key";
+  protected static final String TYPE = "type";
 
   private static final String EXAMPLE_FILE = "example.txt";
 

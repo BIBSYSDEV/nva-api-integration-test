@@ -1,0 +1,18 @@
+{
+  "reference": {
+    "type": "Reference",
+    "publicationContext": {
+      "type": "Anthology",
+      "id": ""
+    },
+    "publicationInstance": {
+      "type": "AcademicChapter",
+      "pages": {
+        "type": "Range",
+        "begin": 1,
+        "end": 20,
+        "illustrated": false
+      }
+    }
+  }
+}

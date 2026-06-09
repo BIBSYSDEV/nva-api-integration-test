@@ -1,11 +1,9 @@
 package no.sikt.nva.apitest.publication;
 
+import static no.sikt.nva.apitest.base.Affiliation.UIB;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedRequest;
+import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
 import static no.sikt.nva.apitest.publication.PublicationFields.IDENTIFIER_FIELD;
-import static no.sikt.nva.apitest.publication.PublicationFields.RESOURCE_OWNER_FIELD;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.startsWith;
 
 import io.qameta.allure.Description;
 import io.restassured.RestAssured;
@@ -13,15 +11,19 @@ import io.restassured.http.ContentType;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import no.sikt.nva.apitest.base.Affiliation;
 import no.sikt.nva.apitest.base.CognitoLogin;
-import no.sikt.nva.apitest.base.UserFixtures;
+import org.assertj.core.api.SoftAssertions;
+import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
+import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-@SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
+@ExtendWith(SoftAssertionsExtension.class)
 class CreateApiTest extends PublicationTestBase {
+
+  @InjectSoftAssertions private SoftAssertions softly;
 
   private static String customerUib;
   private static String creatorAccessToken;
@@ -31,7 +33,7 @@ class CreateApiTest extends PublicationTestBase {
 
     customerUib = RestAssured.baseURI + "/customer/a228aba6-932b-4f53-b2de-31ad8daf9f8d";
 
-    creatorAccessToken = CognitoLogin.login(UserFixtures.UIB_CREATOR.userId()).get("accessToken");
+    creatorAccessToken = CognitoLogin.login(UIB_CREATOR.userId()).get("accessToken");
   }
 
   @Test
@@ -43,24 +45,26 @@ class CreateApiTest extends PublicationTestBase {
     var today =
         LocalDate.now(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
-    givenAuthenticatedRequest(creatorAccessToken)
-        .accept(ContentType.JSON)
-        .when()
-        .post(PublicationPaths.createPublicationPath())
-        .then()
-        .statusCode(201)
-        .body("type", equalTo("Publication"))
-        .body(IDENTIFIER_FIELD, notNullValue())
-        .body("status", equalTo("DRAFT"))
-        .appendRootPath(RESOURCE_OWNER_FIELD)
-        .body("owner", equalTo(UserFixtures.UIB_CREATOR.cristinId()))
-        .body("ownerAffiliation", equalTo(Affiliation.UIB.getValue()))
-        .detachRootPath(RESOURCE_OWNER_FIELD)
-        .appendRootPath("publisher")
-        .body("type", equalTo("Organization"))
-        .body("id", equalTo(customerUib))
-        .detachRootPath("publisher")
-        .body("createdDate", startsWith(today))
-        .body("modifiedDate", startsWith(today));
+    var response =
+        givenAuthenticatedRequest(creatorAccessToken)
+            .accept(ContentType.JSON)
+            .when()
+            .post(PublicationPaths.createPublicationPath())
+            .then()
+            .statusCode(201)
+            .extract()
+            .jsonPath();
+
+    softly.assertThat(response.getString("type")).isEqualTo("Publication");
+    softly.assertThat(response.getString(IDENTIFIER_FIELD)).isNotNull();
+    softly.assertThat(response.getString("status")).isEqualTo("DRAFT");
+    softly.assertThat(response.getString("resourceOwner.owner")).isEqualTo(UIB_CREATOR.cristinId());
+    softly
+        .assertThat(response.getString("resourceOwner.ownerAffiliation"))
+        .isEqualTo(UIB.getValue());
+    softly.assertThat(response.getString("publisher.type")).isEqualTo("Organization");
+    softly.assertThat(response.getString("publisher.id")).isEqualTo(customerUib);
+    softly.assertThat(response.getString("createdDate")).startsWith(today);
+    softly.assertThat(response.getString("modifiedDate")).startsWith(today);
   }
 }

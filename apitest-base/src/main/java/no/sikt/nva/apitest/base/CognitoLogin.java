@@ -1,7 +1,7 @@
 package no.sikt.nva.apitest.base;
 
 import static java.util.Objects.nonNull;
-import static org.hamcrest.Matchers.stringContainsInOrder;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import io.restassured.RestAssured;
 import io.restassured.path.json.JsonPath;
@@ -132,9 +132,10 @@ public final class CognitoLogin {
             .post(url)
             .then()
             .statusCode(302)
-            .header("Location", stringContainsInOrder("?code="))
             .extract()
             .response();
+
+    assertThat(response.header("Location")).contains("?code=");
 
     return response.getHeader("Location").split("\\?code=", -1)[1];
   }

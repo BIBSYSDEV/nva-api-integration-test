@@ -1,0 +1,28 @@
+{
+  "reference": {
+    "type": "Reference",
+    "publicationContext": {
+      "type": "Degree",
+      "series": {
+        "type": "UnconfirmedSeries",
+        "id": "https://api.e2e.nva.aws.unit.no/publication-channels-v2/serial-publication/01F85FBB-B084-43E5-9C67-E8F3D629CE73"
+      },
+      "publisher": {
+        "type": "Publisher",
+        "id": "https://api.e2e.nva.aws.unit.no/publication-channels-v2/publisher/D4AA649E-CB53-4CA0-89EC-F68FB02CFB96",
+        "valid": "true"
+      },
+      "isbnList": [
+        "9783161484100"
+      ]
+    },
+    "publicationInstance": {
+      "type": "DegreePhd",
+      "pages": {
+        "type": "MonographPages",
+        "pages": "150",
+        "illustrated": "false"
+      }
+    }
+  }
+}

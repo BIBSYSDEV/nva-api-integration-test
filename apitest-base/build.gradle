@@ -9,7 +9,7 @@ dependencies {
     implementation('software.amazon.awssdk:secretsmanager')
     implementation('software.amazon.awssdk:ssm')
     implementation(libs.rest.assured.json.path)
-    implementation(nvaCatalog.hamcrest)
+    implementation(nvaCatalog.assertj.core)
     implementation(nvaCatalog.httpcore4)
     runtimeOnly('software.amazon.awssdk:sso')
     runtimeOnly('software.amazon.awssdk:ssooidc')

@@ -49,5 +49,21 @@ public final class UserFixtures {
           .withAffiliations(Affiliation.UIB)
           .build();
 
+  public static final User UIB_CONTRIBUTOR =
+      User.builder()
+          .withName("Contributor UiB ApiTestUser")
+          .withUserId("api-test-user-contributor-uib@test.sikt.no")
+          .withCristinId("1862464@184.0.0.0")
+          .withAffiliations(Affiliation.UIB)
+          .build();
+
+  public static final User UIB_THESIS_CURATOR =
+      User.builder()
+          .withName("Curator-thesis UiB ApiTestUser")
+          .withUserId("api-test-user-curator-thesis-uib@test.sikt.no")
+          .withCristinId("1862466@184.0.0.0")
+          .withAffiliations(Affiliation.UIB)
+          .build();
+
   private UserFixtures() {}
 }

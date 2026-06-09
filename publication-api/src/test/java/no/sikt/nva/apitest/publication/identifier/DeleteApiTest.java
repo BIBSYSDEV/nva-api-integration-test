@@ -3,7 +3,7 @@ package no.sikt.nva.apitest.publication.identifier;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedRequest;
 import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
 import static no.sikt.nva.apitest.publication.PublicationPaths.publicationPath;
-import static org.hamcrest.Matchers.equalTo;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import io.qameta.allure.Description;
 import java.util.UUID;
@@ -55,11 +55,15 @@ class DeleteApiTest extends PublicationTestBase {
   void shouldReturnUnauthorizedWhenDeletingWithoutAuthentication() {
     var identifier = setupDraftPublication();
 
-    givenUnauthenticatedJsonRequest()
-        .when()
-        .delete(publicationPath(identifier))
-        .then()
-        .statusCode(401)
-        .body("message", equalTo("Unauthorized"));
+    var response =
+        givenUnauthenticatedJsonRequest()
+            .when()
+            .delete(publicationPath(identifier))
+            .then()
+            .statusCode(401)
+            .extract()
+            .jsonPath();
+
+    assertThat(response.getString("message")).isEqualTo("Unauthorized");
   }
 }
