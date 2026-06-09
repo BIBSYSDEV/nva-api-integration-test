@@ -90,7 +90,7 @@ public class PublicationFactory {
     var entityDescription = createEntityDescription(title, category, contributorList);
     ((Map<String, Object>)
             ((Map<String, Object>) entityDescription.get("reference")).get("publicationContext"))
-        .put("id", RestAssured.baseURI + "/publication/" + anthologyIdentifier);
+        .put("id", RestAssured.baseURI + publicationPath(anthologyIdentifier));
     responseBody.put(ENTITY_DESCRIPTION_FIELD, entityDescription);
 
     updatePublication(user, responseBody);
@@ -177,9 +177,9 @@ public class PublicationFactory {
 
     List<Map<String, Object>> contributors = new ArrayList<>();
     final var sequence = new AtomicInteger(1);
+    var contributorJsonPath = loadJsonResource("/metadata/Contributor.json");
     users.forEach(
         user -> {
-          var contributorJsonPath = loadJsonResource("/metadata/Contributor.json");
           Map<String, Object> contributor = contributorJsonPath.getMap("");
           contributor.put("sequence", String.valueOf(sequence.getAndIncrement()));
           Map<String, Object> identity = new HashMap<>();
@@ -197,8 +197,8 @@ public class PublicationFactory {
                     affiliation.put("type", "Organization");
                     affiliation.put("id", userAffiliation);
                     affiliations.add(affiliation);
-                    contributor.put("affiliations", affiliations);
                   });
+          contributor.put("affiliations", affiliations);
 
           contributors.add(contributor);
         });

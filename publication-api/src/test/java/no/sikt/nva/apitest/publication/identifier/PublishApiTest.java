@@ -4,7 +4,6 @@ import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequest;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedRequest;
 import static no.sikt.nva.apitest.publication.PublicationFields.IDENTIFIER_FIELD;
 import static no.sikt.nva.apitest.publication.PublicationPaths.publishPublicationPath;
-import static org.hamcrest.Matchers.equalTo;
 
 import io.qameta.allure.Description;
 import io.restassured.http.ContentType;
@@ -15,15 +14,21 @@ import no.sikt.Category;
 import no.sikt.nva.apitest.base.CognitoLogin;
 import no.sikt.nva.apitest.base.UserFixtures;
 import no.sikt.nva.apitest.publication.PublicationTestBase;
+import org.assertj.core.api.SoftAssertions;
+import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
+import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
+@ExtendWith(SoftAssertionsExtension.class)
 @SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
 class PublishApiTest extends PublicationTestBase {
 
+  @InjectSoftAssertions private SoftAssertions softly;
   private static String curatorAccessToken;
 
   @BeforeAll
@@ -66,12 +71,16 @@ class PublishApiTest extends PublicationTestBase {
   void shouldRejectPublishWhenMetadataIsIncomplete() {
     var identifier = setupDraftPublication();
 
-    givenAuthenticatedJsonRequest(curatorAccessToken)
-        .when()
-        .post(publishPublicationPath(identifier))
-        .then()
-        .statusCode(400)
-        .body("title", equalTo("Bad Request"))
-        .body("detail", equalTo("Resource is not publishable!"));
+    var response =
+        givenAuthenticatedJsonRequest(curatorAccessToken)
+            .when()
+            .post(publishPublicationPath(identifier))
+            .then()
+            .statusCode(400)
+            .extract()
+            .jsonPath();
+
+    softly.assertThat(response.getString("title")).isEqualTo("Bad Request");
+    softly.assertThat(response.getString("detail")).isEqualTo("Resource is not publishable!");
   }
 }

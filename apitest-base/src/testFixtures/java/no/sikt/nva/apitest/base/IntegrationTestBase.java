@@ -17,7 +17,7 @@ public class IntegrationTestBase {
             .setResponseTemplate("sanitized-http-response.ftl"));
     var logConfig =
         LogConfig.logConfig()
-            .enableLoggingOfRequestAndResponseIfValidationFails()
+            // .enableLoggingOfRequestAndResponseIfValidationFails()
             .blacklistHeaders(List.of("Authorization"));
     RestAssured.config = RestAssured.config().logConfig(logConfig);
   }

@@ -3,8 +3,7 @@ package no.sikt.nva.apitest.publication.identifier.fileupload;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequest;
 import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
 import static no.sikt.nva.apitest.publication.PublicationPaths.fileUploadPreparePath;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.startsWith;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import io.qameta.allure.Description;
 import java.util.Map;
@@ -16,33 +15,15 @@ import org.junit.jupiter.api.Test;
 @SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
 class PrepareApiTest extends FileUploadTestBase {
 
-  private static final String URL = "url";
-  private static final String BODY = "body";
-  private static final String NUMBER = "number";
-  private static final String UPLOAD_ID = "uploadId";
-  private static final String KEY = "key";
-
   @Test
   @DisplayName("file-upload/prepare returns presigned URL")
   @Description("Calling file-upload/prepare should return presigned URL and status code 200 OK")
   void shouldReturnUploadUrlWhenPrepareFile() {
     var identifier = setupDraftPublication();
-    var createResponse = createFileUpload(identifier);
 
-    var uploadId = createResponse.jsonPath().getString(UPLOAD_ID);
-    var key = createResponse.jsonPath().getString(KEY);
+    var url = createAndPrepareFileUpload(identifier);
 
-    var preparePayload =
-        Map.of(NUMBER, "1", UPLOAD_ID, uploadId, KEY, key, BODY, getFileAsString());
-
-    givenAuthenticatedJsonRequest(getCreatorAccessToken())
-        .body(preparePayload)
-        .when()
-        .post(fileUploadPreparePath(identifier))
-        .then()
-        .statusCode(200)
-        .body(URL, notNullValue())
-        .body(URL, startsWith("https://nva-resource-storage"));
+    assertThat(url).startsWith("https://nva-resource-storage");
   }
 
   @Test
@@ -76,7 +57,7 @@ class PrepareApiTest extends FileUploadTestBase {
   void shouldReturnNotFoundWhenPrepareWithWrongIdentifier() {
     var identifier = UUID.randomUUID().toString();
     var preparePayload =
-        Map.of(NUMBER, "1", UPLOAD_ID, UPLOAD_ID, KEY, KEY, BODY, getFileAsString());
+        Map.of(NUMBER, "1", UPLOAD_ID, "uploadId", KEY, "key", BODY, getFileAsString());
 
     givenAuthenticatedJsonRequest(getCreatorAccessToken())
         .body(preparePayload)

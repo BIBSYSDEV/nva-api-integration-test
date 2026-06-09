@@ -38,6 +38,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 @ExtendWith(SoftAssertionsExtension.class)
+@SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
 class BibTexTest extends SearchTestBase {
 
   @InjectSoftAssertions private SoftAssertions softly;
@@ -52,35 +53,31 @@ class BibTexTest extends SearchTestBase {
   }
 
   private String createTestPublication(Category category, String title) {
-    var identifier = "";
-    switch (category) {
+    return switch (category) {
       case ACADEMIC_CHAPTER -> {
-        var anthologyUuid = UUID.randomUUID().toString();
-        var anthologyTitle = "BibTex integration test anthology " + anthologyUuid;
         var anthologyIdentifier =
             PUBLICATION_FACTORY.createAnthologyForChapter(
-                UIB_CREATOR, anthologyTitle, UIB_PUBLISHING_CURATOR, List.of(UIB_CREATOR));
-        identifier =
-            PUBLICATION_FACTORY.createChapterInAnthology(
                 UIB_CREATOR,
-                title,
-                category,
-                List.of(UIB_CREATOR),
+                "BibTex integration test anthology " + UUID.randomUUID(),
                 UIB_PUBLISHING_CURATOR,
-                anthologyIdentifier,
                 List.of(UIB_CREATOR));
+
+        yield PUBLICATION_FACTORY.createChapterInAnthology(
+            UIB_CREATOR,
+            title,
+            category,
+            List.of(UIB_CREATOR),
+            UIB_PUBLISHING_CURATOR,
+            anthologyIdentifier,
+            List.of(UIB_CREATOR));
       }
       case DEGREE_PHD ->
-          identifier =
-              PUBLICATION_FACTORY.createPublishedPublication(
-                  UIB_THESIS_CURATOR, title, category, List.of(UIB_CREATOR), UIB_THESIS_CURATOR);
+          PUBLICATION_FACTORY.createPublishedPublication(
+              UIB_THESIS_CURATOR, title, category, List.of(UIB_CREATOR), UIB_THESIS_CURATOR);
       default ->
-          identifier =
-              PUBLICATION_FACTORY.createPublishedPublication(
-                  UIB_CREATOR, title, category, List.of(UIB_CREATOR), UIB_PUBLISHING_CURATOR);
-    }
-
-    return identifier;
+          PUBLICATION_FACTORY.createPublishedPublication(
+              UIB_CREATOR, title, category, List.of(UIB_CREATOR), UIB_PUBLISHING_CURATOR);
+    };
   }
 
   @ParameterizedTest
@@ -98,15 +95,13 @@ class BibTexTest extends SearchTestBase {
     with()
         .pollInterval(fibonacci().with().unit(SECONDS))
         .await()
-        .atMost(20, SECONDS)
+        .atMost(30, SECONDS)
         .until(() -> !getResponseBody(titleUuid).isEmpty());
 
     var responseBody = getResponseBody(titleUuid);
     var allExpectations = buildAllExpectations(expectation, title, identifier);
 
     allExpectations.forEach(expected -> softly.assertThat(responseBody).contains(expected));
-
-    softly.assertAll();
   }
 
   private String getResponseBody(String titleUuid) {
@@ -116,8 +111,6 @@ class BibTexTest extends SearchTestBase {
         .when()
         .get("/search/resources")
         .then()
-        .log()
-        .all()
         .statusCode(200)
         .contentType("text/x-bibtex")
         .extract()

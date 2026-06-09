@@ -3,16 +3,21 @@ package no.sikt.nva.apitest.publication.identifier.fileupload;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequest;
 import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
 import static no.sikt.nva.apitest.publication.PublicationPaths.fileUploadCreatePath;
-import static org.hamcrest.Matchers.notNullValue;
 
 import io.qameta.allure.Description;
 import java.util.UUID;
+import org.assertj.core.api.SoftAssertions;
+import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
+import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
+@ExtendWith(SoftAssertionsExtension.class)
 @SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
 class CreateApiTest extends FileUploadTestBase {
 
+  @InjectSoftAssertions private SoftAssertions softly;
   private static final String UPLOAD_ID = "uploadId";
   private static final String KEY = "key";
 
@@ -22,14 +27,18 @@ class CreateApiTest extends FileUploadTestBase {
   void shouldReturnUploadIdAndKeyWhenCreatingFileUpload() {
     var identifier = setupDraftPublication();
 
-    givenAuthenticatedJsonRequest(getCreatorAccessToken())
-        .body(CREATE_PAYLOAD)
-        .when()
-        .post(fileUploadCreatePath(identifier))
-        .then()
-        .statusCode(200)
-        .body(UPLOAD_ID, notNullValue())
-        .body(KEY, notNullValue());
+    var response =
+        givenAuthenticatedJsonRequest(getCreatorAccessToken())
+            .body(CREATE_PAYLOAD)
+            .when()
+            .post(fileUploadCreatePath(identifier))
+            .then()
+            .statusCode(200)
+            .extract()
+            .jsonPath();
+
+    softly.assertThat(response.getString(UPLOAD_ID)).isNotNull();
+    softly.assertThat(response.getString(KEY)).isNotNull();
   }
 
   @Test
