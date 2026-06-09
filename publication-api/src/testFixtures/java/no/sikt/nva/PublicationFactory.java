@@ -78,8 +78,7 @@ public class PublicationFactory {
       Category category,
       List<User> contributorList,
       User curator,
-      String anthologyIdentifier,
-      List<User> anthologyEditorList) {
+      String anthologyIdentifier) {
 
     var createResponse = createDraftPublication(user);
 
@@ -180,7 +179,8 @@ public class PublicationFactory {
     var contributorJsonPath = loadJsonResource("/metadata/Contributor.json");
     users.forEach(
         user -> {
-          Map<String, Object> contributor = contributorJsonPath.getMap("");
+          Map<String, Object> contributor = new HashMap<>();
+          contributor.putAll(contributorJsonPath.getMap(""));
           contributor.put("sequence", String.valueOf(sequence.getAndIncrement()));
           Map<String, Object> identity = new HashMap<>();
           identity.put("type", "Identity");

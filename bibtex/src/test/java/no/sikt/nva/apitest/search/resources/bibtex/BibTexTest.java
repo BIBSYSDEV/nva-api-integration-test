@@ -68,8 +68,7 @@ class BibTexTest extends SearchTestBase {
             category,
             List.of(UIB_CREATOR),
             UIB_PUBLISHING_CURATOR,
-            anthologyIdentifier,
-            List.of(UIB_CREATOR));
+            anthologyIdentifier);
       }
       case DEGREE_PHD ->
           PUBLICATION_FACTORY.createPublishedPublication(

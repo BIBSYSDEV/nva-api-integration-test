@@ -8,7 +8,6 @@ import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-// @SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
 class PresignedUrlApiTest extends FileUploadTestBase {
 
   @Test
