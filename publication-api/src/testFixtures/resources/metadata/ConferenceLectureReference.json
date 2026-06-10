@@ -1,0 +1,29 @@
+{
+  "reference": {
+    "type": "Reference",
+    "publicationContext": {
+      "type": "Event",
+      "name": "Conference lecture",
+      "place": {
+        "type": "UnconfirmedPlace",
+        "name": "Place",
+        "country": "NO"
+      },
+      "time": {
+        "type": "Period",
+        "from": "2026-06-08T22:00:00Z",
+        "to": "2026-06-09T22:00:00Z"
+      },
+      "agent": {
+        "type": "UnconfirmedOrganization",
+        "name": "Organizer"
+      }
+    },
+    "publicationInstance": {
+      "type": "ConferenceLecture",
+      "pages": {
+        "type": "NullPages"
+      }
+    }
+  }
+}

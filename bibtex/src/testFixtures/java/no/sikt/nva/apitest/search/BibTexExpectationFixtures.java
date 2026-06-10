@@ -33,6 +33,13 @@ public class BibTexExpectationFixtures {
               "note = {nva type: BookAnthology}",
               MONOGRAPH_PAGES,
               "publisher = {Springer Nature}"));
+  public static final BibTexExpectation EXPECTED_BIBTEX_DEGREE_MASTER =
+      new BibTexExpectation(
+          "mastersthesis",
+          List.of(
+              "note = {nva type: DegreeMaster}",
+              MONOGRAPH_PAGES,
+              "school = {SINTEF akademisk forlag}"));
   public static final BibTexExpectation EXPECTED_BIBTEX_DEGREE_PHD =
       new BibTexExpectation(
           "phdthesis",
@@ -57,4 +64,8 @@ public class BibTexExpectationFixtures {
               "note = {nva type: ReportResearch}",
               MONOGRAPH_PAGES,
               "institution = {SINTEF akademisk forlag}"));
+  public static final BibTexExpectation EXPECTED_BIBTEX_CONFERENCE_LECTURE =
+      new BibTexExpectation(
+          "inproceedings",
+          List.of("note = {nva type: ConferenceLecture", "booktitle = {Conference lecture}"));
 }
