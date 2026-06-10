@@ -184,7 +184,8 @@ public class PublicationFactory {
           contributor.put("sequence", String.valueOf(sequence.getAndIncrement()));
           Map<String, Object> identity = new HashMap<>();
           identity.put("type", "Identity");
-          identity.put("id", user.cristinId());
+          identity.put(
+              "id", RestAssured.baseURI + "/cristin/person/" + user.cristinId().split("@")[0]);
           identity.put("verificationStatus", "Verified");
           identity.put("name", user.name());
           contributor.put("identity", identity);
