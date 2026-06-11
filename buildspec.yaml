@@ -17,5 +17,6 @@ phases:
     commands:
       - mkdir -p allure-results
       - cp */build/allure-results/* allure-results
+      - aws s3 cp s3://$TESTREPORTS_BUCKET/history allure-results/history --recursive || true
       - npx allure awesome allure-results --single-file
       - aws s3 cp allure-report s3://$TESTREPORTS_BUCKET --recursive

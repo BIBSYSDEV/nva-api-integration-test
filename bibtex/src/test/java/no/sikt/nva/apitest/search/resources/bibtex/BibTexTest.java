@@ -30,6 +30,7 @@ import io.restassured.RestAssured;
 import io.restassured.parsing.Parser;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import no.sikt.Category;
 import no.sikt.nva.apitest.search.BibTexExpectation;
@@ -38,13 +39,13 @@ import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 @ExtendWith(SoftAssertionsExtension.class)
-@SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
 class BibTexTest extends SearchTestBase {
 
   @InjectSoftAssertions private SoftAssertions softly;
@@ -80,7 +81,7 @@ class BibTexTest extends SearchTestBase {
             UIB_PUBLISHING_CURATOR,
             anthologyIdentifier);
       }
-      case DEGREE_PHD ->
+      case DEGREE_PHD, DEGREE_MASTER ->
           PUBLICATION_FACTORY.createPublishedPublication(
               UIB_THESIS_CURATOR, title, category, List.of(UIB_CREATOR), UIB_THESIS_CURATOR);
       default ->
@@ -111,12 +112,17 @@ class BibTexTest extends SearchTestBase {
     var responseBody = getResponseBody(titleUuid);
     var allExpectations = buildAllExpectations(expectation, title, identifier);
 
+    softly.assertThat(responseBody.lines()).hasSize(allExpectations.size());
     allExpectations.forEach(expected -> softly.assertThat(responseBody).contains(expected));
+
+    softly
+        .assertThat(responseBody.lines().filter(line -> !line.startsWith("@")).toList())
+        .isSorted();
   }
 
-  private String getResponseBody(String titleUuid) {
+  private String getResponseBody(String query) {
     return given()
-        .param("query", titleUuid)
+        .param("query", query)
         .accept(TEXT_X_BIBTEX)
         .when()
         .get("/search/resources")
@@ -133,11 +139,54 @@ class BibTexTest extends SearchTestBase {
             expectation.expectations().stream(),
             Stream.of(
                 "@" + expectation.bibtexType() + "{" + identifier,
+                "author = {" + UIB_CREATOR.name() + "}",
                 "url = {" + RestAssured.baseURI + "/publication/" + identifier + "}",
                 "title = {" + title + "}",
                 "month = {" + CURRENT_MONTH_SHORT_NAME + "}",
                 "year = {" + CURRENT_YEAR + "}",
                 "}"))
         .toList();
+  }
+
+  @Test
+  @DisplayName("Search for multiple publications, return text/x-bibtex format")
+  @Description(
+      "A list of publications should contain a type that starts with '@' and two newlines between"
+          + " publications")
+  void shouldReturnListOfPublicationsInBibTexFormat() {
+
+    var commonUuid = UUID.randomUUID();
+    var titleRoot = "BibTex-test-publication";
+    var categories =
+        List.of(
+            ACADEMIC_ARTICLE,
+            ACADEMIC_MONOGRAPH,
+            ACADEMIC_CHAPTER,
+            CONFERENCE_LECTURE,
+            DEGREE_MASTER,
+            DEGREE_PHD);
+
+    IntStream.range(0, categories.size())
+        .forEach(
+            i ->
+                createTestPublication(
+                    categories.get(i), titleRoot + i + " " + commonUuid + " " + UUID.randomUUID()));
+
+    // retry until last test publication is indexed
+    var retryQuery = titleRoot + (categories.size() - 1);
+    with()
+        .pollInterval(fibonacci().with().unit(SECONDS))
+        .await()
+        .atMost(30, SECONDS)
+        .until(() -> !getResponseBody(retryQuery).isEmpty());
+
+    var responseBody = getResponseBody(commonUuid.toString());
+
+    softly
+        .assertThat(responseBody.lines().filter(line -> line.startsWith("@")))
+        .hasSize(categories.size());
+    softly
+        .assertThat(responseBody.lines().filter(String::isBlank))
+        .hasSize((categories.size() - 1) * 2);
   }
 }
