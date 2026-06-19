@@ -144,6 +144,7 @@ class BibTexTest extends SearchTestBase {
                 "title = {" + title + "}",
                 "month = {" + CURRENT_MONTH_SHORT_NAME + "}",
                 "year = {" + CURRENT_YEAR + "}",
+                "nva_api = {" + RestAssured.baseURI + "/publication/" + identifier,
                 "}"))
         .toList();
   }
@@ -167,6 +168,7 @@ class BibTexTest extends SearchTestBase {
             DEGREE_PHD);
 
     IntStream.range(0, categories.size())
+        .parallel()
         .forEach(
             i ->
                 createTestPublication(
