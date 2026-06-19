@@ -1,19 +1,9 @@
 package no.sikt.nva.apitest.publication.identifier;
 
-import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequest;
-import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedRequest;
-import static no.sikt.nva.apitest.publication.PublicationFields.IDENTIFIER_FIELD;
-import static no.sikt.nva.apitest.publication.PublicationPaths.publishPublicationPath;
-
-import io.qameta.allure.Description;
-import io.restassured.http.ContentType;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import no.sikt.Category;
-import no.sikt.nva.apitest.base.CognitoLogin;
-import no.sikt.nva.apitest.base.UserFixtures;
-import no.sikt.nva.apitest.publication.PublicationTestBase;
+
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
@@ -24,11 +14,23 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
+import io.qameta.allure.Description;
+import io.restassured.http.ContentType;
+import no.sikt.Category;
+import no.sikt.nva.apitest.base.CognitoLogin;
+import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequest;
+import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedRequest;
+import no.sikt.nva.apitest.base.UserFixtures;
+import static no.sikt.nva.apitest.publication.PublicationFields.IDENTIFIER_FIELD;
+import static no.sikt.nva.apitest.publication.PublicationPaths.publishPublicationPath;
+import no.sikt.nva.apitest.publication.PublicationTestBase;
+
 @ExtendWith(SoftAssertionsExtension.class)
 @SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
 class PublishApiTest extends PublicationTestBase {
 
-  @InjectSoftAssertions private SoftAssertions softly;
+  @InjectSoftAssertions
+  private SoftAssertions softly;
   private static String curatorAccessToken;
 
   @BeforeAll
@@ -37,9 +39,7 @@ class PublishApiTest extends PublicationTestBase {
   }
 
   @ParameterizedTest
-  @EnumSource(
-      value = Category.class,
-      names = {"ACADEMIC_ARTICLE", "ACADEMIC_MONOGRAPH"})
+  @EnumSource(value = Category.class, names = { "ACADEMIC_ARTICLE", "ACADEMIC_MONOGRAPH" })
   @DisplayName("Curator publish draft publication")
   @Description("A Curator calling publish should return statuscode 202 Accepted")
   void shouldPublishDraftWhenRequestedByCurator(Category category) {
@@ -48,11 +48,9 @@ class PublishApiTest extends PublicationTestBase {
     var identifier = createResponse.jsonPath().getString(IDENTIFIER_FIELD);
     Map<String, Object> responseBody = createResponse.body().jsonPath().getMap("");
 
-    String publishPublicationTitle =
-        "Integration test publication " + category.name() + " " + UUID.randomUUID();
-    Map<String, ?> entityDescription =
-        PUBLICATION_FACTORY.createEntityDescription(
-            publishPublicationTitle, category, List.of(UserFixtures.UIB_CREATOR));
+    String publishPublicationTitle = "Integration test publication " + category.name() + " " + UUID.randomUUID();
+    Map<String, ?> entityDescription = PUBLICATION_FACTORY.createEntityDescription(
+        publishPublicationTitle, category, List.of(UserFixtures.UIB_CREATOR));
     responseBody.put("entityDescription", entityDescription);
 
     PUBLICATION_FACTORY.updatePublication(UserFixtures.UIB_CREATOR, responseBody);
@@ -71,16 +69,36 @@ class PublishApiTest extends PublicationTestBase {
   void shouldRejectPublishWhenMetadataIsIncomplete() {
     var identifier = setupDraftPublication();
 
-    var response =
-        givenAuthenticatedJsonRequest(curatorAccessToken)
-            .when()
-            .post(publishPublicationPath(identifier))
-            .then()
-            .statusCode(400)
-            .extract()
-            .jsonPath();
+    var response = givenAuthenticatedJsonRequest(curatorAccessToken)
+        .when()
+        .post(publishPublicationPath(identifier))
+        .then()
+        .statusCode(400)
+        .extract()
+        .jsonPath();
 
     softly.assertThat(response.getString("title")).isEqualTo("Bad Request");
     softly.assertThat(response.getString("detail")).isEqualTo("Resource is not publishable!");
+  }
+
+  @Test
+  @DisplayName("Non-curator publish publication")
+  @Description("A non-curator user publishing a publication should return 401 Unauthorized")
+  void shouldRejectPublishWhenUserIsNotCurator() {
+    var creatorAccessToken = CognitoLogin.login(UserFixtures.UIB_CREATOR.userId()).get("accessToken");
+
+    var identifier = setupDraftPublication();
+
+    var response = givenAuthenticatedJsonRequest(creatorAccessToken)
+        .when()
+        .post(publishPublicationPath(identifier))
+        .then()
+        .statusCode(400)
+        .extract()
+        .jsonPath();
+
+    softly.assertThat(response.getString("title")).isEqualTo("Bad Request");
+    softly.assertThat(response.getString("detail")).isEqualTo("Resource is not publishable!");
+
   }
 }

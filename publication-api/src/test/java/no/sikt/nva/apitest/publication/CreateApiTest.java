@@ -1,17 +1,9 @@
 package no.sikt.nva.apitest.publication;
 
-import static no.sikt.nva.apitest.base.Affiliation.UIB;
-import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedRequest;
-import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
-import static no.sikt.nva.apitest.publication.PublicationFields.IDENTIFIER_FIELD;
-
-import io.qameta.allure.Description;
-import io.restassured.RestAssured;
-import io.restassured.http.ContentType;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import no.sikt.nva.apitest.base.CognitoLogin;
+
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
@@ -20,10 +12,22 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import io.qameta.allure.Description;
+import io.restassured.RestAssured;
+import static io.restassured.RestAssured.given;
+import io.restassured.http.ContentType;
+import static no.sikt.nva.apitest.base.Affiliation.UIB;
+import no.sikt.nva.apitest.base.CognitoLogin;
+import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedRequest;
+import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
+import static no.sikt.nva.apitest.publication.PublicationFields.IDENTIFIER_FIELD;
+import static no.sikt.nva.apitest.publication.PublicationPaths.createPublicationPath;
+
 @ExtendWith(SoftAssertionsExtension.class)
 class CreateApiTest extends PublicationTestBase {
 
-  @InjectSoftAssertions private SoftAssertions softly;
+  @InjectSoftAssertions
+  private SoftAssertions softly;
 
   private static String customerUib;
   private static String creatorAccessToken;
@@ -38,22 +42,19 @@ class CreateApiTest extends PublicationTestBase {
 
   @Test
   @DisplayName("Creator create draft publication")
-  @Description(
-      "A Creator calling create publication should return publication metadata and statuscode 201"
-          + " Created")
+  @Description("A Creator calling create publication should return publication metadata and statuscode 201"
+      + " Created")
   void shouldCreateDraftPublicationOwnedByCreator() {
-    var today =
-        LocalDate.now(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+    var today = LocalDate.now(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
-    var response =
-        givenAuthenticatedRequest(creatorAccessToken)
-            .accept(ContentType.JSON)
-            .when()
-            .post(PublicationPaths.createPublicationPath())
-            .then()
-            .statusCode(201)
-            .extract()
-            .jsonPath();
+    var response = givenAuthenticatedRequest(creatorAccessToken)
+        .accept(ContentType.JSON)
+        .when()
+        .post(createPublicationPath())
+        .then()
+        .statusCode(201)
+        .extract()
+        .jsonPath();
 
     softly.assertThat(response.getString("type")).isEqualTo("Publication");
     softly.assertThat(response.getString(IDENTIFIER_FIELD)).isNotNull();
@@ -66,5 +67,17 @@ class CreateApiTest extends PublicationTestBase {
     softly.assertThat(response.getString("publisher.id")).isEqualTo(customerUib);
     softly.assertThat(response.getString("createdDate")).startsWith(today);
     softly.assertThat(response.getString("modifiedDate")).startsWith(today);
+  }
+
+  @Test
+  @DisplayName("Unauthenticated user tries to create publication")
+  @Description("An unauthenticated user calling create should retirn return status code 401 Unauthenticated")
+  void shouldReturnUnauthorizedWhenCreateWithUnauthenticatedUser() {
+    given()
+        .accept(ContentType.JSON)
+        .when()
+        .post(createPublicationPath())
+        .then()
+        .statusCode(401);
   }
 }
