@@ -168,7 +168,6 @@ class BibTexTest extends SearchTestBase {
             DEGREE_PHD);
 
     IntStream.range(0, categories.size())
-        .parallel()
         .forEach(
             i ->
                 createTestPublication(
