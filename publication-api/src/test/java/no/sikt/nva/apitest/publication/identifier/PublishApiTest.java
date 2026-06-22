@@ -83,4 +83,26 @@ class PublishApiTest extends PublicationTestBase {
     softly.assertThat(response.getString("title")).isEqualTo("Bad Request");
     softly.assertThat(response.getString("detail")).isEqualTo("Resource is not publishable!");
   }
+
+  @Test
+  @DisplayName("Non-curator publish publication")
+  @Description("A non-curator user publishing a publication should return 401 Unauthorized")
+  void shouldRejectPublishWhenUserIsNotCurator() {
+    var creatorAccessToken =
+        CognitoLogin.login(UserFixtures.UIB_CREATOR.userId()).get("accessToken");
+
+    var identifier = setupDraftPublication();
+
+    var response =
+        givenAuthenticatedJsonRequest(creatorAccessToken)
+            .when()
+            .post(publishPublicationPath(identifier))
+            .then()
+            .statusCode(400)
+            .extract()
+            .jsonPath();
+
+    softly.assertThat(response.getString("title")).isEqualTo("Bad Request");
+    softly.assertThat(response.getString("detail")).isEqualTo("Resource is not publishable!");
+  }
 }

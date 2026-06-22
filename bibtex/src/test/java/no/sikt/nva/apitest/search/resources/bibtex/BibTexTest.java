@@ -144,6 +144,7 @@ class BibTexTest extends SearchTestBase {
                 "title = {" + title + "}",
                 "month = {" + CURRENT_MONTH_SHORT_NAME + "}",
                 "year = {" + CURRENT_YEAR + "}",
+                "nva_api = {" + RestAssured.baseURI + "/publication/" + identifier,
                 "}"))
         .toList();
   }
