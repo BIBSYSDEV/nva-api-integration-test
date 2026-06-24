@@ -1,28 +1,28 @@
 package no.sikt.nva;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import static java.util.Objects.isNull;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import io.restassured.RestAssured;
-import io.restassured.path.json.JsonPath;
-import io.restassured.response.Response;
-import no.sikt.Category;
-import no.sikt.nva.apitest.base.CognitoLogin;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_DAY;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_MONTH;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_YEAR;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequest;
-import no.sikt.nva.apitest.base.User;
 import static no.sikt.nva.apitest.publication.PublicationFields.CONTEXT_FIELD;
 import static no.sikt.nva.apitest.publication.PublicationFields.ENTITY_DESCRIPTION_FIELD;
 import static no.sikt.nva.apitest.publication.PublicationFields.IDENTIFIER_FIELD;
-import no.sikt.nva.apitest.publication.PublicationPaths;
 import static no.sikt.nva.apitest.publication.PublicationPaths.publicationPath;
 import static no.sikt.nva.apitest.publication.PublicationPaths.publishPublicationPath;
+
+import io.restassured.RestAssured;
+import io.restassured.path.json.JsonPath;
+import io.restassured.response.Response;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+import no.sikt.Category;
+import no.sikt.nva.apitest.base.CognitoLogin;
+import no.sikt.nva.apitest.base.User;
+import no.sikt.nva.apitest.publication.PublicationPaths;
 
 public class PublicationFactory {
 
