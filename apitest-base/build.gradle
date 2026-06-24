@@ -15,7 +15,6 @@ dependencies {
     runtimeOnly('software.amazon.awssdk:ssooidc')
     runtimeOnly(nvaCatalog.jackson.core)
     runtimeOnly(nvaCatalog.jackson.databind)
-    testFixturesAnnotationProcessor(nvaCatalog.errorprone)
     testFixturesImplementation(libs.allure.rest.assured)
     testFixturesImplementation(nvaCatalog.junit.jupiter.api)
     testFixturesRuntimeOnly(libs.allure.java.commons)

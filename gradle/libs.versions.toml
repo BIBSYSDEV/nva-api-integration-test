@@ -1,6 +1,6 @@
 [versions]
 rest-assured = "6.0.0"
-allure = "2.35.1"
+allure = "2.35.2"
 awaitility = "4.3.0"
 
 [libraries]
