@@ -18,11 +18,11 @@ This project is a simple API testing application built using Java and Gradle.
 
 3. Run the Gradle wrapper to build the project:
    ```
-   ./gradlew build
+   ./gradlew build -x test
    ```
    or for Windows:
    ```
-   gradlew.bat build
+   gradlew.bat build -x test
    ```
 4. Install Allure for reports:
    ```
@@ -42,7 +42,10 @@ aws sso login --sso-session sikt
 Then pass the profile to any Gradle task via `-PawsProfile=<profile>`:
 
 ```
+# Run a full build with tests
 ./gradlew build -PawsProfile=nva-e2e
+
+# Force re-run of all tests
 ./gradlew test -PawsProfile=nva-e2e --rerun-tasks
 ```
 
