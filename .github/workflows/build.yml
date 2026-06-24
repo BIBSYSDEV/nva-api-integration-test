@@ -30,4 +30,4 @@ jobs:
 
       - name: Static analysis
         # Skips test task to avoid running API tests in CI
-        run: ./gradlew check -x test
+        run: ./gradlew build -x test
