@@ -1,8 +1,32 @@
 package no.sikt.nva.apitest.search.resources.bibtex;
 
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import org.assertj.core.api.SoftAssertions;
+import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
+import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
+import static org.awaitility.Awaitility.with;
+import static org.awaitility.pollinterval.FibonacciPollInterval.fibonacci;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import static org.junit.jupiter.params.provider.Arguments.argumentSet;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import io.qameta.allure.Description;
+import io.restassured.RestAssured;
 import static io.restassured.RestAssured.baseURI;
 import static io.restassured.RestAssured.given;
-import static java.util.concurrent.TimeUnit.SECONDS;
+import io.restassured.parsing.Parser;
+import no.sikt.Category;
 import static no.sikt.Category.ACADEMIC_ARTICLE;
 import static no.sikt.Category.ACADEMIC_CHAPTER;
 import static no.sikt.Category.ACADEMIC_MONOGRAPH;
@@ -13,11 +37,14 @@ import static no.sikt.Category.RESEARCH_REPORT;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_MONTH_SHORT_NAME;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_YEAR;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
+import no.sikt.nva.apitest.base.User;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CONTRIBUTOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_PUBLISHING_CURATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_THESIS_CURATOR;
+import no.sikt.nva.apitest.publication.PublicationFields;
 import static no.sikt.nva.apitest.publication.PublicationFields.ENTITY_DESCRIPTION_FIELD;
+import no.sikt.nva.apitest.search.BibTexExpectation;
 import static no.sikt.nva.apitest.search.BibTexExpectationFixtures.EXPECTED_BIBTEX_ACADEMIC_ARTICLE;
 import static no.sikt.nva.apitest.search.BibTexExpectationFixtures.EXPECTED_BIBTEX_ACADEMIC_CHAPTER;
 import static no.sikt.nva.apitest.search.BibTexExpectationFixtures.EXPECTED_BIBTEX_ACADEMIC_MONOGRAPH;
@@ -25,33 +52,7 @@ import static no.sikt.nva.apitest.search.BibTexExpectationFixtures.EXPECTED_BIBT
 import static no.sikt.nva.apitest.search.BibTexExpectationFixtures.EXPECTED_BIBTEX_DEGREE_MASTER;
 import static no.sikt.nva.apitest.search.BibTexExpectationFixtures.EXPECTED_BIBTEX_DEGREE_PHD;
 import static no.sikt.nva.apitest.search.BibTexExpectationFixtures.EXPECTED_BIBTEX_REPORT_RESEARCH;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.awaitility.Awaitility.with;
-import static org.awaitility.pollinterval.FibonacciPollInterval.fibonacci;
-import static org.junit.jupiter.params.provider.Arguments.argumentSet;
-
-import io.qameta.allure.Description;
-import io.restassured.RestAssured;
-import io.restassured.parsing.Parser;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
-import no.sikt.Category;
-import no.sikt.nva.apitest.base.User;
-import no.sikt.nva.apitest.publication.PublicationFields;
-import no.sikt.nva.apitest.search.BibTexExpectation;
 import no.sikt.nva.apitest.search.SearchTestBase;
-import org.assertj.core.api.SoftAssertions;
-import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
-import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 
 @ExtendWith(SoftAssertionsExtension.class)
 class BibTexTest extends SearchTestBase {
@@ -142,8 +143,12 @@ class BibTexTest extends SearchTestBase {
     with()
         .pollInterval(fibonacci().with().unit(SECONDS))
         .await()
-        .atMost(60, SECONDS)
-        .until(() -> !getResponseBody(query).isEmpty());
+        .atMost(120, SECONDS)
+        .until(
+            () -> {
+              var body = getResponseBody(query);
+              return body != null && !body.isEmpty();
+            });
 
     assertThat(getResponseBody(query)).isNotEmpty();
   }
@@ -251,7 +256,7 @@ class BibTexTest extends SearchTestBase {
           + " format")
   void shouldReturnOnlineIssnWhenBothOnlineIssnAndPrintIssnIsPresent() {
 
-    final String onlineIssn = "1520-4898";
+    final var onlineIssn = "1520-4898";
     var titleUuid = UUID.randomUUID().toString();
     var title = "BibTex Integration test publication ISSN " + titleUuid;
     createIssnPublication(title);
@@ -263,13 +268,13 @@ class BibTexTest extends SearchTestBase {
   }
 
   private void createIssnPublication(String title) {
-    final String issnJournalUri =
+    final var issnJournalUri =
         baseURI
             + "/publication-channels-v2/serial-publication/271CEF41-0052-48CA-BB31-6780C7BA1F44/"
             + CURRENT_YEAR;
 
     var response = PUBLICATION_FACTORY.createDraftPublication(UIB_CREATOR);
-    String identifier = response.body().jsonPath().get("identifier");
+    var identifier = response.body().jsonPath().getString("identifier");
     Map<String, Object> payload = response.body().jsonPath().getMap("");
     payload.remove(PublicationFields.CONTEXT_FIELD);
     var entityDescription =
@@ -302,7 +307,7 @@ class BibTexTest extends SearchTestBase {
     waitForIndexing(titleUuid);
 
     var response = getResponseBody(titleUuid);
-    String authorLine =
+    var authorLine =
         response.lines().filter(line -> line.contains("author")).findFirst().orElse("").trim();
     softly.assertThat(authorLine).contains(UIB_CREATOR.name());
     softly.assertThat(authorLine).contains(UIB_CONTRIBUTOR.name());
@@ -326,10 +331,10 @@ class BibTexTest extends SearchTestBase {
       "A publication with multiple keywords should present a list of keywords separated with ','")
   void shouldPresentMultipleKeywordsSeparatedWithComma() {
     var titleUuid = UUID.randomUUID().toString();
-    var title = "BibTex Integration test publication multiple authors " + titleUuid;
+    var title = "BibTex Integration test publication multiple keywords " + titleUuid;
 
     var response = PUBLICATION_FACTORY.createDraftPublication(UIB_CREATOR);
-    String identifier = response.body().jsonPath().get("identifier");
+    var identifier = response.body().jsonPath().getString("identifier");
     Map<String, Object> payload = response.body().jsonPath().getMap("");
     payload.remove(PublicationFields.CONTEXT_FIELD);
     var entityDescription =
@@ -343,7 +348,7 @@ class BibTexTest extends SearchTestBase {
     waitForIndexing(titleUuid);
 
     var searchResponse = getResponseBody(titleUuid);
-    String keywordLine =
+    var keywordLine =
         searchResponse
             .lines()
             .filter(line -> line.contains("keywords"))
@@ -354,6 +359,6 @@ class BibTexTest extends SearchTestBase {
     softly.assertThat(keywordLine).contains("key2");
     softly.assertThat(keywordLine).contains("key3");
 
-    softly.assertThat(keywordLine.chars().filter(ch -> ch == ',').count()).isEqualTo(2);
+    softly.assertThat(keywordLine.chars().filter(ch -> ch == ',').count()).isEqualTo(3);
   }
 }

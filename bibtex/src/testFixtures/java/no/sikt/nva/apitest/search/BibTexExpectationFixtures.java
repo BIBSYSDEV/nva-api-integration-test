@@ -53,7 +53,7 @@ public class BibTexExpectationFixtures {
           "inbook",
           List.of(
               ISBN,
-              "booktile = {Anthology for BibTex integration test",
+              "booktitle = {Anthology for BibTex integration test",
               "note = {nva type: AcademicChapter}",
               "pages = {1--20}",
               "publisher = {Springer Nature}"));
