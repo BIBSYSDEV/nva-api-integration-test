@@ -1,19 +1,9 @@
 package no.sikt.nva.apitest.publication.identifier;
 
-import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequest;
-import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedRequest;
-import static no.sikt.nva.apitest.publication.PublicationFields.IDENTIFIER_FIELD;
-import static no.sikt.nva.apitest.publication.PublicationPaths.publishPublicationPath;
-
-import io.qameta.allure.Description;
-import io.restassured.http.ContentType;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import no.sikt.Category;
-import no.sikt.nva.apitest.base.CognitoLogin;
-import no.sikt.nva.apitest.base.UserFixtures;
-import no.sikt.nva.apitest.publication.PublicationTestBase;
+
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
@@ -23,6 +13,19 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
+
+import io.qameta.allure.Description;
+import io.restassured.http.ContentType;
+import no.sikt.Category;
+import no.sikt.Contributor;
+import no.sikt.Role;
+import no.sikt.nva.apitest.base.CognitoLogin;
+import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequest;
+import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedRequest;
+import no.sikt.nva.apitest.base.UserFixtures;
+import static no.sikt.nva.apitest.publication.PublicationFields.IDENTIFIER_FIELD;
+import static no.sikt.nva.apitest.publication.PublicationPaths.publishPublicationPath;
+import no.sikt.nva.apitest.publication.PublicationTestBase;
 
 @ExtendWith(SoftAssertionsExtension.class)
 @SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
@@ -52,7 +55,7 @@ class PublishApiTest extends PublicationTestBase {
         "Integration test publication " + category.name() + " " + UUID.randomUUID();
     Map<String, ?> entityDescription =
         PUBLICATION_FACTORY.createEntityDescription(
-            publishPublicationTitle, category, List.of(UserFixtures.UIB_CREATOR));
+            publishPublicationTitle, category, List.of(new Contributor(UserFixtures.UIB_CREATOR, Role.CREATOR)));
     responseBody.put("entityDescription", entityDescription);
 
     PUBLICATION_FACTORY.updatePublication(UserFixtures.UIB_CREATOR, responseBody);

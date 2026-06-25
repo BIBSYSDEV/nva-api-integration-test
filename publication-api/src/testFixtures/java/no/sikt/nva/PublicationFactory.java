@@ -1,5 +1,6 @@
 package no.sikt.nva;
 
+import static io.restassured.RestAssured.baseURI;
 import static java.util.Objects.isNull;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_DAY;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_MONTH;
@@ -15,7 +16,6 @@ import static no.sikt.nva.apitest.publication.PublicationFields.REFERENCE;
 import static no.sikt.nva.apitest.publication.PublicationPaths.publicationPath;
 import static no.sikt.nva.apitest.publication.PublicationPaths.publishPublicationPath;
 
-import io.restassured.RestAssured;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import java.util.ArrayList;
@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import no.sikt.Category;
+import no.sikt.Contributor;
 import no.sikt.nva.apitest.base.CognitoLogin;
 import no.sikt.nva.apitest.base.User;
 import no.sikt.nva.apitest.publication.PublicationPaths;
@@ -68,7 +69,7 @@ public class PublicationFactory {
   }
 
   public String createPublishedPublication(
-      User user, String title, Category category, List<User> contributorList, User curator) {
+      User user, String title, Category category, List<Contributor> contributorList, User curator) {
     return createPublishedPublicationUsingTokens(
         CognitoLogin.loginUser(user).get(ACCESS_TOKEN),
         title,
@@ -81,7 +82,7 @@ public class PublicationFactory {
       String accessToken,
       String title,
       Category category,
-      List<User> contributorList,
+      List<Contributor> contributorList,
       String curatorAccessToken) {
 
     return createPublishedPublicationWithReferenceUsingTokens(
@@ -92,7 +93,7 @@ public class PublicationFactory {
       User user,
       String title,
       Category category,
-      List<User> contributorList,
+      List<Contributor> contributorList,
       User curator,
       Map<String, Object> reference) {
 
@@ -109,7 +110,7 @@ public class PublicationFactory {
       String accessToken,
       String title,
       Category category,
-      List<User> contributorList,
+      List<Contributor> contributorList,
       String curatorAccessToken,
       Map<String, Object> reference) {
 
@@ -158,7 +159,7 @@ public class PublicationFactory {
       User user,
       String title,
       Category category,
-      List<User> contributorList,
+      List<Contributor> contributorList,
       User curator,
       String anthologyIdentifier) {
     return createChapterInAnthologyUsingToken(
@@ -174,31 +175,21 @@ public class PublicationFactory {
       String accessToken,
       String title,
       Category category,
-      List<User> contributorList,
+      List<Contributor> contributorList,
       String curatorAccessToken,
       String anthologyIdentifier) {
 
-    var createResponse = createDraftPublicationUsingToken(accessToken);
+    var referenceMap =
+        buildReferenceMap(
+            new HashMap<>(Map.of("id", baseURI + publicationPath(anthologyIdentifier))),
+            new HashMap<>());
 
-    var identifier = createResponse.body().jsonPath().getString(IDENTIFIER_FIELD);
-    Map<String, Object> responseBody = createResponse.body().jsonPath().getMap("");
-    responseBody.remove(CONTEXT_FIELD);
-
-    var entityDescription = createEntityDescription(title, category, contributorList);
-    ((Map<String, Object>)
-            ((Map<String, Object>) entityDescription.get(REFERENCE)).get(PUBLICATION_CONTEXT))
-        .put("id", RestAssured.baseURI + publicationPath(anthologyIdentifier));
-    responseBody.put(ENTITY_DESCRIPTION_FIELD, entityDescription);
-
-    updatePublicationUsingToken(accessToken, responseBody);
-
-    publishUsingToken(curatorAccessToken, identifier);
-
-    return createResponse.jsonPath().get(IDENTIFIER_FIELD);
+    return createPublishedPublicationWithReferenceUsingTokens(
+        accessToken, title, category, contributorList, curatorAccessToken, referenceMap);
   }
 
   public String createAnthologyForChapter(
-      User user, String title, User curator, List<User> anthologyEditorList) {
+      User user, String title, User curator, List<Contributor> anthologyEditorList) {
     return createAnthologyForChapterUsingTokens(
         CognitoLogin.loginUser(user).get(ACCESS_TOKEN),
         title,
@@ -207,8 +198,12 @@ public class PublicationFactory {
   }
 
   public String createAnthologyForChapterUsingTokens(
-      String accessToken, String title, String curatorAccessToken, List<User> anthologyEditorList) {
+      String accessToken,
+      String title,
+      String curatorAccessToken,
+      List<Contributor> anthologyEditorList) {
     var anthologyTitle = "Anthology for " + title;
+
     var anthologyCreateResponse = createDraftPublicationUsingToken(accessToken);
 
     var anthologyIdentifier = anthologyCreateResponse.body().jsonPath().getString(IDENTIFIER_FIELD);
@@ -232,7 +227,7 @@ public class PublicationFactory {
   }
 
   public Map<String, Object> createEntityDescription(
-      String title, Category category, List<User> contributorList) {
+      String title, Category category, List<Contributor> contributorList) {
 
     var entityDescriptionJsonPath = loadJsonResource("/metadata/EntityDescription.json");
 
@@ -283,26 +278,29 @@ public class PublicationFactory {
         .statusCode(202);
   }
 
-  public List<Map<String, Object>> createContributors(List<User> users) {
+  public List<Map<String, Object>> createContributors(List<Contributor> contributors) {
 
-    List<Map<String, Object>> contributors = new ArrayList<>();
+    List<Map<String, Object>> newContributors = new ArrayList<>();
     final var sequence = new AtomicInteger(1);
     var contributorJsonPath = loadJsonResource("/metadata/Contributor.json");
-    users.forEach(
-        user -> {
-          Map<String, Object> contributor = new HashMap<>();
-          contributor.putAll(contributorJsonPath.getMap(""));
-          contributor.put("sequence", String.valueOf(sequence.getAndIncrement()));
+    contributors.forEach(
+        contributor -> {
+          Map<String, Object> newContributor = new HashMap<>();
+          newContributor.putAll(contributorJsonPath.getMap(""));
+          ((Map<String, Object>) newContributor.get("role")).put("type", contributor.role());
+          newContributor.put("sequence", String.valueOf(sequence.getAndIncrement()));
           Map<String, Object> identity = new HashMap<>();
           identity.put("type", "Identity");
           identity.put(
-              "id", RestAssured.baseURI + "/cristin/person/" + user.cristinId().split("@")[0]);
+              "id", baseURI + "/cristin/person/" + contributor.user().cristinId().split("@")[0]);
           identity.put("verificationStatus", "Verified");
-          identity.put("name", user.name());
-          contributor.put("identity", identity);
+          identity.put("name", contributor.user().name());
+          newContributor.put("identity", identity);
 
           List<Map<String, Object>> affiliations = new ArrayList<>();
-          user.affiliations()
+          contributor
+              .user()
+              .affiliations()
               .forEach(
                   userAffiliation -> {
                     Map<String, Object> affiliation = new HashMap<>();
@@ -310,11 +308,11 @@ public class PublicationFactory {
                     affiliation.put("id", userAffiliation);
                     affiliations.add(affiliation);
                   });
-          contributor.put("affiliations", affiliations);
+          newContributor.put("affiliations", affiliations);
 
-          contributors.add(contributor);
+          newContributors.add(newContributor);
         });
 
-    return contributors;
+    return newContributors;
   }
 }

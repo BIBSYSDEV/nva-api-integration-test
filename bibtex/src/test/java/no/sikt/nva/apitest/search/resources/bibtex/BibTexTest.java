@@ -40,6 +40,8 @@ import java.util.UUID;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import no.sikt.Category;
+import no.sikt.Contributor;
+import no.sikt.Role;
 import no.sikt.nva.apitest.base.User;
 import no.sikt.nva.apitest.publication.PublicationFields;
 import no.sikt.nva.apitest.search.BibTexExpectation;
@@ -80,22 +82,30 @@ class BibTexTest extends SearchTestBase {
                 UIB_CREATOR,
                 "BibTex integration test anthology " + UUID.randomUUID(),
                 UIB_PUBLISHING_CURATOR,
-                List.of(UIB_CREATOR));
+                List.of(new Contributor(UIB_CREATOR, Role.CREATOR)));
 
         yield PUBLICATION_FACTORY.createChapterInAnthology(
             UIB_CREATOR,
             title,
             category,
-            List.of(UIB_CREATOR),
+            List.of(new Contributor(UIB_CREATOR, Role.CREATOR)),
             UIB_PUBLISHING_CURATOR,
             anthologyIdentifier);
       }
       case DEGREE_PHD, DEGREE_MASTER ->
           PUBLICATION_FACTORY.createPublishedPublication(
-              UIB_THESIS_CURATOR, title, category, List.of(UIB_CREATOR), UIB_THESIS_CURATOR);
+              UIB_THESIS_CURATOR,
+              title,
+              category,
+              List.of(new Contributor(UIB_CREATOR, Role.CREATOR)),
+              UIB_THESIS_CURATOR);
       default ->
           PUBLICATION_FACTORY.createPublishedPublication(
-              UIB_CREATOR, title, category, List.of(UIB_CREATOR), UIB_PUBLISHING_CURATOR);
+              UIB_CREATOR,
+              title,
+              category,
+              List.of(new Contributor(UIB_CREATOR, Role.CREATOR)),
+              UIB_PUBLISHING_CURATOR);
     };
   }
 
@@ -273,16 +283,15 @@ class BibTexTest extends SearchTestBase {
             + "/publication-channels-v2/serial-publication/271CEF41-0052-48CA-BB31-6780C7BA1F44/"
             + CURRENT_YEAR;
 
-    var publicationContextMap = new HashMap<String, Object>();
-    publicationContextMap.put("id", issnJournalUri);
     var referenceMap =
-        PUBLICATION_FACTORY.buildReferenceMap(publicationContextMap, new HashMap<>());
+        PUBLICATION_FACTORY.buildReferenceMap(
+            new HashMap<>(Map.of("id", issnJournalUri)), new HashMap<>());
 
     PUBLICATION_FACTORY.createPublishedPublicationWithReference(
         UIB_CREATOR,
         title,
         ACADEMIC_ARTICLE,
-        List.of(UIB_CREATOR),
+        List.of(new Contributor(UIB_CREATOR, Role.CREATOR)),
         UIB_PUBLISHING_CURATOR,
         referenceMap);
   }
@@ -299,7 +308,10 @@ class BibTexTest extends SearchTestBase {
         UIB_CREATOR,
         title,
         ACADEMIC_ARTICLE,
-        List.of(UIB_CREATOR, UIB_CONTRIBUTOR, UIB_PUBLISHING_CURATOR),
+        List.of(
+            new Contributor(UIB_CREATOR, Role.CREATOR),
+            new Contributor(UIB_CONTRIBUTOR, Role.CREATOR),
+            new Contributor(UIB_PUBLISHING_CURATOR, Role.CREATOR)),
         UIB_PUBLISHING_CURATOR);
 
     waitForIndexing(titleUuid);
@@ -336,7 +348,8 @@ class BibTexTest extends SearchTestBase {
     Map<String, Object> payload = response.body().jsonPath().getMap("");
     payload.remove(PublicationFields.CONTEXT_FIELD);
     var entityDescription =
-        PUBLICATION_FACTORY.createEntityDescription(title, ACADEMIC_ARTICLE, List.of(UIB_CREATOR));
+        PUBLICATION_FACTORY.createEntityDescription(
+            title, ACADEMIC_ARTICLE, List.of(new Contributor(UIB_CREATOR, Role.CREATOR)));
     entityDescription.put("tags", List.of("key1", "key2", "key3"));
     payload.put(ENTITY_DESCRIPTION_FIELD, entityDescription);
 
