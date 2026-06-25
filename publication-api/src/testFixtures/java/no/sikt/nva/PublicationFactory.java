@@ -6,8 +6,12 @@ import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_MONTH;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_YEAR;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequest;
 import static no.sikt.nva.apitest.publication.PublicationFields.CONTEXT_FIELD;
+import static no.sikt.nva.apitest.publication.PublicationFields.CONTRIBUTORS;
 import static no.sikt.nva.apitest.publication.PublicationFields.ENTITY_DESCRIPTION_FIELD;
 import static no.sikt.nva.apitest.publication.PublicationFields.IDENTIFIER_FIELD;
+import static no.sikt.nva.apitest.publication.PublicationFields.PUBLICATION_CONTEXT;
+import static no.sikt.nva.apitest.publication.PublicationFields.PUBLICATION_INSTANCE;
+import static no.sikt.nva.apitest.publication.PublicationFields.REFERENCE;
 import static no.sikt.nva.apitest.publication.PublicationPaths.publicationPath;
 import static no.sikt.nva.apitest.publication.PublicationPaths.publishPublicationPath;
 
@@ -80,6 +84,35 @@ public class PublicationFactory {
       List<User> contributorList,
       String curatorAccessToken) {
 
+    return createPublishedPublicationWithReferenceUsingTokens(
+        accessToken, title, category, contributorList, curatorAccessToken, new HashMap<>());
+  }
+
+  public String createPublishedPublicationWithReference(
+      User user,
+      String title,
+      Category category,
+      List<User> contributorList,
+      User curator,
+      Map<String, Object> reference) {
+
+    return createPublishedPublicationWithReferenceUsingTokens(
+        CognitoLogin.loginUser(user).get(ACCESS_TOKEN),
+        title,
+        category,
+        contributorList,
+        CognitoLogin.loginUser(curator).get(ACCESS_TOKEN),
+        reference);
+  }
+
+  public String createPublishedPublicationWithReferenceUsingTokens(
+      String accessToken,
+      String title,
+      Category category,
+      List<User> contributorList,
+      String curatorAccessToken,
+      Map<String, Object> reference) {
+
     var createResponse = createDraftPublicationUsingToken(accessToken);
 
     var identifier = createResponse.body().jsonPath().getString(IDENTIFIER_FIELD);
@@ -87,6 +120,25 @@ public class PublicationFactory {
     responseBody.remove(CONTEXT_FIELD);
 
     var entityDescription = createEntityDescription(title, category, contributorList);
+    if (reference.containsKey(PUBLICATION_CONTEXT)) {
+      ((Map<String, Object>) reference.get(PUBLICATION_CONTEXT))
+          .forEach(
+              (key, value) ->
+                  ((Map<String, Object>)
+                          ((Map<String, Object>) entityDescription.get(REFERENCE))
+                              .get(PUBLICATION_CONTEXT))
+                      .put(key, value));
+    }
+    if (reference.containsKey(PUBLICATION_INSTANCE)) {
+      ((Map<String, Object>) reference.get(PUBLICATION_INSTANCE))
+          .forEach(
+              (key, value) ->
+                  ((Map<String, Object>)
+                          ((Map<String, Object>) entityDescription.get(REFERENCE))
+                              .get(PUBLICATION_INSTANCE))
+                      .put(key, value));
+    }
+
     responseBody.put(ENTITY_DESCRIPTION_FIELD, entityDescription);
 
     updatePublicationUsingToken(accessToken, responseBody);
@@ -94,6 +146,12 @@ public class PublicationFactory {
     publishUsingToken(curatorAccessToken, identifier);
 
     return createResponse.jsonPath().get(IDENTIFIER_FIELD);
+  }
+
+  public Map<String, Object> buildReferenceMap(
+      Map<String, Object> publicationContextMap, Map<String, Object> publicationInstanceMap) {
+    return Map.of(
+        PUBLICATION_CONTEXT, publicationContextMap, PUBLICATION_INSTANCE, publicationInstanceMap);
   }
 
   public String createChapterInAnthology(
@@ -128,7 +186,7 @@ public class PublicationFactory {
 
     var entityDescription = createEntityDescription(title, category, contributorList);
     ((Map<String, Object>)
-            ((Map<String, Object>) entityDescription.get("reference")).get("publicationContext"))
+            ((Map<String, Object>) entityDescription.get(REFERENCE)).get(PUBLICATION_CONTEXT))
         .put("id", RestAssured.baseURI + publicationPath(anthologyIdentifier));
     responseBody.put(ENTITY_DESCRIPTION_FIELD, entityDescription);
 
@@ -160,7 +218,7 @@ public class PublicationFactory {
 
     var anthologyEntityDescription =
         createEntityDescription(anthologyTitle, Category.BOOK_ANTHOLOGY, anthologyEditorList);
-    var contributors = (List<Map<String, Object>>) anthologyEntityDescription.get("contributors");
+    var contributors = (List<Map<String, Object>>) anthologyEntityDescription.get(CONTRIBUTORS);
 
     contributors.forEach(
         contributor -> {
@@ -190,9 +248,9 @@ public class PublicationFactory {
     entityDescription.put("publicationDate", publicationDate);
 
     Map<String, Object> reference = createReference(category);
-    entityDescription.put("reference", reference);
+    entityDescription.put(REFERENCE, reference);
     List<Map<String, Object>> contributors = createContributors(contributorList);
-    entityDescription.put("contributors", contributors);
+    entityDescription.put(CONTRIBUTORS, contributors);
 
     return entityDescription;
   }
@@ -208,8 +266,8 @@ public class PublicationFactory {
       publisher.put("id", publisher.get("id") + "/" + CURRENT_YEAR);
       publicationContext.put("publisher", publisher);
     }
-    Map<String, Object> reference = referenceJsonPath.getMap("reference");
-    reference.put("publicationContext", publicationContext);
+    Map<String, Object> reference = referenceJsonPath.getMap(REFERENCE);
+    reference.put(PUBLICATION_CONTEXT, publicationContext);
 
     return reference;
   }
