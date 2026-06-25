@@ -105,6 +105,10 @@ public final class CognitoLogin {
     return tokens;
   }
 
+  public static Map<String, String> loginUser(User user) {
+    return login(user.userId());
+  }
+
   /** Gets an authorization code */
   private static String getCode(String userName, String password) {
     String url = generateUrl();

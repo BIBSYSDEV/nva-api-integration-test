@@ -4,8 +4,7 @@ import static java.util.Objects.isNull;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_DAY;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_MONTH;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_YEAR;
-import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedFormRequestAsUser;
-import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
+import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequest;
 import static no.sikt.nva.apitest.publication.PublicationFields.CONTEXT_FIELD;
 import static no.sikt.nva.apitest.publication.PublicationFields.ENTITY_DESCRIPTION_FIELD;
 import static no.sikt.nva.apitest.publication.PublicationFields.IDENTIFIER_FIELD;
@@ -21,10 +20,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import no.sikt.Category;
+import no.sikt.nva.apitest.base.CognitoLogin;
 import no.sikt.nva.apitest.base.User;
 import no.sikt.nva.apitest.publication.PublicationPaths;
 
 public class PublicationFactory {
+
+  private static final String ACCESS_TOKEN = "accessToken";
 
   private JsonPath loadJsonResource(String resourcePath) {
     var resourceStream = PublicationFactory.class.getResourceAsStream(resourcePath);
@@ -35,7 +37,11 @@ public class PublicationFactory {
   }
 
   public Response createDraftPublication(User user) {
-    return givenAuthenticatedFormRequestAsUser(user)
+    return createDraftPublicationUsingToken(CognitoLogin.loginUser(user).get(ACCESS_TOKEN));
+  }
+
+  public Response createDraftPublicationUsingToken(String accessToken) {
+    return givenAuthenticatedJsonRequest(accessToken)
         .post(PublicationPaths.createPublicationPath())
         .then()
         .statusCode(201)
@@ -44,7 +50,11 @@ public class PublicationFactory {
   }
 
   public Response updatePublication(User user, Map<String, Object> payload) {
-    return givenAuthenticatedJsonRequestAsUser(user)
+    return updatePublicationUsingToken(CognitoLogin.loginUser(user).get(ACCESS_TOKEN), payload);
+  }
+
+  public Response updatePublicationUsingToken(String accessToken, Map<String, Object> payload) {
+    return givenAuthenticatedJsonRequest(accessToken)
         .body(payload)
         .put(publicationPath(payload.get(IDENTIFIER_FIELD).toString()))
         .then()
@@ -55,8 +65,22 @@ public class PublicationFactory {
 
   public String createPublishedPublication(
       User user, String title, Category category, List<User> contributorList, User curator) {
+    return createPublishedPublicationUsingTokens(
+        CognitoLogin.loginUser(user).get(ACCESS_TOKEN),
+        title,
+        category,
+        contributorList,
+        CognitoLogin.loginUser(curator).get(ACCESS_TOKEN));
+  }
 
-    var createResponse = createDraftPublication(user);
+  public String createPublishedPublicationUsingTokens(
+      String accessToken,
+      String title,
+      Category category,
+      List<User> contributorList,
+      String curatorAccessToken) {
+
+    var createResponse = createDraftPublicationUsingToken(accessToken);
 
     var identifier = createResponse.body().jsonPath().getString(IDENTIFIER_FIELD);
     Map<String, Object> responseBody = createResponse.body().jsonPath().getMap("");
@@ -65,9 +89,9 @@ public class PublicationFactory {
     var entityDescription = createEntityDescription(title, category, contributorList);
     responseBody.put(ENTITY_DESCRIPTION_FIELD, entityDescription);
 
-    updatePublication(user, responseBody);
+    updatePublicationUsingToken(accessToken, responseBody);
 
-    publish(curator, identifier);
+    publishUsingToken(curatorAccessToken, identifier);
 
     return createResponse.jsonPath().get(IDENTIFIER_FIELD);
   }
@@ -79,8 +103,24 @@ public class PublicationFactory {
       List<User> contributorList,
       User curator,
       String anthologyIdentifier) {
+    return createChapterInAnthologyUsingToken(
+        CognitoLogin.loginUser(user).get(ACCESS_TOKEN),
+        title,
+        category,
+        contributorList,
+        CognitoLogin.loginUser(curator).get(ACCESS_TOKEN),
+        anthologyIdentifier);
+  }
 
-    var createResponse = createDraftPublication(user);
+  public String createChapterInAnthologyUsingToken(
+      String accessToken,
+      String title,
+      Category category,
+      List<User> contributorList,
+      String curatorAccessToken,
+      String anthologyIdentifier) {
+
+    var createResponse = createDraftPublicationUsingToken(accessToken);
 
     var identifier = createResponse.body().jsonPath().getString(IDENTIFIER_FIELD);
     Map<String, Object> responseBody = createResponse.body().jsonPath().getMap("");
@@ -92,17 +132,26 @@ public class PublicationFactory {
         .put("id", RestAssured.baseURI + publicationPath(anthologyIdentifier));
     responseBody.put(ENTITY_DESCRIPTION_FIELD, entityDescription);
 
-    updatePublication(user, responseBody);
+    updatePublicationUsingToken(accessToken, responseBody);
 
-    publish(curator, identifier);
+    publishUsingToken(curatorAccessToken, identifier);
 
     return createResponse.jsonPath().get(IDENTIFIER_FIELD);
   }
 
   public String createAnthologyForChapter(
       User user, String title, User curator, List<User> anthologyEditorList) {
+    return createAnthologyForChapterUsingTokens(
+        CognitoLogin.loginUser(user).get(ACCESS_TOKEN),
+        title,
+        CognitoLogin.loginUser(curator).get(ACCESS_TOKEN),
+        anthologyEditorList);
+  }
+
+  public String createAnthologyForChapterUsingTokens(
+      String accessToken, String title, String curatorAccessToken, List<User> anthologyEditorList) {
     var anthologyTitle = "Anthology for " + title;
-    var anthologyCreateResponse = createDraftPublication(user);
+    var anthologyCreateResponse = createDraftPublicationUsingToken(accessToken);
 
     var anthologyIdentifier = anthologyCreateResponse.body().jsonPath().getString(IDENTIFIER_FIELD);
     Map<String, Object> anthologyResponseBody =
@@ -118,9 +167,9 @@ public class PublicationFactory {
           ((Map<String, Object>) contributor.get("role")).put("type", "Editor");
         });
     anthologyResponseBody.put(ENTITY_DESCRIPTION_FIELD, anthologyEntityDescription);
-    updatePublication(user, anthologyResponseBody);
+    updatePublicationUsingToken(accessToken, anthologyResponseBody);
 
-    publish(curator, anthologyIdentifier);
+    publishUsingToken(curatorAccessToken, anthologyIdentifier);
     return anthologyIdentifier;
   }
 
@@ -166,7 +215,11 @@ public class PublicationFactory {
   }
 
   public void publish(User curator, String identifier) {
-    givenAuthenticatedJsonRequestAsUser(curator.userId())
+    publishUsingToken(CognitoLogin.loginUser(curator).get(ACCESS_TOKEN), identifier);
+  }
+
+  public void publishUsingToken(String curatorAccessToken, String identifier) {
+    givenAuthenticatedJsonRequest(curatorAccessToken)
         .post(publishPublicationPath(identifier))
         .then()
         .statusCode(202);
