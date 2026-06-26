@@ -2,7 +2,7 @@ package no.sikt.nva.apitest.scientificindex;
 
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_YEAR;
+import static no.sikt.Role.CREATOR;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequest;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
@@ -20,6 +20,7 @@ import io.restassured.response.Response;
 import java.util.List;
 import java.util.Map;
 import no.sikt.Category;
+import no.sikt.Contributor;
 import no.sikt.nva.PublicationFactory;
 import no.sikt.nva.apitest.base.CognitoLogin;
 import no.sikt.nva.apitest.base.User;
@@ -56,7 +57,7 @@ public class NviCandidateFactory {
 
     var entityDescription =
         publicationFactory.createEntityDescription(
-            title, Category.ACADEMIC_ARTICLE, List.of(UIB_CREATOR));
+            title, Category.ACADEMIC_ARTICLE, List.of(new Contributor(UIB_CREATOR, CREATOR)));
     publication.put(ENTITY_DESCRIPTION_FIELD, entityDescription);
 
     publicationFactory.updatePublication(UIB_CREATOR, publication);
