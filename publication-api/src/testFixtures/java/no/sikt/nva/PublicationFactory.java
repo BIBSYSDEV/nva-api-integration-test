@@ -1,24 +1,12 @@
 package no.sikt.nva;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import static java.util.Objects.isNull;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import static io.restassured.RestAssured.baseURI;
-import io.restassured.path.json.JsonPath;
-import io.restassured.response.Response;
-import no.sikt.Category;
+import static java.util.Objects.isNull;
 import static no.sikt.Category.BOOK_ANTHOLOGY;
-import no.sikt.Contributor;
-import no.sikt.nva.apitest.base.CognitoLogin;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_DAY;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_MONTH;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_YEAR;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequest;
-import no.sikt.nva.apitest.base.User;
 import static no.sikt.nva.apitest.publication.PublicationFields.CONTEXT_FIELD;
 import static no.sikt.nva.apitest.publication.PublicationFields.CONTRIBUTORS;
 import static no.sikt.nva.apitest.publication.PublicationFields.ENTITY_DESCRIPTION_FIELD;
@@ -27,9 +15,21 @@ import static no.sikt.nva.apitest.publication.PublicationFields.PUBLICATION_CONT
 import static no.sikt.nva.apitest.publication.PublicationFields.PUBLICATION_INSTANCE;
 import static no.sikt.nva.apitest.publication.PublicationFields.REFERENCE;
 import static no.sikt.nva.apitest.publication.PublicationFields.TYPE;
-import no.sikt.nva.apitest.publication.PublicationPaths;
 import static no.sikt.nva.apitest.publication.PublicationPaths.publicationPath;
 import static no.sikt.nva.apitest.publication.PublicationPaths.publishPublicationPath;
+
+import io.restassured.path.json.JsonPath;
+import io.restassured.response.Response;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+import no.sikt.Category;
+import no.sikt.Contributor;
+import no.sikt.nva.apitest.base.CognitoLogin;
+import no.sikt.nva.apitest.base.User;
+import no.sikt.nva.apitest.publication.PublicationPaths;
 
 public class PublicationFactory {
 
@@ -206,7 +206,8 @@ public class PublicationFactory {
       List<Contributor> anthologyEditorList) {
     var anthologyTitle = "Anthology for " + title;
 
-    return createPublishedPublicationUsingTokens(accessToken, anthologyTitle, BOOK_ANTHOLOGY, anthologyEditorList, curatorAccessToken);
+    return createPublishedPublicationUsingTokens(
+        accessToken, anthologyTitle, BOOK_ANTHOLOGY, anthologyEditorList, curatorAccessToken);
   }
 
   public Map<String, Object> createEntityDescription(
@@ -268,34 +269,44 @@ public class PublicationFactory {
     var contributorJsonPath = loadJsonResource("/metadata/Contributor.json");
     contributors.forEach(
         contributor -> {
-          Map<String, Object> newContributor = new HashMap<>();
-          newContributor.putAll(contributorJsonPath.getMap(""));
-          ((Map<String, Object>) newContributor.get("role")).put(TYPE, contributor.role());
-          newContributor.put("sequence", String.valueOf(sequence.getAndIncrement()));
-          Map<String, Object> identity = new HashMap<>();
-          identity.put(TYPE, "Identity");
-          identity.put(
-              "id", baseURI + "/cristin/person/" + contributor.user().cristinId().split("@")[0]);
-          identity.put("verificationStatus", "Verified");
-          identity.put("name", contributor.user().name());
-          newContributor.put("identity", identity);
-
-          List<Map<String, Object>> affiliations = new ArrayList<>();
-          contributor
-              .user()
-              .affiliations()
-              .forEach(
-                  userAffiliation -> {
-                    Map<String, Object> affiliation = new HashMap<>();
-                    affiliation.put(TYPE, "Organization");
-                    affiliation.put("id", userAffiliation);
-                    affiliations.add(affiliation);
-                  });
-          newContributor.put("affiliations", affiliations);
+          Map<String, Object> newContributor =
+              createContributor(sequence, contributorJsonPath, contributor);
 
           newContributors.add(newContributor);
         });
 
     return newContributors;
+  }
+
+  private Map<String, Object> createContributor(
+      final AtomicInteger sequence, JsonPath contributorJsonPath, Contributor contributor) {
+    Map<String, Object> newContributor = new HashMap<>();
+    newContributor.putAll(contributorJsonPath.getMap(""));
+    ((Map<String, Object>) newContributor.get("role")).put(TYPE, contributor.role());
+    newContributor.put("sequence", String.valueOf(sequence.getAndIncrement()));
+    newContributor.put("identity", createIdentity(contributor.user()));
+
+    List<Map<String, Object>> affiliations = new ArrayList<>();
+    contributor
+        .user()
+        .affiliations()
+        .forEach(
+            userAffiliation -> {
+              Map<String, Object> affiliation = new HashMap<>();
+              affiliation.put(TYPE, "Organization");
+              affiliation.put("id", userAffiliation);
+              affiliations.add(affiliation);
+            });
+    newContributor.put("affiliations", affiliations);
+    return newContributor;
+  }
+
+  private Map<String, Object> createIdentity(User user) {
+    Map<String, Object> identity = new HashMap<>();
+    identity.put(TYPE, "Identity");
+    identity.put("id", baseURI + "/cristin/person/" + user.cristinId().split("@")[0]);
+    identity.put("verificationStatus", "Verified");
+    identity.put("name", user.name());
+    return identity;
   }
 }

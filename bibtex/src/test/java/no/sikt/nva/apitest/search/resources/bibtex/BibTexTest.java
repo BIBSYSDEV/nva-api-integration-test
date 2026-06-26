@@ -1,33 +1,8 @@
 package no.sikt.nva.apitest.search.resources.bibtex;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import static java.util.concurrent.TimeUnit.SECONDS;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import org.assertj.core.api.SoftAssertions;
-import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
-import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
-import static org.awaitility.Awaitility.with;
-import static org.awaitility.pollinterval.FibonacciPollInterval.fibonacci;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import static org.junit.jupiter.params.provider.Arguments.argumentSet;
-import org.junit.jupiter.params.provider.MethodSource;
-
-import io.qameta.allure.Description;
-import io.restassured.RestAssured;
 import static io.restassured.RestAssured.baseURI;
 import static io.restassured.RestAssured.given;
-import io.restassured.parsing.Parser;
-import no.sikt.Category;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static no.sikt.Category.ACADEMIC_ARTICLE;
 import static no.sikt.Category.ACADEMIC_CHAPTER;
 import static no.sikt.Category.ACADEMIC_MONOGRAPH;
@@ -35,19 +10,15 @@ import static no.sikt.Category.CONFERENCE_LECTURE;
 import static no.sikt.Category.DEGREE_MASTER;
 import static no.sikt.Category.DEGREE_PHD;
 import static no.sikt.Category.RESEARCH_REPORT;
-import no.sikt.Contributor;
 import static no.sikt.Role.CREATOR;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_MONTH_SHORT_NAME;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_YEAR;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
-import no.sikt.nva.apitest.base.User;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CONTRIBUTOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_PUBLISHING_CURATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_THESIS_CURATOR;
-import no.sikt.nva.apitest.publication.PublicationFields;
 import static no.sikt.nva.apitest.publication.PublicationFields.ENTITY_DESCRIPTION_FIELD;
-import no.sikt.nva.apitest.search.BibTexExpectation;
 import static no.sikt.nva.apitest.search.BibTexExpectationFixtures.EXPECTED_BIBTEX_ACADEMIC_ARTICLE;
 import static no.sikt.nva.apitest.search.BibTexExpectationFixtures.EXPECTED_BIBTEX_ACADEMIC_CHAPTER;
 import static no.sikt.nva.apitest.search.BibTexExpectationFixtures.EXPECTED_BIBTEX_ACADEMIC_MONOGRAPH;
@@ -55,7 +26,35 @@ import static no.sikt.nva.apitest.search.BibTexExpectationFixtures.EXPECTED_BIBT
 import static no.sikt.nva.apitest.search.BibTexExpectationFixtures.EXPECTED_BIBTEX_DEGREE_MASTER;
 import static no.sikt.nva.apitest.search.BibTexExpectationFixtures.EXPECTED_BIBTEX_DEGREE_PHD;
 import static no.sikt.nva.apitest.search.BibTexExpectationFixtures.EXPECTED_BIBTEX_REPORT_RESEARCH;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.with;
+import static org.awaitility.pollinterval.FibonacciPollInterval.fibonacci;
+import static org.junit.jupiter.params.provider.Arguments.argumentSet;
+
+import io.qameta.allure.Description;
+import io.restassured.RestAssured;
+import io.restassured.parsing.Parser;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+import no.sikt.Category;
+import no.sikt.Contributor;
+import no.sikt.nva.apitest.base.User;
+import no.sikt.nva.apitest.publication.PublicationFields;
+import no.sikt.nva.apitest.search.BibTexExpectation;
 import no.sikt.nva.apitest.search.SearchTestBase;
+import org.assertj.core.api.SoftAssertions;
+import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
+import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 @ExtendWith(SoftAssertionsExtension.class)
 class BibTexTest extends SearchTestBase {
@@ -101,7 +100,8 @@ class BibTexTest extends SearchTestBase {
               List.of(new Contributor(UIB_CREATOR, CREATOR)),
               UIB_THESIS_CURATOR);
       default ->
-          PUBLICATION_FACTORY.createPublishedPublication(UIB_CREATOR,
+          PUBLICATION_FACTORY.createPublishedPublication(
+              UIB_CREATOR,
               title,
               category,
               List.of(new Contributor(UIB_CREATOR, CREATOR)),
