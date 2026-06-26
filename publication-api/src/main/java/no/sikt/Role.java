@@ -1,5 +1,6 @@
 package no.sikt;
 
+@SuppressWarnings("PMD.ExcessivePublicCount")
 public enum Role {
   CREATOR("Creator"),
   EDITOR("Editor"),

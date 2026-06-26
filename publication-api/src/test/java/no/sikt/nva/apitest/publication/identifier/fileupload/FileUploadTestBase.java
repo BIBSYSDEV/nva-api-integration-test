@@ -1,23 +1,24 @@
 package no.sikt.nva.apitest.publication.identifier.fileupload;
 
-import static io.restassured.RestAssured.given;
-import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequest;
-import static no.sikt.nva.apitest.publication.PublicationPaths.fileUploadCompletePath;
-import static no.sikt.nva.apitest.publication.PublicationPaths.fileUploadCreatePath;
-import static no.sikt.nva.apitest.publication.PublicationPaths.fileUploadPreparePath;
-
-import io.restassured.http.ContentType;
-import io.restassured.response.Response;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.junit.jupiter.api.BeforeAll;
+
+import static io.restassured.RestAssured.given;
+import io.restassured.http.ContentType;
+import io.restassured.response.Response;
 import no.sikt.nva.PublicationFactory;
 import no.sikt.nva.apitest.base.CognitoLogin;
-import no.sikt.nva.apitest.base.UserFixtures;
+import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequest;
+import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
+import static no.sikt.nva.apitest.publication.PublicationPaths.fileUploadCompletePath;
+import static no.sikt.nva.apitest.publication.PublicationPaths.fileUploadCreatePath;
+import static no.sikt.nva.apitest.publication.PublicationPaths.fileUploadPreparePath;
 import no.sikt.nva.apitest.publication.PublicationTestBase;
-import org.junit.jupiter.api.BeforeAll;
 
 public class FileUploadTestBase extends PublicationTestBase {
 
@@ -62,7 +63,7 @@ public class FileUploadTestBase extends PublicationTestBase {
   @BeforeAll
   public static void initFileTest() {
     CREATE_PAYLOAD.putAll(createFilePayload());
-    creatorAccessToken = CognitoLogin.login(UserFixtures.UIB_CREATOR.userId()).get("accessToken");
+    creatorAccessToken = CognitoLogin.login(UIB_CREATOR.userId()).get("accessToken");
   }
 
   // TODO needed for delete tests

@@ -18,11 +18,11 @@ import io.qameta.allure.Description;
 import io.restassured.http.ContentType;
 import no.sikt.Category;
 import no.sikt.Contributor;
-import no.sikt.Role;
+import static no.sikt.Role.CREATOR;
 import no.sikt.nva.apitest.base.CognitoLogin;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequest;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedRequest;
-import no.sikt.nva.apitest.base.UserFixtures;
+import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
 import static no.sikt.nva.apitest.publication.PublicationFields.IDENTIFIER_FIELD;
 import static no.sikt.nva.apitest.publication.PublicationPaths.publishPublicationPath;
 import no.sikt.nva.apitest.publication.PublicationTestBase;
@@ -36,7 +36,7 @@ class PublishApiTest extends PublicationTestBase {
 
   @BeforeAll
   static void init() {
-    curatorAccessToken = CognitoLogin.login(UserFixtures.UIB_CREATOR.userId()).get("accessToken");
+    curatorAccessToken = CognitoLogin.login(UIB_CREATOR.userId()).get("accessToken");
   }
 
   @ParameterizedTest
@@ -47,18 +47,19 @@ class PublishApiTest extends PublicationTestBase {
   @Description("A Curator calling publish should return statuscode 202 Accepted")
   void shouldPublishDraftWhenRequestedByCurator(Category category) {
 
-    var createResponse = PUBLICATION_FACTORY.createDraftPublication(UserFixtures.UIB_CREATOR);
+    var createResponse = PUBLICATION_FACTORY.createDraftPublication(UIB_CREATOR);
     var identifier = createResponse.jsonPath().getString(IDENTIFIER_FIELD);
     Map<String, Object> responseBody = createResponse.body().jsonPath().getMap("");
 
     String publishPublicationTitle =
         "Integration test publication " + category.name() + " " + UUID.randomUUID();
     Map<String, ?> entityDescription =
-        PUBLICATION_FACTORY.createEntityDescription(
-            publishPublicationTitle, category, List.of(new Contributor(UserFixtures.UIB_CREATOR, Role.CREATOR)));
+        PUBLICATION_FACTORY.createEntityDescription(publishPublicationTitle,
+            category,
+            List.of(new Contributor(UIB_CREATOR, CREATOR)));
     responseBody.put("entityDescription", entityDescription);
 
-    PUBLICATION_FACTORY.updatePublication(UserFixtures.UIB_CREATOR, responseBody);
+    PUBLICATION_FACTORY.updatePublication(UIB_CREATOR, responseBody);
 
     givenAuthenticatedRequest(curatorAccessToken)
         .accept(ContentType.JSON)
@@ -92,7 +93,7 @@ class PublishApiTest extends PublicationTestBase {
   @Description("A non-curator user publishing a publication should return 401 Unauthorized")
   void shouldRejectPublishWhenUserIsNotCurator() {
     var creatorAccessToken =
-        CognitoLogin.login(UserFixtures.UIB_CREATOR.userId()).get("accessToken");
+        CognitoLogin.login(UIB_CREATOR.userId()).get("accessToken");
 
     var identifier = setupDraftPublication();
 

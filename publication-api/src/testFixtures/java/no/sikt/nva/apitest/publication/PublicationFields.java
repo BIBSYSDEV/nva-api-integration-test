@@ -10,6 +10,7 @@ public final class PublicationFields {
   public static final String IDENTIFIER_FIELD = "identifier";
   public static final String RESOURCE_OWNER_FIELD = "resourceOwner";
   public static final String CONTRIBUTORS = "contributors";
+  public static final String TYPE = "type";
 
   private PublicationFields() {}
 }
