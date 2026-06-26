@@ -3,6 +3,7 @@ plugins {
 }
 
 dependencies {
+    api(project(':apitest-base'))
     testFixturesApi(libs.rest.assured.core)
     testFixturesApi(project(':apitest-base'))
     testFixturesApi(testFixtures(project(':apitest-base')))

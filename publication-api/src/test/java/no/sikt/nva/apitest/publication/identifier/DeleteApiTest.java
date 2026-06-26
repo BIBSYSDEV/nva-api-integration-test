@@ -2,13 +2,13 @@ package no.sikt.nva.apitest.publication.identifier;
 
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedRequest;
 import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
+import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
 import static no.sikt.nva.apitest.publication.PublicationPaths.publicationPath;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import io.qameta.allure.Description;
 import java.util.UUID;
 import no.sikt.nva.apitest.base.CognitoLogin;
-import no.sikt.nva.apitest.base.UserFixtures;
 import no.sikt.nva.apitest.publication.PublicationTestBase;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -21,7 +21,7 @@ class DeleteApiTest extends PublicationTestBase {
 
   @BeforeAll
   static void init() {
-    creatorAccessToken = CognitoLogin.login(UserFixtures.UIB_CREATOR.userId()).get("accessToken");
+    creatorAccessToken = CognitoLogin.login(UIB_CREATOR.userId()).get("accessToken");
   }
 
   @Test

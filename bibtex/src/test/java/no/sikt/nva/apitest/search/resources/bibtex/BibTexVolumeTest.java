@@ -17,6 +17,8 @@ import io.restassured.response.Response;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.IntStream;
+import no.sikt.Contributor;
+import no.sikt.Role;
 import no.sikt.nva.apitest.base.CognitoLogin;
 import no.sikt.nva.apitest.search.SearchTestBase;
 import org.assertj.core.api.SoftAssertions;
@@ -62,7 +64,7 @@ class BibTexVolumeTest extends SearchTestBase {
                   userAccessToken,
                   title,
                   ACADEMIC_ARTICLE,
-                  List.of(UIB_CREATOR),
+                  List.of(new Contributor(UIB_CREATOR, Role.CREATOR)),
                   curatorAccessToken);
             });
   }
