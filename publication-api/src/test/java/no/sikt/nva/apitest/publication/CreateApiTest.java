@@ -1,9 +1,12 @@
 package no.sikt.nva.apitest.publication;
 
+import static io.restassured.RestAssured.given;
 import static no.sikt.nva.apitest.base.Affiliation.UIB;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedRequest;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
 import static no.sikt.nva.apitest.publication.PublicationFields.IDENTIFIER_FIELD;
+import static no.sikt.nva.apitest.publication.PublicationPaths.createPublicationPath;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import io.qameta.allure.Description;
 import io.restassured.RestAssured;
@@ -49,7 +52,7 @@ class CreateApiTest extends PublicationTestBase {
         givenAuthenticatedRequest(creatorAccessToken)
             .accept(ContentType.JSON)
             .when()
-            .post(PublicationPaths.createPublicationPath())
+            .post(createPublicationPath())
             .then()
             .statusCode(201)
             .extract()
@@ -66,5 +69,23 @@ class CreateApiTest extends PublicationTestBase {
     softly.assertThat(response.getString("publisher.id")).isEqualTo(customerUib);
     softly.assertThat(response.getString("createdDate")).startsWith(today);
     softly.assertThat(response.getString("modifiedDate")).startsWith(today);
+  }
+
+  @Test
+  @DisplayName("Unauthenticated user tries to create publication")
+  @Description(
+      "An unauthenticated user calling create should retirn return status code 401 Unauthenticated")
+  void shouldReturnUnauthorizedWhenCreateWithUnauthenticatedUser() {
+    var response =
+        given()
+            .accept(ContentType.JSON)
+            .when()
+            .post(createPublicationPath())
+            .then()
+            .statusCode(401)
+            .extract()
+            .jsonPath();
+
+    assertThat(response.getString("message")).isEqualTo("Unauthorized");
   }
 }

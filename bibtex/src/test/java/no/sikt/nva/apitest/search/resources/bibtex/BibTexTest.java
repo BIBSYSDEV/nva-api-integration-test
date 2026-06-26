@@ -1,5 +1,6 @@
 package no.sikt.nva.apitest.search.resources.bibtex;
 
+import static io.restassured.RestAssured.baseURI;
 import static io.restassured.RestAssured.given;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static no.sikt.Category.ACADEMIC_ARTICLE;
@@ -9,11 +10,15 @@ import static no.sikt.Category.CONFERENCE_LECTURE;
 import static no.sikt.Category.DEGREE_MASTER;
 import static no.sikt.Category.DEGREE_PHD;
 import static no.sikt.Category.RESEARCH_REPORT;
+import static no.sikt.Role.CREATOR;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_MONTH_SHORT_NAME;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_YEAR;
+import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
+import static no.sikt.nva.apitest.base.UserFixtures.UIB_CONTRIBUTOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_PUBLISHING_CURATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_THESIS_CURATOR;
+import static no.sikt.nva.apitest.publication.PublicationFields.ENTITY_DESCRIPTION_FIELD;
 import static no.sikt.nva.apitest.search.BibTexExpectationFixtures.EXPECTED_BIBTEX_ACADEMIC_ARTICLE;
 import static no.sikt.nva.apitest.search.BibTexExpectationFixtures.EXPECTED_BIBTEX_ACADEMIC_CHAPTER;
 import static no.sikt.nva.apitest.search.BibTexExpectationFixtures.EXPECTED_BIBTEX_ACADEMIC_MONOGRAPH;
@@ -21,6 +26,7 @@ import static no.sikt.nva.apitest.search.BibTexExpectationFixtures.EXPECTED_BIBT
 import static no.sikt.nva.apitest.search.BibTexExpectationFixtures.EXPECTED_BIBTEX_DEGREE_MASTER;
 import static no.sikt.nva.apitest.search.BibTexExpectationFixtures.EXPECTED_BIBTEX_DEGREE_PHD;
 import static no.sikt.nva.apitest.search.BibTexExpectationFixtures.EXPECTED_BIBTEX_REPORT_RESEARCH;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.with;
 import static org.awaitility.pollinterval.FibonacciPollInterval.fibonacci;
 import static org.junit.jupiter.params.provider.Arguments.argumentSet;
@@ -28,11 +34,16 @@ import static org.junit.jupiter.params.provider.Arguments.argumentSet;
 import io.qameta.allure.Description;
 import io.restassured.RestAssured;
 import io.restassured.parsing.Parser;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import no.sikt.Category;
+import no.sikt.Contributor;
+import no.sikt.nva.apitest.base.User;
+import no.sikt.nva.apitest.publication.PublicationFields;
 import no.sikt.nva.apitest.search.BibTexExpectation;
 import no.sikt.nva.apitest.search.SearchTestBase;
 import org.assertj.core.api.SoftAssertions;
@@ -71,22 +82,30 @@ class BibTexTest extends SearchTestBase {
                 UIB_CREATOR,
                 "BibTex integration test anthology " + UUID.randomUUID(),
                 UIB_PUBLISHING_CURATOR,
-                List.of(UIB_CREATOR));
+                List.of(new Contributor(UIB_CREATOR, CREATOR)));
 
         yield PUBLICATION_FACTORY.createChapterInAnthology(
             UIB_CREATOR,
             title,
             category,
-            List.of(UIB_CREATOR),
+            List.of(new Contributor(UIB_CREATOR, CREATOR)),
             UIB_PUBLISHING_CURATOR,
             anthologyIdentifier);
       }
       case DEGREE_PHD, DEGREE_MASTER ->
           PUBLICATION_FACTORY.createPublishedPublication(
-              UIB_THESIS_CURATOR, title, category, List.of(UIB_CREATOR), UIB_THESIS_CURATOR);
+              UIB_THESIS_CURATOR,
+              title,
+              category,
+              List.of(new Contributor(UIB_CREATOR, CREATOR)),
+              UIB_THESIS_CURATOR);
       default ->
           PUBLICATION_FACTORY.createPublishedPublication(
-              UIB_CREATOR, title, category, List.of(UIB_CREATOR), UIB_PUBLISHING_CURATOR);
+              UIB_CREATOR,
+              title,
+              category,
+              List.of(new Contributor(UIB_CREATOR, CREATOR)),
+              UIB_PUBLISHING_CURATOR);
     };
   }
 
@@ -103,11 +122,7 @@ class BibTexTest extends SearchTestBase {
 
     var identifier = createTestPublication(category, title);
 
-    with()
-        .pollInterval(fibonacci().with().unit(SECONDS))
-        .await()
-        .atMost(30, SECONDS)
-        .until(() -> !getResponseBody(titleUuid).isEmpty());
+    waitForIndexing(titleUuid);
 
     var responseBody = getResponseBody(titleUuid);
     var allExpectations = buildAllExpectations(expectation, title, identifier);
@@ -123,9 +138,66 @@ class BibTexTest extends SearchTestBase {
   private String getResponseBody(String query) {
     return given()
         .param("query", query)
+        .basePath("/search/resources")
         .accept(TEXT_X_BIBTEX)
         .when()
-        .get("/search/resources")
+        .get()
+        .then()
+        .statusCode(200)
+        .contentType(TEXT_X_BIBTEX)
+        .extract()
+        .asString();
+  }
+
+  private void waitForIndexing(String query) {
+    with()
+        .pollInterval(fibonacci().with().unit(SECONDS))
+        .await()
+        .atMost(120, SECONDS)
+        .until(
+            () -> {
+              var body = getResponseBody(query);
+              return body != null && !body.isEmpty();
+            });
+
+    assertThat(getResponseBody(query)).isNotEmpty();
+  }
+
+  @ParameterizedTest
+  @MethodSource("publicationsInBibTexFormatProvider")
+  @DisplayName("Search with content type 'text/x-bibtex' produces BibTeX export for customer")
+  @Description(
+      "Search returned with content type 'text/x-bibtex' is correct BibTex-format for customer")
+  void shouldReturnPublicationsInBibTexFormatForCustomer(
+      Category category, BibTexExpectation expectation) {
+
+    RestAssured.registerParser(TEXT_X_BIBTEX, Parser.TEXT);
+
+    var titleUuid = UUID.randomUUID().toString();
+    var title = "BibTex Integration test publication " + titleUuid;
+
+    var identifier = createTestPublication(category, title);
+
+    waitForIndexing(titleUuid);
+
+    var responseBody = getAuthorizedResponseBody(titleUuid, UIB_PUBLISHING_CURATOR);
+    var allExpectations = buildAllExpectations(expectation, title, identifier);
+
+    softly.assertThat(responseBody.lines()).hasSize(allExpectations.size());
+    allExpectations.forEach(expected -> softly.assertThat(responseBody).contains(expected));
+
+    softly
+        .assertThat(responseBody.lines().filter(line -> !line.startsWith("@")).toList())
+        .isSorted();
+  }
+
+  private String getAuthorizedResponseBody(String query, User user) {
+    return givenAuthenticatedJsonRequestAsUser(user)
+        .param("query", query)
+        .basePath("/search/customer/resources")
+        .accept(TEXT_X_BIBTEX)
+        .when()
+        .get()
         .then()
         .statusCode(200)
         .contentType(TEXT_X_BIBTEX)
@@ -140,10 +212,11 @@ class BibTexTest extends SearchTestBase {
             Stream.of(
                 "@" + expectation.bibtexType() + "{" + identifier,
                 "author = {" + UIB_CREATOR.name() + "}",
-                "url = {" + RestAssured.baseURI + "/publication/" + identifier + "}",
+                "url = {" + baseURI + "/publication/" + identifier + "}",
                 "title = {" + title + "}",
                 "month = {" + CURRENT_MONTH_SHORT_NAME + "}",
                 "year = {" + CURRENT_YEAR + "}",
+                "nva_api = {" + baseURI + "/publication/" + identifier,
                 "}"))
         .toList();
   }
@@ -155,7 +228,7 @@ class BibTexTest extends SearchTestBase {
           + " publications")
   void shouldReturnListOfPublicationsInBibTexFormat() {
 
-    var commonUuid = UUID.randomUUID();
+    var commonUuid = UUID.randomUUID().toString();
     var titleRoot = "BibTex-test-publication";
     var categories =
         List.of(
@@ -174,13 +247,9 @@ class BibTexTest extends SearchTestBase {
 
     // retry until last test publication is indexed
     var retryQuery = titleRoot + (categories.size() - 1);
-    with()
-        .pollInterval(fibonacci().with().unit(SECONDS))
-        .await()
-        .atMost(30, SECONDS)
-        .until(() -> !getResponseBody(retryQuery).isEmpty());
+    waitForIndexing(retryQuery);
 
-    var responseBody = getResponseBody(commonUuid.toString());
+    var responseBody = getResponseBody(commonUuid);
 
     softly
         .assertThat(responseBody.lines().filter(line -> line.startsWith("@")))
@@ -188,5 +257,119 @@ class BibTexTest extends SearchTestBase {
     softly
         .assertThat(responseBody.lines().filter(String::isBlank))
         .hasSize((categories.size() - 1) * 2);
+  }
+
+  @Test
+  @DisplayName("Use onlineIssn when both onlineIssn and printIssn exists")
+  @Description(
+      "A publication with both onlineIssn and printIssn should only return onlineIssn in BibTex"
+          + " format")
+  void shouldReturnOnlineIssnWhenBothOnlineIssnAndPrintIssnIsPresent() {
+
+    final var onlineIssn = "1520-4898";
+    var titleUuid = UUID.randomUUID().toString();
+    var title = "BibTex Integration test publication ISSN " + titleUuid;
+    createIssnPublication(title);
+
+    waitForIndexing(titleUuid);
+
+    var response = getResponseBody(titleUuid);
+    assertThat(response.lines()).contains("  issn = {" + onlineIssn + "},");
+  }
+
+  private void createIssnPublication(String title) {
+    final var issnJournalUri =
+        baseURI
+            + "/publication-channels-v2/serial-publication/271CEF41-0052-48CA-BB31-6780C7BA1F44/"
+            + CURRENT_YEAR;
+
+    var referenceMap =
+        PUBLICATION_FACTORY.buildReferenceMap(
+            new HashMap<>(Map.of("id", issnJournalUri)), new HashMap<>());
+
+    PUBLICATION_FACTORY.createPublishedPublicationWithReference(
+        UIB_CREATOR,
+        title,
+        ACADEMIC_ARTICLE,
+        List.of(new Contributor(UIB_CREATOR, CREATOR)),
+        UIB_PUBLISHING_CURATOR,
+        referenceMap);
+  }
+
+  @Test
+  @DisplayName("Authors are joined with 'and'")
+  @Description(
+      "A publication with multiple authors should present a list of authors separated with 'and'")
+  void shouldPresentMultipleAuthorsSeparatedWithAnd() {
+    var titleUuid = UUID.randomUUID().toString();
+    var title = "BibTex Integration test publication multiple authors " + titleUuid;
+
+    PUBLICATION_FACTORY.createPublishedPublication(
+        UIB_CREATOR,
+        title,
+        ACADEMIC_ARTICLE,
+        List.of(
+            new Contributor(UIB_CREATOR, CREATOR),
+            new Contributor(UIB_CONTRIBUTOR, CREATOR),
+            new Contributor(UIB_PUBLISHING_CURATOR, CREATOR)),
+        UIB_PUBLISHING_CURATOR);
+
+    waitForIndexing(titleUuid);
+
+    var response = getResponseBody(titleUuid);
+    var authorLine =
+        response.lines().filter(line -> line.contains("author")).findFirst().orElse("").trim();
+    softly.assertThat(authorLine).contains(UIB_CREATOR.name());
+    softly.assertThat(authorLine).contains(UIB_CONTRIBUTOR.name());
+    softly.assertThat(authorLine).contains(UIB_PUBLISHING_CURATOR.name());
+
+    softly
+        .assertThat(authorLine)
+        .isEqualTo(
+            "author = {"
+                + UIB_CREATOR.name()
+                + " and "
+                + UIB_CONTRIBUTOR.name()
+                + " and "
+                + UIB_PUBLISHING_CURATOR.name()
+                + "},");
+  }
+
+  @Test
+  @DisplayName("Keywords are joined with ','")
+  @Description(
+      "A publication with multiple keywords should present a list of keywords separated with ','")
+  void shouldPresentMultipleKeywordsSeparatedWithComma() {
+    var titleUuid = UUID.randomUUID().toString();
+    var title = "BibTex Integration test publication multiple keywords " + titleUuid;
+
+    var response = PUBLICATION_FACTORY.createDraftPublication(UIB_CREATOR);
+    var identifier = response.body().jsonPath().getString("identifier");
+    Map<String, Object> payload = response.body().jsonPath().getMap("");
+    payload.remove(PublicationFields.CONTEXT_FIELD);
+    var entityDescription =
+        PUBLICATION_FACTORY.createEntityDescription(
+            title, ACADEMIC_ARTICLE, List.of(new Contributor(UIB_CREATOR, CREATOR)));
+    entityDescription.put("tags", List.of("key1", "key2", "key3"));
+    payload.put(ENTITY_DESCRIPTION_FIELD, entityDescription);
+
+    PUBLICATION_FACTORY.updatePublication(UIB_CREATOR, payload);
+    PUBLICATION_FACTORY.publish(UIB_PUBLISHING_CURATOR, identifier);
+
+    waitForIndexing(titleUuid);
+
+    var searchResponse = getResponseBody(titleUuid);
+    var keywordLine =
+        searchResponse
+            .lines()
+            .filter(line -> line.contains("keywords"))
+            .findFirst()
+            .orElse("")
+            .trim();
+    softly.assertThat(keywordLine).contains("key1");
+    softly.assertThat(keywordLine).contains("key2");
+    softly.assertThat(keywordLine).contains("key3");
+
+    softly.assertThat(keywordLine.chars().filter(ch -> ch == ',').count()).isEqualTo(3);
   }
 }
