@@ -20,7 +20,7 @@
       "publisher": {
         "type": "Publisher",
         "name": "Springer Nature",
-        "id": "https://api.e2e.nva.aws.unit.no/publication-channels-v2/publisher/DC752087-7122-4D3A-9E4F-382AA2F39D2C",
+        "id": "https://api.e2e.nva.aws.unit.no/publication-channels-v2/publisher/DC752087-7122-4D3A-9E4F-382AA2F39D2C/{year}",
         "valid": "true"
       }
     }
