@@ -44,6 +44,8 @@ Then pass the profile to any Gradle task via `-PawsProfile=<profile>`:
 ```
 # Run a full build with tests
 ./gradlew build -PawsProfile=nva-e2e
+./gradlew :publication-api:build -PawsProfile=nva-e2e
+./gradlew :bibtex:build -PawsProfile=nva-e2e
 
 # Force re-run of all tests
 ./gradlew test -PawsProfile=nva-e2e --rerun-tasks
