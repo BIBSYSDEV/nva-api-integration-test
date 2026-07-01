@@ -6,9 +6,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import io.restassured.RestAssured;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient;
 import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueRequest;
@@ -28,6 +30,9 @@ public final class CognitoLogin {
 
   private static String secretPassword = "";
   private static final int RESPONSE_OK = 200;
+  private static final int RESPONSE_REDIRECT = 302;
+  private static final Map<String, CachedToken> TOKEN_CACHE = new ConcurrentHashMap<>();
+  private static final long TOKEN_EXPIRY_SAFETY_MARGIN_SECONDS = 60;
 
   private CognitoLogin() {}
 
@@ -66,8 +71,25 @@ public final class CognitoLogin {
     return nonNull(env) ? env : getValueFromParameterStore("/NVA/CognitoUri");
   }
 
-  /** Logg in as a Cognito-bruker and return tokens. */
+  /**
+   * Log in as a Cognito user and return tokens, cached per user until shortly before they expire.
+   * Every authenticated request would otherwise trigger a full login, and under parallel execution
+   * that floods the Cognito pre-token-generation Lambda and gets throttled (rate exceeded). The
+   * per-user remap holds a lock for that user, so concurrent first-time logins for the same user
+   * authenticate once instead of stampeding.
+   */
   public static Map<String, String> login(String userId) {
+    var cachedToken =
+        TOKEN_CACHE.compute(
+            userId,
+            (user, existingToken) ->
+                nonNull(existingToken) && !existingToken.isExpired()
+                    ? existingToken
+                    : requestTokens(user));
+    return cachedToken.tokens();
+  }
+
+  private static CachedToken requestTokens(String userId) {
     if (secretPassword.isEmpty()) {
       secretPassword = fetchPasswordFromSecretsManager();
     }
@@ -86,23 +108,28 @@ public final class CognitoLogin {
     body.put("code", code);
 
     // Get tokens from Cognito
-    JsonPath response =
+    var tokenResponse =
         RestAssured.given()
             .noFilters()
             .headers(headers)
             .formParams(body)
             .post(String.format("%s/oauth2/token", COGNITO_URI))
             .then()
-            .statusCode(RESPONSE_OK)
             .extract()
-            .response()
-            .jsonPath();
+            .response();
+    requireStatus(tokenResponse, RESPONSE_OK, "Cognito token exchange for user " + userId);
+    JsonPath response = tokenResponse.jsonPath();
 
     Map<String, String> tokens = new HashMap<>();
     tokens.put("accessToken", response.getString("access_token"));
     tokens.put("idToken", response.getString("id_token"));
     tokens.put("refreshToken", response.getString("refresh_token"));
-    return tokens;
+    return new CachedToken(tokens, expiryFrom(response));
+  }
+
+  private static Instant expiryFrom(JsonPath tokenResponse) {
+    var expiresInSeconds = tokenResponse.getLong("expires_in");
+    return Instant.now().plusSeconds(expiresInSeconds - TOKEN_EXPIRY_SAFETY_MARGIN_SECONDS);
   }
 
   public static Map<String, String> loginUser(User user) {
@@ -135,13 +162,25 @@ public final class CognitoLogin {
             .formParams(body)
             .post(url)
             .then()
-            .statusCode(302)
             .extract()
             .response();
+    requireStatus(response, RESPONSE_REDIRECT, "Cognito authorization for user " + userName);
 
     assertThat(response.header("Location")).contains("?code=");
 
     return response.getHeader("Location").split("\\?code=", -1)[1];
+  }
+
+  // RestAssured's statusCode() throws an AssertionError without the response body, and the login
+  // calls use noFilters() so the global validation-failure logging never runs. Cognito returns the
+  // failure reason (e.g. invalid_grant) in the body, so surface status and body in the exception.
+  private static void requireStatus(Response response, int expectedStatus, String context) {
+    if (response.statusCode() != expectedStatus) {
+      throw new IllegalStateException(
+          String.format(
+              "%s returned status %d (expected %d). Response body: %s",
+              context, response.statusCode(), expectedStatus, response.asString()));
+    }
   }
 
   /** Generate uri to login to Cognito */
@@ -156,5 +195,11 @@ public final class CognitoLogin {
                 + " phone profile",
             REDIRECT_URI);
     return baseUrl + "?" + queryString;
+  }
+
+  private record CachedToken(Map<String, String> tokens, Instant expiresAt) {
+    private boolean isExpired() {
+      return Instant.now().isAfter(expiresAt);
+    }
   }
 }

@@ -54,7 +54,7 @@ class FetchCandidateApiTest extends ScientificIndexTestBase {
     softly.assertThat(response.getString("type")).isEqualTo("NviCandidate");
     softly.assertThat(response.getString("publicationId")).isEqualTo(candidate.publicationId());
     softly.assertThat(response.getString("period.status")).isEqualTo("OpenPeriod");
-    softly.assertThat(response.getString("period.year")).isEqualTo(CURRENT_YEAR);
+    softly.assertThat(response.getString("period.publishingYear")).isEqualTo(CURRENT_YEAR);
     softly.assertThat(response.getList("approvals")).hasSize(1);
     softly
         .assertThat(response.getString("approvals[0].institutionId"))

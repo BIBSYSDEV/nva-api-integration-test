@@ -1,9 +1,9 @@
 package no.sikt.nva.apitest.scientificindex;
 
+import static java.util.Objects.nonNull;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static no.sikt.Role.CREATOR;
-import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequest;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_NVI_CURATOR;
@@ -17,18 +17,18 @@ import static org.awaitility.pollinterval.FibonacciPollInterval.fibonacci;
 
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
+import java.net.HttpURLConnection;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 import no.sikt.Category;
 import no.sikt.Contributor;
 import no.sikt.nva.PublicationFactory;
-import no.sikt.nva.apitest.base.CognitoLogin;
 import no.sikt.nva.apitest.base.User;
 
 public class NviCandidateFactory {
 
-  private static final int CANDIDATE_EVALUATION_TIMEOUT_MINUTES = 3;
-  private static final String ACCESS_TOKEN_KEY = "accessToken";
+  private static final int CANDIDATE_EVALUATION_TIMEOUT_MINUTES = 5;
   private static final String IDENTIFIER_FIELD_IN_CANDIDATE = "identifier";
 
   private final PublicationFactory publicationFactory = new PublicationFactory();
@@ -65,24 +65,40 @@ public class NviCandidateFactory {
     return publicationIdentifier;
   }
 
+  // The candidate becomes fetchable (200) before the evaluator has populated its approvals and
+  // points, and trailing re-evaluation events keep upserting it afterwards. Waiting only for a 200
+  // returns a half-evaluated candidate and makes assertions flaky, so this waits until it is fully
+  // evaluated and reads the identifier from that same settled response. The token is re-fetched
+  // per poll (cached, refreshed on expiry) rather than captured once, so a long wait cannot outlive
+  // a token that was already near expiry when the wait started.
   private String awaitCandidate(String publicationId) {
-    var accessToken = CognitoLogin.login(UIB_NVI_CURATOR.userId()).get(ACCESS_TOKEN_KEY);
+    var evaluatedCandidate = new AtomicReference<Response>();
     with()
         .pollInterval(fibonacci().with().unit(SECONDS))
+        .ignoreExceptions()
         .await()
         .atMost(CANDIDATE_EVALUATION_TIMEOUT_MINUTES, MINUTES)
-        .until(() -> fetchCandidate(accessToken, publicationId).statusCode() == 200);
-    return fetchCandidate(accessToken, publicationId)
-        .jsonPath()
-        .getString(IDENTIFIER_FIELD_IN_CANDIDATE);
+        .until(
+            () -> {
+              var response = fetchCandidateByPublicationId(UIB_NVI_CURATOR, publicationId);
+              evaluatedCandidate.set(response);
+              return isFullyEvaluated(response);
+            });
+    return evaluatedCandidate.get().jsonPath().getString(IDENTIFIER_FIELD_IN_CANDIDATE);
   }
 
-  private Response fetchCandidate(String accessToken, String publicationId) {
-    return givenAuthenticatedJsonRequest(accessToken)
-        .urlEncodingEnabled(false)
-        .get(candidateByPublicationIdPath(publicationId))
-        .then()
-        .extract()
-        .response();
+  private boolean isFullyEvaluated(Response response) {
+    var fullyEvaluated = false;
+    if (response.statusCode() == HttpURLConnection.HTTP_OK) {
+      var candidate = response.jsonPath();
+      var approvals = candidate.getList("approvals");
+      var totalPoints = candidate.get("totalPoints");
+      fullyEvaluated =
+          nonNull(approvals)
+              && !approvals.isEmpty()
+              && totalPoints instanceof Number points
+              && points.doubleValue() > 0;
+    }
+    return fullyEvaluated;
   }
 }

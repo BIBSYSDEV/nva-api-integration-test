@@ -23,7 +23,13 @@ import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
+// Each test method creates its own NVI candidate, and running them concurrently fires a burst of
+// asynchronous evaluations that backs up the pipeline and makes candidate creation time out. Run
+// this class's methods on a single thread so at most one candidate is being evaluated at a time.
+@Execution(ExecutionMode.SAME_THREAD)
 @ExtendWith(SoftAssertionsExtension.class)
 @SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
 class UpdateApprovalStatusApiTest extends ScientificIndexTestBase {
@@ -32,6 +38,7 @@ class UpdateApprovalStatusApiTest extends ScientificIndexTestBase {
   private static final String PENDING = "Pending";
   private static final String REJECTED = "Rejected";
   private static final String REJECTION_REASON = "Rejected by API integration test";
+  private static final int CONFLICT_RETRY_TIMEOUT_SECONDS = 120;
 
   @InjectSoftAssertions private SoftAssertions softly;
 
@@ -137,7 +144,7 @@ class UpdateApprovalStatusApiTest extends ScientificIndexTestBase {
     with()
         .pollInterval(2, SECONDS)
         .await()
-        .atMost(30, SECONDS)
+        .atMost(CONFLICT_RETRY_TIMEOUT_SECONDS, SECONDS)
         .until(
             () -> {
               var response = putApprovalStatus(user, candidate, requestBody);
