@@ -9,10 +9,10 @@ import static org.awaitility.Awaitility.with;
 
 import io.qameta.allure.Description;
 import io.restassured.response.Response;
+import java.net.HttpURLConnection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicReference;
 import no.sikt.nva.apitest.base.Affiliation;
 import no.sikt.nva.apitest.base.User;
 import no.sikt.nva.apitest.scientificindex.NviCandidate;
@@ -137,31 +137,23 @@ class UpdateApprovalStatusApiTest extends ScientificIndexTestBase {
   }
 
   // Trailing re-evaluation events from the publish flow can cause transient DynamoDB transaction
-  // conflicts (409) right after the candidate is created, so conflicts are retried
+  // conflicts (409) right after the candidate is created, so the request is retried until it
+  // returns a non-conflict response, which is then returned to the caller.
   private static Response updateApprovalStatus(
       User user, NviCandidate candidate, Map<String, Object> requestBody) {
-    var latestResponse = new AtomicReference<Response>();
-    with()
+    return with()
         .pollInterval(2, SECONDS)
         .await()
         .atMost(CONFLICT_RETRY_TIMEOUT_SECONDS, SECONDS)
         .until(
-            () -> {
-              var response = putApprovalStatus(user, candidate, requestBody);
-              latestResponse.set(response);
-              return response.statusCode() != 409;
-            });
-    return latestResponse.get();
-  }
-
-  private static Response putApprovalStatus(
-      User user, NviCandidate candidate, Map<String, Object> requestBody) {
-    return givenAuthenticatedJsonRequestAsUser(user)
-        .body(requestBody)
-        .put(candidateStatusPath(candidate.candidateIdentifier()))
-        .then()
-        .extract()
-        .response();
+            () ->
+                givenAuthenticatedJsonRequestAsUser(user)
+                    .body(requestBody)
+                    .put(candidateStatusPath(candidate.candidateIdentifier()))
+                    .then()
+                    .extract()
+                    .response(),
+            response -> response.statusCode() != HttpURLConnection.HTTP_CONFLICT);
   }
 
   private static Map<String, Object> approvalRequest(String status) {

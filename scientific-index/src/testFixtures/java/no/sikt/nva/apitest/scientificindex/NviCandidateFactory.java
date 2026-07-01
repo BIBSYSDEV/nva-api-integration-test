@@ -8,9 +8,6 @@ import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsU
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_NVI_CURATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_PUBLISHING_CURATOR;
-import static no.sikt.nva.apitest.publication.PublicationFields.CONTEXT_FIELD;
-import static no.sikt.nva.apitest.publication.PublicationFields.ENTITY_DESCRIPTION_FIELD;
-import static no.sikt.nva.apitest.publication.PublicationFields.IDENTIFIER_FIELD;
 import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.candidateByPublicationIdPath;
 import static org.awaitility.Awaitility.with;
 import static org.awaitility.pollinterval.FibonacciPollInterval.fibonacci;
@@ -19,7 +16,6 @@ import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import java.net.HttpURLConnection;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import no.sikt.Category;
 import no.sikt.Contributor;
@@ -34,10 +30,16 @@ public class NviCandidateFactory {
   private final PublicationFactory publicationFactory = new PublicationFactory();
 
   public NviCandidate createCandidate(String title) {
-    var publicationIdentifier = createNviEligiblePublication(title);
+    var publicationIdentifier =
+        publicationFactory.createPublishedPublication(
+            UIB_CREATOR,
+            title,
+            Category.ACADEMIC_ARTICLE,
+            List.of(new Contributor(UIB_CREATOR, CREATOR)),
+            UIB_PUBLISHING_CURATOR);
     var publicationId = RestAssured.baseURI + "/publication/" + publicationIdentifier;
     var candidateIdentifier = awaitCandidate(publicationId);
-    return new NviCandidate(candidateIdentifier, publicationId, publicationIdentifier);
+    return new NviCandidate(candidateIdentifier, publicationId);
   }
 
   public Response fetchCandidateByPublicationId(User user, String publicationId) {
@@ -47,22 +49,6 @@ public class NviCandidateFactory {
         .then()
         .extract()
         .response();
-  }
-
-  private String createNviEligiblePublication(String title) {
-    var createResponse = publicationFactory.createDraftPublication(UIB_CREATOR);
-    var publicationIdentifier = createResponse.jsonPath().getString(IDENTIFIER_FIELD);
-    Map<String, Object> publication = createResponse.jsonPath().getMap("");
-    publication.remove(CONTEXT_FIELD);
-
-    var entityDescription =
-        publicationFactory.createEntityDescription(
-            title, Category.ACADEMIC_ARTICLE, List.of(new Contributor(UIB_CREATOR, CREATOR)));
-    publication.put(ENTITY_DESCRIPTION_FIELD, entityDescription);
-
-    publicationFactory.updatePublication(UIB_CREATOR, publication);
-    publicationFactory.publish(UIB_PUBLISHING_CURATOR, publicationIdentifier);
-    return publicationIdentifier;
   }
 
   // The candidate becomes fetchable (200) before the evaluator has populated its approvals and
