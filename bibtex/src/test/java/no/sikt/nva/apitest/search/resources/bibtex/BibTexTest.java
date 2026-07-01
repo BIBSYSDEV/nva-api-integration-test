@@ -26,6 +26,7 @@ import static no.sikt.nva.apitest.search.BibTexExpectationFixtures.EXPECTED_BIBT
 import static no.sikt.nva.apitest.search.BibTexExpectationFixtures.EXPECTED_BIBTEX_DEGREE_MASTER;
 import static no.sikt.nva.apitest.search.BibTexExpectationFixtures.EXPECTED_BIBTEX_DEGREE_PHD;
 import static no.sikt.nva.apitest.search.BibTexExpectationFixtures.EXPECTED_BIBTEX_REPORT_RESEARCH;
+import static nva.commons.core.StringUtils.isNotBlank;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.with;
 import static org.awaitility.pollinterval.FibonacciPollInterval.fibonacci;
@@ -38,6 +39,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import no.sikt.Category;
@@ -122,9 +124,7 @@ class BibTexTest extends SearchTestBase {
 
     var identifier = createTestPublication(category, title);
 
-    waitForIndexing(titleUuid);
-
-    var responseBody = getResponseBody(titleUuid);
+    var responseBody = waitForIndexing(titleUuid);
     var allExpectations = buildAllExpectations(expectation, title, identifier);
 
     softly.assertThat(responseBody.lines()).hasSize(allExpectations.size());
@@ -149,18 +149,42 @@ class BibTexTest extends SearchTestBase {
         .asString();
   }
 
-  private void waitForIndexing(String query) {
+  // Returns the body captured during polling. Search is eventually consistent and a hit can
+  // flicker (a follow-up request may briefly return nothing), so callers assert on this snapshot
+  // rather than issuing another request.
+  private String waitForIndexing(String query) {
+    var latestResponseBody = new AtomicReference<String>();
     with()
         .pollInterval(fibonacci().with().unit(SECONDS))
+        .ignoreExceptions()
         .await()
         .atMost(120, SECONDS)
         .until(
             () -> {
               var body = getResponseBody(query);
-              return body != null && !body.isEmpty();
+              latestResponseBody.set(body);
+              return isNotBlank(body);
             });
+    return latestResponseBody.get();
+  }
 
-    assertThat(getResponseBody(query)).isNotEmpty();
+  // Indexing is asynchronous with no ordering guarantee, so waiting for only the last-created
+  // publication does not mean the earlier ones are indexed yet. Poll the shared query until every
+  // expected publication is present, then return that settled response body.
+  private String awaitIndexedPublications(String query, int expectedCount) {
+    var latestResponseBody = new AtomicReference<String>();
+    with()
+        .pollInterval(fibonacci().with().unit(SECONDS))
+        .ignoreExceptions()
+        .await()
+        .atMost(120, SECONDS)
+        .until(
+            () -> {
+              var body = getResponseBody(query);
+              latestResponseBody.set(body);
+              return body.lines().filter(line -> line.startsWith("@")).count() >= expectedCount;
+            });
+    return latestResponseBody.get();
   }
 
   @ParameterizedTest
@@ -245,18 +269,14 @@ class BibTexTest extends SearchTestBase {
                 createTestPublication(
                     categories.get(i), titleRoot + i + " " + commonUuid + " " + UUID.randomUUID()));
 
-    // retry until last test publication is indexed
-    var retryQuery = titleRoot + (categories.size() - 1);
-    waitForIndexing(retryQuery);
-
-    var responseBody = getResponseBody(commonUuid);
+    var responseBody = awaitIndexedPublications(commonUuid, categories.size());
 
     softly
         .assertThat(responseBody.lines().filter(line -> line.startsWith("@")))
         .hasSize(categories.size());
-    softly
-        .assertThat(responseBody.lines().filter(String::isBlank))
-        .hasSize((categories.size() - 1) * 2);
+    // Publications are separated by two newlines, which is a single blank line per gap once split
+    // into lines, so N publications yield N-1 blank lines.
+    softly.assertThat(responseBody.lines().filter(String::isBlank)).hasSize(categories.size() - 1);
   }
 
   @Test
@@ -271,9 +291,7 @@ class BibTexTest extends SearchTestBase {
     var title = "BibTex Integration test publication ISSN " + titleUuid;
     createIssnPublication(title);
 
-    waitForIndexing(titleUuid);
-
-    var response = getResponseBody(titleUuid);
+    var response = waitForIndexing(titleUuid);
     assertThat(response.lines()).contains("  issn = {" + onlineIssn + "},");
   }
 
@@ -314,9 +332,7 @@ class BibTexTest extends SearchTestBase {
             new Contributor(UIB_PUBLISHING_CURATOR, CREATOR)),
         UIB_PUBLISHING_CURATOR);
 
-    waitForIndexing(titleUuid);
-
-    var response = getResponseBody(titleUuid);
+    var response = waitForIndexing(titleUuid);
     var authorLine =
         response.lines().filter(line -> line.contains("author")).findFirst().orElse("").trim();
     softly.assertThat(authorLine).contains(UIB_CREATOR.name());
@@ -356,9 +372,7 @@ class BibTexTest extends SearchTestBase {
     PUBLICATION_FACTORY.updatePublication(UIB_CREATOR, payload);
     PUBLICATION_FACTORY.publish(UIB_PUBLISHING_CURATOR, identifier);
 
-    waitForIndexing(titleUuid);
-
-    var searchResponse = getResponseBody(titleUuid);
+    var searchResponse = waitForIndexing(titleUuid);
     var keywordLine =
         searchResponse
             .lines()
