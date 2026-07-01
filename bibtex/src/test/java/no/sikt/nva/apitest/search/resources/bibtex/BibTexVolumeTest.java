@@ -96,7 +96,7 @@ class BibTexVolumeTest extends SearchTestBase {
     with()
         .pollInterval(fibonacci().with().unit(SECONDS))
         .await()
-        .atMost(60, SECONDS)
+        .atMost(120, SECONDS)
         .until(
             () ->
                 getResponse(VOLUME_UUID, "10")

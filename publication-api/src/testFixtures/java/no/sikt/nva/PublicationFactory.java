@@ -20,6 +20,10 @@ import static no.sikt.nva.apitest.publication.PublicationPaths.publishPublicatio
 
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -34,13 +38,23 @@ import no.sikt.nva.apitest.publication.PublicationPaths;
 public class PublicationFactory {
 
   private static final String ACCESS_TOKEN = "accessToken";
+  private static final String YEAR_PLACEHOLDER = "{year}";
 
   private JsonPath loadJsonResource(String resourcePath) {
     var resourceStream = PublicationFactory.class.getResourceAsStream(resourcePath);
     if (isNull(resourceStream)) {
       throw new IllegalArgumentException("Resource not found on classpath: " + resourcePath);
     }
-    return new JsonPath(resourceStream);
+    // stringFromResources
+    return new JsonPath(readFixture(resourceStream).replace(YEAR_PLACEHOLDER, CURRENT_YEAR));
+  }
+
+  private String readFixture(InputStream resourceStream) {
+    try (var stream = resourceStream) {
+      return new String(stream.readAllBytes(), StandardCharsets.UTF_8);
+    } catch (IOException exception) {
+      throw new UncheckedIOException("Failed to read fixture resource", exception);
+    }
   }
 
   public Response createDraftPublication(User user) {
@@ -235,20 +249,8 @@ public class PublicationFactory {
   }
 
   public Map<String, Object> createReference(Category category) {
-
     var referenceJsonPath = loadJsonResource("/metadata/" + category.getValue() + "Reference.json");
-    Map<String, Object> publicationContext =
-        referenceJsonPath.getMap("reference.publicationContext");
-    if (publicationContext.containsKey("publisher")) {
-      Map<String, Object> publisher =
-          referenceJsonPath.get("reference.publicationContext.publisher");
-      publisher.put("id", publisher.get("id") + "/" + CURRENT_YEAR);
-      publicationContext.put("publisher", publisher);
-    }
-    Map<String, Object> reference = referenceJsonPath.getMap(REFERENCE);
-    reference.put(PUBLICATION_CONTEXT, publicationContext);
-
-    return reference;
+    return referenceJsonPath.getMap(REFERENCE);
   }
 
   public void publish(User curator, String identifier) {
