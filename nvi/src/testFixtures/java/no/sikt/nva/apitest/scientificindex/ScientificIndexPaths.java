@@ -23,6 +23,10 @@ public final class ScientificIndexPaths {
     return CANDIDATE_PATH + "/" + candidateIdentifier;
   }
 
+  public static String candidateSearchPath() {
+    return CANDIDATE_PATH;
+  }
+
   public static String candidateByPublicationIdPath(String publicationId) {
     return CANDIDATE_PATH + "/publication/" + encode(publicationId);
   }
