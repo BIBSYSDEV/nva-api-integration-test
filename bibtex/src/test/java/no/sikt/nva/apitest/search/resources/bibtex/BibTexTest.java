@@ -2,7 +2,6 @@ package no.sikt.nva.apitest.search.resources.bibtex;
 
 import static io.restassured.RestAssured.baseURI;
 import static io.restassured.RestAssured.given;
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static no.sikt.Category.ACADEMIC_ARTICLE;
 import static no.sikt.Category.ACADEMIC_CHAPTER;
 import static no.sikt.Category.ACADEMIC_MONOGRAPH;
@@ -13,6 +12,7 @@ import static no.sikt.Category.RESEARCH_REPORT;
 import static no.sikt.Role.CREATOR;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_MONTH_SHORT_NAME;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_YEAR;
+import static no.sikt.nva.apitest.base.Polling.pollUntil;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CONTRIBUTOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
@@ -26,20 +26,17 @@ import static no.sikt.nva.apitest.search.BibTexExpectationFixtures.EXPECTED_BIBT
 import static no.sikt.nva.apitest.search.BibTexExpectationFixtures.EXPECTED_BIBTEX_DEGREE_MASTER;
 import static no.sikt.nva.apitest.search.BibTexExpectationFixtures.EXPECTED_BIBTEX_DEGREE_PHD;
 import static no.sikt.nva.apitest.search.BibTexExpectationFixtures.EXPECTED_BIBTEX_REPORT_RESEARCH;
-import static nva.commons.core.StringUtils.isNotBlank;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.awaitility.Awaitility.with;
-import static org.awaitility.pollinterval.FibonacciPollInterval.fibonacci;
 import static org.junit.jupiter.params.provider.Arguments.argumentSet;
 
 import io.qameta.allure.Description;
 import io.restassured.RestAssured;
 import io.restassured.parsing.Parser;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import no.sikt.Category;
@@ -48,6 +45,7 @@ import no.sikt.nva.apitest.base.User;
 import no.sikt.nva.apitest.publication.PublicationFields;
 import no.sikt.nva.apitest.search.BibTexExpectation;
 import no.sikt.nva.apitest.search.SearchTestBase;
+import nva.commons.core.StringUtils;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
@@ -64,6 +62,7 @@ class BibTexTest extends SearchTestBase {
   @InjectSoftAssertions private SoftAssertions softly;
 
   private static final String TEXT_X_BIBTEX = "text/x-bibtex";
+  private static final Duration INDEXING_TIMEOUT = Duration.ofMinutes(2);
 
   private static Stream<Arguments> publicationsInBibTexFormatProvider() {
     return Stream.of(
@@ -149,42 +148,24 @@ class BibTexTest extends SearchTestBase {
         .asString();
   }
 
-  // Returns the body captured during polling. Search is eventually consistent and a hit can
-  // flicker (a follow-up request may briefly return nothing), so callers assert on this snapshot
-  // rather than issuing another request.
+  /**
+   * Polls the BibTeX search until the query has a hit. Search is eventually consistent and a hit
+   * can flicker, so callers should assert on the returned snapshot instead of issuing a new
+   * request.
+   */
   private String waitForIndexing(String query) {
-    var latestResponseBody = new AtomicReference<String>();
-    with()
-        .pollInterval(fibonacci().with().unit(SECONDS))
-        .ignoreExceptions()
-        .await()
-        .atMost(120, SECONDS)
-        .until(
-            () -> {
-              var body = getResponseBody(query);
-              latestResponseBody.set(body);
-              return isNotBlank(body);
-            });
-    return latestResponseBody.get();
+    return pollUntil(INDEXING_TIMEOUT, () -> getResponseBody(query), StringUtils::isNotBlank);
   }
 
-  // Indexing is asynchronous with no ordering guarantee, so waiting for only the last-created
-  // publication does not mean the earlier ones are indexed yet. Poll the shared query until every
-  // expected publication is present, then return that settled response body.
+  /**
+   * Polls the shared query until every expected publication is indexed, since indexing is
+   * asynchronous with no ordering guarantee.
+   */
   private String awaitIndexedPublications(String query, int expectedCount) {
-    var latestResponseBody = new AtomicReference<String>();
-    with()
-        .pollInterval(fibonacci().with().unit(SECONDS))
-        .ignoreExceptions()
-        .await()
-        .atMost(120, SECONDS)
-        .until(
-            () -> {
-              var body = getResponseBody(query);
-              latestResponseBody.set(body);
-              return body.lines().filter(line -> line.startsWith("@")).count() >= expectedCount;
-            });
-    return latestResponseBody.get();
+    return pollUntil(
+        INDEXING_TIMEOUT,
+        () -> getResponseBody(query),
+        body -> body.lines().filter(line -> line.startsWith("@")).count() >= expectedCount);
   }
 
   @ParameterizedTest

@@ -5,7 +5,6 @@ plugins {
 dependencies {
     testFixturesApi(testFixtures(project(':apitest-base')))
     testFixturesApi(testFixtures(project(':publication-api')))
-    testImplementation(libs.awaitility.core)
     testImplementation(libs.rest.assured.core)
     testImplementation(libs.rest.assured.json.path)
     testImplementation(libs.allure.java.commons)
@@ -19,4 +18,11 @@ dependencies {
     testRuntimeOnly(libs.allure.java.commons)
     testRuntimeOnly(nvaCatalog.junit.jupiter.engine)
     testRuntimeOnly(nvaCatalog.junit.platform.launcher)
+}
+
+tasks.withType(Test).configureEach {
+    // A test first creates its publications (up to 7 for the multi-publication case) and then polls
+    // up to 2m for indexing, so the default 2m timeout leaves no room for the creation phase. This
+    // is amplified by BibTexVolumeTest indexing 100 publications concurrently with the other tests.
+    systemProperty 'junit.jupiter.execution.timeout.default', '5m'
 }
