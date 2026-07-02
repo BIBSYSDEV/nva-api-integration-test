@@ -2,18 +2,17 @@ package no.sikt.nva.apitest.search.resources.bibtex;
 
 import static io.restassured.RestAssured.given;
 import static java.util.concurrent.TimeUnit.MINUTES;
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static no.sikt.Category.ACADEMIC_ARTICLE;
+import static no.sikt.nva.apitest.base.Polling.pollUntil;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_PUBLISHING_CURATOR;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.awaitility.Awaitility.with;
-import static org.awaitility.pollinterval.FibonacciPollInterval.fibonacci;
 
 import io.qameta.allure.Description;
 import io.restassured.RestAssured;
 import io.restassured.parsing.Parser;
 import io.restassured.response.Response;
+import java.time.Duration;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.IntStream;
@@ -41,6 +40,7 @@ class BibTexVolumeTest extends SearchTestBase {
   private static final String TEXT_X_BIBTEX = "text/x-bibtex";
   private static final String X_TOTAL_COUNT = "X-Total-Count";
   private static final String LINK = "Link";
+  private static final Duration INDEXING_TIMEOUT = Duration.ofMinutes(2);
 
   @BeforeAll
   @Timeout(value = 15, unit = MINUTES)
@@ -93,17 +93,14 @@ class BibTexVolumeTest extends SearchTestBase {
           + " Access-Control-Expose-Headers")
   void shouldReturnAllPublicationsInBibTexFormat() {
 
-    with()
-        .pollInterval(fibonacci().with().unit(SECONDS))
-        .await()
-        .atMost(120, SECONDS)
-        .until(
-            () ->
-                getResponse(VOLUME_UUID, "10")
+    var response =
+        pollUntil(
+            INDEXING_TIMEOUT,
+            () -> getResponse(VOLUME_UUID, "10"),
+            settled ->
+                settled
                     .header(X_TOTAL_COUNT)
                     .equals(Integer.toString(NUMBER_OF_TEST_PUBLICATIONS)));
-
-    var response = getResponse(VOLUME_UUID, "10");
 
     softly.assertThat(response.header(X_TOTAL_COUNT)).isNotEmpty();
     softly

@@ -1,23 +1,20 @@
 package no.sikt.nva.apitest.scientificindex;
 
 import static java.util.Objects.nonNull;
-import static java.util.concurrent.TimeUnit.MINUTES;
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static no.sikt.Role.CREATOR;
+import static no.sikt.nva.apitest.base.Polling.pollUntil;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_NVI_CURATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_PUBLISHING_CURATOR;
 import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.candidateByPublicationIdPath;
 import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.candidateSearchPath;
-import static org.awaitility.Awaitility.with;
-import static org.awaitility.pollinterval.FibonacciPollInterval.fibonacci;
 
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import java.net.HttpURLConnection;
+import java.time.Duration;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 import no.sikt.Category;
 import no.sikt.Contributor;
 import no.sikt.nva.PublicationFactory;
@@ -25,8 +22,8 @@ import no.sikt.nva.apitest.base.User;
 
 public class NviCandidateFactory {
 
-  private static final int CANDIDATE_EVALUATION_TIMEOUT_MINUTES = 5;
-  private static final int CANDIDATE_INDEXING_TIMEOUT_MINUTES = 5;
+  private static final Duration CANDIDATE_EVALUATION_TIMEOUT = Duration.ofMinutes(5);
+  private static final Duration CANDIDATE_INDEXING_TIMEOUT = Duration.ofMinutes(5);
   private static final int SEARCH_PAGE_SIZE = 100;
   private static final String IDENTIFIER_FIELD_IN_CANDIDATE = "identifier";
 
@@ -71,19 +68,10 @@ public class NviCandidateFactory {
    * @return the settled search response containing the candidate
    */
   public Response awaitCandidateInSearchIndex(User curator, NviCandidate candidate) {
-    var settledResponse = new AtomicReference<Response>();
-    with()
-        .pollInterval(fibonacci().with().unit(SECONDS))
-        .ignoreExceptions()
-        .await()
-        .atMost(CANDIDATE_INDEXING_TIMEOUT_MINUTES, MINUTES)
-        .until(
-            () -> {
-              var response = searchCandidates(curator, candidate.title());
-              settledResponse.set(response);
-              return isCandidateInSearchHits(response, candidate.publicationId());
-            });
-    return settledResponse.get();
+    return pollUntil(
+        CANDIDATE_INDEXING_TIMEOUT,
+        () -> searchCandidates(curator, candidate.title()),
+        response -> isCandidateInSearchHits(response, candidate.publicationId()));
   }
 
   /**
@@ -115,19 +103,12 @@ public class NviCandidateFactory {
    * @return the candidate identifier from the settled response
    */
   private String awaitCandidate(String publicationId) {
-    var evaluatedCandidate = new AtomicReference<Response>();
-    with()
-        .pollInterval(fibonacci().with().unit(SECONDS))
-        .ignoreExceptions()
-        .await()
-        .atMost(CANDIDATE_EVALUATION_TIMEOUT_MINUTES, MINUTES)
-        .until(
-            () -> {
-              var response = fetchCandidateByPublicationId(UIB_NVI_CURATOR, publicationId);
-              evaluatedCandidate.set(response);
-              return isFullyEvaluated(response);
-            });
-    return evaluatedCandidate.get().jsonPath().getString(IDENTIFIER_FIELD_IN_CANDIDATE);
+    var evaluatedCandidate =
+        pollUntil(
+            CANDIDATE_EVALUATION_TIMEOUT,
+            () -> fetchCandidateByPublicationId(UIB_NVI_CURATOR, publicationId),
+            this::isFullyEvaluated);
+    return evaluatedCandidate.jsonPath().getString(IDENTIFIER_FIELD_IN_CANDIDATE);
   }
 
   private boolean isFullyEvaluated(Response response) {

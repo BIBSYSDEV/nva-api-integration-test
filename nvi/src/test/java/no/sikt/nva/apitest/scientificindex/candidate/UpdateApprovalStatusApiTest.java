@@ -1,15 +1,15 @@
 package no.sikt.nva.apitest.scientificindex.candidate;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
+import static no.sikt.nva.apitest.base.Polling.pollUntil;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_NVI_CURATOR;
 import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.candidateStatusPath;
-import static org.awaitility.Awaitility.with;
 
 import io.qameta.allure.Description;
 import io.restassured.response.Response;
 import java.net.HttpURLConnection;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -38,7 +38,7 @@ class UpdateApprovalStatusApiTest extends ScientificIndexTestBase {
   private static final String PENDING = "Pending";
   private static final String REJECTED = "Rejected";
   private static final String REJECTION_REASON = "Rejected by API integration test";
-  private static final int CONFLICT_RETRY_TIMEOUT_SECONDS = 120;
+  private static final Duration CONFLICT_RETRY_TIMEOUT = Duration.ofMinutes(2);
 
   @InjectSoftAssertions private SoftAssertions softly;
 
@@ -131,19 +131,16 @@ class UpdateApprovalStatusApiTest extends ScientificIndexTestBase {
   // returns a non-conflict response, which is then returned to the caller.
   private static Response updateApprovalStatus(
       User user, NviCandidate candidate, Map<String, Object> requestBody) {
-    return with()
-        .pollInterval(2, SECONDS)
-        .await()
-        .atMost(CONFLICT_RETRY_TIMEOUT_SECONDS, SECONDS)
-        .until(
-            () ->
-                givenAuthenticatedJsonRequestAsUser(user)
-                    .body(requestBody)
-                    .put(candidateStatusPath(candidate.candidateIdentifier()))
-                    .then()
-                    .extract()
-                    .response(),
-            response -> response.statusCode() != HttpURLConnection.HTTP_CONFLICT);
+    return pollUntil(
+        CONFLICT_RETRY_TIMEOUT,
+        () ->
+            givenAuthenticatedJsonRequestAsUser(user)
+                .body(requestBody)
+                .put(candidateStatusPath(candidate.candidateIdentifier()))
+                .then()
+                .extract()
+                .response(),
+        response -> response.statusCode() != HttpURLConnection.HTTP_CONFLICT);
   }
 
   private static Map<String, Object> approvalRequest(String status) {
