@@ -170,7 +170,7 @@ class JsonLdSearchTest extends SearchTestBase {
 
     var response =
         awaitSearchResult(
-            () -> searchCustomerResources(titleUuid),
+            () -> searchCustomerResources(titleUuid, APPLICATION_LD_JSON),
             result -> itemList(result).getInt(NUMBER_OF_ITEMS_POINTER) >= 1);
     var body = itemList(response);
 
@@ -204,6 +204,39 @@ class JsonLdSearchTest extends SearchTestBase {
     var response =
         awaitSearchResult(
             () -> searchResources(titleUuid, acceptHeader),
+            result -> itemList(result).getInt(NUMBER_OF_ITEMS_POINTER) >= 1);
+    var body = itemList(response);
+
+    softly.assertThat(response.getContentType()).contains(LD_JSON_CONTENT_TYPE_FRAGMENT);
+    assertItemListEnvelope(body);
+    softly
+        .assertThat(body.getString(FIRST_ITEM_TYPE_POINTER))
+        .isEqualTo(EXPECTED_SCHEMA_ORG_ACADEMIC_ARTICLE.schemaOrgType());
+    softly.assertThat(body.getString(FIRST_ITEM_NAME_POINTER)).isEqualTo(title);
+  }
+
+  @ParameterizedTest
+  @MethodSource("acceptHeaderVariantsProvider")
+  @DisplayName("All schema.org Accept-header variants return JSON-LD for customer")
+  @Description(
+      "The three negotiable media types (application/ld+json, the vendor type and the profile"
+          + " parameter variant) all resolve to schema.org JSON-LD on the authenticated customer"
+          + " endpoint")
+  void shouldReturnSchemaOrgForAllAcceptHeaderVariantsForCustomer(String acceptHeader) {
+
+    var titleUuid = UUID.randomUUID().toString();
+    var title = "JsonLd Integration test customer accept variants " + titleUuid;
+
+    PUBLICATION_FACTORY.createPublishedPublication(
+        UIB_CREATOR,
+        title,
+        ACADEMIC_ARTICLE,
+        List.of(new Contributor(UIB_CREATOR, CREATOR)),
+        UIB_PUBLISHING_CURATOR);
+
+    var response =
+        awaitSearchResult(
+            () -> searchCustomerResources(titleUuid, acceptHeader),
             result -> itemList(result).getInt(NUMBER_OF_ITEMS_POINTER) >= 1);
     var body = itemList(response);
 
@@ -406,11 +439,11 @@ class JsonLdSearchTest extends SearchTestBase {
         .response();
   }
 
-  private Response searchCustomerResources(String query) {
+  private Response searchCustomerResources(String query, String acceptHeader) {
     return givenAuthenticatedJsonRequestAsUser(UIB_PUBLISHING_CURATOR)
         .param("query", query)
         .basePath(CUSTOMER_RESOURCES_PATH)
-        .accept(APPLICATION_LD_JSON)
+        .accept(acceptHeader)
         .when()
         .get()
         .then()
