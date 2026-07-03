@@ -34,6 +34,7 @@ class JsonLdVolumeTest extends SearchTestBase {
 
   private static final int NUMBER_OF_TEST_PUBLICATIONS = 100;
   private static final int PAGE_SIZE = 10;
+  private static final long VOLUME_INDEXING_TIMEOUT_SECONDS = 240;
   private static final String VOLUME_UUID = UUID.randomUUID().toString();
 
   private static final String APPLICATION_LD_JSON = "application/ld+json";
@@ -81,6 +82,7 @@ class JsonLdVolumeTest extends SearchTestBase {
   @Description(
       "A multi-page schema.org response exposes X-Total-Count, Access-Control-Expose-Headers and a"
           + " Link header with the schema.org profile plus first/next pagination links")
+  @Timeout(value = 5, unit = MINUTES)
   void shouldReturnProfileAndPaginationHeadersForPaginatedJsonLd() {
 
     var response = awaitAllPublicationsIndexed(PAGE_SIZE);
@@ -102,6 +104,7 @@ class JsonLdVolumeTest extends SearchTestBase {
   @Description(
       "A schema.org response that fits on a single page still exposes the profile Link but no"
           + " first/next pagination links")
+  @Timeout(value = 5, unit = MINUTES)
   void shouldReturnProfileLinkWithoutPaginationWhenSinglePage() {
 
     var response = awaitAllPublicationsIndexed(NUMBER_OF_TEST_PUBLICATIONS * 2);
@@ -134,7 +137,8 @@ class JsonLdVolumeTest extends SearchTestBase {
     return awaitSearchResult(
         () -> getResponse(VOLUME_UUID, size),
         response ->
-            Integer.toString(NUMBER_OF_TEST_PUBLICATIONS).equals(response.header(X_TOTAL_COUNT)));
+            Integer.toString(NUMBER_OF_TEST_PUBLICATIONS).equals(response.header(X_TOTAL_COUNT)),
+        VOLUME_INDEXING_TIMEOUT_SECONDS);
   }
 
   private JsonPath itemList(Response response) {

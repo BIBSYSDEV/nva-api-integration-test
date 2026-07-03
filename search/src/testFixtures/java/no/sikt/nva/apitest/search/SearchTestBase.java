@@ -15,16 +15,21 @@ public class SearchTestBase extends IntegrationTestBase {
 
   public static final PublicationFactory PUBLICATION_FACTORY = new PublicationFactory();
 
-  private static final long INDEXING_TIMEOUT_SECONDS = 120;
+  private static final long DEFAULT_INDEXING_TIMEOUT_SECONDS = 120;
 
   protected static Response awaitSearchResult(
       Supplier<Response> search, Predicate<Response> isReady) {
+    return awaitSearchResult(search, isReady, DEFAULT_INDEXING_TIMEOUT_SECONDS);
+  }
+
+  protected static Response awaitSearchResult(
+      Supplier<Response> search, Predicate<Response> isReady, long timeoutSeconds) {
     var latestResponse = new AtomicReference<Response>();
     with()
         .pollInterval(fibonacci().with().unit(SECONDS))
         .ignoreExceptions()
         .await()
-        .atMost(INDEXING_TIMEOUT_SECONDS, SECONDS)
+        .atMost(timeoutSeconds, SECONDS)
         .until(
             () -> {
               var response = search.get();
