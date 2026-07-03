@@ -60,456 +60,457 @@ import org.junit.jupiter.params.provider.MethodSource;
 @ExtendWith(SoftAssertionsExtension.class)
 class JsonLdSearchTest extends SearchApiTestBase {
 
-    @InjectSoftAssertions
-    private SoftAssertions softly;
+  @InjectSoftAssertions private SoftAssertions softly;
 
-    private static final String APPLICATION_LD_JSON = "application/ld+json";
-    private static final String APPLICATION_VND_SCHEMAORG_LD_JSON =
-        "application/vnd.schemaorg.ld+json";
-    private static final String APPLICATION_LD_JSON_WITH_PROFILE =
-        "application/ld+json; profile=\"https://schema.org\"";
-    private static final String LD_JSON_CONTENT_TYPE_FRAGMENT = "ld+json";
+  private static final String APPLICATION_LD_JSON = "application/ld+json";
+  private static final String APPLICATION_VND_SCHEMAORG_LD_JSON =
+      "application/vnd.schemaorg.ld+json";
+  private static final String APPLICATION_LD_JSON_WITH_PROFILE =
+      "application/ld+json; profile=\"https://schema.org\"";
+  private static final String LD_JSON_CONTENT_TYPE_FRAGMENT = "ld+json";
 
-    private static final String SCHEMA_ORG_CONTEXT = "https://schema.org";
-    private static final String ITEM_LIST_TYPE = "ItemList";
-    private static final String PERIODICAL_TYPE = "Periodical";
-    private static final String BOOK_TYPE = "Book";
-    private static final String ORGANIZATION_TYPE = "Organization";
+  private static final String SCHEMA_ORG_CONTEXT = "https://schema.org";
+  private static final String ITEM_LIST_TYPE = "ItemList";
+  private static final String PERIODICAL_TYPE = "Periodical";
+  private static final String BOOK_TYPE = "Book";
+  private static final String ORGANIZATION_TYPE = "Organization";
 
-    private static final String RESOURCES_PATH = "/search/resources";
-    private static final String CUSTOMER_RESOURCES_PATH = "/search/customer/resources";
+  private static final String RESOURCES_PATH = "/search/resources";
+  private static final String CUSTOMER_RESOURCES_PATH = "/search/customer/resources";
 
-    private static final String CONTEXT_POINTER = "'@context'";
-    private static final String TYPE_POINTER = "'@type'";
-    private static final String NUMBER_OF_ITEMS_POINTER = "numberOfItems";
-    private static final String ITEM_LIST_ELEMENT_POINTER = "itemListElement";
-    private static final String ITEM_TYPES_POINTER = "itemListElement.'@type'";
-    private static final String FIRST_ITEM_TYPE_POINTER = "itemListElement[0].'@type'";
-    private static final String FIRST_ITEM_ID_POINTER = "itemListElement[0].'@id'";
-    private static final String FIRST_ITEM_URL_POINTER = "itemListElement[0].url";
-    private static final String FIRST_ITEM_NAME_POINTER = "itemListElement[0].name";
-    private static final String FIRST_ITEM_DATE_PUBLISHED_POINTER =
-        "itemListElement[0].datePublished";
-    private static final String FIRST_ITEM_KEYWORDS_POINTER = "itemListElement[0].keywords";
-    private static final String FIRST_ITEM_AUTHOR_NAMES_POINTER = "itemListElement[0].author.name";
-    private static final String FIRST_ITEM_FIRST_AUTHOR_NAME_POINTER =
-        "itemListElement[0].author[0].name";
-    private static final String FIRST_ITEM_ISBN_POINTER = "itemListElement[0].isbn";
-    private static final String FIRST_ITEM_PUBLISHER_TYPE_POINTER =
-        "itemListElement[0].publisher.'@type'";
-    private static final String FIRST_ITEM_PUBLISHER_NAME_POINTER =
-        "itemListElement[0].publisher.name";
-    private static final String FIRST_ITEM_IS_PART_OF_TYPE_POINTER =
-        "itemListElement[0].isPartOf.'@type'";
-    private static final String FIRST_ITEM_IS_PART_OF_NAME_POINTER =
-        "itemListElement[0].isPartOf.name";
+  private static final String CONTEXT_POINTER = "'@context'";
+  private static final String TYPE_POINTER = "'@type'";
+  private static final String NUMBER_OF_ITEMS_POINTER = "numberOfItems";
+  private static final String ITEM_LIST_ELEMENT_POINTER = "itemListElement";
+  private static final String ITEM_TYPES_POINTER = "itemListElement.'@type'";
+  private static final String FIRST_ITEM_TYPE_POINTER = "itemListElement[0].'@type'";
+  private static final String FIRST_ITEM_ID_POINTER = "itemListElement[0].'@id'";
+  private static final String FIRST_ITEM_URL_POINTER = "itemListElement[0].url";
+  private static final String FIRST_ITEM_NAME_POINTER = "itemListElement[0].name";
+  private static final String FIRST_ITEM_DATE_PUBLISHED_POINTER =
+      "itemListElement[0].datePublished";
+  private static final String FIRST_ITEM_KEYWORDS_POINTER = "itemListElement[0].keywords";
+  private static final String FIRST_ITEM_AUTHOR_NAMES_POINTER = "itemListElement[0].author.name";
+  private static final String FIRST_ITEM_FIRST_AUTHOR_NAME_POINTER =
+      "itemListElement[0].author[0].name";
+  private static final String FIRST_ITEM_ISBN_POINTER = "itemListElement[0].isbn";
+  private static final String FIRST_ITEM_PUBLISHER_TYPE_POINTER =
+      "itemListElement[0].publisher.'@type'";
+  private static final String FIRST_ITEM_PUBLISHER_NAME_POINTER =
+      "itemListElement[0].publisher.name";
+  private static final String FIRST_ITEM_IS_PART_OF_TYPE_POINTER =
+      "itemListElement[0].isPartOf.'@type'";
+  private static final String FIRST_ITEM_IS_PART_OF_NAME_POINTER =
+      "itemListElement[0].isPartOf.name";
 
-    private static final String EXPECTED_PUBLISHER = "Springer Nature";
-    private static final String ONLINE_ISSN = "1520-4898";
+  private static final String EXPECTED_PUBLISHER = "Springer Nature";
+  private static final String ONLINE_ISSN = "1520-4898";
 
-    private static final String PUBLICATION_CHANNELS_PATH = "publication-channels-v2";
-    private static final String SERIAL_PUBLICATION_PATH = "serial-publication";
-    private static final String ISSN_JOURNAL_IDENTIFIER = "271CEF41-0052-48CA-BB31-6780C7BA1F44";
+  private static final String PUBLICATION_CHANNELS_PATH = "publication-channels-v2";
+  private static final String SERIAL_PUBLICATION_PATH = "serial-publication";
+  private static final String ISSN_JOURNAL_IDENTIFIER = "271CEF41-0052-48CA-BB31-6780C7BA1F44";
 
-    private static Stream<Arguments> publicationsInJsonLdFormatProvider() {
-        return Stream.of(
-            argumentSet("AcademicArticle", ACADEMIC_ARTICLE, EXPECTED_SCHEMA_ORG_ACADEMIC_ARTICLE),
-            argumentSet(
-                "AcademicMonograph", ACADEMIC_MONOGRAPH, EXPECTED_SCHEMA_ORG_ACADEMIC_MONOGRAPH),
-            argumentSet("AcademicChapter", ACADEMIC_CHAPTER, EXPECTED_SCHEMA_ORG_ACADEMIC_CHAPTER),
-            argumentSet("DegreeMaster", DEGREE_MASTER, EXPECTED_SCHEMA_ORG_DEGREE_MASTER),
-            argumentSet("DegreePhD", DEGREE_PHD, EXPECTED_SCHEMA_ORG_DEGREE_PHD),
-            argumentSet("ReportResearch", RESEARCH_REPORT, EXPECTED_SCHEMA_ORG_REPORT_RESEARCH),
-            argumentSet(
-                "ConferenceLecture", CONFERENCE_LECTURE, EXPECTED_SCHEMA_ORG_CONFERENCE_LECTURE));
-    }
+  private static Stream<Arguments> publicationsInJsonLdFormatProvider() {
+    return Stream.of(
+        argumentSet("AcademicArticle", ACADEMIC_ARTICLE, EXPECTED_SCHEMA_ORG_ACADEMIC_ARTICLE),
+        argumentSet(
+            "AcademicMonograph", ACADEMIC_MONOGRAPH, EXPECTED_SCHEMA_ORG_ACADEMIC_MONOGRAPH),
+        argumentSet("AcademicChapter", ACADEMIC_CHAPTER, EXPECTED_SCHEMA_ORG_ACADEMIC_CHAPTER),
+        argumentSet("DegreeMaster", DEGREE_MASTER, EXPECTED_SCHEMA_ORG_DEGREE_MASTER),
+        argumentSet("DegreePhD", DEGREE_PHD, EXPECTED_SCHEMA_ORG_DEGREE_PHD),
+        argumentSet("ReportResearch", RESEARCH_REPORT, EXPECTED_SCHEMA_ORG_REPORT_RESEARCH),
+        argumentSet(
+            "ConferenceLecture", CONFERENCE_LECTURE, EXPECTED_SCHEMA_ORG_CONFERENCE_LECTURE));
+  }
 
-    private static Stream<Arguments> acceptHeaderVariantsProvider() {
-        return Stream.of(
-            argumentSet(APPLICATION_LD_JSON, APPLICATION_LD_JSON),
-            argumentSet(APPLICATION_VND_SCHEMAORG_LD_JSON, APPLICATION_VND_SCHEMAORG_LD_JSON),
-            argumentSet(APPLICATION_LD_JSON_WITH_PROFILE, APPLICATION_LD_JSON_WITH_PROFILE));
-    }
+  private static Stream<Arguments> acceptHeaderVariantsProvider() {
+    return Stream.of(
+        argumentSet(APPLICATION_LD_JSON, APPLICATION_LD_JSON),
+        argumentSet(APPLICATION_VND_SCHEMAORG_LD_JSON, APPLICATION_VND_SCHEMAORG_LD_JSON),
+        argumentSet(APPLICATION_LD_JSON_WITH_PROFILE, APPLICATION_LD_JSON_WITH_PROFILE));
+  }
 
-    @ParameterizedTest
-    @MethodSource("publicationsInJsonLdFormatProvider")
-    @DisplayName("Search with content type 'application/ld+json' produces schema.org JSON-LD")
-    @Description(
-        "Search returned with content type 'application/ld+json' is valid schema.org JSON-LD")
-    void shouldReturnPublicationsInJsonLdFormat(Category category, SchemaOrgExpectation expectation) {
+  @ParameterizedTest
+  @MethodSource("publicationsInJsonLdFormatProvider")
+  @DisplayName("Search with content type 'application/ld+json' produces schema.org JSON-LD")
+  @Description(
+      "Search returned with content type 'application/ld+json' is valid schema.org JSON-LD")
+  void shouldReturnPublicationsInJsonLdFormat(Category category, SchemaOrgExpectation expectation) {
 
-        var titleUuid = UUID.randomUUID().toString();
-        var title = "JsonLd Integration test publication " + titleUuid;
+    var titleUuid = UUID.randomUUID().toString();
+    var title = "JsonLd Integration test publication " + titleUuid;
 
-        createTestPublication(category, title);
+    createTestPublication(category, title);
 
-        var response = awaitIndexed(titleUuid);
-        var body = itemList(response);
+    var response = awaitIndexed(titleUuid);
+    var body = itemList(response);
 
-        softly.assertThat(response.getContentType()).contains(LD_JSON_CONTENT_TYPE_FRAGMENT);
-        assertItemListEnvelope(body);
-        softly.assertThat(body.getInt(NUMBER_OF_ITEMS_POINTER)).isGreaterThanOrEqualTo(1);
-        softly
-            .assertThat(body.getString(FIRST_ITEM_TYPE_POINTER))
-            .isEqualTo(expectation.schemaOrgType());
-        softly.assertThat(body.getString(FIRST_ITEM_NAME_POINTER)).isEqualTo(title);
-        softly.assertThat(body.getString(FIRST_ITEM_ID_POINTER)).isNotBlank();
-        softly.assertThat(body.getString(FIRST_ITEM_URL_POINTER)).isNotBlank();
-        softly.assertThat(body.getString(FIRST_ITEM_DATE_PUBLISHED_POINTER)).isEqualTo(CURRENT_YEAR);
-        softly
-            .assertThat(body.getString(FIRST_ITEM_FIRST_AUTHOR_NAME_POINTER))
-            .isEqualTo(UIB_CREATOR.name());
-    }
+    softly.assertThat(response.getContentType()).contains(LD_JSON_CONTENT_TYPE_FRAGMENT);
+    assertItemListEnvelope(body);
+    softly.assertThat(body.getInt(NUMBER_OF_ITEMS_POINTER)).isGreaterThanOrEqualTo(1);
+    softly
+        .assertThat(body.getString(FIRST_ITEM_TYPE_POINTER))
+        .isEqualTo(expectation.schemaOrgType());
+    softly.assertThat(body.getString(FIRST_ITEM_NAME_POINTER)).isEqualTo(title);
+    softly.assertThat(body.getString(FIRST_ITEM_ID_POINTER)).isNotBlank();
+    softly.assertThat(body.getString(FIRST_ITEM_URL_POINTER)).isNotBlank();
+    softly.assertThat(body.getString(FIRST_ITEM_DATE_PUBLISHED_POINTER)).isEqualTo(CURRENT_YEAR);
+    softly
+        .assertThat(body.getString(FIRST_ITEM_FIRST_AUTHOR_NAME_POINTER))
+        .isEqualTo(UIB_CREATOR.name());
+  }
 
-    @ParameterizedTest
-    @MethodSource("publicationsInJsonLdFormatProvider")
-    @DisplayName("Search with content type 'application/ld+json' produces JSON-LD for customer")
-    @Description(
-        "Authenticated customer search returned with content type 'application/ld+json' is valid"
-        + " schema.org JSON-LD")
-    void shouldReturnPublicationsInJsonLdFormatForCustomer(
-        Category category, SchemaOrgExpectation expectation) {
+  @ParameterizedTest
+  @MethodSource("publicationsInJsonLdFormatProvider")
+  @DisplayName("Search with content type 'application/ld+json' produces JSON-LD for customer")
+  @Description(
+      "Authenticated customer search returned with content type 'application/ld+json' is valid"
+          + " schema.org JSON-LD")
+  void shouldReturnPublicationsInJsonLdFormatForCustomer(
+      Category category, SchemaOrgExpectation expectation) {
 
-        var titleUuid = UUID.randomUUID().toString();
-        var title = "JsonLd Integration test publication " + titleUuid;
+    var titleUuid = UUID.randomUUID().toString();
+    var title = "JsonLd Integration test publication " + titleUuid;
 
-        createTestPublication(category, title);
+    createTestPublication(category, title);
 
-        awaitIndexed(titleUuid);
+    awaitIndexed(titleUuid);
 
-        var response = searchCustomerResources(titleUuid, APPLICATION_LD_JSON, UIB_PUBLISHING_CURATOR);
-        var body = itemList(response);
+    var response = searchCustomerResources(titleUuid, APPLICATION_LD_JSON, UIB_PUBLISHING_CURATOR);
+    var body = itemList(response);
 
-        softly.assertThat(response.getContentType()).contains(LD_JSON_CONTENT_TYPE_FRAGMENT);
-        assertItemListEnvelope(body);
-        softly.assertThat(body.getInt(NUMBER_OF_ITEMS_POINTER)).isGreaterThanOrEqualTo(1);
-        softly
-            .assertThat(body.getString(FIRST_ITEM_TYPE_POINTER))
-            .isEqualTo(expectation.schemaOrgType());
-        softly.assertThat(body.getString(FIRST_ITEM_NAME_POINTER)).isEqualTo(title);
-    }
+    softly.assertThat(response.getContentType()).contains(LD_JSON_CONTENT_TYPE_FRAGMENT);
+    assertItemListEnvelope(body);
+    softly.assertThat(body.getInt(NUMBER_OF_ITEMS_POINTER)).isGreaterThanOrEqualTo(1);
+    softly
+        .assertThat(body.getString(FIRST_ITEM_TYPE_POINTER))
+        .isEqualTo(expectation.schemaOrgType());
+    softly.assertThat(body.getString(FIRST_ITEM_NAME_POINTER)).isEqualTo(title);
+  }
 
-    @ParameterizedTest
-    @MethodSource("acceptHeaderVariantsProvider")
-    @DisplayName("All schema.org Accept-header variants return JSON-LD")
-    @Description(
-        "The three negotiable media types (application/ld+json, the vendor type and the profile"
-        + " parameter variant) all resolve to schema.org JSON-LD")
-    void shouldReturnSchemaOrgForAllAcceptHeaderVariants(String acceptHeader) {
+  @ParameterizedTest
+  @MethodSource("acceptHeaderVariantsProvider")
+  @DisplayName("All schema.org Accept-header variants return JSON-LD")
+  @Description(
+      "The three negotiable media types (application/ld+json, the vendor type and the profile"
+          + " parameter variant) all resolve to schema.org JSON-LD")
+  void shouldReturnSchemaOrgForAllAcceptHeaderVariants(String acceptHeader) {
 
-        var titleUuid = UUID.randomUUID().toString();
-        var title = "JsonLd Integration test accept variants " + titleUuid;
+    var titleUuid = UUID.randomUUID().toString();
+    var title = "JsonLd Integration test accept variants " + titleUuid;
 
-        PUBLICATION_FACTORY.createPublishedPublication(
+    PUBLICATION_FACTORY.createPublishedPublication(
+        UIB_CREATOR,
+        title,
+        ACADEMIC_ARTICLE,
+        List.of(new Contributor(UIB_CREATOR, CREATOR)),
+        UIB_PUBLISHING_CURATOR);
+
+    awaitIndexed(titleUuid);
+
+    var response = searchResources(titleUuid, acceptHeader);
+    var body = itemList(response);
+
+    softly.assertThat(response.getContentType()).contains(LD_JSON_CONTENT_TYPE_FRAGMENT);
+    assertItemListEnvelope(body);
+    softly
+        .assertThat(body.getString(FIRST_ITEM_TYPE_POINTER))
+        .isEqualTo(EXPECTED_SCHEMA_ORG_ACADEMIC_ARTICLE.schemaOrgType());
+    softly.assertThat(body.getString(FIRST_ITEM_NAME_POINTER)).isEqualTo(title);
+  }
+
+  @Test
+  @DisplayName("Search for multiple publications returns a schema.org ItemList")
+  @Description(
+      "A search matching several publications returns an ItemList whose numberOfItems and"
+          + " itemListElement reflect all matches")
+  void shouldReturnItemListWithMultiplePublications() {
+
+    var commonUuid = UUID.randomUUID().toString();
+    var titleRoot = "JsonLd-test-publication";
+    var categories = List.of(ACADEMIC_ARTICLE, ACADEMIC_MONOGRAPH, DEGREE_MASTER, RESEARCH_REPORT);
+
+    IntStream.range(0, categories.size())
+        .forEach(
+            index ->
+                createTestPublication(
+                    categories.get(index),
+                    titleRoot + index + " " + commonUuid + " " + UUID.randomUUID()));
+
+    var response = awaitIndexedCount(commonUuid, categories.size());
+    var body = itemList(response);
+
+    softly
+        .assertThat(body.getInt(NUMBER_OF_ITEMS_POINTER))
+        .isGreaterThanOrEqualTo(categories.size());
+    softly
+        .assertThat(body.getList(ITEM_LIST_ELEMENT_POINTER))
+        .hasSizeGreaterThanOrEqualTo(categories.size());
+    softly.assertThat(body.getList(ITEM_TYPES_POINTER)).doesNotContainNull();
+  }
+
+  @Test
+  @DisplayName("Article journal is exposed as a Periodical with its ISSN")
+  @Description(
+      "An article with both onlineIssn and printIssn should expose the onlineIssn on a schema.org"
+          + " Periodical")
+  void shouldExposeOnlineIssnOnPeriodicalForArticle() {
+
+    var titleUuid = UUID.randomUUID().toString();
+    var title = "JsonLd Integration test publication ISSN " + titleUuid;
+
+    createIssnPublication(title);
+
+    var response = awaitIndexed(titleUuid);
+
+    softly.assertThat(response.body().asString()).contains(PERIODICAL_TYPE);
+    softly.assertThat(response.body().asString()).contains(ONLINE_ISSN);
+  }
+
+  @Test
+  @DisplayName("Monograph exposes ISBN and publisher")
+  @Description("A monograph is a schema.org Book carrying its ISBN and a publisher Organization")
+  void shouldExposeIsbnAndPublisherForMonograph() {
+
+    var titleUuid = UUID.randomUUID().toString();
+    var title = "JsonLd Integration test publication monograph " + titleUuid;
+
+    PUBLICATION_FACTORY.createPublishedPublication(
+        UIB_CREATOR,
+        title,
+        ACADEMIC_MONOGRAPH,
+        List.of(new Contributor(UIB_CREATOR, CREATOR)),
+        UIB_PUBLISHING_CURATOR);
+
+    var response = awaitIndexed(titleUuid);
+    var body = itemList(response);
+
+    softly
+        .assertThat(body.getString(FIRST_ITEM_TYPE_POINTER))
+        .isEqualTo(EXPECTED_SCHEMA_ORG_ACADEMIC_MONOGRAPH.schemaOrgType());
+    softly.assertThat(body.getString(FIRST_ITEM_ISBN_POINTER)).isNotBlank();
+    softly
+        .assertThat(body.getString(FIRST_ITEM_PUBLISHER_TYPE_POINTER))
+        .isEqualTo(ORGANIZATION_TYPE);
+    softly
+        .assertThat(body.getString(FIRST_ITEM_PUBLISHER_NAME_POINTER))
+        .isEqualTo(EXPECTED_PUBLISHER);
+  }
+
+  @Test
+  @DisplayName("Chapter exposes its book through isPartOf")
+  @Description(
+      "A chapter in an anthology is a schema.org Chapter whose isPartOf is the containing Book")
+  void shouldExposeBookThroughIsPartOfForChapter() {
+
+    var titleUuid = UUID.randomUUID().toString();
+    var title = "JsonLd Integration test publication chapter " + titleUuid;
+    var anthologyTitle = "JsonLd integration test anthology " + UUID.randomUUID();
+
+    var anthologyIdentifier =
+        PUBLICATION_FACTORY.createAnthologyForChapter(
             UIB_CREATOR,
-            title,
-            ACADEMIC_ARTICLE,
-            List.of(new Contributor(UIB_CREATOR, CREATOR)),
-            UIB_PUBLISHING_CURATOR);
+            anthologyTitle,
+            UIB_PUBLISHING_CURATOR,
+            List.of(new Contributor(UIB_CREATOR, CREATOR)));
 
-        awaitIndexed(titleUuid);
+    PUBLICATION_FACTORY.createChapterInAnthology(
+        UIB_CREATOR,
+        title,
+        ACADEMIC_CHAPTER,
+        List.of(new Contributor(UIB_CREATOR, CREATOR)),
+        UIB_PUBLISHING_CURATOR,
+        anthologyIdentifier);
 
-        var response = searchResources(titleUuid, acceptHeader);
-        var body = itemList(response);
+    var response = awaitIndexed(titleUuid);
+    var body = itemList(response);
 
-        softly.assertThat(response.getContentType()).contains(LD_JSON_CONTENT_TYPE_FRAGMENT);
-        assertItemListEnvelope(body);
-        softly
-            .assertThat(body.getString(FIRST_ITEM_TYPE_POINTER))
-            .isEqualTo(EXPECTED_SCHEMA_ORG_ACADEMIC_ARTICLE.schemaOrgType());
-        softly.assertThat(body.getString(FIRST_ITEM_NAME_POINTER)).isEqualTo(title);
-    }
+    softly
+        .assertThat(body.getString(FIRST_ITEM_TYPE_POINTER))
+        .isEqualTo(EXPECTED_SCHEMA_ORG_ACADEMIC_CHAPTER.schemaOrgType());
+    softly.assertThat(body.getString(FIRST_ITEM_IS_PART_OF_TYPE_POINTER)).isEqualTo(BOOK_TYPE);
+    softly.assertThat(body.getString(FIRST_ITEM_IS_PART_OF_NAME_POINTER)).isEqualTo(anthologyTitle);
+  }
 
-    @Test
-    @DisplayName("Search for multiple publications returns a schema.org ItemList")
-    @Description(
-        "A search matching several publications returns an ItemList whose numberOfItems and"
-        + " itemListElement reflect all matches")
-    void shouldReturnItemListWithMultiplePublications() {
+  @Test
+  @DisplayName("Keywords are joined with ', '")
+  @Description(
+      "Publication tags are exposed as a single comma-separated schema.org keywords string")
+  void shouldJoinMultipleKeywordsWithComma() {
 
-        var commonUuid = UUID.randomUUID().toString();
-        var titleRoot = "JsonLd-test-publication";
-        var categories = List.of(ACADEMIC_ARTICLE, ACADEMIC_MONOGRAPH, DEGREE_MASTER, RESEARCH_REPORT);
+    var titleUuid = UUID.randomUUID().toString();
+    var title = "JsonLd Integration test publication multiple keywords " + titleUuid;
 
-        IntStream.range(0, categories.size())
-            .forEach(
-                index ->
-                    createTestPublication(
-                        categories.get(index),
-                        titleRoot + index + " " + commonUuid + " " + UUID.randomUUID()));
+    var response = PUBLICATION_FACTORY.createDraftPublication(UIB_CREATOR);
+    var identifier = response.body().jsonPath().getString("identifier");
+    Map<String, Object> payload = response.body().jsonPath().getMap("");
+    payload.remove(PublicationFields.CONTEXT_FIELD);
+    var entityDescription =
+        PUBLICATION_FACTORY.createEntityDescription(
+            title, ACADEMIC_ARTICLE, List.of(new Contributor(UIB_CREATOR, CREATOR)));
+    entityDescription.put("tags", List.of("key1", "key2", "key3"));
+    payload.put(ENTITY_DESCRIPTION_FIELD, entityDescription);
 
-        var response = awaitIndexedCount(commonUuid, categories.size());
-        var body = itemList(response);
+    PUBLICATION_FACTORY.updatePublication(UIB_CREATOR, payload);
+    PUBLICATION_FACTORY.publish(UIB_PUBLISHING_CURATOR, identifier);
 
-        softly
-            .assertThat(body.getInt(NUMBER_OF_ITEMS_POINTER))
-            .isGreaterThanOrEqualTo(categories.size());
-        softly
-            .assertThat(body.getList(ITEM_LIST_ELEMENT_POINTER))
-            .hasSizeGreaterThanOrEqualTo(categories.size());
-        softly.assertThat(body.getList(ITEM_TYPES_POINTER)).doesNotContainNull();
-    }
+    var searchResponse = awaitIndexed(titleUuid);
+    var keywords = itemList(searchResponse).getString(FIRST_ITEM_KEYWORDS_POINTER);
 
-    @Test
-    @DisplayName("Article journal is exposed as a Periodical with its ISSN")
-    @Description(
-        "An article with both onlineIssn and printIssn should expose the onlineIssn on a schema.org"
-        + " Periodical")
-    void shouldExposeOnlineIssnOnPeriodicalForArticle() {
+    softly.assertThat(keywords).contains("key1", "key2", "key3");
+    softly.assertThat(keywords).isEqualTo("key1, key2, key3");
+  }
 
-        var titleUuid = UUID.randomUUID().toString();
-        var title = "JsonLd Integration test publication ISSN " + titleUuid;
+  @Test
+  @DisplayName("Multiple authors are exposed as a list")
+  @Description("A publication with several creators exposes each as a schema.org author")
+  void shouldExposeMultipleAuthors() {
 
-        createIssnPublication(title);
+    var titleUuid = UUID.randomUUID().toString();
+    var title = "JsonLd Integration test publication multiple authors " + titleUuid;
 
-        var response = awaitIndexed(titleUuid);
+    PUBLICATION_FACTORY.createPublishedPublication(
+        UIB_CREATOR,
+        title,
+        ACADEMIC_ARTICLE,
+        List.of(
+            new Contributor(UIB_CREATOR, CREATOR),
+            new Contributor(UIB_CONTRIBUTOR, CREATOR),
+            new Contributor(UIB_PUBLISHING_CURATOR, CREATOR)),
+        UIB_PUBLISHING_CURATOR);
 
-        softly.assertThat(response.body().asString()).contains(PERIODICAL_TYPE);
-        softly.assertThat(response.body().asString()).contains(ONLINE_ISSN);
-    }
+    var response = awaitIndexed(titleUuid);
+    var authorNames = itemList(response).getList(FIRST_ITEM_AUTHOR_NAMES_POINTER, String.class);
 
-    @Test
-    @DisplayName("Monograph exposes ISBN and publisher")
-    @Description("A monograph is a schema.org Book carrying its ISBN and a publisher Organization")
-    void shouldExposeIsbnAndPublisherForMonograph() {
+    softly
+        .assertThat(authorNames)
+        .containsExactlyInAnyOrder(
+            UIB_CREATOR.name(), UIB_CONTRIBUTOR.name(), UIB_PUBLISHING_CURATOR.name());
+  }
 
-        var titleUuid = UUID.randomUUID().toString();
-        var title = "JsonLd Integration test publication monograph " + titleUuid;
+  private void assertItemListEnvelope(JsonPath body) {
+    softly.assertThat(body.getString(CONTEXT_POINTER)).isEqualTo(SCHEMA_ORG_CONTEXT);
+    softly.assertThat(body.getString(TYPE_POINTER)).isEqualTo(ITEM_LIST_TYPE);
+  }
 
-        PUBLICATION_FACTORY.createPublishedPublication(
-            UIB_CREATOR,
-            title,
-            ACADEMIC_MONOGRAPH,
-            List.of(new Contributor(UIB_CREATOR, CREATOR)),
-            UIB_PUBLISHING_CURATOR);
+  private JsonPath itemList(Response response) {
+    return JsonPath.from(response.body().asString());
+  }
 
-        var response = awaitIndexed(titleUuid);
-        var body = itemList(response);
+  private Response searchResources(String query, String acceptHeader) {
+    return given()
+        .param("query", query)
+        .basePath(RESOURCES_PATH)
+        .accept(acceptHeader)
+        .when()
+        .get()
+        .then()
+        .statusCode(200)
+        .extract()
+        .response();
+  }
 
-        softly
-            .assertThat(body.getString(FIRST_ITEM_TYPE_POINTER))
-            .isEqualTo(EXPECTED_SCHEMA_ORG_ACADEMIC_MONOGRAPH.schemaOrgType());
-        softly.assertThat(body.getString(FIRST_ITEM_ISBN_POINTER)).isNotBlank();
-        softly
-            .assertThat(body.getString(FIRST_ITEM_PUBLISHER_TYPE_POINTER))
-            .isEqualTo(ORGANIZATION_TYPE);
-        softly
-            .assertThat(body.getString(FIRST_ITEM_PUBLISHER_NAME_POINTER))
-            .isEqualTo(EXPECTED_PUBLISHER);
-    }
+  private Response searchCustomerResources(String query, String acceptHeader, User user) {
+    return givenAuthenticatedJsonRequestAsUser(user)
+        .param("query", query)
+        .basePath(CUSTOMER_RESOURCES_PATH)
+        .accept(acceptHeader)
+        .when()
+        .get()
+        .then()
+        .statusCode(200)
+        .extract()
+        .response();
+  }
 
-    @Test
-    @DisplayName("Chapter exposes its book through isPartOf")
-    @Description(
-        "A chapter in an anthology is a schema.org Chapter whose isPartOf is the containing Book")
-    void shouldExposeBookThroughIsPartOfForChapter() {
+  private Response awaitIndexed(String query) {
+    var latestResponse = new AtomicReference<Response>();
+    with()
+        .pollInterval(fibonacci().with().unit(SECONDS))
+        .ignoreExceptions()
+        .await()
+        .atMost(120, SECONDS)
+        .until(
+            () -> {
+              var response = searchResources(query, APPLICATION_LD_JSON);
+              latestResponse.set(response);
+              return itemList(response).getInt(NUMBER_OF_ITEMS_POINTER) >= 1;
+            });
+    return latestResponse.get();
+  }
 
-        var titleUuid = UUID.randomUUID().toString();
-        var title = "JsonLd Integration test publication chapter " + titleUuid;
-        var anthologyTitle = "JsonLd integration test anthology " + UUID.randomUUID();
+  private Response awaitIndexedCount(String query, int expectedCount) {
+    var latestResponse = new AtomicReference<Response>();
+    with()
+        .pollInterval(fibonacci().with().unit(SECONDS))
+        .ignoreExceptions()
+        .await()
+        .atMost(120, SECONDS)
+        .until(
+            () -> {
+              var response = searchResources(query, APPLICATION_LD_JSON);
+              latestResponse.set(response);
+              return itemList(response).getList(ITEM_LIST_ELEMENT_POINTER).size() >= expectedCount;
+            });
+    return latestResponse.get();
+  }
 
+  private String createTestPublication(Category category, String title) {
+    return switch (category) {
+      case ACADEMIC_CHAPTER -> {
         var anthologyIdentifier =
             PUBLICATION_FACTORY.createAnthologyForChapter(
                 UIB_CREATOR,
-                anthologyTitle,
+                "JsonLd integration test anthology " + UUID.randomUUID(),
                 UIB_PUBLISHING_CURATOR,
                 List.of(new Contributor(UIB_CREATOR, CREATOR)));
 
-        PUBLICATION_FACTORY.createChapterInAnthology(
+        yield PUBLICATION_FACTORY.createChapterInAnthology(
             UIB_CREATOR,
             title,
-            ACADEMIC_CHAPTER,
+            category,
             List.of(new Contributor(UIB_CREATOR, CREATOR)),
             UIB_PUBLISHING_CURATOR,
             anthologyIdentifier);
+      }
+      case DEGREE_PHD, DEGREE_MASTER ->
+          PUBLICATION_FACTORY.createPublishedPublication(
+              UIB_THESIS_CURATOR,
+              title,
+              category,
+              List.of(new Contributor(UIB_CREATOR, CREATOR)),
+              UIB_THESIS_CURATOR);
+      default ->
+          PUBLICATION_FACTORY.createPublishedPublication(
+              UIB_CREATOR,
+              title,
+              category,
+              List.of(new Contributor(UIB_CREATOR, CREATOR)),
+              UIB_PUBLISHING_CURATOR);
+    };
+  }
 
-        var response = awaitIndexed(titleUuid);
-        var body = itemList(response);
+  private void createIssnPublication(String title) {
+    var issnJournalUri =
+        UriWrapper.fromUri(baseURI)
+            .addChild(
+                PUBLICATION_CHANNELS_PATH,
+                SERIAL_PUBLICATION_PATH,
+                ISSN_JOURNAL_IDENTIFIER,
+                CURRENT_YEAR)
+            .getUri()
+            .toString();
 
-        softly
-            .assertThat(body.getString(FIRST_ITEM_TYPE_POINTER))
-            .isEqualTo(EXPECTED_SCHEMA_ORG_ACADEMIC_CHAPTER.schemaOrgType());
-        softly.assertThat(body.getString(FIRST_ITEM_IS_PART_OF_TYPE_POINTER)).isEqualTo(BOOK_TYPE);
-        softly.assertThat(body.getString(FIRST_ITEM_IS_PART_OF_NAME_POINTER)).isEqualTo(anthologyTitle);
-    }
+    var referenceMap =
+        PUBLICATION_FACTORY.buildReferenceMap(
+            new HashMap<>(Map.of("id", issnJournalUri)), new HashMap<>());
 
-    @Test
-    @DisplayName("Keywords are joined with ', '")
-    @Description(
-        "Publication tags are exposed as a single comma-separated schema.org keywords string")
-    void shouldJoinMultipleKeywordsWithComma() {
-
-        var titleUuid = UUID.randomUUID().toString();
-        var title = "JsonLd Integration test publication multiple keywords " + titleUuid;
-
-        var response = PUBLICATION_FACTORY.createDraftPublication(UIB_CREATOR);
-        var identifier = response.body().jsonPath().getString("identifier");
-        Map<String, Object> payload = response.body().jsonPath().getMap("");
-        payload.remove(PublicationFields.CONTEXT_FIELD);
-        var entityDescription =
-            PUBLICATION_FACTORY.createEntityDescription(
-                title, ACADEMIC_ARTICLE, List.of(new Contributor(UIB_CREATOR, CREATOR)));
-        entityDescription.put("tags", List.of("key1", "key2", "key3"));
-        payload.put(ENTITY_DESCRIPTION_FIELD, entityDescription);
-
-        PUBLICATION_FACTORY.updatePublication(UIB_CREATOR, payload);
-        PUBLICATION_FACTORY.publish(UIB_PUBLISHING_CURATOR, identifier);
-
-        var searchResponse = awaitIndexed(titleUuid);
-        var keywords = itemList(searchResponse).getString(FIRST_ITEM_KEYWORDS_POINTER);
-
-        softly.assertThat(keywords).contains("key1", "key2", "key3");
-        softly.assertThat(keywords).isEqualTo("key1, key2, key3");
-    }
-
-    @Test
-    @DisplayName("Multiple authors are exposed as a list")
-    @Description("A publication with several creators exposes each as a schema.org author")
-    void shouldExposeMultipleAuthors() {
-
-        var titleUuid = UUID.randomUUID().toString();
-        var title = "JsonLd Integration test publication multiple authors " + titleUuid;
-
-        PUBLICATION_FACTORY.createPublishedPublication(
-            UIB_CREATOR,
-            title,
-            ACADEMIC_ARTICLE,
-            List.of(
-                new Contributor(UIB_CREATOR, CREATOR),
-                new Contributor(UIB_CONTRIBUTOR, CREATOR),
-                new Contributor(UIB_PUBLISHING_CURATOR, CREATOR)),
-            UIB_PUBLISHING_CURATOR);
-
-        var response = awaitIndexed(titleUuid);
-        var authorNames = itemList(response).getList(FIRST_ITEM_AUTHOR_NAMES_POINTER, String.class);
-
-        softly
-            .assertThat(authorNames)
-            .containsExactlyInAnyOrder(
-                UIB_CREATOR.name(), UIB_CONTRIBUTOR.name(), UIB_PUBLISHING_CURATOR.name());
-    }
-
-    private void assertItemListEnvelope(JsonPath body) {
-        softly.assertThat(body.getString(CONTEXT_POINTER)).isEqualTo(SCHEMA_ORG_CONTEXT);
-        softly.assertThat(body.getString(TYPE_POINTER)).isEqualTo(ITEM_LIST_TYPE);
-    }
-
-    private JsonPath itemList(Response response) {
-        return JsonPath.from(response.body().asString());
-    }
-
-    private Response searchResources(String query, String acceptHeader) {
-        return given()
-                   .param("query", query)
-                   .basePath(RESOURCES_PATH)
-                   .accept(acceptHeader)
-                   .when()
-                   .get()
-                   .then()
-                   .statusCode(200)
-                   .extract()
-                   .response();
-    }
-
-    private Response searchCustomerResources(String query, String acceptHeader, User user) {
-        return givenAuthenticatedJsonRequestAsUser(user)
-                   .param("query", query)
-                   .basePath(CUSTOMER_RESOURCES_PATH)
-                   .accept(acceptHeader)
-                   .when()
-                   .get()
-                   .then()
-                   .statusCode(200)
-                   .extract()
-                   .response();
-    }
-
-    private Response awaitIndexed(String query) {
-        var latestResponse = new AtomicReference<Response>();
-        with()
-            .pollInterval(fibonacci().with().unit(SECONDS))
-            .ignoreExceptions()
-            .await()
-            .atMost(120, SECONDS)
-            .until(
-                () -> {
-                    var response = searchResources(query, APPLICATION_LD_JSON);
-                    latestResponse.set(response);
-                    return itemList(response).getInt(NUMBER_OF_ITEMS_POINTER) >= 1;
-                });
-        return latestResponse.get();
-    }
-
-    private Response awaitIndexedCount(String query, int expectedCount) {
-        var latestResponse = new AtomicReference<Response>();
-        with()
-            .pollInterval(fibonacci().with().unit(SECONDS))
-            .ignoreExceptions()
-            .await()
-            .atMost(120, SECONDS)
-            .until(
-                () -> {
-                    var response = searchResources(query, APPLICATION_LD_JSON);
-                    latestResponse.set(response);
-                    return itemList(response).getList(ITEM_LIST_ELEMENT_POINTER).size() >= expectedCount;
-                });
-        return latestResponse.get();
-    }
-
-    private String createTestPublication(Category category, String title) {
-        return switch (category) {
-            case ACADEMIC_CHAPTER -> {
-                var anthologyIdentifier =
-                    PUBLICATION_FACTORY.createAnthologyForChapter(
-                        UIB_CREATOR,
-                        "JsonLd integration test anthology " + UUID.randomUUID(),
-                        UIB_PUBLISHING_CURATOR,
-                        List.of(new Contributor(UIB_CREATOR, CREATOR)));
-
-                yield PUBLICATION_FACTORY.createChapterInAnthology(
-                    UIB_CREATOR,
-                    title,
-                    category,
-                    List.of(new Contributor(UIB_CREATOR, CREATOR)),
-                    UIB_PUBLISHING_CURATOR,
-                    anthologyIdentifier);
-            }
-            case DEGREE_PHD, DEGREE_MASTER -> PUBLICATION_FACTORY.createPublishedPublication(
-                UIB_THESIS_CURATOR,
-                title,
-                category,
-                List.of(new Contributor(UIB_CREATOR, CREATOR)),
-                UIB_THESIS_CURATOR);
-            default -> PUBLICATION_FACTORY.createPublishedPublication(
-                UIB_CREATOR,
-                title,
-                category,
-                List.of(new Contributor(UIB_CREATOR, CREATOR)),
-                UIB_PUBLISHING_CURATOR);
-        };
-    }
-
-    private void createIssnPublication(String title) {
-        var issnJournalUri =
-            UriWrapper.fromUri(baseURI)
-                .addChild(
-                    PUBLICATION_CHANNELS_PATH,
-                    SERIAL_PUBLICATION_PATH,
-                    ISSN_JOURNAL_IDENTIFIER,
-                    CURRENT_YEAR)
-                .getUri()
-                .toString();
-
-        var referenceMap =
-            PUBLICATION_FACTORY.buildReferenceMap(
-                new HashMap<>(Map.of("id", issnJournalUri)), new HashMap<>());
-
-        PUBLICATION_FACTORY.createPublishedPublicationWithReference(
-            UIB_CREATOR,
-            title,
-            ACADEMIC_ARTICLE,
-            List.of(new Contributor(UIB_CREATOR, CREATOR)),
-            UIB_PUBLISHING_CURATOR,
-            referenceMap);
-    }
+    PUBLICATION_FACTORY.createPublishedPublicationWithReference(
+        UIB_CREATOR,
+        title,
+        ACADEMIC_ARTICLE,
+        List.of(new Contributor(UIB_CREATOR, CREATOR)),
+        UIB_PUBLISHING_CURATOR,
+        referenceMap);
+  }
 }
