@@ -45,7 +45,7 @@ import no.sikt.Contributor;
 import no.sikt.nva.apitest.base.User;
 import no.sikt.nva.apitest.publication.PublicationFields;
 import no.sikt.nva.apitest.search.BibTexExpectation;
-import no.sikt.nva.apitest.search.SearchTestBase;
+import no.sikt.nva.apitest.search.SearchApiTestBase;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
@@ -57,7 +57,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 @ExtendWith(SoftAssertionsExtension.class)
-class BibTexTest extends SearchTestBase {
+class BibTexTest extends SearchApiTestBase {
 
   @InjectSoftAssertions private SoftAssertions softly;
 
