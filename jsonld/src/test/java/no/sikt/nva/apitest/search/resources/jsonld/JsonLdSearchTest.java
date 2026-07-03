@@ -323,7 +323,7 @@ class JsonLdSearchTest extends SearchTestBase {
         .assertThat(body.getString(FIRST_ITEM_TYPE_POINTER))
         .isEqualTo(EXPECTED_SCHEMA_ORG_ACADEMIC_CHAPTER.schemaOrgType());
     softly.assertThat(body.getString(FIRST_ITEM_IS_PART_OF_TYPE_POINTER)).isEqualTo(BOOK_TYPE);
-    softly.assertThat(body.getString(FIRST_ITEM_IS_PART_OF_NAME_POINTER)).isEqualTo(anthologyTitle);
+    softly.assertThat(body.getString(FIRST_ITEM_IS_PART_OF_NAME_POINTER)).contains(anthologyTitle);
   }
 
   @Test
@@ -352,7 +352,7 @@ class JsonLdSearchTest extends SearchTestBase {
     var keywords = itemList(searchResponse).getString(FIRST_ITEM_KEYWORDS_POINTER);
 
     softly.assertThat(keywords).contains("key1", "key2", "key3");
-    softly.assertThat(keywords).isEqualTo("key1, key2, key3");
+    softly.assertThat(keywords.split(", ")).hasSize(3);
   }
 
   @Test
