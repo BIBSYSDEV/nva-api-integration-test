@@ -9,10 +9,10 @@ import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.candidate
 import io.qameta.allure.Description;
 import io.restassured.response.Response;
 import java.net.HttpURLConnection;
-import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.Callable;
 import no.sikt.nva.apitest.base.Affiliation;
 import no.sikt.nva.apitest.base.User;
 import no.sikt.nva.apitest.scientificindex.NviCandidate;
@@ -38,7 +38,6 @@ class UpdateApprovalStatusApiTest extends ScientificIndexTestBase {
   private static final String PENDING = "Pending";
   private static final String REJECTED = "Rejected";
   private static final String REJECTION_REASON = "Rejected by API integration test";
-  private static final Duration CONFLICT_RETRY_TIMEOUT = Duration.ofMinutes(2);
 
   @InjectSoftAssertions private SoftAssertions softly;
 
@@ -132,15 +131,23 @@ class UpdateApprovalStatusApiTest extends ScientificIndexTestBase {
   private static Response updateApprovalStatus(
       User user, NviCandidate candidate, Map<String, Object> requestBody) {
     return pollUntil(
-        CONFLICT_RETRY_TIMEOUT,
-        () ->
-            givenAuthenticatedJsonRequestAsUser(user)
-                .body(requestBody)
-                .put(candidateStatusPath(candidate.candidateIdentifier()))
-                .then()
-                .extract()
-                .response(),
-        response -> response.statusCode() != HttpURLConnection.HTTP_CONFLICT);
+        putApprovalStatusRequest(user, candidate, requestBody),
+        UpdateApprovalStatusApiTest::isNotConflict);
+  }
+
+  private static Callable<Response> putApprovalStatusRequest(
+      User user, NviCandidate candidate, Map<String, Object> requestBody) {
+    return () ->
+        givenAuthenticatedJsonRequestAsUser(user)
+            .body(requestBody)
+            .put(candidateStatusPath(candidate.candidateIdentifier()))
+            .then()
+            .extract()
+            .response();
+  }
+
+  private static boolean isNotConflict(Response response) {
+    return response.statusCode() != HttpURLConnection.HTTP_CONFLICT;
   }
 
   private static Map<String, Object> approvalRequest(String status) {

@@ -15,6 +15,8 @@ import io.restassured.response.Response;
 import java.net.HttpURLConnection;
 import java.time.Duration;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.function.Predicate;
 import no.sikt.Category;
 import no.sikt.Contributor;
 import no.sikt.nva.PublicationFactory;
@@ -70,8 +72,8 @@ public class NviCandidateFactory {
   public Response awaitCandidateInSearchIndex(User curator, NviCandidate candidate) {
     return pollUntil(
         CANDIDATE_INDEXING_TIMEOUT,
-        () -> searchCandidates(curator, candidate.title()),
-        response -> isCandidateInSearchHits(response, candidate.publicationId()));
+        searchCandidatesRequest(curator, candidate.title()),
+        containsCandidate(candidate.publicationId()));
   }
 
   /**
@@ -87,13 +89,14 @@ public class NviCandidateFactory {
     return response.jsonPath().getList("hits.publicationDetails.id", String.class);
   }
 
-  private static boolean isCandidateInSearchHits(Response response, String publicationId) {
-    var indexed = false;
-    if (response.statusCode() == HttpURLConnection.HTTP_OK) {
-      var matchingHit = response.jsonPath().getMap(indexedCandidateByPublicationId(publicationId));
-      indexed = nonNull(matchingHit);
-    }
-    return indexed;
+  private Callable<Response> searchCandidatesRequest(User curator, String title) {
+    return () -> searchCandidates(curator, title);
+  }
+
+  private static Predicate<Response> containsCandidate(String publicationId) {
+    return response ->
+        response.statusCode() == HttpURLConnection.HTTP_OK
+            && nonNull(response.jsonPath().getMap(indexedCandidateByPublicationId(publicationId)));
   }
 
   /**
@@ -106,9 +109,13 @@ public class NviCandidateFactory {
     var evaluatedCandidate =
         pollUntil(
             CANDIDATE_EVALUATION_TIMEOUT,
-            () -> fetchCandidateByPublicationId(UIB_NVI_CURATOR, publicationId),
+            fetchCandidateRequest(publicationId),
             this::isFullyEvaluated);
     return evaluatedCandidate.jsonPath().getString(IDENTIFIER_FIELD_IN_CANDIDATE);
+  }
+
+  private Callable<Response> fetchCandidateRequest(String publicationId) {
+    return () -> fetchCandidateByPublicationId(UIB_NVI_CURATOR, publicationId);
   }
 
   private boolean isFullyEvaluated(Response response) {
