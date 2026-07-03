@@ -2,7 +2,6 @@ package no.sikt.nva.apitest.search.resources.jsonld;
 
 import static io.restassured.RestAssured.baseURI;
 import static io.restassured.RestAssured.given;
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static no.sikt.Category.ACADEMIC_ARTICLE;
 import static no.sikt.Category.ACADEMIC_CHAPTER;
 import static no.sikt.Category.ACADEMIC_MONOGRAPH;
@@ -25,8 +24,6 @@ import static no.sikt.nva.apitest.search.SchemaOrgExpectationFixtures.EXPECTED_S
 import static no.sikt.nva.apitest.search.SchemaOrgExpectationFixtures.EXPECTED_SCHEMA_ORG_DEGREE_MASTER;
 import static no.sikt.nva.apitest.search.SchemaOrgExpectationFixtures.EXPECTED_SCHEMA_ORG_DEGREE_PHD;
 import static no.sikt.nva.apitest.search.SchemaOrgExpectationFixtures.EXPECTED_SCHEMA_ORG_REPORT_RESEARCH;
-import static org.awaitility.Awaitility.with;
-import static org.awaitility.pollinterval.FibonacciPollInterval.fibonacci;
 import static org.junit.jupiter.params.provider.Arguments.argumentSet;
 
 import io.qameta.allure.Description;
@@ -36,7 +33,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import no.sikt.Category;
@@ -422,35 +418,15 @@ class JsonLdSearchTest extends SearchTestBase {
   }
 
   private Response awaitIndexed(String query) {
-    var latestResponse = new AtomicReference<Response>();
-    with()
-        .pollInterval(fibonacci().with().unit(SECONDS))
-        .ignoreExceptions()
-        .await()
-        .atMost(120, SECONDS)
-        .until(
-            () -> {
-              var response = searchResources(query, APPLICATION_LD_JSON);
-              latestResponse.set(response);
-              return itemList(response).getInt(NUMBER_OF_ITEMS_POINTER) >= 1;
-            });
-    return latestResponse.get();
+    return awaitSearchResult(
+        () -> searchResources(query, APPLICATION_LD_JSON),
+        response -> itemList(response).getInt(NUMBER_OF_ITEMS_POINTER) >= 1);
   }
 
   private Response awaitIndexedCount(String query, int expectedCount) {
-    var latestResponse = new AtomicReference<Response>();
-    with()
-        .pollInterval(fibonacci().with().unit(SECONDS))
-        .ignoreExceptions()
-        .await()
-        .atMost(120, SECONDS)
-        .until(
-            () -> {
-              var response = searchResources(query, APPLICATION_LD_JSON);
-              latestResponse.set(response);
-              return itemList(response).getList(ITEM_LIST_ELEMENT_POINTER).size() >= expectedCount;
-            });
-    return latestResponse.get();
+    return awaitSearchResult(
+        () -> searchResources(query, APPLICATION_LD_JSON),
+        response -> itemList(response).getList(ITEM_LIST_ELEMENT_POINTER).size() >= expectedCount);
   }
 
   private void createTestPublication(Category category, String title) {

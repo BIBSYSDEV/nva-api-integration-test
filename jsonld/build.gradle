@@ -3,7 +3,6 @@ plugins {
 }
 
 dependencies {
-    testImplementation(libs.awaitility.core)
     testImplementation(libs.rest.assured.core)
     testImplementation(libs.rest.assured.json.path)
     testImplementation(libs.allure.java.commons)

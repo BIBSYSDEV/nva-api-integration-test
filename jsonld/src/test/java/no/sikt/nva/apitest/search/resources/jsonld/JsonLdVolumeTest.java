@@ -2,12 +2,9 @@ package no.sikt.nva.apitest.search.resources.jsonld;
 
 import static io.restassured.RestAssured.given;
 import static java.util.concurrent.TimeUnit.MINUTES;
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static no.sikt.Category.ACADEMIC_ARTICLE;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_PUBLISHING_CURATOR;
-import static org.awaitility.Awaitility.with;
-import static org.awaitility.pollinterval.FibonacciPollInterval.fibonacci;
 
 import io.qameta.allure.Description;
 import io.restassured.path.json.JsonPath;
@@ -86,18 +83,7 @@ class JsonLdVolumeTest extends SearchTestBase {
           + " Link header with the schema.org profile plus first/next pagination links")
   void shouldReturnProfileAndPaginationHeadersForPaginatedJsonLd() {
 
-    with()
-        .pollInterval(fibonacci().with().unit(SECONDS))
-        .ignoreExceptions()
-        .await()
-        .atMost(120, SECONDS)
-        .until(
-            () ->
-                getResponse(VOLUME_UUID, PAGE_SIZE)
-                    .header(X_TOTAL_COUNT)
-                    .equals(Integer.toString(NUMBER_OF_TEST_PUBLICATIONS)));
-
-    var response = getResponse(VOLUME_UUID, PAGE_SIZE);
+    var response = awaitAllPublicationsIndexed(PAGE_SIZE);
     var body = itemList(response);
 
     softly
@@ -118,7 +104,7 @@ class JsonLdVolumeTest extends SearchTestBase {
           + " first/next pagination links")
   void shouldReturnProfileLinkWithoutPaginationWhenSinglePage() {
 
-    var response = getResponse(VOLUME_UUID, NUMBER_OF_TEST_PUBLICATIONS * 2);
+    var response = awaitAllPublicationsIndexed(NUMBER_OF_TEST_PUBLICATIONS * 2);
     var body = itemList(response);
 
     softly.assertThat(response.header(LINK)).contains(SCHEMA_ORG_PROFILE_LINK);
@@ -142,6 +128,13 @@ class JsonLdVolumeTest extends SearchTestBase {
     softly.assertThat(response.header(LINK)).doesNotContain(REL_NEXT);
     softly.assertThat(body.getInt(NUMBER_OF_ITEMS_POINTER)).isEqualTo(0);
     softly.assertThat(body.getList(ITEM_LIST_ELEMENT_POINTER)).isEmpty();
+  }
+
+  private Response awaitAllPublicationsIndexed(int size) {
+    return awaitSearchResult(
+        () -> getResponse(VOLUME_UUID, size),
+        response ->
+            Integer.toString(NUMBER_OF_TEST_PUBLICATIONS).equals(response.header(X_TOTAL_COUNT)));
   }
 
   private JsonPath itemList(Response response) {
