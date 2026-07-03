@@ -168,9 +168,10 @@ class JsonLdSearchTest extends SearchTestBase {
 
     createTestPublication(category, title);
 
-    awaitIndexed(titleUuid);
-
-    var response = searchCustomerResources(titleUuid);
+    var response =
+        awaitSearchResult(
+            () -> searchCustomerResources(titleUuid),
+            result -> itemList(result).getInt(NUMBER_OF_ITEMS_POINTER) >= 1);
     var body = itemList(response);
 
     softly.assertThat(response.getContentType()).contains(LD_JSON_CONTENT_TYPE_FRAGMENT);
@@ -200,9 +201,10 @@ class JsonLdSearchTest extends SearchTestBase {
         List.of(new Contributor(UIB_CREATOR, CREATOR)),
         UIB_PUBLISHING_CURATOR);
 
-    awaitIndexed(titleUuid);
-
-    var response = searchResources(titleUuid, acceptHeader);
+    var response =
+        awaitSearchResult(
+            () -> searchResources(titleUuid, acceptHeader),
+            result -> itemList(result).getInt(NUMBER_OF_ITEMS_POINTER) >= 1);
     var body = itemList(response);
 
     softly.assertThat(response.getContentType()).contains(LD_JSON_CONTENT_TYPE_FRAGMENT);
