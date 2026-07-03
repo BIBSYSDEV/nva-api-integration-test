@@ -11,6 +11,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import io.qameta.allure.Description;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
+import java.util.Map;
 import java.util.UUID;
 import no.sikt.nva.apitest.base.Affiliation;
 import no.sikt.nva.apitest.scientificindex.NviCandidate;
@@ -68,7 +69,7 @@ class SearchNviCandidateApiTest extends ScientificIndexTestBase {
   @DisplayName("Search by contributor name")
   @Description("Searching by the creator name from the original publication returns the candidate")
   void shouldFindCandidateWhenSearchingByContributorName() {
-    var response = search("query", candidate.creatorName());
+    var response = searchScopedToCandidate("query", candidate.creatorName());
 
     assertThat(indexedPublicationIds(response)).contains(candidate.publicationId());
   }
@@ -86,7 +87,7 @@ class SearchNviCandidateApiTest extends ScientificIndexTestBase {
   @DisplayName("Filter by organization")
   @Description("Filtering by the creator's top-level organization returns the candidate")
   void shouldFindCandidateWhenFilteringByOrganization() {
-    var response = search("affiliations", topLevelOrganizationIdentifier());
+    var response = searchScopedToCandidate("affiliations", topLevelOrganizationIdentifier());
 
     assertThat(indexedPublicationIds(response)).contains(candidate.publicationId());
   }
@@ -121,8 +122,20 @@ class SearchNviCandidateApiTest extends ScientificIndexTestBase {
   }
 
   private static Response search(String queryParameter, String value) {
+    return search(Map.of(queryParameter, value));
+  }
+
+  /**
+   * Combines the given filter with the candidate's unique title, since broad filters match every
+   * test candidate in the environment and the result page might otherwise not include ours.
+   */
+  private static Response searchScopedToCandidate(String queryParameter, String value) {
+    return search(Map.of(queryParameter, value, "title", candidate.title()));
+  }
+
+  private static Response search(Map<String, String> queryParameters) {
     return givenAuthenticatedJsonRequestAsUser(UIB_NVI_CURATOR)
-        .queryParam(queryParameter, value)
+        .queryParams(queryParameters)
         .queryParam("size", SEARCH_PAGE_SIZE)
         .get(candidateSearchPath())
         .then()
