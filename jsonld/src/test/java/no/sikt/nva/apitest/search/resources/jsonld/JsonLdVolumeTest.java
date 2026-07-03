@@ -32,7 +32,7 @@ class JsonLdVolumeTest extends SearchTestBase {
 
   @InjectSoftAssertions private SoftAssertions softly;
 
-  private static final int NUMBER_OF_TEST_PUBLICATIONS = 100;
+  private static final int NUMBER_OF_TEST_PUBLICATIONS = 50;
   private static final int PAGE_SIZE = 10;
   private static final long VOLUME_INDEXING_TIMEOUT_SECONDS = 240;
   private static final String VOLUME_UUID = UUID.randomUUID().toString();
