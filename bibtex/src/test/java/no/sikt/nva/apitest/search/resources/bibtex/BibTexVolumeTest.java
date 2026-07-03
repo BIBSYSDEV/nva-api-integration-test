@@ -12,9 +12,9 @@ import io.qameta.allure.Description;
 import io.restassured.RestAssured;
 import io.restassured.parsing.Parser;
 import io.restassured.response.Response;
-import java.time.Duration;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Predicate;
 import java.util.stream.IntStream;
 import no.sikt.Contributor;
 import no.sikt.Role;
@@ -40,7 +40,6 @@ class BibTexVolumeTest extends SearchTestBase {
   private static final String TEXT_X_BIBTEX = "text/x-bibtex";
   private static final String X_TOTAL_COUNT = "X-Total-Count";
   private static final String LINK = "Link";
-  private static final Duration INDEXING_TIMEOUT = Duration.ofMinutes(2);
 
   @BeforeAll
   @Timeout(value = 15, unit = MINUTES)
@@ -69,6 +68,10 @@ class BibTexVolumeTest extends SearchTestBase {
             });
   }
 
+  private static Predicate<Response> hasTotalCount(int expectedCount) {
+    return response -> response.header(X_TOTAL_COUNT).equals(Integer.toString(expectedCount));
+  }
+
   private Response getResponse(String query, String size) {
 
     RestAssured.registerParser(TEXT_X_BIBTEX, Parser.TEXT);
@@ -94,13 +97,7 @@ class BibTexVolumeTest extends SearchTestBase {
   void shouldReturnAllPublicationsInBibTexFormat() {
 
     var response =
-        pollUntil(
-            INDEXING_TIMEOUT,
-            () -> getResponse(VOLUME_UUID, "10"),
-            settled ->
-                settled
-                    .header(X_TOTAL_COUNT)
-                    .equals(Integer.toString(NUMBER_OF_TEST_PUBLICATIONS)));
+        pollUntil(() -> getResponse(VOLUME_UUID, "10"), hasTotalCount(NUMBER_OF_TEST_PUBLICATIONS));
 
     softly.assertThat(response.header(X_TOTAL_COUNT)).isNotEmpty();
     softly

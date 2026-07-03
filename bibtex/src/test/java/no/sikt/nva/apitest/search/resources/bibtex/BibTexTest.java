@@ -32,11 +32,12 @@ import static org.junit.jupiter.params.provider.Arguments.argumentSet;
 import io.qameta.allure.Description;
 import io.restassured.RestAssured;
 import io.restassured.parsing.Parser;
-import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.Callable;
+import java.util.function.Predicate;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import no.sikt.Category;
@@ -62,7 +63,6 @@ class BibTexTest extends SearchTestBase {
   @InjectSoftAssertions private SoftAssertions softly;
 
   private static final String TEXT_X_BIBTEX = "text/x-bibtex";
-  private static final Duration INDEXING_TIMEOUT = Duration.ofMinutes(2);
 
   private static Stream<Arguments> publicationsInBibTexFormatProvider() {
     return Stream.of(
@@ -154,7 +154,7 @@ class BibTexTest extends SearchTestBase {
    * request.
    */
   private String waitForIndexing(String query) {
-    return pollUntil(INDEXING_TIMEOUT, () -> getResponseBody(query), StringUtils::isNotBlank);
+    return pollUntil(() -> getResponseBody(query), StringUtils::isNotBlank);
   }
 
   /**
@@ -162,10 +162,15 @@ class BibTexTest extends SearchTestBase {
    * asynchronous with no ordering guarantee.
    */
   private String awaitIndexedPublications(String query, int expectedCount) {
-    return pollUntil(
-        INDEXING_TIMEOUT,
-        () -> getResponseBody(query),
-        body -> body.lines().filter(line -> line.startsWith("@")).count() >= expectedCount);
+    return pollUntil(bibtexSearchRequest(query), hasNumberOfBibTexEntries(expectedCount));
+  }
+
+  private Callable<String> bibtexSearchRequest(String query) {
+    return () -> getResponseBody(query);
+  }
+
+  private static Predicate<String> hasNumberOfBibTexEntries(int expectedCount) {
+    return body -> body.lines().filter(line -> line.startsWith("@")).count() >= expectedCount;
   }
 
   @ParameterizedTest

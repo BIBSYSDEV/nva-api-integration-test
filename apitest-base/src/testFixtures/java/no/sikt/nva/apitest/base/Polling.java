@@ -10,6 +10,8 @@ import java.util.function.Predicate;
 
 public final class Polling {
 
+  private static final Duration DEFAULT_POLL_TIMEOUT = Duration.ofMinutes(2);
+
   private Polling() {}
 
   /**
@@ -25,5 +27,9 @@ public final class Polling {
         .await()
         .atMost(timeout)
         .until(request, settled);
+  }
+
+  public static <T> T pollUntil(Callable<T> request, Predicate<T> settled) {
+    return pollUntil(DEFAULT_POLL_TIMEOUT, request, settled);
   }
 }
