@@ -18,7 +18,7 @@ import java.util.stream.IntStream;
 import no.sikt.Contributor;
 import no.sikt.Role;
 import no.sikt.nva.apitest.base.CognitoLogin;
-import no.sikt.nva.apitest.search.SearchApiTestBase;
+import no.sikt.nva.apitest.search.SearchTestBase;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
@@ -31,7 +31,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 // The search endpoint path and the schema.org profile IRI are the fixed API contract under test.
 @SuppressWarnings("java:S1075")
 @ExtendWith(SoftAssertionsExtension.class)
-class JsonLdVolumeTest extends SearchApiTestBase {
+class JsonLdVolumeTest extends SearchTestBase {
 
   @InjectSoftAssertions private SoftAssertions softly;
 

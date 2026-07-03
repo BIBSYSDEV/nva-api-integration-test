@@ -20,7 +20,7 @@ import java.util.stream.IntStream;
 import no.sikt.Contributor;
 import no.sikt.Role;
 import no.sikt.nva.apitest.base.CognitoLogin;
-import no.sikt.nva.apitest.search.SearchApiTestBase;
+import no.sikt.nva.apitest.search.SearchTestBase;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
@@ -31,7 +31,7 @@ import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(SoftAssertionsExtension.class)
-class BibTexVolumeTest extends SearchApiTestBase {
+class BibTexVolumeTest extends SearchTestBase {
 
   @InjectSoftAssertions private SoftAssertions softly;
 

@@ -3,8 +3,6 @@ plugins {
 }
 
 dependencies {
-    testFixturesApi(testFixtures(project(':apitest-base')))
-    testFixturesApi(testFixtures(project(':publication-api')))
     testImplementation(libs.awaitility.core)
     testImplementation(libs.rest.assured.core)
     testImplementation(libs.rest.assured.json.path)
@@ -12,10 +10,10 @@ dependencies {
     testImplementation(nvaCatalog.assertj.core)
     testImplementation(nvaCatalog.junit.jupiter.api)
     testImplementation(nvaCatalog.junit.jupiter.params)
-    testImplementation(nvaLibs.core)
     testImplementation(project(':apitest-base'))
     testImplementation(testFixtures(project(':apitest-base')))
     testImplementation(testFixtures(project(':publication-api')))
+    testImplementation(testFixtures(project(':search')))
     testRuntimeOnly(libs.allure.java.commons)
     testRuntimeOnly(nvaCatalog.junit.jupiter.engine)
     testRuntimeOnly(nvaCatalog.junit.platform.launcher)

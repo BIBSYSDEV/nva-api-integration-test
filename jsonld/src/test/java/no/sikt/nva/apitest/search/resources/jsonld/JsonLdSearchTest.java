@@ -41,11 +41,9 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import no.sikt.Category;
 import no.sikt.Contributor;
-import no.sikt.nva.apitest.base.User;
 import no.sikt.nva.apitest.publication.PublicationFields;
 import no.sikt.nva.apitest.search.SchemaOrgExpectation;
-import no.sikt.nva.apitest.search.SearchApiTestBase;
-import nva.commons.core.paths.UriWrapper;
+import no.sikt.nva.apitest.search.SearchTestBase;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
@@ -58,7 +56,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 @SuppressWarnings("java:S1075")
 @ExtendWith(SoftAssertionsExtension.class)
-class JsonLdSearchTest extends SearchApiTestBase {
+class JsonLdSearchTest extends SearchTestBase {
 
   @InjectSoftAssertions private SoftAssertions softly;
 
@@ -176,7 +174,7 @@ class JsonLdSearchTest extends SearchApiTestBase {
 
     awaitIndexed(titleUuid);
 
-    var response = searchCustomerResources(titleUuid, APPLICATION_LD_JSON, UIB_PUBLISHING_CURATOR);
+    var response = searchCustomerResources(titleUuid);
     var body = itemList(response);
 
     softly.assertThat(response.getContentType()).contains(LD_JSON_CONTENT_TYPE_FRAGMENT);
@@ -410,11 +408,11 @@ class JsonLdSearchTest extends SearchApiTestBase {
         .response();
   }
 
-  private Response searchCustomerResources(String query, String acceptHeader, User user) {
-    return givenAuthenticatedJsonRequestAsUser(user)
+  private Response searchCustomerResources(String query) {
+    return givenAuthenticatedJsonRequestAsUser(UIB_PUBLISHING_CURATOR)
         .param("query", query)
         .basePath(CUSTOMER_RESOURCES_PATH)
-        .accept(acceptHeader)
+        .accept(APPLICATION_LD_JSON)
         .when()
         .get()
         .then()
@@ -455,8 +453,8 @@ class JsonLdSearchTest extends SearchApiTestBase {
     return latestResponse.get();
   }
 
-  private String createTestPublication(Category category, String title) {
-    return switch (category) {
+  private void createTestPublication(Category category, String title) {
+    switch (category) {
       case ACADEMIC_CHAPTER -> {
         var anthologyIdentifier =
             PUBLICATION_FACTORY.createAnthologyForChapter(
@@ -465,7 +463,7 @@ class JsonLdSearchTest extends SearchApiTestBase {
                 UIB_PUBLISHING_CURATOR,
                 List.of(new Contributor(UIB_CREATOR, CREATOR)));
 
-        yield PUBLICATION_FACTORY.createChapterInAnthology(
+        PUBLICATION_FACTORY.createChapterInAnthology(
             UIB_CREATOR,
             title,
             category,
@@ -487,19 +485,18 @@ class JsonLdSearchTest extends SearchApiTestBase {
               category,
               List.of(new Contributor(UIB_CREATOR, CREATOR)),
               UIB_PUBLISHING_CURATOR);
-    };
+    }
   }
 
   private void createIssnPublication(String title) {
     var issnJournalUri =
-        UriWrapper.fromUri(baseURI)
-            .addChild(
+        "%s/%s/%s/%s/%s"
+            .formatted(
+                baseURI,
                 PUBLICATION_CHANNELS_PATH,
                 SERIAL_PUBLICATION_PATH,
                 ISSN_JOURNAL_IDENTIFIER,
-                CURRENT_YEAR)
-            .getUri()
-            .toString();
+                CURRENT_YEAR);
 
     var referenceMap =
         PUBLICATION_FACTORY.buildReferenceMap(
