@@ -18,10 +18,3 @@ dependencies {
     testRuntimeOnly(nvaCatalog.junit.jupiter.engine)
     testRuntimeOnly(nvaCatalog.junit.platform.launcher)
 }
-
-tasks.withType(Test).configureEach {
-    // Candidate evaluation is asynchronous (publication event -> queue -> evaluation), and a single
-    // test can wait up to 5m for evaluation plus up to 2m retrying approval conflicts, so allow more
-    // headroom than both the default 2m timeout and that combined worst case.
-    systemProperty 'junit.jupiter.execution.timeout.default', '10m'
-}
