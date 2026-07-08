@@ -25,6 +25,7 @@ import static no.sikt.nva.apitest.search.SchemaOrgExpectationFixtures.EXPECTED_S
 import static no.sikt.nva.apitest.search.SchemaOrgExpectationFixtures.EXPECTED_SCHEMA_ORG_DEGREE_MASTER;
 import static no.sikt.nva.apitest.search.SchemaOrgExpectationFixtures.EXPECTED_SCHEMA_ORG_DEGREE_PHD;
 import static no.sikt.nva.apitest.search.SchemaOrgExpectationFixtures.EXPECTED_SCHEMA_ORG_REPORT_RESEARCH;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.argumentSet;
 
 import io.qameta.allure.Description;
@@ -387,8 +388,11 @@ class JsonLdSearchTest extends SearchTestBase {
     var searchResponse = awaitIndexed(titleUuid);
     var keywords = itemList(searchResponse).getString(FIRST_ITEM_KEYWORDS_POINTER);
 
-    softly.assertThat(keywords).contains("key1", "key2", "key3");
-    softly.assertThat(keywords.split(", ")).hasSize(3);
+    assertThat(keywords)
+        .isNotBlank()
+        .satisfies(
+            joined ->
+                assertThat(joined.split(", ")).containsExactlyInAnyOrder("key1", "key2", "key3"));
   }
 
   @Test
