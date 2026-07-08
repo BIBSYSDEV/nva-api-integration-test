@@ -42,7 +42,6 @@ import no.sikt.Category;
 import no.sikt.Contributor;
 import no.sikt.nva.apitest.publication.PublicationFields;
 import no.sikt.nva.apitest.search.SchemaOrgExpectation;
-import no.sikt.nva.apitest.search.SearchTestBase;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
@@ -55,13 +54,11 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-@SuppressWarnings("java:S1075")
 @ExtendWith(SoftAssertionsExtension.class)
-class JsonLdSearchTest extends SearchTestBase {
+class JsonLdSearchTest extends JsonLdTestBase {
 
   @InjectSoftAssertions private SoftAssertions softly;
 
-  private static final String APPLICATION_LD_JSON = "application/ld+json";
   private static final String APPLICATION_VND_SCHEMAORG_LD_JSON =
       "application/vnd.schemaorg.ld+json";
   private static final String APPLICATION_LD_JSON_WITH_PROFILE =
@@ -74,13 +71,10 @@ class JsonLdSearchTest extends SearchTestBase {
   private static final String BOOK_TYPE = "Book";
   private static final String ORGANIZATION_TYPE = "Organization";
 
-  private static final String RESOURCES_PATH = "/search/resources";
   private static final String CUSTOMER_RESOURCES_PATH = "/search/customer/resources";
 
   private static final String CONTEXT_POINTER = "'@context'";
   private static final String TYPE_POINTER = "'@type'";
-  private static final String NUMBER_OF_ITEMS_POINTER = "numberOfItems";
-  private static final String ITEM_LIST_ELEMENT_POINTER = "itemListElement";
   private static final String ITEM_TYPES_POINTER = "itemListElement.'@type'";
   private static final String FIRST_ITEM_TYPE_POINTER = "itemListElement[0].'@type'";
   private static final String FIRST_ITEM_ID_POINTER = "itemListElement[0].'@id'";
@@ -442,10 +436,6 @@ class JsonLdSearchTest extends SearchTestBase {
   private void assertItemListEnvelope(JsonPath body) {
     softly.assertThat(body.getString(CONTEXT_POINTER)).isEqualTo(SCHEMA_ORG_CONTEXT);
     softly.assertThat(body.getString(TYPE_POINTER)).isEqualTo(ITEM_LIST_TYPE);
-  }
-
-  private JsonPath itemList(Response response) {
-    return JsonPath.from(response.body().asString());
   }
 
   private Response searchResources(String query, String acceptHeader) {

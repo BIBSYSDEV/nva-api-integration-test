@@ -8,7 +8,6 @@ import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_PUBLISHING_CURATOR;
 
 import io.qameta.allure.Description;
-import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import java.time.Duration;
 import java.util.List;
@@ -17,7 +16,6 @@ import java.util.stream.IntStream;
 import no.sikt.Contributor;
 import no.sikt.Role;
 import no.sikt.nva.apitest.base.CognitoLogin;
-import no.sikt.nva.apitest.search.SearchTestBase;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
@@ -27,10 +25,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-// The search endpoint path and the schema.org profile IRI are the fixed API contract under test.
-@SuppressWarnings("java:S1075")
 @ExtendWith(SoftAssertionsExtension.class)
-class JsonLdVolumeTest extends SearchTestBase {
+class JsonLdVolumeTest extends JsonLdTestBase {
 
   @InjectSoftAssertions private SoftAssertions softly;
 
@@ -39,7 +35,6 @@ class JsonLdVolumeTest extends SearchTestBase {
   private static final Duration VOLUME_INDEXING_TIMEOUT = Duration.ofMinutes(4);
   private static final String VOLUME_UUID = UUID.randomUUID().toString();
 
-  private static final String APPLICATION_LD_JSON = "application/ld+json";
   private static final String X_TOTAL_COUNT = "X-Total-Count";
   private static final String LINK = "Link";
   private static final String ACCESS_CONTROL_EXPOSE_HEADERS = "Access-Control-Expose-Headers";
@@ -48,9 +43,6 @@ class JsonLdVolumeTest extends SearchTestBase {
   private static final String SCHEMA_ORG_PROFILE_LINK = "<https://schema.org>; rel=\"profile\"";
   private static final String REL_FIRST = "rel=\"first\"";
   private static final String REL_NEXT = "rel=\"next\"";
-
-  private static final String NUMBER_OF_ITEMS_POINTER = "numberOfItems";
-  private static final String ITEM_LIST_ELEMENT_POINTER = "itemListElement";
 
   @BeforeAll
   @Timeout(value = 15, unit = MINUTES)
@@ -143,17 +135,13 @@ class JsonLdVolumeTest extends SearchTestBase {
             Integer.toString(NUMBER_OF_TEST_PUBLICATIONS).equals(response.header(X_TOTAL_COUNT)));
   }
 
-  private JsonPath itemList(Response response) {
-    return JsonPath.from(response.body().asString());
-  }
-
   private Response getResponse(String query, int size) {
     return given()
         .param("query", query)
         .param("size", Integer.toString(size))
         .accept(APPLICATION_LD_JSON)
         .when()
-        .get("/search/resources")
+        .get(RESOURCES_PATH)
         .then()
         .statusCode(200)
         .extract()
