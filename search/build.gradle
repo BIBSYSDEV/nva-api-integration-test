@@ -1,0 +1,8 @@
+plugins {
+    id 'nva.api.integration.testing.java-conventions'
+}
+
+dependencies {
+    testFixturesApi(testFixtures(project(':apitest-base')))
+    testFixturesApi(testFixtures(project(':publication-api')))
+}

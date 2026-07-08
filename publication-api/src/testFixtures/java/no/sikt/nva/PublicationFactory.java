@@ -1,11 +1,16 @@
 package no.sikt.nva;
 
 import static io.restassured.RestAssured.baseURI;
+import static no.sikt.Category.ACADEMIC_CHAPTER;
 import static no.sikt.Category.BOOK_ANTHOLOGY;
+import static no.sikt.Role.CREATOR;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_DAY;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_MONTH;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_YEAR;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequest;
+import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
+import static no.sikt.nva.apitest.base.UserFixtures.UIB_PUBLISHING_CURATOR;
+import static no.sikt.nva.apitest.base.UserFixtures.UIB_THESIS_CURATOR;
 import static no.sikt.nva.apitest.publication.PublicationFields.CONTEXT_FIELD;
 import static no.sikt.nva.apitest.publication.PublicationFields.CONTRIBUTORS;
 import static no.sikt.nva.apitest.publication.PublicationFields.ENTITY_DESCRIPTION_FIELD;
@@ -25,6 +30,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import no.sikt.Category;
 import no.sikt.Contributor;
@@ -67,6 +73,41 @@ public class PublicationFactory {
         .statusCode(200)
         .extract()
         .response();
+  }
+
+  /**
+   * Creates a published publication of the given category with default UIB users, handling
+   * category-specific requirements: chapters get a containing anthology and degrees are created and
+   * published by a thesis curator. The anthology gets its own random title so that searches scoped
+   * to the chapter title do not match it.
+   *
+   * @return the identifier of the created publication
+   */
+  public String createPublishedPublication(Category category, String title) {
+    var contributors = List.of(new Contributor(UIB_CREATOR, CREATOR));
+    return switch (category) {
+      case ACADEMIC_CHAPTER -> createChapterWithAnthology(title, contributors);
+      case DEGREE_PHD, DEGREE_MASTER ->
+          createPublishedPublication(
+              UIB_THESIS_CURATOR, title, category, contributors, UIB_THESIS_CURATOR);
+      default ->
+          createPublishedPublication(
+              UIB_CREATOR, title, category, contributors, UIB_PUBLISHING_CURATOR);
+    };
+  }
+
+  private String createChapterWithAnthology(String title, List<Contributor> contributors) {
+    var anthologyIdentifier =
+        createAnthologyForChapter(
+            UIB_CREATOR, "chapter " + UUID.randomUUID(), UIB_PUBLISHING_CURATOR, contributors);
+
+    return createChapterInAnthology(
+        UIB_CREATOR,
+        title,
+        ACADEMIC_CHAPTER,
+        contributors,
+        UIB_PUBLISHING_CURATOR,
+        anthologyIdentifier);
   }
 
   public String createPublishedPublication(
