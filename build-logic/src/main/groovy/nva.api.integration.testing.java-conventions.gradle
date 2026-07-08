@@ -7,6 +7,9 @@ nva {
     errorprone {
         allErrorsAsWarnings = true
     }
+    pmd {
+        rulesetFile = rootProject.file('config/pmd/ruleset.xml')
+    }
 }
 
 dependencies {

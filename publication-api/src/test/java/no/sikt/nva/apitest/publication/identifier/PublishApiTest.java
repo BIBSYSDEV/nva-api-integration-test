@@ -27,7 +27,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
 @ExtendWith(SoftAssertionsExtension.class)
-@SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
 class PublishApiTest extends PublicationTestBase {
 
   @InjectSoftAssertions private SoftAssertions softly;

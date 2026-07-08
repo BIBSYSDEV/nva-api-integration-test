@@ -53,7 +53,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-@SuppressWarnings("PMD.UnitTestContainsTooManyAsserts")
 @ExtendWith(SoftAssertionsExtension.class)
 class JsonLdSearchTest extends JsonLdTestBase {
 
@@ -103,7 +102,6 @@ class JsonLdSearchTest extends JsonLdTestBase {
    * Tests that only read the search response share one publication per category, created once in
    * the nested class' BeforeAll instead of once per test.
    */
-  /* default */
   @Nested
   class SharedPublicationSearches {
 

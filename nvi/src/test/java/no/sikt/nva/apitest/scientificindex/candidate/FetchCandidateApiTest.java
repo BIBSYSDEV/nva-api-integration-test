@@ -23,7 +23,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(SoftAssertionsExtension.class)
-@SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
 class FetchCandidateApiTest extends ScientificIndexTestBase {
 
   @InjectSoftAssertions private SoftAssertions softly;
