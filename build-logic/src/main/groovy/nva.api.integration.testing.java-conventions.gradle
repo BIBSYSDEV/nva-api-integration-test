@@ -5,7 +5,7 @@ plugins {
 
 nva {
     errorprone {
-        allErrorsAsWarnings = true
+        allErrorsAsWarnings = false
     }
     pmd {
         rulesetFile = rootProject.file('config/pmd/ruleset.xml')
