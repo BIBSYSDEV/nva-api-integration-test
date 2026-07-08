@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import no.sikt.Category;
@@ -45,7 +46,9 @@ import no.sikt.nva.apitest.search.SearchTestBase;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -106,148 +109,162 @@ class JsonLdSearchTest extends SearchTestBase {
   private static final String SERIAL_PUBLICATION_PATH = "serial-publication";
   private static final String ISSN_JOURNAL_IDENTIFIER = "271CEF41-0052-48CA-BB31-6780C7BA1F44";
 
-  private static Stream<Arguments> publicationsInJsonLdFormatProvider() {
-    return Stream.of(
-        argumentSet("AcademicArticle", ACADEMIC_ARTICLE, EXPECTED_SCHEMA_ORG_ACADEMIC_ARTICLE),
-        argumentSet(
-            "AcademicMonograph", ACADEMIC_MONOGRAPH, EXPECTED_SCHEMA_ORG_ACADEMIC_MONOGRAPH),
-        argumentSet("AcademicChapter", ACADEMIC_CHAPTER, EXPECTED_SCHEMA_ORG_ACADEMIC_CHAPTER),
-        argumentSet("DegreeMaster", DEGREE_MASTER, EXPECTED_SCHEMA_ORG_DEGREE_MASTER),
-        argumentSet("DegreePhD", DEGREE_PHD, EXPECTED_SCHEMA_ORG_DEGREE_PHD),
-        argumentSet("ReportResearch", RESEARCH_REPORT, EXPECTED_SCHEMA_ORG_REPORT_RESEARCH),
-        argumentSet(
-            "ConferenceLecture", CONFERENCE_LECTURE, EXPECTED_SCHEMA_ORG_CONFERENCE_LECTURE));
-  }
+  /**
+   * Tests that only read the search response share one publication per category, created once in
+   * the nested class' BeforeAll instead of once per test.
+   */
+  @Nested
+  class SharedPublicationSearches {
 
-  private static Stream<Arguments> acceptHeaderVariantsProvider() {
-    return Stream.of(
-        argumentSet(APPLICATION_LD_JSON, APPLICATION_LD_JSON),
-        argumentSet(APPLICATION_VND_SCHEMAORG_LD_JSON, APPLICATION_VND_SCHEMAORG_LD_JSON),
-        argumentSet(APPLICATION_LD_JSON_WITH_PROFILE, APPLICATION_LD_JSON_WITH_PROFILE));
-  }
+    private static final String SHARED_TITLE_PREFIX = "JsonLd Integration test publication ";
+    private static final List<Category> SHARED_CATEGORIES =
+        List.of(
+            ACADEMIC_ARTICLE,
+            ACADEMIC_MONOGRAPH,
+            ACADEMIC_CHAPTER,
+            DEGREE_MASTER,
+            DEGREE_PHD,
+            RESEARCH_REPORT,
+            CONFERENCE_LECTURE);
+    private static final Map<Category, String> TITLE_UUIDS_BY_CATEGORY = new ConcurrentHashMap<>();
 
-  @ParameterizedTest
-  @MethodSource("publicationsInJsonLdFormatProvider")
-  @DisplayName("Search with content type 'application/ld+json' produces schema.org JSON-LD")
-  @Description(
-      "Search returned with content type 'application/ld+json' is valid schema.org JSON-LD")
-  void shouldReturnPublicationsInJsonLdFormat(Category category, SchemaOrgExpectation expectation) {
+    @BeforeAll
+    static void createSharedPublications() {
+      SHARED_CATEGORIES.parallelStream()
+          .forEach(
+              category -> {
+                var titleUuid = UUID.randomUUID().toString();
+                createTestPublication(category, SHARED_TITLE_PREFIX + titleUuid);
+                TITLE_UUIDS_BY_CATEGORY.put(category, titleUuid);
+              });
+    }
 
-    var titleUuid = UUID.randomUUID().toString();
-    var title = "JsonLd Integration test publication " + titleUuid;
+    private static Stream<Arguments> publicationsInJsonLdFormatProvider() {
+      return Stream.of(
+          argumentSet("AcademicArticle", ACADEMIC_ARTICLE, EXPECTED_SCHEMA_ORG_ACADEMIC_ARTICLE),
+          argumentSet(
+              "AcademicMonograph", ACADEMIC_MONOGRAPH, EXPECTED_SCHEMA_ORG_ACADEMIC_MONOGRAPH),
+          argumentSet("AcademicChapter", ACADEMIC_CHAPTER, EXPECTED_SCHEMA_ORG_ACADEMIC_CHAPTER),
+          argumentSet("DegreeMaster", DEGREE_MASTER, EXPECTED_SCHEMA_ORG_DEGREE_MASTER),
+          argumentSet("DegreePhD", DEGREE_PHD, EXPECTED_SCHEMA_ORG_DEGREE_PHD),
+          argumentSet("ReportResearch", RESEARCH_REPORT, EXPECTED_SCHEMA_ORG_REPORT_RESEARCH),
+          argumentSet(
+              "ConferenceLecture", CONFERENCE_LECTURE, EXPECTED_SCHEMA_ORG_CONFERENCE_LECTURE));
+    }
 
-    createTestPublication(category, title);
+    private static Stream<Arguments> acceptHeaderVariantsProvider() {
+      return Stream.of(
+          argumentSet(APPLICATION_LD_JSON, APPLICATION_LD_JSON),
+          argumentSet(APPLICATION_VND_SCHEMAORG_LD_JSON, APPLICATION_VND_SCHEMAORG_LD_JSON),
+          argumentSet(APPLICATION_LD_JSON_WITH_PROFILE, APPLICATION_LD_JSON_WITH_PROFILE));
+    }
 
-    var response = awaitIndexed(titleUuid);
-    var body = itemList(response);
+    private static String sharedTitleUuid(Category category) {
+      return TITLE_UUIDS_BY_CATEGORY.get(category);
+    }
 
-    softly.assertThat(response.getContentType()).contains(LD_JSON_CONTENT_TYPE_FRAGMENT);
-    assertItemListEnvelope(body);
-    softly.assertThat(body.getInt(NUMBER_OF_ITEMS_POINTER)).isGreaterThanOrEqualTo(1);
-    softly
-        .assertThat(body.getString(FIRST_ITEM_TYPE_POINTER))
-        .isEqualTo(expectation.schemaOrgType());
-    softly.assertThat(body.getString(FIRST_ITEM_NAME_POINTER)).isEqualTo(title);
-    softly.assertThat(body.getString(FIRST_ITEM_ID_POINTER)).isNotBlank();
-    softly.assertThat(body.getString(FIRST_ITEM_URL_POINTER)).isNotBlank();
-    softly.assertThat(body.getString(FIRST_ITEM_DATE_PUBLISHED_POINTER)).isEqualTo(CURRENT_YEAR);
-    softly
-        .assertThat(body.getString(FIRST_ITEM_FIRST_AUTHOR_NAME_POINTER))
-        .isEqualTo(UIB_CREATOR.name());
-  }
+    private static String sharedTitle(Category category) {
+      return SHARED_TITLE_PREFIX + sharedTitleUuid(category);
+    }
 
-  @ParameterizedTest
-  @MethodSource("publicationsInJsonLdFormatProvider")
-  @DisplayName("Search with content type 'application/ld+json' produces JSON-LD for customer")
-  @Description(
-      "Authenticated customer search returned with content type 'application/ld+json' is valid"
-          + " schema.org JSON-LD")
-  void shouldReturnPublicationsInJsonLdFormatForCustomer(
-      Category category, SchemaOrgExpectation expectation) {
+    @ParameterizedTest
+    @MethodSource("publicationsInJsonLdFormatProvider")
+    @DisplayName("Search with content type 'application/ld+json' produces schema.org JSON-LD")
+    @Description(
+        "Search returned with content type 'application/ld+json' is valid schema.org JSON-LD")
+    void shouldReturnPublicationsInJsonLdFormat(
+        Category category, SchemaOrgExpectation expectation) {
 
-    var titleUuid = UUID.randomUUID().toString();
-    var title = "JsonLd Integration test publication " + titleUuid;
+      var response = awaitIndexed(sharedTitleUuid(category));
+      var body = itemList(response);
 
-    createTestPublication(category, title);
+      softly.assertThat(response.getContentType()).contains(LD_JSON_CONTENT_TYPE_FRAGMENT);
+      assertItemListEnvelope(body);
+      softly.assertThat(body.getInt(NUMBER_OF_ITEMS_POINTER)).isGreaterThanOrEqualTo(1);
+      softly
+          .assertThat(body.getString(FIRST_ITEM_TYPE_POINTER))
+          .isEqualTo(expectation.schemaOrgType());
+      softly.assertThat(body.getString(FIRST_ITEM_NAME_POINTER)).isEqualTo(sharedTitle(category));
+      softly.assertThat(body.getString(FIRST_ITEM_ID_POINTER)).isNotBlank();
+      softly.assertThat(body.getString(FIRST_ITEM_URL_POINTER)).isNotBlank();
+      softly.assertThat(body.getString(FIRST_ITEM_DATE_PUBLISHED_POINTER)).isEqualTo(CURRENT_YEAR);
+      softly
+          .assertThat(body.getString(FIRST_ITEM_FIRST_AUTHOR_NAME_POINTER))
+          .isEqualTo(UIB_CREATOR.name());
+    }
 
-    var response =
-        pollUntil(
-            () -> searchCustomerResources(titleUuid, APPLICATION_LD_JSON),
-            result -> itemList(result).getInt(NUMBER_OF_ITEMS_POINTER) >= 1);
-    var body = itemList(response);
+    @ParameterizedTest
+    @MethodSource("publicationsInJsonLdFormatProvider")
+    @DisplayName("Search with content type 'application/ld+json' produces JSON-LD for customer")
+    @Description(
+        "Authenticated customer search returned with content type 'application/ld+json' is valid"
+            + " schema.org JSON-LD")
+    void shouldReturnPublicationsInJsonLdFormatForCustomer(
+        Category category, SchemaOrgExpectation expectation) {
 
-    softly.assertThat(response.getContentType()).contains(LD_JSON_CONTENT_TYPE_FRAGMENT);
-    assertItemListEnvelope(body);
-    softly.assertThat(body.getInt(NUMBER_OF_ITEMS_POINTER)).isGreaterThanOrEqualTo(1);
-    softly
-        .assertThat(body.getString(FIRST_ITEM_TYPE_POINTER))
-        .isEqualTo(expectation.schemaOrgType());
-    softly.assertThat(body.getString(FIRST_ITEM_NAME_POINTER)).isEqualTo(title);
-  }
+      var response =
+          pollUntil(
+              () -> searchCustomerResources(sharedTitleUuid(category), APPLICATION_LD_JSON),
+              result -> itemList(result).getInt(NUMBER_OF_ITEMS_POINTER) >= 1);
+      var body = itemList(response);
 
-  @ParameterizedTest
-  @MethodSource("acceptHeaderVariantsProvider")
-  @DisplayName("All schema.org Accept-header variants return JSON-LD")
-  @Description(
-      "The three negotiable media types (application/ld+json, the vendor type and the profile"
-          + " parameter variant) all resolve to schema.org JSON-LD")
-  void shouldReturnSchemaOrgForAllAcceptHeaderVariants(String acceptHeader) {
+      softly.assertThat(response.getContentType()).contains(LD_JSON_CONTENT_TYPE_FRAGMENT);
+      assertItemListEnvelope(body);
+      softly.assertThat(body.getInt(NUMBER_OF_ITEMS_POINTER)).isGreaterThanOrEqualTo(1);
+      softly
+          .assertThat(body.getString(FIRST_ITEM_TYPE_POINTER))
+          .isEqualTo(expectation.schemaOrgType());
+      softly.assertThat(body.getString(FIRST_ITEM_NAME_POINTER)).isEqualTo(sharedTitle(category));
+    }
 
-    var titleUuid = UUID.randomUUID().toString();
-    var title = "JsonLd Integration test accept variants " + titleUuid;
+    @ParameterizedTest
+    @MethodSource("acceptHeaderVariantsProvider")
+    @DisplayName("All schema.org Accept-header variants return JSON-LD")
+    @Description(
+        "The three negotiable media types (application/ld+json, the vendor type and the profile"
+            + " parameter variant) all resolve to schema.org JSON-LD")
+    void shouldReturnSchemaOrgForAllAcceptHeaderVariants(String acceptHeader) {
 
-    PUBLICATION_FACTORY.createPublishedPublication(
-        UIB_CREATOR,
-        title,
-        ACADEMIC_ARTICLE,
-        List.of(new Contributor(UIB_CREATOR, CREATOR)),
-        UIB_PUBLISHING_CURATOR);
+      var response =
+          pollUntil(
+              () -> searchResources(sharedTitleUuid(ACADEMIC_ARTICLE), acceptHeader),
+              result -> itemList(result).getInt(NUMBER_OF_ITEMS_POINTER) >= 1);
+      var body = itemList(response);
 
-    var response =
-        pollUntil(
-            () -> searchResources(titleUuid, acceptHeader),
-            result -> itemList(result).getInt(NUMBER_OF_ITEMS_POINTER) >= 1);
-    var body = itemList(response);
+      softly.assertThat(response.getContentType()).contains(LD_JSON_CONTENT_TYPE_FRAGMENT);
+      assertItemListEnvelope(body);
+      softly
+          .assertThat(body.getString(FIRST_ITEM_TYPE_POINTER))
+          .isEqualTo(EXPECTED_SCHEMA_ORG_ACADEMIC_ARTICLE.schemaOrgType());
+      softly
+          .assertThat(body.getString(FIRST_ITEM_NAME_POINTER))
+          .isEqualTo(sharedTitle(ACADEMIC_ARTICLE));
+    }
 
-    softly.assertThat(response.getContentType()).contains(LD_JSON_CONTENT_TYPE_FRAGMENT);
-    assertItemListEnvelope(body);
-    softly
-        .assertThat(body.getString(FIRST_ITEM_TYPE_POINTER))
-        .isEqualTo(EXPECTED_SCHEMA_ORG_ACADEMIC_ARTICLE.schemaOrgType());
-    softly.assertThat(body.getString(FIRST_ITEM_NAME_POINTER)).isEqualTo(title);
-  }
+    @ParameterizedTest
+    @MethodSource("acceptHeaderVariantsProvider")
+    @DisplayName("All schema.org Accept-header variants return JSON-LD for customer")
+    @Description(
+        "The three negotiable media types (application/ld+json, the vendor type and the profile"
+            + " parameter variant) all resolve to schema.org JSON-LD on the authenticated customer"
+            + " endpoint")
+    void shouldReturnSchemaOrgForAllAcceptHeaderVariantsForCustomer(String acceptHeader) {
 
-  @ParameterizedTest
-  @MethodSource("acceptHeaderVariantsProvider")
-  @DisplayName("All schema.org Accept-header variants return JSON-LD for customer")
-  @Description(
-      "The three negotiable media types (application/ld+json, the vendor type and the profile"
-          + " parameter variant) all resolve to schema.org JSON-LD on the authenticated customer"
-          + " endpoint")
-  void shouldReturnSchemaOrgForAllAcceptHeaderVariantsForCustomer(String acceptHeader) {
+      var response =
+          pollUntil(
+              () -> searchCustomerResources(sharedTitleUuid(ACADEMIC_ARTICLE), acceptHeader),
+              result -> itemList(result).getInt(NUMBER_OF_ITEMS_POINTER) >= 1);
+      var body = itemList(response);
 
-    var titleUuid = UUID.randomUUID().toString();
-    var title = "JsonLd Integration test customer accept variants " + titleUuid;
-
-    PUBLICATION_FACTORY.createPublishedPublication(
-        UIB_CREATOR,
-        title,
-        ACADEMIC_ARTICLE,
-        List.of(new Contributor(UIB_CREATOR, CREATOR)),
-        UIB_PUBLISHING_CURATOR);
-
-    var response =
-        pollUntil(
-            () -> searchCustomerResources(titleUuid, acceptHeader),
-            result -> itemList(result).getInt(NUMBER_OF_ITEMS_POINTER) >= 1);
-    var body = itemList(response);
-
-    softly.assertThat(response.getContentType()).contains(LD_JSON_CONTENT_TYPE_FRAGMENT);
-    assertItemListEnvelope(body);
-    softly
-        .assertThat(body.getString(FIRST_ITEM_TYPE_POINTER))
-        .isEqualTo(EXPECTED_SCHEMA_ORG_ACADEMIC_ARTICLE.schemaOrgType());
-    softly.assertThat(body.getString(FIRST_ITEM_NAME_POINTER)).isEqualTo(title);
+      softly.assertThat(response.getContentType()).contains(LD_JSON_CONTENT_TYPE_FRAGMENT);
+      assertItemListEnvelope(body);
+      softly
+          .assertThat(body.getString(FIRST_ITEM_TYPE_POINTER))
+          .isEqualTo(EXPECTED_SCHEMA_ORG_ACADEMIC_ARTICLE.schemaOrgType());
+      softly
+          .assertThat(body.getString(FIRST_ITEM_NAME_POINTER))
+          .isEqualTo(sharedTitle(ACADEMIC_ARTICLE));
+    }
   }
 
   @Test
@@ -469,7 +486,7 @@ class JsonLdSearchTest extends SearchTestBase {
         response -> itemList(response).getList(ITEM_LIST_ELEMENT_POINTER).size() >= expectedCount);
   }
 
-  private void createTestPublication(Category category, String title) {
+  private static void createTestPublication(Category category, String title) {
     switch (category) {
       case ACADEMIC_CHAPTER -> {
         var anthologyIdentifier =
