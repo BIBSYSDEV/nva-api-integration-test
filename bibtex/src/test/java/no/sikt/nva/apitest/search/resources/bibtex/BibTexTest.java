@@ -17,7 +17,6 @@ import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsU
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CONTRIBUTOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_PUBLISHING_CURATOR;
-import static no.sikt.nva.apitest.base.UserFixtures.UIB_THESIS_CURATOR;
 import static no.sikt.nva.apitest.publication.PublicationFields.ENTITY_DESCRIPTION_FIELD;
 import static no.sikt.nva.apitest.search.BibTexExpectationFixtures.EXPECTED_BIBTEX_ACADEMIC_ARTICLE;
 import static no.sikt.nva.apitest.search.BibTexExpectationFixtures.EXPECTED_BIBTEX_ACADEMIC_CHAPTER;
@@ -75,41 +74,6 @@ class BibTexTest extends SearchTestBase {
         argumentSet("ConferenceLecture", CONFERENCE_LECTURE, EXPECTED_BIBTEX_CONFERENCE_LECTURE));
   }
 
-  private String createTestPublication(Category category, String title) {
-    return switch (category) {
-      case ACADEMIC_CHAPTER -> {
-        var anthologyIdentifier =
-            PUBLICATION_FACTORY.createAnthologyForChapter(
-                UIB_CREATOR,
-                "BibTex integration test anthology " + UUID.randomUUID(),
-                UIB_PUBLISHING_CURATOR,
-                List.of(new Contributor(UIB_CREATOR, CREATOR)));
-
-        yield PUBLICATION_FACTORY.createChapterInAnthology(
-            UIB_CREATOR,
-            title,
-            category,
-            List.of(new Contributor(UIB_CREATOR, CREATOR)),
-            UIB_PUBLISHING_CURATOR,
-            anthologyIdentifier);
-      }
-      case DEGREE_PHD, DEGREE_MASTER ->
-          PUBLICATION_FACTORY.createPublishedPublication(
-              UIB_THESIS_CURATOR,
-              title,
-              category,
-              List.of(new Contributor(UIB_CREATOR, CREATOR)),
-              UIB_THESIS_CURATOR);
-      default ->
-          PUBLICATION_FACTORY.createPublishedPublication(
-              UIB_CREATOR,
-              title,
-              category,
-              List.of(new Contributor(UIB_CREATOR, CREATOR)),
-              UIB_PUBLISHING_CURATOR);
-    };
-  }
-
   @ParameterizedTest
   @MethodSource("publicationsInBibTexFormatProvider")
   @DisplayName("Search with content type 'text/x-bibtex' produces BibTeX export")
@@ -121,7 +85,7 @@ class BibTexTest extends SearchTestBase {
     var titleUuid = UUID.randomUUID().toString();
     var title = "BibTex Integration test publication " + titleUuid;
 
-    var identifier = createTestPublication(category, title);
+    var identifier = PUBLICATION_FACTORY.createPublishedPublication(category, title);
 
     var responseBody = waitForIndexing(titleUuid);
     var allExpectations = buildAllExpectations(expectation, title, identifier);
@@ -186,7 +150,7 @@ class BibTexTest extends SearchTestBase {
     var titleUuid = UUID.randomUUID().toString();
     var title = "BibTex Integration test publication " + titleUuid;
 
-    var identifier = createTestPublication(category, title);
+    var identifier = PUBLICATION_FACTORY.createPublishedPublication(category, title);
 
     waitForIndexing(titleUuid);
 
@@ -252,7 +216,7 @@ class BibTexTest extends SearchTestBase {
     IntStream.range(0, categories.size())
         .forEach(
             i ->
-                createTestPublication(
+                PUBLICATION_FACTORY.createPublishedPublication(
                     categories.get(i), titleRoot + i + " " + commonUuid + " " + UUID.randomUUID()));
 
     var responseBody = awaitIndexedPublications(commonUuid, categories.size());

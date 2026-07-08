@@ -16,7 +16,6 @@ import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsU
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CONTRIBUTOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_PUBLISHING_CURATOR;
-import static no.sikt.nva.apitest.base.UserFixtures.UIB_THESIS_CURATOR;
 import static no.sikt.nva.apitest.publication.PublicationFields.ENTITY_DESCRIPTION_FIELD;
 import static no.sikt.nva.apitest.search.SchemaOrgExpectationFixtures.EXPECTED_SCHEMA_ORG_ACADEMIC_ARTICLE;
 import static no.sikt.nva.apitest.search.SchemaOrgExpectationFixtures.EXPECTED_SCHEMA_ORG_ACADEMIC_CHAPTER;
@@ -128,7 +127,8 @@ class JsonLdSearchTest extends JsonLdTestBase {
           .forEach(
               category -> {
                 var titleUuid = UUID.randomUUID().toString();
-                createTestPublication(category, SHARED_TITLE_PREFIX + titleUuid);
+                PUBLICATION_FACTORY.createPublishedPublication(
+                    category, SHARED_TITLE_PREFIX + titleUuid);
                 TITLE_UUIDS_BY_CATEGORY.put(category, titleUuid);
               });
     }
@@ -275,7 +275,7 @@ class JsonLdSearchTest extends JsonLdTestBase {
     IntStream.range(0, categories.size())
         .forEach(
             index ->
-                createTestPublication(
+                PUBLICATION_FACTORY.createPublishedPublication(
                     categories.get(index),
                     titleRoot + index + " " + commonUuid + " " + UUID.randomUUID()));
 
@@ -474,41 +474,6 @@ class JsonLdSearchTest extends JsonLdTestBase {
     return pollUntil(
         () -> searchResources(query, APPLICATION_LD_JSON),
         response -> itemList(response).getList(ITEM_LIST_ELEMENT_POINTER).size() >= expectedCount);
-  }
-
-  private static void createTestPublication(Category category, String title) {
-    switch (category) {
-      case ACADEMIC_CHAPTER -> {
-        var anthologyIdentifier =
-            PUBLICATION_FACTORY.createAnthologyForChapter(
-                UIB_CREATOR,
-                "JsonLd integration test anthology " + UUID.randomUUID(),
-                UIB_PUBLISHING_CURATOR,
-                List.of(new Contributor(UIB_CREATOR, CREATOR)));
-
-        PUBLICATION_FACTORY.createChapterInAnthology(
-            UIB_CREATOR,
-            title,
-            category,
-            List.of(new Contributor(UIB_CREATOR, CREATOR)),
-            UIB_PUBLISHING_CURATOR,
-            anthologyIdentifier);
-      }
-      case DEGREE_PHD, DEGREE_MASTER ->
-          PUBLICATION_FACTORY.createPublishedPublication(
-              UIB_THESIS_CURATOR,
-              title,
-              category,
-              List.of(new Contributor(UIB_CREATOR, CREATOR)),
-              UIB_THESIS_CURATOR);
-      default ->
-          PUBLICATION_FACTORY.createPublishedPublication(
-              UIB_CREATOR,
-              title,
-              category,
-              List.of(new Contributor(UIB_CREATOR, CREATOR)),
-              UIB_PUBLISHING_CURATOR);
-    }
   }
 
   private void createIssnPublication(String title) {
