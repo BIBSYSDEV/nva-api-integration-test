@@ -16,6 +16,7 @@ import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsU
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CONTRIBUTOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_PUBLISHING_CURATOR;
+import static no.sikt.nva.apitest.publication.PublicationFields.CONTEXT_FIELD;
 import static no.sikt.nva.apitest.publication.PublicationFields.ENTITY_DESCRIPTION_FIELD;
 import static no.sikt.nva.apitest.search.SchemaOrgExpectationFixtures.EXPECTED_SCHEMA_ORG_ACADEMIC_ARTICLE;
 import static no.sikt.nva.apitest.search.SchemaOrgExpectationFixtures.EXPECTED_SCHEMA_ORG_ACADEMIC_CHAPTER;
@@ -39,7 +40,6 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import no.sikt.Category;
 import no.sikt.Contributor;
-import no.sikt.nva.apitest.publication.PublicationFields;
 import no.sikt.nva.apitest.search.SchemaOrgExpectation;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
@@ -53,6 +53,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+@SuppressWarnings("PMD.UnitTestContainsTooManyAsserts")
 @ExtendWith(SoftAssertionsExtension.class)
 class JsonLdSearchTest extends JsonLdTestBase {
 
@@ -72,20 +73,16 @@ class JsonLdSearchTest extends JsonLdTestBase {
 
   private static final String CUSTOMER_RESOURCES_PATH = "/search/customer/resources";
 
-  private static final String CONTEXT_POINTER = "'@context'";
-  private static final String TYPE_POINTER = "'@type'";
+  private static final String ISBN_FIELD = "isbn";
+  private static final String NAME_FIELD = "name";
+  private static final String TYPE_FIELD = "@type";
+
   private static final String ITEM_TYPES_POINTER = "itemListElement.'@type'";
-  private static final String FIRST_ITEM_TYPE_POINTER = "itemListElement[0].'@type'";
-  private static final String FIRST_ITEM_ID_POINTER = "itemListElement[0].'@id'";
-  private static final String FIRST_ITEM_URL_POINTER = "itemListElement[0].url";
-  private static final String FIRST_ITEM_NAME_POINTER = "itemListElement[0].name";
-  private static final String FIRST_ITEM_DATE_PUBLISHED_POINTER =
-      "itemListElement[0].datePublished";
+  private static final String FIRST_ITEM_POINTER = "itemListElement[0]";
   private static final String FIRST_ITEM_KEYWORDS_POINTER = "itemListElement[0].keywords";
   private static final String FIRST_ITEM_AUTHOR_NAMES_POINTER = "itemListElement[0].author.name";
   private static final String FIRST_ITEM_FIRST_AUTHOR_NAME_POINTER =
       "itemListElement[0].author[0].name";
-  private static final String FIRST_ITEM_ISBN_POINTER = "itemListElement[0].isbn";
   private static final String FIRST_ITEM_PUBLISHER_TYPE_POINTER =
       "itemListElement[0].publisher.'@type'";
   private static final String FIRST_ITEM_PUBLISHER_NAME_POINTER =
@@ -106,6 +103,7 @@ class JsonLdSearchTest extends JsonLdTestBase {
    * Tests that only read the search response share one publication per category, created once in
    * the nested class' BeforeAll instead of once per test.
    */
+  /* default */
   @Nested
   class SharedPublicationSearches {
 
@@ -176,12 +174,12 @@ class JsonLdSearchTest extends JsonLdTestBase {
       assertItemListEnvelope(body);
       softly.assertThat(body.getInt(NUMBER_OF_ITEMS_POINTER)).isGreaterThanOrEqualTo(1);
       softly
-          .assertThat(body.getString(FIRST_ITEM_TYPE_POINTER))
-          .isEqualTo(expectation.schemaOrgType());
-      softly.assertThat(body.getString(FIRST_ITEM_NAME_POINTER)).isEqualTo(sharedTitle(category));
-      softly.assertThat(body.getString(FIRST_ITEM_ID_POINTER)).isNotBlank();
-      softly.assertThat(body.getString(FIRST_ITEM_URL_POINTER)).isNotBlank();
-      softly.assertThat(body.getString(FIRST_ITEM_DATE_PUBLISHED_POINTER)).isEqualTo(CURRENT_YEAR);
+          .assertThat(body.getMap(FIRST_ITEM_POINTER))
+          .containsEntry(TYPE_FIELD, expectation.schemaOrgType())
+          .containsEntry(NAME_FIELD, sharedTitle(category))
+          .containsEntry("datePublished", CURRENT_YEAR)
+          .hasEntrySatisfying("@id", JsonLdSearchTest::assertNotBlank)
+          .hasEntrySatisfying("url", JsonLdSearchTest::assertNotBlank);
       softly
           .assertThat(body.getString(FIRST_ITEM_FIRST_AUTHOR_NAME_POINTER))
           .isEqualTo(UIB_CREATOR.name());
@@ -206,9 +204,9 @@ class JsonLdSearchTest extends JsonLdTestBase {
       assertItemListEnvelope(body);
       softly.assertThat(body.getInt(NUMBER_OF_ITEMS_POINTER)).isGreaterThanOrEqualTo(1);
       softly
-          .assertThat(body.getString(FIRST_ITEM_TYPE_POINTER))
-          .isEqualTo(expectation.schemaOrgType());
-      softly.assertThat(body.getString(FIRST_ITEM_NAME_POINTER)).isEqualTo(sharedTitle(category));
+          .assertThat(body.getMap(FIRST_ITEM_POINTER))
+          .containsEntry(TYPE_FIELD, expectation.schemaOrgType())
+          .containsEntry(NAME_FIELD, sharedTitle(category));
     }
 
     @ParameterizedTest
@@ -228,11 +226,9 @@ class JsonLdSearchTest extends JsonLdTestBase {
       softly.assertThat(response.getContentType()).contains(LD_JSON_CONTENT_TYPE_FRAGMENT);
       assertItemListEnvelope(body);
       softly
-          .assertThat(body.getString(FIRST_ITEM_TYPE_POINTER))
-          .isEqualTo(EXPECTED_SCHEMA_ORG_ACADEMIC_ARTICLE.schemaOrgType());
-      softly
-          .assertThat(body.getString(FIRST_ITEM_NAME_POINTER))
-          .isEqualTo(sharedTitle(ACADEMIC_ARTICLE));
+          .assertThat(body.getMap(FIRST_ITEM_POINTER))
+          .containsEntry(TYPE_FIELD, EXPECTED_SCHEMA_ORG_ACADEMIC_ARTICLE.schemaOrgType())
+          .containsEntry(NAME_FIELD, sharedTitle(ACADEMIC_ARTICLE));
     }
 
     @ParameterizedTest
@@ -253,11 +249,9 @@ class JsonLdSearchTest extends JsonLdTestBase {
       softly.assertThat(response.getContentType()).contains(LD_JSON_CONTENT_TYPE_FRAGMENT);
       assertItemListEnvelope(body);
       softly
-          .assertThat(body.getString(FIRST_ITEM_TYPE_POINTER))
-          .isEqualTo(EXPECTED_SCHEMA_ORG_ACADEMIC_ARTICLE.schemaOrgType());
-      softly
-          .assertThat(body.getString(FIRST_ITEM_NAME_POINTER))
-          .isEqualTo(sharedTitle(ACADEMIC_ARTICLE));
+          .assertThat(body.getMap(FIRST_ITEM_POINTER))
+          .containsEntry(TYPE_FIELD, EXPECTED_SCHEMA_ORG_ACADEMIC_ARTICLE.schemaOrgType())
+          .containsEntry(NAME_FIELD, sharedTitle(ACADEMIC_ARTICLE));
     }
   }
 
@@ -328,9 +322,9 @@ class JsonLdSearchTest extends JsonLdTestBase {
     var body = itemList(response);
 
     softly
-        .assertThat(body.getString(FIRST_ITEM_TYPE_POINTER))
-        .isEqualTo(EXPECTED_SCHEMA_ORG_ACADEMIC_MONOGRAPH.schemaOrgType());
-    softly.assertThat(body.getString(FIRST_ITEM_ISBN_POINTER)).isNotBlank();
+        .assertThat(body.getMap(FIRST_ITEM_POINTER))
+        .containsEntry(TYPE_FIELD, EXPECTED_SCHEMA_ORG_ACADEMIC_MONOGRAPH.schemaOrgType())
+        .hasEntrySatisfying(ISBN_FIELD, JsonLdSearchTest::assertNotBlank);
     softly
         .assertThat(body.getString(FIRST_ITEM_PUBLISHER_TYPE_POINTER))
         .isEqualTo(ORGANIZATION_TYPE);
@@ -368,8 +362,8 @@ class JsonLdSearchTest extends JsonLdTestBase {
     var body = itemList(response);
 
     softly
-        .assertThat(body.getString(FIRST_ITEM_TYPE_POINTER))
-        .isEqualTo(EXPECTED_SCHEMA_ORG_ACADEMIC_CHAPTER.schemaOrgType());
+        .assertThat(body.getMap(FIRST_ITEM_POINTER))
+        .containsEntry(TYPE_FIELD, EXPECTED_SCHEMA_ORG_ACADEMIC_CHAPTER.schemaOrgType());
     softly.assertThat(body.getString(FIRST_ITEM_IS_PART_OF_TYPE_POINTER)).isEqualTo(BOOK_TYPE);
     softly.assertThat(body.getString(FIRST_ITEM_IS_PART_OF_NAME_POINTER)).contains(anthologyTitle);
   }
@@ -386,11 +380,12 @@ class JsonLdSearchTest extends JsonLdTestBase {
     var response = PUBLICATION_FACTORY.createDraftPublication(UIB_CREATOR);
     var identifier = response.body().jsonPath().getString("identifier");
     Map<String, Object> payload = response.body().jsonPath().getMap("");
-    payload.remove(PublicationFields.CONTEXT_FIELD);
+    payload.remove(CONTEXT_FIELD);
     var entityDescription =
         PUBLICATION_FACTORY.createEntityDescription(
             title, ACADEMIC_ARTICLE, List.of(new Contributor(UIB_CREATOR, CREATOR)));
-    entityDescription.put("tags", List.of("key1", "key2", "key3"));
+    var expectedTags = List.of("key1", "key2", "key3");
+    entityDescription.put("tags", expectedTags);
     payload.put(ENTITY_DESCRIPTION_FIELD, entityDescription);
 
     PUBLICATION_FACTORY.updatePublication(UIB_CREATOR, payload);
@@ -399,11 +394,8 @@ class JsonLdSearchTest extends JsonLdTestBase {
     var searchResponse = awaitIndexed(titleUuid);
     var keywords = itemList(searchResponse).getString(FIRST_ITEM_KEYWORDS_POINTER);
 
-    assertThat(keywords)
-        .isNotBlank()
-        .satisfies(
-            joined ->
-                assertThat(joined.split(", ")).containsExactlyInAnyOrder("key1", "key2", "key3"));
+    assertThat(keywords).isNotBlank();
+    assertThat(keywords.split(", ")).containsExactlyInAnyOrderElementsOf(expectedTags);
   }
 
   @Test
@@ -434,8 +426,14 @@ class JsonLdSearchTest extends JsonLdTestBase {
   }
 
   private void assertItemListEnvelope(JsonPath body) {
-    softly.assertThat(body.getString(CONTEXT_POINTER)).isEqualTo(SCHEMA_ORG_CONTEXT);
-    softly.assertThat(body.getString(TYPE_POINTER)).isEqualTo(ITEM_LIST_TYPE);
+    softly
+        .assertThat(body.getMap(""))
+        .containsEntry(CONTEXT_FIELD, SCHEMA_ORG_CONTEXT)
+        .containsEntry(TYPE_FIELD, ITEM_LIST_TYPE);
+  }
+
+  private static void assertNotBlank(Object value) {
+    assertThat(value.toString()).isNotBlank();
   }
 
   private Response searchResources(String query, String acceptHeader) {
