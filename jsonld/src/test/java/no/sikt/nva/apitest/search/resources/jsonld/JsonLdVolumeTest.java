@@ -3,12 +3,14 @@ package no.sikt.nva.apitest.search.resources.jsonld;
 import static io.restassured.RestAssured.given;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static no.sikt.Category.ACADEMIC_ARTICLE;
+import static no.sikt.nva.apitest.base.Polling.pollUntil;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_PUBLISHING_CURATOR;
 
 import io.qameta.allure.Description;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
+import java.time.Duration;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.IntStream;
@@ -34,7 +36,7 @@ class JsonLdVolumeTest extends SearchTestBase {
 
   private static final int NUMBER_OF_TEST_PUBLICATIONS = 50;
   private static final int PAGE_SIZE = 10;
-  private static final long VOLUME_INDEXING_TIMEOUT_SECONDS = 240;
+  private static final Duration VOLUME_INDEXING_TIMEOUT = Duration.ofMinutes(4);
   private static final String VOLUME_UUID = UUID.randomUUID().toString();
 
   private static final String APPLICATION_LD_JSON = "application/ld+json";
@@ -134,11 +136,11 @@ class JsonLdVolumeTest extends SearchTestBase {
   }
 
   private Response awaitAllPublicationsIndexed(int size) {
-    return awaitSearchResult(
+    return pollUntil(
+        VOLUME_INDEXING_TIMEOUT,
         () -> getResponse(VOLUME_UUID, size),
         response ->
-            Integer.toString(NUMBER_OF_TEST_PUBLICATIONS).equals(response.header(X_TOTAL_COUNT)),
-        VOLUME_INDEXING_TIMEOUT_SECONDS);
+            Integer.toString(NUMBER_OF_TEST_PUBLICATIONS).equals(response.header(X_TOTAL_COUNT)));
   }
 
   private JsonPath itemList(Response response) {

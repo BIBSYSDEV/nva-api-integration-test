@@ -11,6 +11,7 @@ import static no.sikt.Category.DEGREE_PHD;
 import static no.sikt.Category.RESEARCH_REPORT;
 import static no.sikt.Role.CREATOR;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_YEAR;
+import static no.sikt.nva.apitest.base.Polling.pollUntil;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CONTRIBUTOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
@@ -169,7 +170,7 @@ class JsonLdSearchTest extends SearchTestBase {
     createTestPublication(category, title);
 
     var response =
-        awaitSearchResult(
+        pollUntil(
             () -> searchCustomerResources(titleUuid, APPLICATION_LD_JSON),
             result -> itemList(result).getInt(NUMBER_OF_ITEMS_POINTER) >= 1);
     var body = itemList(response);
@@ -202,7 +203,7 @@ class JsonLdSearchTest extends SearchTestBase {
         UIB_PUBLISHING_CURATOR);
 
     var response =
-        awaitSearchResult(
+        pollUntil(
             () -> searchResources(titleUuid, acceptHeader),
             result -> itemList(result).getInt(NUMBER_OF_ITEMS_POINTER) >= 1);
     var body = itemList(response);
@@ -235,7 +236,7 @@ class JsonLdSearchTest extends SearchTestBase {
         UIB_PUBLISHING_CURATOR);
 
     var response =
-        awaitSearchResult(
+        pollUntil(
             () -> searchCustomerResources(titleUuid, acceptHeader),
             result -> itemList(result).getInt(NUMBER_OF_ITEMS_POINTER) >= 1);
     var body = itemList(response);
@@ -453,13 +454,13 @@ class JsonLdSearchTest extends SearchTestBase {
   }
 
   private Response awaitIndexed(String query) {
-    return awaitSearchResult(
+    return pollUntil(
         () -> searchResources(query, APPLICATION_LD_JSON),
         response -> itemList(response).getInt(NUMBER_OF_ITEMS_POINTER) >= 1);
   }
 
   private Response awaitIndexedCount(String query, int expectedCount) {
-    return awaitSearchResult(
+    return pollUntil(
         () -> searchResources(query, APPLICATION_LD_JSON),
         response -> itemList(response).getList(ITEM_LIST_ELEMENT_POINTER).size() >= expectedCount);
   }
