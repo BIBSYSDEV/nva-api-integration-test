@@ -2,7 +2,6 @@ package no.sikt.nva.apitest.search.resources.bibtex;
 
 import static io.restassured.RestAssured.baseURI;
 import static io.restassured.RestAssured.given;
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static no.sikt.Category.ACADEMIC_ARTICLE;
 import static no.sikt.Category.ACADEMIC_CHAPTER;
 import static no.sikt.Category.ACADEMIC_MONOGRAPH;
@@ -13,6 +12,7 @@ import static no.sikt.Category.RESEARCH_REPORT;
 import static no.sikt.Role.CREATOR;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_MONTH_SHORT_NAME;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_YEAR;
+import static no.sikt.nva.apitest.base.Polling.pollUntil;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CONTRIBUTOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
@@ -27,8 +27,6 @@ import static no.sikt.nva.apitest.search.BibTexExpectationFixtures.EXPECTED_BIBT
 import static no.sikt.nva.apitest.search.BibTexExpectationFixtures.EXPECTED_BIBTEX_DEGREE_PHD;
 import static no.sikt.nva.apitest.search.BibTexExpectationFixtures.EXPECTED_BIBTEX_REPORT_RESEARCH;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.awaitility.Awaitility.with;
-import static org.awaitility.pollinterval.FibonacciPollInterval.fibonacci;
 import static org.junit.jupiter.params.provider.Arguments.argumentSet;
 
 import io.qameta.allure.Description;
@@ -38,6 +36,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.Callable;
+import java.util.function.Predicate;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import no.sikt.Category;
@@ -46,6 +46,7 @@ import no.sikt.nva.apitest.base.User;
 import no.sikt.nva.apitest.publication.PublicationFields;
 import no.sikt.nva.apitest.search.BibTexExpectation;
 import no.sikt.nva.apitest.search.SearchTestBase;
+import nva.commons.core.StringUtils;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
@@ -122,9 +123,7 @@ class BibTexTest extends SearchTestBase {
 
     var identifier = createTestPublication(category, title);
 
-    waitForIndexing(titleUuid);
-
-    var responseBody = getResponseBody(titleUuid);
+    var responseBody = waitForIndexing(titleUuid);
     var allExpectations = buildAllExpectations(expectation, title, identifier);
 
     softly.assertThat(responseBody.lines()).hasSize(allExpectations.size());
@@ -149,18 +148,29 @@ class BibTexTest extends SearchTestBase {
         .asString();
   }
 
-  private void waitForIndexing(String query) {
-    with()
-        .pollInterval(fibonacci().with().unit(SECONDS))
-        .await()
-        .atMost(120, SECONDS)
-        .until(
-            () -> {
-              var body = getResponseBody(query);
-              return body != null && !body.isEmpty();
-            });
+  /**
+   * Polls the BibTeX search until the query has a hit. Search is eventually consistent and a hit
+   * can flicker, so callers should assert on the returned snapshot instead of issuing a new
+   * request.
+   */
+  private String waitForIndexing(String query) {
+    return pollUntil(() -> getResponseBody(query), StringUtils::isNotBlank);
+  }
 
-    assertThat(getResponseBody(query)).isNotEmpty();
+  /**
+   * Polls the shared query until every expected publication is indexed, since indexing is
+   * asynchronous with no ordering guarantee.
+   */
+  private String awaitIndexedPublications(String query, int expectedCount) {
+    return pollUntil(bibtexSearchRequest(query), hasNumberOfBibTexEntries(expectedCount));
+  }
+
+  private Callable<String> bibtexSearchRequest(String query) {
+    return () -> getResponseBody(query);
+  }
+
+  private static Predicate<String> hasNumberOfBibTexEntries(int expectedCount) {
+    return body -> body.lines().filter(line -> line.startsWith("@")).count() >= expectedCount;
   }
 
   @ParameterizedTest
@@ -245,18 +255,14 @@ class BibTexTest extends SearchTestBase {
                 createTestPublication(
                     categories.get(i), titleRoot + i + " " + commonUuid + " " + UUID.randomUUID()));
 
-    // retry until last test publication is indexed
-    var retryQuery = titleRoot + (categories.size() - 1);
-    waitForIndexing(retryQuery);
-
-    var responseBody = getResponseBody(commonUuid);
+    var responseBody = awaitIndexedPublications(commonUuid, categories.size());
 
     softly
         .assertThat(responseBody.lines().filter(line -> line.startsWith("@")))
         .hasSize(categories.size());
-    softly
-        .assertThat(responseBody.lines().filter(String::isBlank))
-        .hasSize((categories.size() - 1) * 2);
+    // Publications are separated by two newlines, which is a single blank line per gap once split
+    // into lines, so N publications yield N-1 blank lines.
+    softly.assertThat(responseBody.lines().filter(String::isBlank)).hasSize(categories.size() - 1);
   }
 
   @Test
@@ -271,9 +277,7 @@ class BibTexTest extends SearchTestBase {
     var title = "BibTex Integration test publication ISSN " + titleUuid;
     createIssnPublication(title);
 
-    waitForIndexing(titleUuid);
-
-    var response = getResponseBody(titleUuid);
+    var response = waitForIndexing(titleUuid);
     assertThat(response.lines()).contains("  issn = {" + onlineIssn + "},");
   }
 
@@ -314,9 +318,7 @@ class BibTexTest extends SearchTestBase {
             new Contributor(UIB_PUBLISHING_CURATOR, CREATOR)),
         UIB_PUBLISHING_CURATOR);
 
-    waitForIndexing(titleUuid);
-
-    var response = getResponseBody(titleUuid);
+    var response = waitForIndexing(titleUuid);
     var authorLine =
         response.lines().filter(line -> line.contains("author")).findFirst().orElse("").trim();
     softly.assertThat(authorLine).contains(UIB_CREATOR.name());
@@ -356,9 +358,7 @@ class BibTexTest extends SearchTestBase {
     PUBLICATION_FACTORY.updatePublication(UIB_CREATOR, payload);
     PUBLICATION_FACTORY.publish(UIB_PUBLISHING_CURATOR, identifier);
 
-    waitForIndexing(titleUuid);
-
-    var searchResponse = getResponseBody(titleUuid);
+    var searchResponse = waitForIndexing(titleUuid);
     var keywordLine =
         searchResponse
             .lines()

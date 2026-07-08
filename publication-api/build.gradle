@@ -8,6 +8,7 @@ dependencies {
     testFixturesApi(project(':apitest-base'))
     testFixturesApi(testFixtures(project(':apitest-base')))
     testFixturesImplementation(libs.rest.assured.json.path)
+    testFixturesImplementation(nvaLibs.core)
     testImplementation(libs.allure.java.commons)
     testImplementation(nvaCatalog.assertj.core)
     testImplementation(nvaCatalog.junit.jupiter.api)

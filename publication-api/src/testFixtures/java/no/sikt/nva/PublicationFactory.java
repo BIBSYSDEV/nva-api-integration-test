@@ -1,7 +1,6 @@
 package no.sikt.nva;
 
 import static io.restassured.RestAssured.baseURI;
-import static java.util.Objects.isNull;
 import static no.sikt.Category.BOOK_ANTHOLOGY;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_DAY;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_MONTH;
@@ -17,9 +16,11 @@ import static no.sikt.nva.apitest.publication.PublicationFields.REFERENCE;
 import static no.sikt.nva.apitest.publication.PublicationFields.TYPE;
 import static no.sikt.nva.apitest.publication.PublicationPaths.publicationPath;
 import static no.sikt.nva.apitest.publication.PublicationPaths.publishPublicationPath;
+import static nva.commons.core.ioutils.IoUtils.stringFromResources;
 
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -34,13 +35,11 @@ import no.sikt.nva.apitest.publication.PublicationPaths;
 public class PublicationFactory {
 
   private static final String ACCESS_TOKEN = "accessToken";
+  private static final String YEAR_PLACEHOLDER = "{year}";
 
-  private JsonPath loadJsonResource(String resourcePath) {
-    var resourceStream = PublicationFactory.class.getResourceAsStream(resourcePath);
-    if (isNull(resourceStream)) {
-      throw new IllegalArgumentException("Resource not found on classpath: " + resourcePath);
-    }
-    return new JsonPath(resourceStream);
+  private JsonPath loadMetadataResource(String filename) {
+    var template = stringFromResources(Path.of("metadata", filename));
+    return new JsonPath(template.replace(YEAR_PLACEHOLDER, CURRENT_YEAR));
   }
 
   public Response createDraftPublication(User user) {
@@ -213,7 +212,7 @@ public class PublicationFactory {
   public Map<String, Object> createEntityDescription(
       String title, Category category, List<Contributor> contributorList) {
 
-    var entityDescriptionJsonPath = loadJsonResource("/metadata/EntityDescription.json");
+    var entityDescriptionJsonPath = loadMetadataResource("EntityDescription.json");
 
     Map<String, Object> entityDescription =
         entityDescriptionJsonPath.getMap(ENTITY_DESCRIPTION_FIELD);
@@ -235,20 +234,8 @@ public class PublicationFactory {
   }
 
   public Map<String, Object> createReference(Category category) {
-
-    var referenceJsonPath = loadJsonResource("/metadata/" + category.getValue() + "Reference.json");
-    Map<String, Object> publicationContext =
-        referenceJsonPath.getMap("reference.publicationContext");
-    if (publicationContext.containsKey("publisher")) {
-      Map<String, Object> publisher =
-          referenceJsonPath.get("reference.publicationContext.publisher");
-      publisher.put("id", publisher.get("id") + "/" + CURRENT_YEAR);
-      publicationContext.put("publisher", publisher);
-    }
-    Map<String, Object> reference = referenceJsonPath.getMap(REFERENCE);
-    reference.put(PUBLICATION_CONTEXT, publicationContext);
-
-    return reference;
+    var referenceJsonPath = loadMetadataResource(category.getValue() + "Reference.json");
+    return referenceJsonPath.getMap(REFERENCE);
   }
 
   public void publish(User curator, String identifier) {
@@ -266,7 +253,7 @@ public class PublicationFactory {
 
     List<Map<String, Object>> newContributors = new ArrayList<>();
     final var sequence = new AtomicInteger(1);
-    var contributorJsonPath = loadJsonResource("/metadata/Contributor.json");
+    var contributorJsonPath = loadMetadataResource("Contributor.json");
     contributors.forEach(
         contributor -> {
           Map<String, Object> newContributor =

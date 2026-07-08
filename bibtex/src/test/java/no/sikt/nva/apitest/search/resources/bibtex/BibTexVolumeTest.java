@@ -2,13 +2,11 @@ package no.sikt.nva.apitest.search.resources.bibtex;
 
 import static io.restassured.RestAssured.given;
 import static java.util.concurrent.TimeUnit.MINUTES;
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static no.sikt.Category.ACADEMIC_ARTICLE;
+import static no.sikt.nva.apitest.base.Polling.pollUntil;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_PUBLISHING_CURATOR;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.awaitility.Awaitility.with;
-import static org.awaitility.pollinterval.FibonacciPollInterval.fibonacci;
 
 import io.qameta.allure.Description;
 import io.restassured.RestAssured;
@@ -16,6 +14,7 @@ import io.restassured.parsing.Parser;
 import io.restassured.response.Response;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Predicate;
 import java.util.stream.IntStream;
 import no.sikt.Contributor;
 import no.sikt.Role;
@@ -69,6 +68,10 @@ class BibTexVolumeTest extends SearchTestBase {
             });
   }
 
+  private static Predicate<Response> hasTotalCount(int expectedCount) {
+    return response -> response.header(X_TOTAL_COUNT).equals(Integer.toString(expectedCount));
+  }
+
   private Response getResponse(String query, String size) {
 
     RestAssured.registerParser(TEXT_X_BIBTEX, Parser.TEXT);
@@ -93,17 +96,8 @@ class BibTexVolumeTest extends SearchTestBase {
           + " Access-Control-Expose-Headers")
   void shouldReturnAllPublicationsInBibTexFormat() {
 
-    with()
-        .pollInterval(fibonacci().with().unit(SECONDS))
-        .await()
-        .atMost(60, SECONDS)
-        .until(
-            () ->
-                getResponse(VOLUME_UUID, "10")
-                    .header(X_TOTAL_COUNT)
-                    .equals(Integer.toString(NUMBER_OF_TEST_PUBLICATIONS)));
-
-    var response = getResponse(VOLUME_UUID, "10");
+    var response =
+        pollUntil(() -> getResponse(VOLUME_UUID, "10"), hasTotalCount(NUMBER_OF_TEST_PUBLICATIONS));
 
     softly.assertThat(response.header(X_TOTAL_COUNT)).isNotEmpty();
     softly
