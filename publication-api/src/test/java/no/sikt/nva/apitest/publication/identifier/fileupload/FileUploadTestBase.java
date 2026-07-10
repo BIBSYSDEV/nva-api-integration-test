@@ -65,8 +65,6 @@ public class FileUploadTestBase extends PublicationTestBase {
     creatorAccessToken = CognitoLogin.login(UIB_CREATOR.userId()).get("accessToken");
   }
 
-  // TODO needed for delete tests
-  @SuppressWarnings("unused")
   public Response completeUpload(String identifier, String uploadId, String key, String eTag) {
     Map<String, Object> parts = Map.of("etag", eTag, "partNumber", "1");
     Map<String, Object> completePayload =
