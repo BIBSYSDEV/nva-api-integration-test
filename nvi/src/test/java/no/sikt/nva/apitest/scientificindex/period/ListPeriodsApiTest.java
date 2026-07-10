@@ -13,7 +13,6 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-@SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
 class ListPeriodsApiTest extends ScientificIndexTestBase {
 
   // FIXME: See NP-51333

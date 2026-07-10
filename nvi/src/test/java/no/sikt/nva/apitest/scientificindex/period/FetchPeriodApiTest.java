@@ -14,7 +14,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(SoftAssertionsExtension.class)
-@SuppressWarnings("PMD.UnitTestShouldIncludeAssert")
 class FetchPeriodApiTest extends ScientificIndexTestBase {
 
   private static final String NONEXISTENT_PERIOD_YEAR = "1900";
