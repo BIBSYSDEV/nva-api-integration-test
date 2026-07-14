@@ -6,7 +6,7 @@ phases:
       java: corretto21
       nodejs: 24
     commands:
-      - npm install allure@3.8.2
+      - npm install allure@3.14.3
       - npx allure --version
 
   build:
