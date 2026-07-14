@@ -7,7 +7,6 @@ phases:
       nodejs: 24
     commands:
       - npm install allure@3.8.2
-      - ln -s /opt/allure-3/bin/allure /usr/local/bin/allure
       - npx allure --version
 
   build:
@@ -15,8 +14,8 @@ phases:
       - ./gradlew test || true
   post_build:
     commands:
-      - mkdir -p allure-results
-      - cp */build/allure-results/* allure-results
-      - aws s3 cp s3://$TESTREPORTS_BUCKET/history allure-results/history --recursive || true
-      - npx allure awesome allure-results --single-file
+      - aws s3 cp s3://$TESTREPORTS_BUCKET/allure-history.jsonl allure-history.jsonl || true
+      - npx allure generate "*/build/allure-results"
+      - aws s3 cp allure-history.jsonl s3://$TESTREPORTS_BUCKET/allure-history.jsonl
+      - aws s3 cp allure-report/index.html s3://$TESTREPORTS_BUCKET/reports/$(date +%Y-%m-%d).html
       - aws s3 cp allure-report s3://$TESTREPORTS_BUCKET --recursive

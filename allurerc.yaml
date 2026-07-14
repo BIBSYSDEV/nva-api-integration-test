@@ -1,0 +1,9 @@
+name: NVA API integration tests
+output: ./allure-report
+historyPath: ./allure-history.jsonl
+historyLimit: 14
+plugins:
+  awesome:
+    options:
+      singleFile: true
+      groupBy: ["parentSuite", "suite", "subSuite"]
