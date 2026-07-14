@@ -9,6 +9,7 @@ build
 
 allure-results
 allure-report
+allure-history.jsonl
 .vscode
 .vscode/settings.json
 .idea

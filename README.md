@@ -51,19 +51,21 @@ Then pass the profile to any Gradle task via `-PawsProfile=<profile>`:
 
 ## Generate report
 
-Generate Allure report and open it in the browser:
+Generate the Allure report from local test results and open it in the browser:
 
 ```
-allure generate --open
+allure generate "*/build/allure-results" && open allure-report/index.html
 ```
 
-If you have problems viewing the report, try running
+Note: The `--open` flag in Allure is broken (as of `3.14.3`), so the report must be opened separately.
 
-```
-allure serve allure-results&
-```
+Report settings live in `allurerc.yaml`: single-file output, the history file location, and how many past runs to keep (`historyLimit`).
+Every generation appends an entry to `allure-history.jsonl`, so the report shows a trend chart and per-test history across your recent runs.
+Delete `allure-history.jsonl` to reset the local history.
 
-to start a local webserver for the report.
+The CI pipeline running automated tests uses the same configuration and maintains a history file in S3.
+Each run downloads `allure-history.jsonl` from the report bucket, updates it, and then re-uploads it so that history is carried across executions.
+Dated single-file reports are also archived under `reports/` in the bucket.
 
 ## License
 
