@@ -31,6 +31,7 @@ import static org.junit.jupiter.params.provider.Arguments.argumentSet;
 import io.qameta.allure.Description;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -294,10 +295,9 @@ class JsonLdSearchTest extends JsonLdTestBase {
 
     createIssnPublication(title);
 
-    var response = awaitIndexed(titleUuid);
+    var response = awaitIndexedContaining(titleUuid, PERIODICAL_TYPE, ONLINE_ISSN);
 
-    softly.assertThat(response.body().asString()).contains(PERIODICAL_TYPE);
-    softly.assertThat(response.body().asString()).contains(ONLINE_ISSN);
+    assertThat(response.body().asString()).contains(PERIODICAL_TYPE).contains(ONLINE_ISSN);
   }
 
   @Test
@@ -315,7 +315,7 @@ class JsonLdSearchTest extends JsonLdTestBase {
         List.of(new Contributor(UIB_CREATOR, CREATOR)),
         UIB_PUBLISHING_CURATOR);
 
-    var response = awaitIndexed(titleUuid);
+    var response = awaitIndexedContaining(titleUuid, EXPECTED_PUBLISHER);
     var body = itemList(response);
 
     softly
@@ -355,7 +355,7 @@ class JsonLdSearchTest extends JsonLdTestBase {
         UIB_PUBLISHING_CURATOR,
         anthologyIdentifier);
 
-    var response = awaitIndexed(titleUuid);
+    var response = awaitIndexedContaining(titleUuid, anthologyTitle);
     var body = itemList(response);
 
     softly
@@ -463,6 +463,22 @@ class JsonLdSearchTest extends JsonLdTestBase {
     return pollUntil(
         () -> searchResources(query, APPLICATION_LD_JSON),
         response -> itemList(response).getInt(NUMBER_OF_ITEMS_POINTER) >= 1);
+  }
+
+  /**
+   * Polls the search until the matching document also contains the given fragments. Channel and
+   * reference data are enriched best-effort at indexing time, so a publication can become
+   * searchable before a later re-index adds the enriched fields.
+   */
+  private Response awaitIndexedContaining(String query, String... expectedFragments) {
+    return pollUntil(
+        () -> searchResources(query, APPLICATION_LD_JSON),
+        response -> bodyContainsAll(response, expectedFragments));
+  }
+
+  private static boolean bodyContainsAll(Response response, String... expectedFragments) {
+    var body = response.body().asString();
+    return Arrays.stream(expectedFragments).allMatch(body::contains);
   }
 
   private Response awaitIndexedCount(String query, int expectedCount) {
