@@ -15,7 +15,6 @@ import no.sikt.nva.apitest.base.Affiliation;
 import no.sikt.nva.apitest.scientificindex.NviCandidate;
 import no.sikt.nva.apitest.scientificindex.ScientificIndexTestBase;
 import org.assertj.core.api.SoftAssertions;
-import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -24,8 +23,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(SoftAssertionsExtension.class)
 class FetchCandidateApiTest extends ScientificIndexTestBase {
-
-  @InjectSoftAssertions private SoftAssertions softly;
 
   private static NviCandidate candidate;
 
@@ -38,7 +35,7 @@ class FetchCandidateApiTest extends ScientificIndexTestBase {
   @Test
   @DisplayName("Published academic article becomes NVI candidate")
   @Description("Publishing an eligible academic article creates a candidate with a new approval")
-  void shouldCreateCandidateWhenAcademicArticleIsPublished() {
+  void shouldCreateCandidateWhenAcademicArticleIsPublished(SoftAssertions softly) {
     var response =
         CANDIDATE_FACTORY
             .fetchCandidateByPublicationId(UIB_NVI_CURATOR, candidate.publicationId())
@@ -62,7 +59,7 @@ class FetchCandidateApiTest extends ScientificIndexTestBase {
   @Test
   @DisplayName("Fetch candidate by candidate identifier")
   @Description("Fetching a candidate by its identifier returns it with 200 OK")
-  void shouldReturnCandidateWhenFetchingByCandidateIdentifier() {
+  void shouldReturnCandidateWhenFetchingByCandidateIdentifier(SoftAssertions softly) {
     var response =
         givenAuthenticatedJsonRequestAsUser(UIB_NVI_CURATOR)
             .get(candidatePath(candidate.candidateIdentifier()))
@@ -78,7 +75,7 @@ class FetchCandidateApiTest extends ScientificIndexTestBase {
   @Test
   @DisplayName("Fetch report status for candidate publication")
   @Description("Fetching the report status of a candidate publication returns PENDING_REVIEW")
-  void shouldReturnReportStatusWhenPublicationIsCandidate() {
+  void shouldReturnReportStatusWhenPublicationIsCandidate(SoftAssertions softly) {
     var response =
         givenUnauthenticatedJsonRequest()
             .urlEncodingEnabled(false)

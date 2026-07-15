@@ -42,7 +42,6 @@ import no.sikt.Category;
 import no.sikt.Contributor;
 import no.sikt.nva.apitest.search.SchemaOrgExpectation;
 import org.assertj.core.api.SoftAssertions;
-import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -55,8 +54,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 @ExtendWith(SoftAssertionsExtension.class)
 class JsonLdSearchTest extends JsonLdTestBase {
-
-  @InjectSoftAssertions private SoftAssertions softly;
 
   private static final String APPLICATION_VND_SCHEMAORG_LD_JSON =
       "application/vnd.schemaorg.ld+json";
@@ -163,13 +160,13 @@ class JsonLdSearchTest extends JsonLdTestBase {
     @Description(
         "Search returned with content type 'application/ld+json' is valid schema.org JSON-LD")
     void shouldReturnPublicationsInJsonLdFormat(
-        Category category, SchemaOrgExpectation expectation) {
+        Category category, SchemaOrgExpectation expectation, SoftAssertions softly) {
 
       var response = awaitIndexed(sharedTitleUuid(category));
       var body = itemList(response);
 
       softly.assertThat(response.getContentType()).contains(LD_JSON_CONTENT_TYPE_FRAGMENT);
-      assertItemListEnvelope(body);
+      assertItemListEnvelope(softly, body);
       softly.assertThat(body.getInt(NUMBER_OF_ITEMS_POINTER)).isGreaterThanOrEqualTo(1);
       softly
           .assertThat(body.getMap(FIRST_ITEM_POINTER))
@@ -190,7 +187,7 @@ class JsonLdSearchTest extends JsonLdTestBase {
         "Authenticated customer search returned with content type 'application/ld+json' is valid"
             + " schema.org JSON-LD")
     void shouldReturnPublicationsInJsonLdFormatForCustomer(
-        Category category, SchemaOrgExpectation expectation) {
+        Category category, SchemaOrgExpectation expectation, SoftAssertions softly) {
 
       var response =
           pollUntil(
@@ -199,7 +196,7 @@ class JsonLdSearchTest extends JsonLdTestBase {
       var body = itemList(response);
 
       softly.assertThat(response.getContentType()).contains(LD_JSON_CONTENT_TYPE_FRAGMENT);
-      assertItemListEnvelope(body);
+      assertItemListEnvelope(softly, body);
       softly.assertThat(body.getInt(NUMBER_OF_ITEMS_POINTER)).isGreaterThanOrEqualTo(1);
       softly
           .assertThat(body.getMap(FIRST_ITEM_POINTER))
@@ -213,7 +210,8 @@ class JsonLdSearchTest extends JsonLdTestBase {
     @Description(
         "The three negotiable media types (application/ld+json, the vendor type and the profile"
             + " parameter variant) all resolve to schema.org JSON-LD")
-    void shouldReturnSchemaOrgForAllAcceptHeaderVariants(String acceptHeader) {
+    void shouldReturnSchemaOrgForAllAcceptHeaderVariants(
+        String acceptHeader, SoftAssertions softly) {
 
       var response =
           pollUntil(
@@ -222,7 +220,7 @@ class JsonLdSearchTest extends JsonLdTestBase {
       var body = itemList(response);
 
       softly.assertThat(response.getContentType()).contains(LD_JSON_CONTENT_TYPE_FRAGMENT);
-      assertItemListEnvelope(body);
+      assertItemListEnvelope(softly, body);
       softly
           .assertThat(body.getMap(FIRST_ITEM_POINTER))
           .containsEntry(TYPE_FIELD, EXPECTED_SCHEMA_ORG_ACADEMIC_ARTICLE.schemaOrgType())
@@ -236,7 +234,8 @@ class JsonLdSearchTest extends JsonLdTestBase {
         "The three negotiable media types (application/ld+json, the vendor type and the profile"
             + " parameter variant) all resolve to schema.org JSON-LD on the authenticated customer"
             + " endpoint")
-    void shouldReturnSchemaOrgForAllAcceptHeaderVariantsForCustomer(String acceptHeader) {
+    void shouldReturnSchemaOrgForAllAcceptHeaderVariantsForCustomer(
+        String acceptHeader, SoftAssertions softly) {
 
       var response =
           pollUntil(
@@ -245,7 +244,7 @@ class JsonLdSearchTest extends JsonLdTestBase {
       var body = itemList(response);
 
       softly.assertThat(response.getContentType()).contains(LD_JSON_CONTENT_TYPE_FRAGMENT);
-      assertItemListEnvelope(body);
+      assertItemListEnvelope(softly, body);
       softly
           .assertThat(body.getMap(FIRST_ITEM_POINTER))
           .containsEntry(TYPE_FIELD, EXPECTED_SCHEMA_ORG_ACADEMIC_ARTICLE.schemaOrgType())
@@ -258,7 +257,7 @@ class JsonLdSearchTest extends JsonLdTestBase {
   @Description(
       "A search matching several publications returns an ItemList whose numberOfItems and"
           + " itemListElement reflect all matches")
-  void shouldReturnItemListWithMultiplePublications() {
+  void shouldReturnItemListWithMultiplePublications(SoftAssertions softly) {
 
     var commonUuid = UUID.randomUUID().toString();
     var titleRoot = "JsonLd-test-publication";
@@ -304,7 +303,7 @@ class JsonLdSearchTest extends JsonLdTestBase {
   @Test
   @DisplayName("Monograph exposes ISBN and publisher")
   @Description("A monograph is a schema.org Book carrying its ISBN and a publisher Organization")
-  void shouldExposeIsbnAndPublisherForMonograph() {
+  void shouldExposeIsbnAndPublisherForMonograph(SoftAssertions softly) {
 
     var titleUuid = UUID.randomUUID().toString();
     var title = "JsonLd Integration test publication monograph " + titleUuid;
@@ -335,7 +334,7 @@ class JsonLdSearchTest extends JsonLdTestBase {
   @DisplayName("Chapter exposes its book through isPartOf")
   @Description(
       "A chapter in an anthology is a schema.org Chapter whose isPartOf is the containing Book")
-  void shouldExposeBookThroughIsPartOfForChapter() {
+  void shouldExposeBookThroughIsPartOfForChapter(SoftAssertions softly) {
 
     var titleUuid = UUID.randomUUID().toString();
     var title = "JsonLd Integration test publication chapter " + titleUuid;
@@ -399,7 +398,7 @@ class JsonLdSearchTest extends JsonLdTestBase {
   @Test
   @DisplayName("Multiple authors are exposed as a list")
   @Description("A publication with several creators exposes each as a schema.org author")
-  void shouldExposeMultipleAuthors() {
+  void shouldExposeMultipleAuthors(SoftAssertions softly) {
 
     var titleUuid = UUID.randomUUID().toString();
     var title = "JsonLd Integration test publication multiple authors " + titleUuid;
@@ -423,7 +422,7 @@ class JsonLdSearchTest extends JsonLdTestBase {
             UIB_CREATOR.name(), UIB_CONTRIBUTOR.name(), UIB_PUBLISHING_CURATOR.name());
   }
 
-  private void assertItemListEnvelope(JsonPath body) {
+  private static void assertItemListEnvelope(SoftAssertions softly, JsonPath body) {
     softly
         .assertThat(body.getMap(""))
         .containsEntry(CONTEXT_FIELD, SCHEMA_ORG_CONTEXT)

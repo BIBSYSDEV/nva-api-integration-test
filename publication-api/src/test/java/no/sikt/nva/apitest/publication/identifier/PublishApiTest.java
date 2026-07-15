@@ -17,7 +17,6 @@ import no.sikt.Contributor;
 import no.sikt.nva.apitest.base.CognitoLogin;
 import no.sikt.nva.apitest.publication.PublicationTestBase;
 import org.assertj.core.api.SoftAssertions;
-import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -29,7 +28,6 @@ import org.junit.jupiter.params.provider.EnumSource;
 @ExtendWith(SoftAssertionsExtension.class)
 class PublishApiTest extends PublicationTestBase {
 
-  @InjectSoftAssertions private SoftAssertions softly;
   private static String curatorAccessToken;
 
   @BeforeAll
@@ -69,7 +67,7 @@ class PublishApiTest extends PublicationTestBase {
   @Test
   @DisplayName("Publish incomplete publication")
   @Description("Publishing an incomplete publication should return 400 Bad Request")
-  void shouldRejectPublishWhenMetadataIsIncomplete() {
+  void shouldRejectPublishWhenMetadataIsIncomplete(SoftAssertions softly) {
     var identifier = setupDraftPublication();
 
     var response =
@@ -88,7 +86,7 @@ class PublishApiTest extends PublicationTestBase {
   @Test
   @DisplayName("Non-curator publish publication")
   @Description("A non-curator user publishing a publication should return 401 Unauthorized")
-  void shouldRejectPublishWhenUserIsNotCurator() {
+  void shouldRejectPublishWhenUserIsNotCurator(SoftAssertions softly) {
     var creatorAccessToken = CognitoLogin.login(UIB_CREATOR.userId()).get("accessToken");
 
     var identifier = setupDraftPublication();

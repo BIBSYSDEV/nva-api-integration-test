@@ -15,7 +15,6 @@ import java.util.UUID;
 import no.sikt.nva.apitest.base.CognitoLogin;
 import no.sikt.nva.apitest.publication.PublicationTestBase;
 import org.assertj.core.api.SoftAssertions;
-import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -25,7 +24,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 @ExtendWith(SoftAssertionsExtension.class)
 class FetchApiTest extends PublicationTestBase {
 
-  @InjectSoftAssertions private SoftAssertions softly;
   private static String creatorAccessToken;
   private static String customerUib;
 
@@ -39,7 +37,7 @@ class FetchApiTest extends PublicationTestBase {
   @DisplayName("Fetch publication by identifier")
   @Description(
       "Fetch publication by identifier should return publication metadata and statuscode 200 Ok")
-  void shouldReturnDraftPublicationWhenFetchedByIdentifier() {
+  void shouldReturnDraftPublicationWhenFetchedByIdentifier(SoftAssertions softly) {
     var identifier = setupDraftPublication();
 
     var response =
@@ -68,7 +66,7 @@ class FetchApiTest extends PublicationTestBase {
   @Test
   @DisplayName("Fetch non-existing publication")
   @Description("Fetch non-existing publication should return statuscode 404 Not Found")
-  void shouldReturnNotFoundWhenFetchingUnknownIdentifier() {
+  void shouldReturnNotFoundWhenFetchingUnknownIdentifier(SoftAssertions softly) {
     var randomIdentifier = UUID.randomUUID().toString();
 
     var response =

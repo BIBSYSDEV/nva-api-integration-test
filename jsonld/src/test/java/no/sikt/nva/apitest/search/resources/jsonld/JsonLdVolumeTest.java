@@ -17,7 +17,6 @@ import no.sikt.Contributor;
 import no.sikt.Role;
 import no.sikt.nva.apitest.base.CognitoLogin;
 import org.assertj.core.api.SoftAssertions;
-import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -27,8 +26,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(SoftAssertionsExtension.class)
 class JsonLdVolumeTest extends JsonLdTestBase {
-
-  @InjectSoftAssertions private SoftAssertions softly;
 
   private static final int NUMBER_OF_TEST_PUBLICATIONS = 50;
   private static final int PAGE_SIZE = 10;
@@ -77,7 +74,7 @@ class JsonLdVolumeTest extends JsonLdTestBase {
       "A multi-page schema.org response exposes X-Total-Count, Access-Control-Expose-Headers and a"
           + " Link header with the schema.org profile plus first/next pagination links")
   @Timeout(value = 5, unit = MINUTES)
-  void shouldReturnProfileAndPaginationHeadersForPaginatedJsonLd() {
+  void shouldReturnProfileAndPaginationHeadersForPaginatedJsonLd(SoftAssertions softly) {
 
     var response = awaitAllPublicationsIndexed(PAGE_SIZE);
     var body = itemList(response);
@@ -99,7 +96,7 @@ class JsonLdVolumeTest extends JsonLdTestBase {
       "A schema.org response that fits on a single page still exposes the profile Link but no"
           + " first/next pagination links")
   @Timeout(value = 5, unit = MINUTES)
-  void shouldReturnProfileLinkWithoutPaginationWhenSinglePage() {
+  void shouldReturnProfileLinkWithoutPaginationWhenSinglePage(SoftAssertions softly) {
 
     var response = awaitAllPublicationsIndexed(NUMBER_OF_TEST_PUBLICATIONS * 2);
     var body = itemList(response);
@@ -115,7 +112,7 @@ class JsonLdVolumeTest extends JsonLdTestBase {
   @Description(
       "A schema.org search with no hits returns an empty ItemList, X-Total-Count 0 and the profile"
           + " Link header")
-  void shouldReturnEmptyItemListWhenSearchReturnsNoHits() {
+  void shouldReturnEmptyItemListWhenSearchReturnsNoHits(SoftAssertions softly) {
 
     var response = getResponse(UUID.randomUUID().toString(), PAGE_SIZE);
     var body = itemList(response);
