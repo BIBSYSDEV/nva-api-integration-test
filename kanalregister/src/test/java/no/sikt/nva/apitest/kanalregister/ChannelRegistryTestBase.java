@@ -67,8 +67,8 @@ public abstract class ChannelRegistryTestBase {
         .updateTestCase(
             result -> {
               result.getLabels().removeIf(label -> "suite".equals(label.getName()));
-              result.getLabels().add(label("parentSuite", "Kanalregister"));
-              result.getLabels().add(label("suite", environment.name()));
+              result.getLabels().add(label("parentSuite", "Kanalregisteret"));
+              result.getLabels().add(label("suite", environment.getApiHost()));
               result.getLabels().add(label("subSuite", endpoint));
             });
     Allure.parameter("environment", environment);
