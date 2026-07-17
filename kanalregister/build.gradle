@@ -1,0 +1,17 @@
+plugins {
+    id 'nva.api.integration.testing.java-conventions'
+}
+
+// No apitest-base dependency: this module targets external hosts and runs without AWS credentials.
+dependencies {
+    testImplementation(libs.allure.java.commons)
+    testImplementation(libs.allure.rest.assured)
+    testImplementation(libs.rest.assured.core)
+    testImplementation(libs.rest.assured.json.path)
+    testImplementation(nvaCatalog.assertj.core)
+    testImplementation(nvaCatalog.junit.jupiter.api)
+    testImplementation(nvaCatalog.junit.jupiter.params)
+    testRuntimeOnly(libs.allure.junit5)
+    testRuntimeOnly(nvaCatalog.junit.jupiter.engine)
+    testRuntimeOnly(nvaCatalog.junit.platform.launcher)
+}
