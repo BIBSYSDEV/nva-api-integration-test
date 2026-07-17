@@ -7,6 +7,7 @@ import static no.sikt.nva.apitest.kanalregister.ChannelFixtures.GYLDENDAL;
 import static no.sikt.nva.apitest.kanalregister.ChannelRegistryRequests.lookUp;
 
 import io.qameta.allure.Description;
+import io.qameta.allure.Issue;
 import no.sikt.nva.apitest.kanalregister.ChannelRegistryTestBase;
 import no.sikt.nva.apitest.kanalregister.SharedResponse;
 import org.assertj.core.api.SoftAssertions;
@@ -38,6 +39,7 @@ class FindPublisherByPidAndYearTest extends ChannelRegistryTestBase {
   @Test
   @DisplayName("Level history includes the requested year")
   @Description("A lookup's levelHistories includes the requested year")
+  @Issue("NP-51482")
   void shouldIncludeRequestedYearInLevelHistory(SoftAssertions softly) {
     assertLevelHistoryIncludesYear(softly, GYLDENDAL_LOOKUP.forEnvironment(environment), GYLDENDAL);
   }

@@ -7,6 +7,7 @@ import static no.sikt.nva.apitest.kanalregister.ChannelFixtures.ACP;
 import static no.sikt.nva.apitest.kanalregister.ChannelRegistryRequests.lookUp;
 
 import io.qameta.allure.Description;
+import io.qameta.allure.Issue;
 import no.sikt.nva.apitest.kanalregister.ChannelRegistryTestBase;
 import no.sikt.nva.apitest.kanalregister.SharedResponse;
 import org.assertj.core.api.SoftAssertions;
@@ -24,6 +25,7 @@ class FindJournalByPidAndYearTest extends ChannelRegistryTestBase {
   @Test
   @DisplayName("Lookup returns level for the requested year")
   @Description("A lookup returns the level for the requested year, like search does")
+  @Issue("NP-51485")
   void shouldReturnLevelForRequestedYear(SoftAssertions softly) {
     assertLevelForYear(softly, ACP_LOOKUP.forEnvironment(environment), ACP);
   }
@@ -31,6 +33,7 @@ class FindJournalByPidAndYearTest extends ChannelRegistryTestBase {
   @Test
   @DisplayName("Lookup exposes levelDisplay alongside level")
   @Description("A lookup exposes levelDisplay, without which X-channels cannot be distinguished")
+  @Issue("NP-51483")
   void shouldExposeLevelDisplay(SoftAssertions softly) {
     assertLevelDisplayMatchesLevel(softly, ACP_LOOKUP.forEnvironment(environment), ACP);
   }

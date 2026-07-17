@@ -7,6 +7,7 @@ import static no.sikt.nva.apitest.kanalregister.ChannelRegistryRequests.hitByPid
 import static no.sikt.nva.apitest.kanalregister.ChannelRegistryRequests.searchChannels;
 
 import io.qameta.allure.Description;
+import io.qameta.allure.Issue;
 import no.sikt.nva.apitest.kanalregister.ChannelRegistryTestBase;
 import no.sikt.nva.apitest.kanalregister.SharedResponse;
 import org.assertj.core.api.SoftAssertions;
@@ -41,6 +42,7 @@ class FindPublisherChannelsTest extends ChannelRegistryTestBase {
   @Test
   @DisplayName("Missing values are JSON null, not the string \"null\"")
   @Description("Fields without a value are JSON null, never the literal string \"null\"")
+  @Issue("NP-51484")
   void shouldRepresentMissingDecisionTextsAsNull(SoftAssertions softly) {
     var hit = GYLDENDAL_UNDERVISNING_HIT.forEnvironment(environment);
 
