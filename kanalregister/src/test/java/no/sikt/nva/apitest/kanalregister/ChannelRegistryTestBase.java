@@ -1,6 +1,9 @@
 package no.sikt.nva.apitest.kanalregister;
 
+import static java.util.Objects.nonNull;
+
 import io.qameta.allure.Allure;
+import io.qameta.allure.model.Label;
 import io.qameta.allure.restassured.AllureRestAssured;
 import io.restassured.RestAssured;
 import io.restassured.config.HttpClientConfig;
@@ -9,6 +12,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.Parameter;
 import org.junit.jupiter.params.ParameterizedClass;
@@ -51,11 +55,31 @@ public abstract class ChannelRegistryTestBase {
     }
   }
 
-  // The parent suite groups all module suites under one node in the report; the environment
-  // parameter keeps separate report history per environment invocation.
+  /**
+   * Rebuilds the report hierarchy as Kanalregister > environment > endpoint, replacing the suite
+   * label allure-junit5 derives from the class. The environment parameter keeps separate report
+   * history per environment invocation.
+   */
   @BeforeEach
   protected void labelAllureResult() {
-    Allure.label("parentSuite", "Kanalregister");
+    var endpoint = endpointDisplayName();
+    Allure.getLifecycle()
+        .updateTestCase(
+            result -> {
+              result.getLabels().removeIf(label -> "suite".equals(label.getName()));
+              result.getLabels().add(label("parentSuite", "Kanalregister"));
+              result.getLabels().add(label("suite", environment.name()));
+              result.getLabels().add(label("subSuite", endpoint));
+            });
     Allure.parameter("environment", environment);
+  }
+
+  private String endpointDisplayName() {
+    var displayName = getClass().getAnnotation(DisplayName.class);
+    return nonNull(displayName) ? displayName.value() : getClass().getSimpleName();
+  }
+
+  private static Label label(String name, String value) {
+    return new Label().setName(name).setValue(value);
   }
 }
