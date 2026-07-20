@@ -47,7 +47,6 @@ import no.sikt.nva.apitest.search.BibTexExpectation;
 import no.sikt.nva.apitest.search.SearchTestBase;
 import nva.commons.core.StringUtils;
 import org.assertj.core.api.SoftAssertions;
-import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -58,8 +57,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 @ExtendWith(SoftAssertionsExtension.class)
 class BibTexTest extends SearchTestBase {
-
-  @InjectSoftAssertions private SoftAssertions softly;
 
   private static final String TEXT_X_BIBTEX = "text/x-bibtex";
 
@@ -78,7 +75,8 @@ class BibTexTest extends SearchTestBase {
   @MethodSource("publicationsInBibTexFormatProvider")
   @DisplayName("Search with content type 'text/x-bibtex' produces BibTeX export")
   @Description("Test content returned with content type 'text/x-bibtex' is correct BibTex-format")
-  void shouldReturnPublicationsInBibTexFormat(Category category, BibTexExpectation expectation) {
+  void shouldReturnPublicationsInBibTexFormat(
+      Category category, BibTexExpectation expectation, SoftAssertions softly) {
 
     RestAssured.registerParser(TEXT_X_BIBTEX, Parser.TEXT);
 
@@ -143,7 +141,7 @@ class BibTexTest extends SearchTestBase {
   @Description(
       "Search returned with content type 'text/x-bibtex' is correct BibTex-format for customer")
   void shouldReturnPublicationsInBibTexFormatForCustomer(
-      Category category, BibTexExpectation expectation) {
+      Category category, BibTexExpectation expectation, SoftAssertions softly) {
 
     RestAssured.registerParser(TEXT_X_BIBTEX, Parser.TEXT);
 
@@ -200,7 +198,7 @@ class BibTexTest extends SearchTestBase {
   @Description(
       "A list of publications should contain a type that starts with '@' and two newlines between"
           + " publications")
-  void shouldReturnListOfPublicationsInBibTexFormat() {
+  void shouldReturnListOfPublicationsInBibTexFormat(SoftAssertions softly) {
 
     var commonUuid = UUID.randomUUID().toString();
     var titleRoot = "BibTex-test-publication";
@@ -268,7 +266,7 @@ class BibTexTest extends SearchTestBase {
   @DisplayName("Authors are joined with 'and'")
   @Description(
       "A publication with multiple authors should present a list of authors separated with 'and'")
-  void shouldPresentMultipleAuthorsSeparatedWithAnd() {
+  void shouldPresentMultipleAuthorsSeparatedWithAnd(SoftAssertions softly) {
     var titleUuid = UUID.randomUUID().toString();
     var title = "BibTex Integration test publication multiple authors " + titleUuid;
 
@@ -305,7 +303,7 @@ class BibTexTest extends SearchTestBase {
   @DisplayName("Keywords are joined with ','")
   @Description(
       "A publication with multiple keywords should present a list of keywords separated with ','")
-  void shouldPresentMultipleKeywordsSeparatedWithComma() {
+  void shouldPresentMultipleKeywordsSeparatedWithComma(SoftAssertions softly) {
     var titleUuid = UUID.randomUUID().toString();
     var title = "BibTex Integration test publication multiple keywords " + titleUuid;
 

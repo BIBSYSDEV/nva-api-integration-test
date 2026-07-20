@@ -17,7 +17,6 @@ import no.sikt.nva.apitest.base.Affiliation;
 import no.sikt.nva.apitest.scientificindex.NviCandidate;
 import no.sikt.nva.apitest.scientificindex.ScientificIndexTestBase;
 import org.assertj.core.api.SoftAssertions;
-import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -28,8 +27,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 class SearchNviCandidateApiTest extends ScientificIndexTestBase {
 
   private static final int SEARCH_PAGE_SIZE = 100;
-
-  @InjectSoftAssertions private SoftAssertions softly;
 
   private static NviCandidate candidate;
   private static Response indexedCandidateResponse;
@@ -45,16 +42,16 @@ class SearchNviCandidateApiTest extends ScientificIndexTestBase {
   @Test
   @DisplayName("Candidate is indexed and searchable with its NVI data")
   @Description("A new candidate is returned by search with creator, approval and points")
-  void shouldIndexCandidateForSearchWhenPublicationBecomesCandidate() {
+  void shouldIndexCandidateForSearchWhenPublicationBecomesCandidate(SoftAssertions softly) {
     var json =
         indexedCandidateResponse
             .jsonPath()
             .setRootPath(indexedCandidateByPublicationId(candidate.publicationId()));
 
-    assertHitFieldEquals(json, "type", "NviCandidate");
-    assertHitFieldEquals(json, "identifier", candidate.candidateIdentifier());
-    assertHitFieldEquals(json, "publicationDetails.id", candidate.publicationId());
-    assertHitFieldEquals(json, "publicationDetails.title", candidate.title());
+    assertHitFieldEquals(softly, json, "type", "NviCandidate");
+    assertHitFieldEquals(softly, json, "identifier", candidate.candidateIdentifier());
+    assertHitFieldEquals(softly, json, "publicationDetails.id", candidate.publicationId());
+    assertHitFieldEquals(softly, json, "publicationDetails.title", candidate.title());
     softly
         .assertThat(json.getList("publicationDetails.nviContributors.name", String.class))
         .contains(candidate.creatorName());
@@ -111,7 +108,8 @@ class SearchNviCandidateApiTest extends ScientificIndexTestBase {
         .statusCode(401);
   }
 
-  private void assertHitFieldEquals(JsonPath json, String field, String expected) {
+  private static void assertHitFieldEquals(
+      SoftAssertions softly, JsonPath json, String field, String expected) {
     softly.assertThat(json.getString(field)).as(field).isEqualTo(expected);
   }
 

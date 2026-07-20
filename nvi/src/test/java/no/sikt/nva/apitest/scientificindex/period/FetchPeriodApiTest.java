@@ -7,7 +7,6 @@ import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.periodPat
 import io.qameta.allure.Description;
 import no.sikt.nva.apitest.scientificindex.ScientificIndexTestBase;
 import org.assertj.core.api.SoftAssertions;
-import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,12 +17,10 @@ class FetchPeriodApiTest extends ScientificIndexTestBase {
 
   private static final String NONEXISTENT_PERIOD_YEAR = "1900";
 
-  @InjectSoftAssertions private SoftAssertions softly;
-
   @Test
   @DisplayName("Fetch period for current year")
   @Description("Fetching the current-year period returns it (open-period prerequisite)")
-  void shouldReturnPeriodWhenFetchingExistingPeriod() {
+  void shouldReturnPeriodWhenFetchingExistingPeriod(SoftAssertions softly) {
     var response =
         givenUnauthenticatedJsonRequest()
             .get(periodPath(CURRENT_YEAR))

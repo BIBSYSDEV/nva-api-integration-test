@@ -28,6 +28,14 @@ tasks.withType(Test).configureEach {
     systemProperty 'junit.jupiter.execution.parallel.mode.default', 'concurrent'
     systemProperty 'junit.jupiter.execution.parallel.mode.classes.default', 'concurrent'
     systemProperty 'junit.jupiter.execution.parallel.config.strategy', 'dynamic'
+    systemProperty 'junit.jupiter.execution.parallel.config.executor-service', 'WORKER_THREAD_POOL'
+
+    jacoco {
+        // Generated AWS SDK client classes (e.g. DefaultSsmClient) exceed the JVM class size
+        // limit once JaCoCo probes are added, causing ClassTooLargeException warnings.
+        // Third-party classes never count toward coverage, so skip instrumenting them.
+        excludes += ['software.amazon.awssdk.*']
+    }
 
     // Most tests create data and then poll for asynchronous evaluation or indexing, with Awaitility
     // budgets of 2-5m that fail fast with a descriptive error. This timeout is only a backstop for
