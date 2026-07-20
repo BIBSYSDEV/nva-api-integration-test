@@ -60,7 +60,7 @@ class FetchCandidateApiTest extends ScientificIndexTestBase {
     softly.assertThat(response.getDouble("totalPoints")).isPositive();
   }
 
-  /** Fetching a candidate by its identifier returns it with 200 OK. */
+  /** Fetching a candidate by its identifier returns it with status {@code 200 OK}. */
   @Test
   @DisplayName("Fetch candidate by candidate identifier")
   @Description(useJavaDoc = true)
@@ -96,7 +96,7 @@ class FetchCandidateApiTest extends ScientificIndexTestBase {
     softly.assertThat(response.getString("period")).isEqualTo(CURRENT_YEAR);
   }
 
-  /** Fetching a candidate without authentication returns 401 Unauthorized. */
+  /** Fetching a candidate without authentication returns status {@code 401 Unauthorized}. */
   @Test
   @DisplayName("Fetch candidate unauthenticated")
   @Description(useJavaDoc = true)
@@ -108,7 +108,7 @@ class FetchCandidateApiTest extends ScientificIndexTestBase {
         .statusCode(401);
   }
 
-  /** Fetching a candidate for a non-candidate publication returns 404 Not Found. */
+  /** Fetching a candidate for a non-candidate publication returns status {@code 404 Not Found}. */
   @Test
   @DisplayName("Fetch candidate for publication that is not a candidate")
   @Description(useJavaDoc = true)

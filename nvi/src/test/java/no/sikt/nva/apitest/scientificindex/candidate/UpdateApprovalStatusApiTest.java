@@ -40,7 +40,7 @@ class UpdateApprovalStatusApiTest extends ScientificIndexTestBase {
 
   @InjectSoftAssertions private SoftAssertions softly;
 
-  /** Approving a candidate as an NVI curator returns 200 OK. */
+  /** Approving a candidate as an NVI curator returns status {@code 200 OK}. */
   @Test
   @DisplayName("Approve candidate as NVI curator")
   @Description(useJavaDoc = true)
@@ -59,7 +59,7 @@ class UpdateApprovalStatusApiTest extends ScientificIndexTestBase {
     softly.assertThat(response.getString("approvals[0].finalizedDate")).isNotEmpty();
   }
 
-  /** Rejecting a candidate with a reason returns 200 OK. */
+  /** Rejecting a candidate with a reason returns status {@code 200 OK}. */
   @Test
   @DisplayName("Reject candidate with reason")
   @Description(useJavaDoc = true)
@@ -79,7 +79,7 @@ class UpdateApprovalStatusApiTest extends ScientificIndexTestBase {
     softly.assertThat(response.getString("approvals[0].finalizedBy")).isNotEmpty();
   }
 
-  /** Rejecting a candidate without a reason returns 400 Bad Request. */
+  /** Rejecting a candidate without a reason returns status {@code 400 Bad Request}. */
   @Test
   @DisplayName("Reject candidate without reason")
   @Description(useJavaDoc = true)
@@ -114,7 +114,7 @@ class UpdateApprovalStatusApiTest extends ScientificIndexTestBase {
     softly.assertThat(response.getString("approvals[0].finalizedDate")).isNull();
   }
 
-  /** Updating approval without MANAGE_NVI_CANDIDATES returns 401 Unauthorized. */
+  /** Updating approval without MANAGE_NVI_CANDIDATES returns status {@code 401 Unauthorized}. */
   @Test
   @DisplayName("Approve candidate without MANAGE_NVI_CANDIDATES access right")
   @Description(useJavaDoc = true)

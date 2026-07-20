@@ -105,7 +105,9 @@ class SearchNviCandidateApiTest extends ScientificIndexTestBase {
     assertThat(indexedPublicationIds(response)).doesNotContain(candidate.publicationId());
   }
 
-  /** Searching for NVI candidates without authentication returns 401 Unauthorized. */
+  /**
+   * Searching for NVI candidates without authentication returns status {@code 401 Unauthorized}.
+   */
   @Test
   @DisplayName("Search candidates unauthenticated")
   @Description(useJavaDoc = true)

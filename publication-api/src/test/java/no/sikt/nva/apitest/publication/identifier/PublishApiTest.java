@@ -37,7 +37,7 @@ class PublishApiTest extends PublicationTestBase {
     curatorAccessToken = CognitoLogin.login(UIB_CREATOR.userId()).get("accessToken");
   }
 
-  /** A Curator calling publish should return statuscode 202 Accepted. */
+  /** A Curator calling publish should return status {@code 202 Accepted}. */
   @ParameterizedTest
   @EnumSource(
       value = Category.class,
@@ -67,7 +67,7 @@ class PublishApiTest extends PublicationTestBase {
         .statusCode(202);
   }
 
-  /** Publishing an incomplete publication should return 400 Bad Request. */
+  /** Publishing an incomplete publication should return status {@code 400 Bad Request}. */
   @Test
   @DisplayName("Publish incomplete publication")
   @Description(useJavaDoc = true)
@@ -87,7 +87,7 @@ class PublishApiTest extends PublicationTestBase {
     softly.assertThat(response.getString("detail")).isEqualTo("Resource is not publishable!");
   }
 
-  /** A non-curator user publishing a publication should return 401 Unauthorized. */
+  /** A non-curator user publishing a publication should return status {@code 401 Unauthorized}. */
   @Test
   @DisplayName("Non-curator publish publication")
   @Description(useJavaDoc = true)

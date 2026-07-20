@@ -20,7 +20,7 @@ class CreateApiTest extends FileUploadTestBase {
   private static final String UPLOAD_ID = "uploadId";
   private static final String KEY = "key";
 
-  /** Calling file-upload/create should return uploadId and key with statuscode 200. */
+  /** Calling file-upload/create should return uploadId and key with status {@code 200 OK}. */
   @Test
   @DisplayName("file-upload/create returns uploadId and key")
   @Description(useJavaDoc = true)
@@ -41,7 +41,9 @@ class CreateApiTest extends FileUploadTestBase {
     softly.assertThat(response.getString(KEY)).isNotNull();
   }
 
-  /** Calling file-upload/create with no authorization should return statuscode 401 Unauthorized. */
+  /**
+   * Calling file-upload/create with no authorization should return status {@code 401 Unauthorized}.
+   */
   @Test
   @DisplayName("file-upload/create with no authorization")
   @Description(useJavaDoc = true)
@@ -57,7 +59,8 @@ class CreateApiTest extends FileUploadTestBase {
   }
 
   /**
-   * Calling file-upload/create with non-existing identifier should return statuscode 404 Not Found.
+   * Calling file-upload/create with non-existing identifier should return status {@code 404 Not
+   * Found}.
    */
   @Test
   @DisplayName("file-upload/create with non-existing identifier")

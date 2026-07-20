@@ -40,8 +40,8 @@ class CreateApiTest extends PublicationTestBase {
   }
 
   /**
-   * A Creator calling create publication should return publication metadata and statuscode 201
-   * Created.
+   * A Creator calling create publication should return publication metadata and status {@code 201
+   * Created}.
    */
   @Test
   @DisplayName("Creator create draft publication")
@@ -73,7 +73,7 @@ class CreateApiTest extends PublicationTestBase {
     softly.assertThat(response.getString("modifiedDate")).startsWith(today);
   }
 
-  /** An unauthenticated user calling create should return status code 401 Unauthenticated. */
+  /** An unauthenticated user calling create should return status {@code 401 Unauthorized}. */
   @Test
   @DisplayName("Unauthenticated user tries to create publication")
   @Description(useJavaDoc = true)

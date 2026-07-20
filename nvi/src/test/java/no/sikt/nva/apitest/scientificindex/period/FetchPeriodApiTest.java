@@ -39,7 +39,7 @@ class FetchPeriodApiTest extends ScientificIndexTestBase {
     softly.assertThat(response.getString("reportingDate")).isNotEmpty();
   }
 
-  /** Fetching a period that doesn't exist returns 404 Not Found. */
+  /** Fetching a period that doesn't exist returns status {@code 404 Not Found}. */
   @Test
   @DisplayName("Fetch nonexistent period")
   @Description(useJavaDoc = true)

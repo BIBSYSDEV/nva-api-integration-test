@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 
 class PrepareApiTest extends FileUploadTestBase {
 
-  /** Calling file-upload/prepare should return presigned URL and status code 200 OK. */
+  /** Calling file-upload/prepare should return presigned URL and status {@code 200 OK}. */
   @Test
   @DisplayName("file-upload/prepare returns presigned URL")
   @Description(useJavaDoc = true)
@@ -27,7 +27,8 @@ class PrepareApiTest extends FileUploadTestBase {
   }
 
   /**
-   * Calling file-upload/prepare with no authorization should return statuscode 401 Unauthorized.
+   * Calling file-upload/prepare with no authorization should return status {@code 401
+   * Unauthorized}.
    */
   @Test
   @DisplayName("file-upload/prepare with no authorization")
@@ -51,8 +52,8 @@ class PrepareApiTest extends FileUploadTestBase {
   }
 
   /**
-   * Calling file-upload/prepare with non-existing identifier should return statuscode 404 Not
-   * Found.
+   * Calling file-upload/prepare with non-existing identifier should return status {@code 404 Not
+   * Found}.
    */
   @Test
   @Disabled // TODO: Fix bug NP-51209
@@ -72,8 +73,8 @@ class PrepareApiTest extends FileUploadTestBase {
   }
 
   /**
-   * Calling file-upload/prepare without calling file-upload/create should return statuscode 400 Bad
-   * Request.
+   * Calling file-upload/prepare without calling file-upload/create should return status {@code 400
+   * Bad Request}.
    */
   @Test
   @Disabled // TODO: Fix bug NP-51209
@@ -92,7 +93,7 @@ class PrepareApiTest extends FileUploadTestBase {
         .statusCode(400);
   }
 
-  /** Calling file-upload/prepare wrong uploadId should return statuscode 400 Bad Request. */
+  /** Calling file-upload/prepare wrong uploadId should return status {@code 400 Bad Request}. */
   @Test
   @Disabled // TODO: Fix bug NP-51209
   @DisplayName("file-upload/prepare with wrong uploadId")
@@ -113,7 +114,7 @@ class PrepareApiTest extends FileUploadTestBase {
         .statusCode(400);
   }
 
-  /** Calling file-upload/prepare missing uploadId should return statuscode 400 Bad Request. */
+  /** Calling file-upload/prepare missing uploadId should return status {@code 400 Bad Request}. */
   @Test
   @Disabled // TODO: Fix bug NP-51209
   @DisplayName("file-upload/prepare with missing uploadId")
@@ -133,7 +134,7 @@ class PrepareApiTest extends FileUploadTestBase {
         .statusCode(400);
   }
 
-  /** Calling file-upload/prepare wrong key should return statuscode 400 Bad Request. */
+  /** Calling file-upload/prepare wrong key should return status {@code 400 Bad Request}. */
   @Test
   @Disabled // TODO: Fix bug NP-51209
   @DisplayName("file-upload/prepare with wrong key")
@@ -154,7 +155,7 @@ class PrepareApiTest extends FileUploadTestBase {
         .statusCode(400);
   }
 
-  /** Calling file-upload/prepare missing key should return statuscode 400 Bad Request. */
+  /** Calling file-upload/prepare missing key should return status {@code 400 Bad Request}. */
   @Test
   @DisplayName("file-upload/prepare with missing key")
   @Description(useJavaDoc = true)
