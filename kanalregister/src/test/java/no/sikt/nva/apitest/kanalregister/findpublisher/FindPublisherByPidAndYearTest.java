@@ -5,6 +5,7 @@ import static no.sikt.nva.apitest.kanalregister.ChannelAssertions.assertLevelFor
 import static no.sikt.nva.apitest.kanalregister.ChannelAssertions.assertLevelHistoryIncludesYear;
 import static no.sikt.nva.apitest.kanalregister.ChannelFixtures.GYLDENDAL;
 import static no.sikt.nva.apitest.kanalregister.ChannelRegistryRequests.lookUp;
+import static no.sikt.nva.apitest.kanalregister.ChannelSchemas.assertMatchesChannelSchema;
 
 import io.qameta.allure.Description;
 import io.qameta.allure.Issue;
@@ -27,7 +28,7 @@ class FindPublisherByPidAndYearTest extends ChannelRegistryTestBase {
   @DisplayName("Lookup returns level for the requested year")
   @Description(useJavaDoc = true)
   void shouldReturnLevelForRequestedYear(SoftAssertions softly) {
-    assertLevelForYear(softly, GYLDENDAL_LOOKUP.forEnvironment(environment), GYLDENDAL);
+    assertLevelForYear(softly, GYLDENDAL_LOOKUP.jsonPathForEnvironment(environment), GYLDENDAL);
   }
 
   /** A lookup exposes levelDisplay, without which X-channels cannot be distinguished. */
@@ -35,7 +36,8 @@ class FindPublisherByPidAndYearTest extends ChannelRegistryTestBase {
   @DisplayName("Lookup exposes levelDisplay alongside level")
   @Description(useJavaDoc = true)
   void shouldExposeLevelDisplay(SoftAssertions softly) {
-    assertLevelDisplayMatchesLevel(softly, GYLDENDAL_LOOKUP.forEnvironment(environment), GYLDENDAL);
+    assertLevelDisplayMatchesLevel(
+        softly, GYLDENDAL_LOOKUP.jsonPathForEnvironment(environment), GYLDENDAL);
   }
 
   /** A lookup's levelHistories includes the requested year. */
@@ -44,6 +46,15 @@ class FindPublisherByPidAndYearTest extends ChannelRegistryTestBase {
   @Description(useJavaDoc = true)
   @Issue("NP-51482")
   void shouldIncludeRequestedYearInLevelHistory(SoftAssertions softly) {
-    assertLevelHistoryIncludesYear(softly, GYLDENDAL_LOOKUP.forEnvironment(environment), GYLDENDAL);
+    assertLevelHistoryIncludesYear(
+        softly, GYLDENDAL_LOOKUP.jsonPathForEnvironment(environment), GYLDENDAL);
+  }
+
+  /** The response body matches the shared channel JSON Schema. */
+  @Test
+  @DisplayName("Response matches the channel contract")
+  @Description(useJavaDoc = true)
+  void shouldMatchChannelContract(SoftAssertions softly) {
+    assertMatchesChannelSchema(softly, GYLDENDAL_LOOKUP.bodyForEnvironment(environment));
   }
 }

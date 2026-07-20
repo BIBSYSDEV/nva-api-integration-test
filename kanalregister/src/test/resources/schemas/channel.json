@@ -1,0 +1,76 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "description": "Single-channel DTO returned by the lookup endpoints (with and without year). The DTO is a union: journals and series carry originalTitle/internationalTitle/pissn/eissn, publishers carry name/internationalName/isbnprefix, so the per-type fields are optional. additionalProperties is false on purpose, so new upstream fields turn the shape tests red. Value fields are nullable on purpose, so known semantic bugs (NP-51481..NP-51486) keep the shape tests green.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "pid",
+    "type",
+    "ceased",
+    "isUpdateable",
+    "successors",
+    "levelElementDto",
+    "levelHistories",
+    "kurl",
+    "publishingAgreement",
+    "underordnetPid"
+  ],
+  "properties": {
+    "pid": { "type": "string" },
+    "type": { "type": "string" },
+    "originalTitle": { "type": ["string", "null"] },
+    "internationalTitle": { "type": ["string", "null"] },
+    "pissn": { "type": ["string", "null"] },
+    "eissn": { "type": ["string", "null"] },
+    "name": { "type": ["string", "null"] },
+    "internationalName": { "type": ["string", "null"] },
+    "isbnprefix": { "type": ["string", "null"] },
+    "ceased": { "type": ["string", "null"] },
+    "isUpdateable": { "type": ["boolean", "null"] },
+    "successors": {
+      "type": ["array", "null"],
+      "items": { "$ref": "#/definitions/successor" }
+    },
+    "levelElementDto": { "$ref": "#/definitions/levelElementDto" },
+    "levelHistories": {
+      "type": ["array", "null"],
+      "items": { "$ref": "#/definitions/levelHistory" }
+    },
+    "kurl": { "type": ["string", "null"] },
+    "publishingAgreement": { "type": ["string", "null"] },
+    "underordnetPid": { "type": ["string", "null"] }
+  },
+  "definitions": {
+    "levelElementDto": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": ["year", "level", "levelDisplay", "vedtak", "decision"],
+      "properties": {
+        "year": { "type": ["integer", "null"] },
+        "level": { "type": ["string", "null"] },
+        "levelDisplay": { "type": ["string", "null"] },
+        "vedtak": { "type": ["string", "null"] },
+        "decision": { "type": ["string", "null"] }
+      }
+    },
+    "levelHistory": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["year", "level"],
+      "properties": {
+        "year": { "type": ["integer", "null"] },
+        "level": { "type": ["string", "null"] }
+      }
+    },
+    "successor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["pid", "name", "kurl"],
+      "properties": {
+        "pid": { "type": ["string", "null"] },
+        "name": { "type": ["string", "null"] },
+        "kurl": { "type": ["string", "null"] }
+      }
+    }
+  }
+}
