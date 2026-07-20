@@ -39,11 +39,13 @@ class CreateApiTest extends PublicationTestBase {
     creatorAccessToken = CognitoLogin.login(UIB_CREATOR.userId()).get("accessToken");
   }
 
+  /**
+   * A Creator calling create publication should return publication metadata and statuscode 201
+   * Created.
+   */
   @Test
   @DisplayName("Creator create draft publication")
-  @Description(
-      "A Creator calling create publication should return publication metadata and statuscode 201"
-          + " Created")
+  @Description(useJavaDoc = true)
   void shouldCreateDraftPublicationOwnedByCreator() {
     var today =
         LocalDate.now(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
@@ -71,10 +73,10 @@ class CreateApiTest extends PublicationTestBase {
     softly.assertThat(response.getString("modifiedDate")).startsWith(today);
   }
 
+  /** An unauthenticated user calling create should return status code 401 Unauthenticated. */
   @Test
   @DisplayName("Unauthenticated user tries to create publication")
-  @Description(
-      "An unauthenticated user calling create should retirn return status code 401 Unauthenticated")
+  @Description(useJavaDoc = true)
   void shouldReturnUnauthorizedWhenCreateWithUnauthenticatedUser() {
     var response =
         given()

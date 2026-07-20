@@ -40,9 +40,10 @@ class UpdateApprovalStatusApiTest extends ScientificIndexTestBase {
 
   @InjectSoftAssertions private SoftAssertions softly;
 
+  /** Approving a candidate as an NVI curator returns 200 OK. */
   @Test
   @DisplayName("Approve candidate as NVI curator")
-  @Description("Approving a candidate as an NVI curator returns 200 OK")
+  @Description(useJavaDoc = true)
   void shouldApproveCandidateWhenRequestedByNviCurator() {
     var candidate = createCandidate();
 
@@ -58,9 +59,10 @@ class UpdateApprovalStatusApiTest extends ScientificIndexTestBase {
     softly.assertThat(response.getString("approvals[0].finalizedDate")).isNotEmpty();
   }
 
+  /** Rejecting a candidate with a reason returns 200 OK. */
   @Test
   @DisplayName("Reject candidate with reason")
-  @Description("Rejecting a candidate with a reason returns 200 OK")
+  @Description(useJavaDoc = true)
   void shouldRejectCandidateWhenReasonIsProvided() {
     var candidate = createCandidate();
 
@@ -77,9 +79,10 @@ class UpdateApprovalStatusApiTest extends ScientificIndexTestBase {
     softly.assertThat(response.getString("approvals[0].finalizedBy")).isNotEmpty();
   }
 
+  /** Rejecting a candidate without a reason returns 400 Bad Request. */
   @Test
   @DisplayName("Reject candidate without reason")
-  @Description("Rejecting a candidate without a reason returns 400 Bad Request")
+  @Description(useJavaDoc = true)
   void shouldReturnBadRequestWhenRejectingWithoutReason() {
     var candidate = createCandidate();
 
@@ -88,9 +91,10 @@ class UpdateApprovalStatusApiTest extends ScientificIndexTestBase {
         .statusCode(400);
   }
 
+  /** Reverting an approved candidate to Pending stays Pending, not New. */
   @Test
   @DisplayName("Reset approved candidate to pending")
-  @Description("Reverting an approved candidate to Pending stays Pending, not New")
+  @Description(useJavaDoc = true)
   void shouldResetApprovalWhenApprovedCandidateIsSetToPending() {
     var candidate = createCandidate();
 
@@ -110,9 +114,10 @@ class UpdateApprovalStatusApiTest extends ScientificIndexTestBase {
     softly.assertThat(response.getString("approvals[0].finalizedDate")).isNull();
   }
 
+  /** Updating approval without MANAGE_NVI_CANDIDATES returns 401 Unauthorized. */
   @Test
   @DisplayName("Approve candidate without MANAGE_NVI_CANDIDATES access right")
-  @Description("Updating approval without MANAGE_NVI_CANDIDATES returns 401 Unauthorized")
+  @Description(useJavaDoc = true)
   void shouldReturnUnauthorizedWhenUserLacksManageNviCandidates() {
     var candidate = createCandidate();
 

@@ -71,11 +71,13 @@ class JsonLdVolumeTest extends JsonLdTestBase {
             });
   }
 
+  /**
+   * A multi-page schema.org response exposes X-Total-Count, Access-Control-Expose-Headers and a
+   * Link header with the schema.org profile plus first/next pagination links.
+   */
   @Test
   @DisplayName("Paginated JSON-LD response has profile and pagination headers")
-  @Description(
-      "A multi-page schema.org response exposes X-Total-Count, Access-Control-Expose-Headers and a"
-          + " Link header with the schema.org profile plus first/next pagination links")
+  @Description(useJavaDoc = true)
   @Timeout(value = 5, unit = MINUTES)
   void shouldReturnProfileAndPaginationHeadersForPaginatedJsonLd() {
 
@@ -93,11 +95,13 @@ class JsonLdVolumeTest extends JsonLdTestBase {
     softly.assertThat(body.getList(ITEM_LIST_ELEMENT_POINTER)).hasSize(PAGE_SIZE);
   }
 
+  /**
+   * A schema.org response that fits on a single page still exposes the profile Link but no
+   * first/next pagination links.
+   */
   @Test
   @DisplayName("Single-page JSON-LD response has profile link but no pagination links")
-  @Description(
-      "A schema.org response that fits on a single page still exposes the profile Link but no"
-          + " first/next pagination links")
+  @Description(useJavaDoc = true)
   @Timeout(value = 5, unit = MINUTES)
   void shouldReturnProfileLinkWithoutPaginationWhenSinglePage() {
 
@@ -110,11 +114,13 @@ class JsonLdVolumeTest extends JsonLdTestBase {
     softly.assertThat(body.getList(ITEM_LIST_ELEMENT_POINTER)).hasSize(NUMBER_OF_TEST_PUBLICATIONS);
   }
 
+  /**
+   * A schema.org search with no hits returns an empty ItemList, X-Total-Count 0 and the profile
+   * Link header.
+   */
   @Test
   @DisplayName("Empty JSON-LD result is an empty ItemList carrying the profile link")
-  @Description(
-      "A schema.org search with no hits returns an empty ItemList, X-Total-Count 0 and the profile"
-          + " Link header")
+  @Description(useJavaDoc = true)
   void shouldReturnEmptyItemListWhenSearchReturnsNoHits() {
 
     var response = getResponse(UUID.randomUUID().toString(), PAGE_SIZE);

@@ -35,9 +35,10 @@ class FetchCandidateApiTest extends ScientificIndexTestBase {
         CANDIDATE_FACTORY.createCandidate("NVI integration test publication " + UUID.randomUUID());
   }
 
+  /** Publishing an eligible academic article creates a candidate with a new approval. */
   @Test
   @DisplayName("Published academic article becomes NVI candidate")
-  @Description("Publishing an eligible academic article creates a candidate with a new approval")
+  @Description(useJavaDoc = true)
   void shouldCreateCandidateWhenAcademicArticleIsPublished() {
     var response =
         CANDIDATE_FACTORY
@@ -59,9 +60,10 @@ class FetchCandidateApiTest extends ScientificIndexTestBase {
     softly.assertThat(response.getDouble("totalPoints")).isPositive();
   }
 
+  /** Fetching a candidate by its identifier returns it with 200 OK. */
   @Test
   @DisplayName("Fetch candidate by candidate identifier")
-  @Description("Fetching a candidate by its identifier returns it with 200 OK")
+  @Description(useJavaDoc = true)
   void shouldReturnCandidateWhenFetchingByCandidateIdentifier() {
     var response =
         givenAuthenticatedJsonRequestAsUser(UIB_NVI_CURATOR)
@@ -75,9 +77,10 @@ class FetchCandidateApiTest extends ScientificIndexTestBase {
     softly.assertThat(response.getString("publicationId")).isEqualTo(candidate.publicationId());
   }
 
+  /** Fetching the report status of a candidate publication returns PENDING_REVIEW. */
   @Test
   @DisplayName("Fetch report status for candidate publication")
-  @Description("Fetching the report status of a candidate publication returns PENDING_REVIEW")
+  @Description(useJavaDoc = true)
   void shouldReturnReportStatusWhenPublicationIsCandidate() {
     var response =
         givenUnauthenticatedJsonRequest()
@@ -93,9 +96,10 @@ class FetchCandidateApiTest extends ScientificIndexTestBase {
     softly.assertThat(response.getString("period")).isEqualTo(CURRENT_YEAR);
   }
 
+  /** Fetching a candidate without authentication returns 401 Unauthorized. */
   @Test
   @DisplayName("Fetch candidate unauthenticated")
-  @Description("Fetching a candidate without authentication returns 401 Unauthorized")
+  @Description(useJavaDoc = true)
   void shouldReturnUnauthorizedWhenFetchingCandidateUnauthenticated() {
     givenUnauthenticatedJsonRequest()
         .urlEncodingEnabled(false)
@@ -104,9 +108,10 @@ class FetchCandidateApiTest extends ScientificIndexTestBase {
         .statusCode(401);
   }
 
+  /** Fetching a candidate for a non-candidate publication returns 404 Not Found. */
   @Test
   @DisplayName("Fetch candidate for publication that is not a candidate")
-  @Description("Fetching a candidate for a non-candidate publication returns 404 Not Found")
+  @Description(useJavaDoc = true)
   void shouldReturnNotFoundWhenPublicationIsNotCandidate() {
     var unknownPublicationId = RestAssured.baseURI + "/publication/" + UUID.randomUUID();
 

@@ -23,9 +23,10 @@ class DeleteApiTest extends PublicationTestBase {
     creatorAccessToken = CognitoLogin.login(UIB_CREATOR.userId()).get("accessToken");
   }
 
+  /** A Creator calling delete on own publication should return 202 Accepted. */
   @Test
   @DisplayName("Delete draft publication")
-  @Description("A Creator calling delete on own publication should return 202 Accepted")
+  @Description(useJavaDoc = true)
   void shouldDeleteDraftWhenRequestedByOwner() {
     var identifier = setupDraftPublication();
 
@@ -36,9 +37,10 @@ class DeleteApiTest extends PublicationTestBase {
         .statusCode(202);
   }
 
+  /** A Creator calling delete on non-existing publication should return 404 Not Found. */
   @Test
   @DisplayName("Deleting non-existing draft publication")
-  @Description("A Creator calling delete on non-existing publication should return 404 Not Found")
+  @Description(useJavaDoc = true)
   void shouldReturnNotFoundWhenDeletingUnknownIdentifier() {
 
     givenAuthenticatedRequest(creatorAccessToken)
@@ -48,9 +50,10 @@ class DeleteApiTest extends PublicationTestBase {
         .statusCode(404);
   }
 
+  /** A non authorized user calling delete should return 401 Unauthorized. */
   @Test
   @DisplayName("Non authorized user tries to delete publication")
-  @Description("A non authorized user calling delete should return 401 Unauthorized")
+  @Description(useJavaDoc = true)
   void shouldReturnUnauthorizedWhenDeletingWithoutAuthentication() {
     var identifier = setupDraftPublication();
 

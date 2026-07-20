@@ -15,11 +15,12 @@ import org.junit.jupiter.api.Test;
 
 class ListPeriodsApiTest extends ScientificIndexTestBase {
 
+  /** Listing periods returns all periods with 200 OK. */
   // FIXME: See NP-51333
   @Test
   @Disabled("Bug: Requires MANAGE_NVI access right (See NP-51333)")
   @DisplayName("List periods")
-  @Description("Listing periods returns all periods with 200 OK")
+  @Description(useJavaDoc = true)
   void shouldReturnPeriodsWhenUserIsAuthenticated() {
     var response =
         givenAuthenticatedJsonRequestAsUser(UIB_CONTRIBUTOR)
@@ -32,9 +33,10 @@ class ListPeriodsApiTest extends ScientificIndexTestBase {
     assertThat(response.getList("periods.publishingYear", String.class)).contains(CURRENT_YEAR);
   }
 
+  /** Listing periods without authentication returns 401 Unauthorized. */
   @Test
   @DisplayName("List periods unauthenticated")
-  @Description("Listing periods without authentication returns 401 Unauthorized")
+  @Description(useJavaDoc = true)
   void shouldReturnUnauthorizedWhenUnauthenticated() {
     givenUnauthenticatedJsonRequest().get(listPeriodsPath()).then().statusCode(401);
   }

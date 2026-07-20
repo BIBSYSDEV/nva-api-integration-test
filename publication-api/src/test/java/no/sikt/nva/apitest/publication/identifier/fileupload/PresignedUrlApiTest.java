@@ -10,9 +10,10 @@ import org.junit.jupiter.api.Test;
 
 class PresignedUrlApiTest extends FileUploadTestBase {
 
+  /** Calling presigned url should return ETag and statuscode 200. */
   @Test
   @DisplayName("Presigned url")
-  @Description("Calling presigned url should return ETag and statuscode 200")
+  @Description(useJavaDoc = true)
   void shouldReturnEtagInHeaderWhenPostingToPresignedUrl() {
     var identifier = setupDraftPublication();
     var uploadUrl = createAndPrepareFileUpload(identifier);

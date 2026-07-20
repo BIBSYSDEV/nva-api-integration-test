@@ -89,11 +89,13 @@ class BibTexVolumeTest extends SearchTestBase {
         .response();
   }
 
+  /**
+   * A publication in BibTex format should have headers X-Total-Count and
+   * Access-Control-Expose-Headers.
+   */
   @Test
   @DisplayName("Publication in BibTex format has correct headers")
-  @Description(
-      "A publication in BibTex format should have headers X-Total-Count and"
-          + " Access-Control-Expose-Headers")
+  @Description(useJavaDoc = true)
   void shouldReturnAllPublicationsInBibTexFormat() {
 
     var response =
@@ -110,11 +112,13 @@ class BibTexVolumeTest extends SearchTestBase {
         .isEqualTo("Link, X-Total-Count");
   }
 
+  /**
+   * A search that returns a number of hits less than the size parameter should not return a 'Link'
+   * header.
+   */
   @Test
   @DisplayName("A search that returns hits less than 'size'")
-  @Description(
-      "A search that returns a number of hits less than the size parameter should not return a"
-          + " 'Link' header")
+  @Description(useJavaDoc = true)
   void shouldNotReturnLinkHeaderWhenSearchReturnNumberOfHitsLessThanSize() {
 
     var response = getResponse(VOLUME_UUID, Integer.toString(NUMBER_OF_TEST_PUBLICATIONS * 2));
@@ -122,10 +126,10 @@ class BibTexVolumeTest extends SearchTestBase {
     assertThat(response.header(LINK)).isNullOrEmpty();
   }
 
+  /** A search that returns no hits should return an empty body, size=0 and no 'Link' header. */
   @Test
   @DisplayName("A search that returns no hits")
-  @Description(
-      "A search that returns no hits should return an empty body, size=0 and no 'Link' header")
+  @Description(useJavaDoc = true)
   void shouldReturnEmptyBodyWhenSearchReturnsNoHits() {
 
     var response = getResponse(UUID.randomUUID().toString(), "10");

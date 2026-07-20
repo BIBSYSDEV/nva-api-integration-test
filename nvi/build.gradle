@@ -8,6 +8,7 @@ dependencies {
     testFixturesApi(testFixtures(project(':apitest-base')))
     testFixturesImplementation(libs.rest.assured.json.path)
     testFixturesImplementation(testFixtures(project(':publication-api')))
+    testAnnotationProcessor(libs.allure.descriptions.javadoc)
     testImplementation(libs.allure.java.commons)
     testImplementation(libs.rest.assured.core)
     testImplementation(libs.rest.assured.json.path)

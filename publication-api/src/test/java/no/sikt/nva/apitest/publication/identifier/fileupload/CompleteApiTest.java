@@ -33,9 +33,10 @@ class CompleteApiTest extends FileUploadTestBase {
         UPLOAD_ID, uploadId, KEY, key, TYPE, "InternalCompleteUpload", PARTS, List.of(parts));
   }
 
+  /** Calling file-upload/complete should return file metadata and statuscode 200. */
   @Test
   @DisplayName("file-upload/complete returns file metadata")
-  @Description("Calling file-upload/complete should return file metadata and statuscode 200")
+  @Description(useJavaDoc = true)
   void shouldReturnFileMetaDataWhenCompleteUpload() {
     var identifier = setupDraftPublication();
     var createResponse = createFileUpload(identifier);
@@ -74,11 +75,12 @@ class CompleteApiTest extends FileUploadTestBase {
     softly.assertThat(response.getString("uploadDetails.uploadedDate")).startsWith(today);
   }
 
+  /**
+   * Calling file-upload/complete with no authorization should return statuscode 401 Unauthorized.
+   */
   @Test
   @DisplayName("file-upload/complete with no authorization")
-  @Description(
-      "Calling file-upload/complete with no authorization should return statuscode 401"
-          + " Unauthorized")
+  @Description(useJavaDoc = true)
   void shouldReturnUnauthorizedWhenCompleteWithoutAuthorization() {
     var identifier = setupDraftPublication();
     var createResponse = createFileUpload(identifier);
@@ -95,10 +97,11 @@ class CompleteApiTest extends FileUploadTestBase {
         .statusCode(401);
   }
 
+  /** Calling file-upload/complete with missing ETag should return 400 Bad Request. */
   @Test
   @Disabled // TODO: Fix bug NP-51214
   @DisplayName("file-upload/complete with missing ETag")
-  @Description("Calling file-upload/complete with missing ETag should return 400 Bad Request")
+  @Description(useJavaDoc = true)
   void shouldReturnUnauthorizedWhenCompleteWithMissingETag() {
     var identifier = setupDraftPublication();
     var createResponse = createFileUpload(identifier);

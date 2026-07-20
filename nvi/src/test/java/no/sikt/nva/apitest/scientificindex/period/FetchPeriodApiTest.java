@@ -20,9 +20,10 @@ class FetchPeriodApiTest extends ScientificIndexTestBase {
 
   @InjectSoftAssertions private SoftAssertions softly;
 
+  /** Fetching the current-year period returns it (open-period prerequisite). */
   @Test
   @DisplayName("Fetch period for current year")
-  @Description("Fetching the current-year period returns it (open-period prerequisite)")
+  @Description(useJavaDoc = true)
   void shouldReturnPeriodWhenFetchingExistingPeriod() {
     var response =
         givenUnauthenticatedJsonRequest()
@@ -38,9 +39,10 @@ class FetchPeriodApiTest extends ScientificIndexTestBase {
     softly.assertThat(response.getString("reportingDate")).isNotEmpty();
   }
 
+  /** Fetching a period that doesn't exist returns 404 Not Found. */
   @Test
   @DisplayName("Fetch nonexistent period")
-  @Description("Fetching a period that doesn't exist returns 404 Not Found")
+  @Description(useJavaDoc = true)
   void shouldReturnNotFoundWhenPeriodDoesNotExist() {
     givenUnauthenticatedJsonRequest()
         .get(periodPath(NONEXISTENT_PERIOD_YEAR))
