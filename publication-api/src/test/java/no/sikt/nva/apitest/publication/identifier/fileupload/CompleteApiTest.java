@@ -13,7 +13,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import org.assertj.core.api.SoftAssertions;
-import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
@@ -22,8 +21,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(SoftAssertionsExtension.class)
 class CompleteApiTest extends FileUploadTestBase {
-
-  @InjectSoftAssertions private SoftAssertions softly;
 
   private static final String EXAMPLE_FILE = "example.txt";
 
@@ -37,7 +34,7 @@ class CompleteApiTest extends FileUploadTestBase {
   @Test
   @DisplayName("file-upload/complete returns file metadata")
   @Description(useJavaDoc = true)
-  void shouldReturnFileMetaDataWhenCompleteUpload() {
+  void shouldReturnFileMetaDataWhenCompleteUpload(SoftAssertions softly) {
     var identifier = setupDraftPublication();
     var createResponse = createFileUpload(identifier);
 

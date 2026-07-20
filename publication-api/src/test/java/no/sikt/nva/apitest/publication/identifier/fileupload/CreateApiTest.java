@@ -7,7 +7,6 @@ import static no.sikt.nva.apitest.publication.PublicationPaths.fileUploadCreateP
 import io.qameta.allure.Description;
 import java.util.UUID;
 import org.assertj.core.api.SoftAssertions;
-import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,7 +15,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 @ExtendWith(SoftAssertionsExtension.class)
 class CreateApiTest extends FileUploadTestBase {
 
-  @InjectSoftAssertions private SoftAssertions softly;
   private static final String UPLOAD_ID = "uploadId";
   private static final String KEY = "key";
 
@@ -24,7 +22,7 @@ class CreateApiTest extends FileUploadTestBase {
   @Test
   @DisplayName("file-upload/create returns uploadId and key")
   @Description(useJavaDoc = true)
-  void shouldReturnUploadIdAndKeyWhenCreatingFileUpload() {
+  void shouldReturnUploadIdAndKeyWhenCreatingFileUpload(SoftAssertions softly) {
     var identifier = setupDraftPublication();
 
     var response =

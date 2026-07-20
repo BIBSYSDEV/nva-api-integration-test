@@ -1,0 +1,29 @@
+package no.sikt.nva.apitest.kanalregister.findjournal;
+
+import static no.sikt.nva.apitest.kanalregister.ChannelAssertions.assertLevelForYear;
+import static no.sikt.nva.apitest.kanalregister.ChannelFixtures.ACP;
+import static no.sikt.nva.apitest.kanalregister.ChannelRegistryRequests.hitByPid;
+import static no.sikt.nva.apitest.kanalregister.ChannelRegistryRequests.searchChannels;
+
+import io.qameta.allure.Description;
+import no.sikt.nva.apitest.kanalregister.ChannelRegistryTestBase;
+import org.assertj.core.api.SoftAssertions;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
+@DisplayName("GET /findjournal/channels")
+class FindJournalChannelsTest extends ChannelRegistryTestBase {
+
+  private static final String RESOURCE = "findjournal";
+
+  @Test
+  @DisplayName("Search by name returns level for the requested year")
+  @Description("A name search returns hits with the level for the requested year")
+  void shouldReturnLevelForRequestedYearWhenSearchingByName(SoftAssertions softly) {
+    var hit =
+        searchChannels(environment, RESOURCE, "name", ACP.name(), ACP.year())
+            .setRootPath(hitByPid(ACP.pid()));
+
+    assertLevelForYear(softly, hit, ACP);
+  }
+}

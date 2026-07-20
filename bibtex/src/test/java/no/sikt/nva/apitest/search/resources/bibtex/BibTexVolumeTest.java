@@ -21,7 +21,6 @@ import no.sikt.Role;
 import no.sikt.nva.apitest.base.CognitoLogin;
 import no.sikt.nva.apitest.search.SearchTestBase;
 import org.assertj.core.api.SoftAssertions;
-import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -31,8 +30,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(SoftAssertionsExtension.class)
 class BibTexVolumeTest extends SearchTestBase {
-
-  @InjectSoftAssertions private SoftAssertions softly;
 
   private static final int NUMBER_OF_TEST_PUBLICATIONS = 100;
   private static final String VOLUME_UUID = UUID.randomUUID().toString();
@@ -96,7 +93,7 @@ class BibTexVolumeTest extends SearchTestBase {
   @Test
   @DisplayName("Publication in BibTex format has correct headers")
   @Description(useJavaDoc = true)
-  void shouldReturnAllPublicationsInBibTexFormat() {
+  void shouldReturnAllPublicationsInBibTexFormat(SoftAssertions softly) {
 
     var response =
         pollUntil(() -> getResponse(VOLUME_UUID, "10"), hasTotalCount(NUMBER_OF_TEST_PUBLICATIONS));
@@ -130,7 +127,7 @@ class BibTexVolumeTest extends SearchTestBase {
   @Test
   @DisplayName("A search that returns no hits")
   @Description(useJavaDoc = true)
-  void shouldReturnEmptyBodyWhenSearchReturnsNoHits() {
+  void shouldReturnEmptyBodyWhenSearchReturnsNoHits(SoftAssertions softly) {
 
     var response = getResponse(UUID.randomUUID().toString(), "10");
 

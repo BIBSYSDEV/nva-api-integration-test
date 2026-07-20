@@ -47,7 +47,6 @@ import no.sikt.nva.apitest.search.BibTexExpectation;
 import no.sikt.nva.apitest.search.SearchTestBase;
 import nva.commons.core.StringUtils;
 import org.assertj.core.api.SoftAssertions;
-import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -58,8 +57,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 @ExtendWith(SoftAssertionsExtension.class)
 class BibTexTest extends SearchTestBase {
-
-  @InjectSoftAssertions private SoftAssertions softly;
 
   private static final String TEXT_X_BIBTEX = "text/x-bibtex";
 
@@ -79,7 +76,8 @@ class BibTexTest extends SearchTestBase {
   @MethodSource("publicationsInBibTexFormatProvider")
   @DisplayName("Search with content type 'text/x-bibtex' produces BibTeX export")
   @Description(useJavaDoc = true)
-  void shouldReturnPublicationsInBibTexFormat(Category category, BibTexExpectation expectation) {
+  void shouldReturnPublicationsInBibTexFormat(
+      Category category, BibTexExpectation expectation, SoftAssertions softly) {
 
     RestAssured.registerParser(TEXT_X_BIBTEX, Parser.TEXT);
 
@@ -144,7 +142,7 @@ class BibTexTest extends SearchTestBase {
   @DisplayName("Search with content type 'text/x-bibtex' produces BibTeX export for customer")
   @Description(useJavaDoc = true)
   void shouldReturnPublicationsInBibTexFormatForCustomer(
-      Category category, BibTexExpectation expectation) {
+      Category category, BibTexExpectation expectation, SoftAssertions softly) {
 
     RestAssured.registerParser(TEXT_X_BIBTEX, Parser.TEXT);
 
@@ -203,7 +201,7 @@ class BibTexTest extends SearchTestBase {
   @Test
   @DisplayName("Search for multiple publications, return text/x-bibtex format")
   @Description(useJavaDoc = true)
-  void shouldReturnListOfPublicationsInBibTexFormat() {
+  void shouldReturnListOfPublicationsInBibTexFormat(SoftAssertions softly) {
 
     var commonUuid = UUID.randomUUID().toString();
     var titleRoot = "BibTex-test-publication";
@@ -273,7 +271,7 @@ class BibTexTest extends SearchTestBase {
   @Test
   @DisplayName("Authors are joined with 'and'")
   @Description(useJavaDoc = true)
-  void shouldPresentMultipleAuthorsSeparatedWithAnd() {
+  void shouldPresentMultipleAuthorsSeparatedWithAnd(SoftAssertions softly) {
     var titleUuid = UUID.randomUUID().toString();
     var title = "BibTex Integration test publication multiple authors " + titleUuid;
 
@@ -310,7 +308,7 @@ class BibTexTest extends SearchTestBase {
   @Test
   @DisplayName("Keywords are joined with ','")
   @Description(useJavaDoc = true)
-  void shouldPresentMultipleKeywordsSeparatedWithComma() {
+  void shouldPresentMultipleKeywordsSeparatedWithComma(SoftAssertions softly) {
     var titleUuid = UUID.randomUUID().toString();
     var title = "BibTex Integration test publication multiple keywords " + titleUuid;
 

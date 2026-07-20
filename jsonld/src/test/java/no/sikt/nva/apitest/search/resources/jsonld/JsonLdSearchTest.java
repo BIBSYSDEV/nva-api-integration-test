@@ -31,6 +31,7 @@ import static org.junit.jupiter.params.provider.Arguments.argumentSet;
 import io.qameta.allure.Description;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +43,6 @@ import no.sikt.Category;
 import no.sikt.Contributor;
 import no.sikt.nva.apitest.search.SchemaOrgExpectation;
 import org.assertj.core.api.SoftAssertions;
-import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -55,8 +55,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 @ExtendWith(SoftAssertionsExtension.class)
 class JsonLdSearchTest extends JsonLdTestBase {
-
-  @InjectSoftAssertions private SoftAssertions softly;
 
   private static final String APPLICATION_VND_SCHEMAORG_LD_JSON =
       "application/vnd.schemaorg.ld+json";
@@ -163,13 +161,13 @@ class JsonLdSearchTest extends JsonLdTestBase {
     @DisplayName("Search with content type 'application/ld+json' produces schema.org JSON-LD")
     @Description(useJavaDoc = true)
     void shouldReturnPublicationsInJsonLdFormat(
-        Category category, SchemaOrgExpectation expectation) {
+        Category category, SchemaOrgExpectation expectation, SoftAssertions softly) {
 
       var response = awaitIndexed(sharedTitleUuid(category));
       var body = itemList(response);
 
       softly.assertThat(response.getContentType()).contains(LD_JSON_CONTENT_TYPE_FRAGMENT);
-      assertItemListEnvelope(body);
+      assertItemListEnvelope(softly, body);
       softly.assertThat(body.getInt(NUMBER_OF_ITEMS_POINTER)).isGreaterThanOrEqualTo(1);
       softly
           .assertThat(body.getMap(FIRST_ITEM_POINTER))
@@ -192,7 +190,7 @@ class JsonLdSearchTest extends JsonLdTestBase {
     @DisplayName("Search with content type 'application/ld+json' produces JSON-LD for customer")
     @Description(useJavaDoc = true)
     void shouldReturnPublicationsInJsonLdFormatForCustomer(
-        Category category, SchemaOrgExpectation expectation) {
+        Category category, SchemaOrgExpectation expectation, SoftAssertions softly) {
 
       var response =
           pollUntil(
@@ -201,7 +199,7 @@ class JsonLdSearchTest extends JsonLdTestBase {
       var body = itemList(response);
 
       softly.assertThat(response.getContentType()).contains(LD_JSON_CONTENT_TYPE_FRAGMENT);
-      assertItemListEnvelope(body);
+      assertItemListEnvelope(softly, body);
       softly.assertThat(body.getInt(NUMBER_OF_ITEMS_POINTER)).isGreaterThanOrEqualTo(1);
       softly
           .assertThat(body.getMap(FIRST_ITEM_POINTER))
@@ -217,7 +215,8 @@ class JsonLdSearchTest extends JsonLdTestBase {
     @MethodSource("acceptHeaderVariantsProvider")
     @DisplayName("All schema.org Accept-header variants return JSON-LD")
     @Description(useJavaDoc = true)
-    void shouldReturnSchemaOrgForAllAcceptHeaderVariants(String acceptHeader) {
+    void shouldReturnSchemaOrgForAllAcceptHeaderVariants(
+        String acceptHeader, SoftAssertions softly) {
 
       var response =
           pollUntil(
@@ -226,7 +225,7 @@ class JsonLdSearchTest extends JsonLdTestBase {
       var body = itemList(response);
 
       softly.assertThat(response.getContentType()).contains(LD_JSON_CONTENT_TYPE_FRAGMENT);
-      assertItemListEnvelope(body);
+      assertItemListEnvelope(softly, body);
       softly
           .assertThat(body.getMap(FIRST_ITEM_POINTER))
           .containsEntry(TYPE_FIELD, EXPECTED_SCHEMA_ORG_ACADEMIC_ARTICLE.schemaOrgType())
@@ -241,7 +240,8 @@ class JsonLdSearchTest extends JsonLdTestBase {
     @MethodSource("acceptHeaderVariantsProvider")
     @DisplayName("All schema.org Accept-header variants return JSON-LD for customer")
     @Description(useJavaDoc = true)
-    void shouldReturnSchemaOrgForAllAcceptHeaderVariantsForCustomer(String acceptHeader) {
+    void shouldReturnSchemaOrgForAllAcceptHeaderVariantsForCustomer(
+        String acceptHeader, SoftAssertions softly) {
 
       var response =
           pollUntil(
@@ -250,7 +250,7 @@ class JsonLdSearchTest extends JsonLdTestBase {
       var body = itemList(response);
 
       softly.assertThat(response.getContentType()).contains(LD_JSON_CONTENT_TYPE_FRAGMENT);
-      assertItemListEnvelope(body);
+      assertItemListEnvelope(softly, body);
       softly
           .assertThat(body.getMap(FIRST_ITEM_POINTER))
           .containsEntry(TYPE_FIELD, EXPECTED_SCHEMA_ORG_ACADEMIC_ARTICLE.schemaOrgType())
@@ -265,7 +265,7 @@ class JsonLdSearchTest extends JsonLdTestBase {
   @Test
   @DisplayName("Search for multiple publications returns a schema.org ItemList")
   @Description(useJavaDoc = true)
-  void shouldReturnItemListWithMultiplePublications() {
+  void shouldReturnItemListWithMultiplePublications(SoftAssertions softly) {
 
     var commonUuid = UUID.randomUUID().toString();
     var titleRoot = "JsonLd-test-publication";
@@ -304,17 +304,16 @@ class JsonLdSearchTest extends JsonLdTestBase {
 
     createIssnPublication(title);
 
-    var response = awaitIndexed(titleUuid);
+    var response = awaitIndexedContaining(titleUuid, PERIODICAL_TYPE, ONLINE_ISSN);
 
-    softly.assertThat(response.body().asString()).contains(PERIODICAL_TYPE);
-    softly.assertThat(response.body().asString()).contains(ONLINE_ISSN);
+    assertThat(response.body().asString()).contains(PERIODICAL_TYPE).contains(ONLINE_ISSN);
   }
 
   /** A monograph is a schema.org Book carrying its ISBN and a publisher Organization. */
   @Test
   @DisplayName("Monograph exposes ISBN and publisher")
   @Description(useJavaDoc = true)
-  void shouldExposeIsbnAndPublisherForMonograph() {
+  void shouldExposeIsbnAndPublisherForMonograph(SoftAssertions softly) {
 
     var titleUuid = UUID.randomUUID().toString();
     var title = "JsonLd Integration test publication monograph " + titleUuid;
@@ -326,7 +325,7 @@ class JsonLdSearchTest extends JsonLdTestBase {
         List.of(new Contributor(UIB_CREATOR, CREATOR)),
         UIB_PUBLISHING_CURATOR);
 
-    var response = awaitIndexed(titleUuid);
+    var response = awaitIndexedContaining(titleUuid, EXPECTED_PUBLISHER);
     var body = itemList(response);
 
     softly
@@ -345,7 +344,7 @@ class JsonLdSearchTest extends JsonLdTestBase {
   @Test
   @DisplayName("Chapter exposes its book through isPartOf")
   @Description(useJavaDoc = true)
-  void shouldExposeBookThroughIsPartOfForChapter() {
+  void shouldExposeBookThroughIsPartOfForChapter(SoftAssertions softly) {
 
     var titleUuid = UUID.randomUUID().toString();
     var title = "JsonLd Integration test publication chapter " + titleUuid;
@@ -366,7 +365,7 @@ class JsonLdSearchTest extends JsonLdTestBase {
         UIB_PUBLISHING_CURATOR,
         anthologyIdentifier);
 
-    var response = awaitIndexed(titleUuid);
+    var response = awaitIndexedContaining(titleUuid, anthologyTitle);
     var body = itemList(response);
 
     softly
@@ -410,7 +409,7 @@ class JsonLdSearchTest extends JsonLdTestBase {
   @Test
   @DisplayName("Multiple authors are exposed as a list")
   @Description(useJavaDoc = true)
-  void shouldExposeMultipleAuthors() {
+  void shouldExposeMultipleAuthors(SoftAssertions softly) {
 
     var titleUuid = UUID.randomUUID().toString();
     var title = "JsonLd Integration test publication multiple authors " + titleUuid;
@@ -434,7 +433,7 @@ class JsonLdSearchTest extends JsonLdTestBase {
             UIB_CREATOR.name(), UIB_CONTRIBUTOR.name(), UIB_PUBLISHING_CURATOR.name());
   }
 
-  private void assertItemListEnvelope(JsonPath body) {
+  private static void assertItemListEnvelope(SoftAssertions softly, JsonPath body) {
     softly
         .assertThat(body.getMap(""))
         .containsEntry(CONTEXT_FIELD, SCHEMA_ORG_CONTEXT)
@@ -475,6 +474,22 @@ class JsonLdSearchTest extends JsonLdTestBase {
     return pollUntil(
         () -> searchResources(query, APPLICATION_LD_JSON),
         response -> itemList(response).getInt(NUMBER_OF_ITEMS_POINTER) >= 1);
+  }
+
+  /**
+   * Polls the search until the matching document also contains the given fragments. Channel and
+   * reference data are enriched best-effort at indexing time, so a publication can become
+   * searchable before a later re-index adds the enriched fields.
+   */
+  private Response awaitIndexedContaining(String query, String... expectedFragments) {
+    return pollUntil(
+        () -> searchResources(query, APPLICATION_LD_JSON),
+        response -> bodyContainsAll(response, expectedFragments));
+  }
+
+  private static boolean bodyContainsAll(Response response, String... expectedFragments) {
+    var body = response.body().asString();
+    return Arrays.stream(expectedFragments).allMatch(body::contains);
   }
 
   private Response awaitIndexedCount(String query, int expectedCount) {

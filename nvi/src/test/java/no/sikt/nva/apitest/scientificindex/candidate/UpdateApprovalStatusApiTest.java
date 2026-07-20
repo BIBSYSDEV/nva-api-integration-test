@@ -18,7 +18,6 @@ import no.sikt.nva.apitest.base.User;
 import no.sikt.nva.apitest.scientificindex.NviCandidate;
 import no.sikt.nva.apitest.scientificindex.ScientificIndexTestBase;
 import org.assertj.core.api.SoftAssertions;
-import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -38,13 +37,11 @@ class UpdateApprovalStatusApiTest extends ScientificIndexTestBase {
   private static final String REJECTED = "Rejected";
   private static final String REJECTION_REASON = "Rejected by API integration test";
 
-  @InjectSoftAssertions private SoftAssertions softly;
-
   /** Approving a candidate as an NVI curator returns status {@code 200 OK}. */
   @Test
   @DisplayName("Approve candidate as NVI curator")
   @Description(useJavaDoc = true)
-  void shouldApproveCandidateWhenRequestedByNviCurator() {
+  void shouldApproveCandidateWhenRequestedByNviCurator(SoftAssertions softly) {
     var candidate = createCandidate();
 
     var response =
@@ -63,7 +60,7 @@ class UpdateApprovalStatusApiTest extends ScientificIndexTestBase {
   @Test
   @DisplayName("Reject candidate with reason")
   @Description(useJavaDoc = true)
-  void shouldRejectCandidateWhenReasonIsProvided() {
+  void shouldRejectCandidateWhenReasonIsProvided(SoftAssertions softly) {
     var candidate = createCandidate();
 
     var response =
@@ -95,7 +92,7 @@ class UpdateApprovalStatusApiTest extends ScientificIndexTestBase {
   @Test
   @DisplayName("Reset approved candidate to pending")
   @Description(useJavaDoc = true)
-  void shouldResetApprovalWhenApprovedCandidateIsSetToPending() {
+  void shouldResetApprovalWhenApprovedCandidateIsSetToPending(SoftAssertions softly) {
     var candidate = createCandidate();
 
     updateApprovalStatus(UIB_NVI_CURATOR, candidate, approvalRequest(APPROVED))

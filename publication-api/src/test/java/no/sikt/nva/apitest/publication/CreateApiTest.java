@@ -16,7 +16,6 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import no.sikt.nva.apitest.base.CognitoLogin;
 import org.assertj.core.api.SoftAssertions;
-import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -25,8 +24,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(SoftAssertionsExtension.class)
 class CreateApiTest extends PublicationTestBase {
-
-  @InjectSoftAssertions private SoftAssertions softly;
 
   private static String customerUib;
   private static String creatorAccessToken;
@@ -46,7 +43,7 @@ class CreateApiTest extends PublicationTestBase {
   @Test
   @DisplayName("Creator create draft publication")
   @Description(useJavaDoc = true)
-  void shouldCreateDraftPublicationOwnedByCreator() {
+  void shouldCreateDraftPublicationOwnedByCreator(SoftAssertions softly) {
     var today =
         LocalDate.now(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
