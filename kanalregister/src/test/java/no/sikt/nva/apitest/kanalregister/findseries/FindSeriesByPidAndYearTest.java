@@ -22,26 +22,29 @@ class FindSeriesByPidAndYearTest extends ChannelRegistryTestBase {
   private static final SharedResponse LNCS_LOOKUP =
       new SharedResponse(env -> lookUp(env, RESOURCE, LNCS.pid(), LNCS.year()));
 
+  /** A lookup returns the level for the requested year, like search does. */
   @Test
   @DisplayName("Lookup returns level for the requested year")
-  @Description("A lookup returns the level for the requested year, like search does")
+  @Description(useJavaDoc = true)
   @Issue("NP-51485")
   @Issue("NP-51483")
   void shouldReturnLevelForRequestedYear(SoftAssertions softly) {
     assertLevelForYear(softly, LNCS_LOOKUP.forEnvironment(environment), LNCS);
   }
 
+  /** A lookup exposes levelDisplay, without which X-channels cannot be distinguished. */
   @Test
   @DisplayName("Lookup exposes levelDisplay alongside level")
-  @Description("A lookup exposes levelDisplay, without which X-channels cannot be distinguished")
+  @Description(useJavaDoc = true)
   @Issue("NP-51483")
   void shouldExposeLevelDisplay(SoftAssertions softly) {
     assertLevelDisplayMatchesLevel(softly, LNCS_LOOKUP.forEnvironment(environment), LNCS);
   }
 
+  /** A lookup's levelHistories includes the requested year. */
   @Test
   @DisplayName("Level history includes the requested year")
-  @Description("A lookup's levelHistories includes the requested year")
+  @Description(useJavaDoc = true)
   void shouldIncludeRequestedYearInLevelHistory(SoftAssertions softly) {
     assertLevelHistoryIncludesYear(softly, LNCS_LOOKUP.forEnvironment(environment), LNCS);
   }

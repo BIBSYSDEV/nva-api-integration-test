@@ -25,32 +25,36 @@ class FindJournalserieByPidAndYearTest extends ChannelRegistryTestBase {
   private static final SharedResponse ACP_LOOKUP =
       new SharedResponse(env -> lookUp(env, RESOURCE, ACP.pid(), ACP.year()));
 
+  /** A lookup returns the level for the requested year, like search does. */
   @Test
   @DisplayName("Lookup returns level for the requested year")
-  @Description("A lookup returns the level for the requested year, like search does")
+  @Description(useJavaDoc = true)
   @Issue("NP-51485")
   void shouldReturnLevelForRequestedYear(SoftAssertions softly) {
     assertLevelForYear(softly, ACP_LOOKUP.forEnvironment(environment), ACP);
   }
 
+  /** A lookup exposes levelDisplay, without which X-channels cannot be distinguished. */
   @Test
   @DisplayName("Lookup exposes levelDisplay alongside level")
-  @Description("A lookup exposes levelDisplay, without which X-channels cannot be distinguished")
+  @Description(useJavaDoc = true)
   @Issue("NP-51483")
   void shouldExposeLevelDisplay(SoftAssertions softly) {
     assertLevelDisplayMatchesLevel(softly, ACP_LOOKUP.forEnvironment(environment), ACP);
   }
 
+  /** A lookup's levelHistories includes the requested year. */
   @Test
   @DisplayName("Level history includes the requested year")
-  @Description("A lookup's levelHistories includes the requested year")
+  @Description(useJavaDoc = true)
   void shouldIncludeRequestedYearInLevelHistory(SoftAssertions softly) {
     assertLevelHistoryIncludesYear(softly, ACP_LOOKUP.forEnvironment(environment), ACP);
   }
 
+  /** A lookup on an X-channel has the counting level and the X mark separately. */
   @Test
   @DisplayName("X-channels carry counting level and X mark separately")
-  @Description("A lookup on an X-channel has the counting level and the X mark separately")
+  @Description(useJavaDoc = true)
   @Issue("NP-51486")
   void shouldExposeCountingLevelAndXMarkSeparately(SoftAssertions softly) {
     assumeTrue(
