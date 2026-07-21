@@ -9,9 +9,9 @@ A failing test here means "upstream broke or has a known open bug", and the acti
 The tests come in two kinds:
 
 - Value tests assert specific levels, years, and search hits for fixture channels.
-- Shape tests validate every endpoint's response against the JSON Schemas in `src/test/resources/schemas/`, which all endpoint families share.
+- Schema tests validate every endpoint's response against the JSON Schemas in `src/test/resources/schemas/`, which all endpoint families share.
   The schemas use `additionalProperties: false` on purpose, so a new upstream field turns them red as an early-warning signal.
-  Value fields are nullable on purpose, so shape red always means structural drift, never one of the known semantic bugs.
+  Value fields are nullable on purpose, so a failing test always means structural drift and not one of the known semantic bugs.
 
 The module targets external hosts and needs no AWS credentials:
 

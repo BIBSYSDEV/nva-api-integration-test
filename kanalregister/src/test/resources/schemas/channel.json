@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "description": "Single-channel DTO returned by the lookup endpoints (with and without year). The DTO is a union: journals and series carry originalTitle/internationalTitle/pissn/eissn, publishers carry name/internationalName/isbnprefix, so the per-type fields are optional. additionalProperties is false on purpose, so new upstream fields turn the shape tests red. Value fields are nullable on purpose, so known semantic bugs (NP-51481..NP-51486) keep the shape tests green.",
+  "description": "Single-channel DTO returned by the lookup endpoints (with and without year). The DTO is a union: journals and series carry originalTitle/internationalTitle/pissn/eissn, publishers carry name/internationalName/isbnprefix, so the per-type fields are optional. additionalProperties is false on purpose, so new upstream fields turn the schema tests red. Value fields are nullable on purpose, so known semantic bugs (NP-51481..NP-51486) keep the tests green.",
   "type": "object",
   "additionalProperties": false,
   "required": [

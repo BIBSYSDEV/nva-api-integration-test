@@ -5,7 +5,7 @@ import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInC
 import org.assertj.core.api.SoftAssertions;
 
 /**
- * Shape assertions against the shared JSON Schemas. Every endpoint family validates against the
+ * Schema assertions against the shared JSON Schemas. Every endpoint family validates against the
  * same two schema files, so the families cannot drift apart structurally without a red test.
  */
 public final class ChannelSchemas {
