@@ -4,6 +4,7 @@ plugins {
 
 // No apitest-base dependency: this module targets external hosts and runs without AWS credentials.
 dependencies {
+    testAnnotationProcessor(libs.allure.descriptions.javadoc)
     testImplementation(libs.allure.java.commons)
     testImplementation(libs.allure.model)
     testImplementation(libs.allure.rest.assured)

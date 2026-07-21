@@ -71,10 +71,11 @@ class BibTexTest extends SearchTestBase {
         argumentSet("ConferenceLecture", CONFERENCE_LECTURE, EXPECTED_BIBTEX_CONFERENCE_LECTURE));
   }
 
+  /** Test content returned with content type 'text/x-bibtex' is correct BibTex-format. */
   @ParameterizedTest
   @MethodSource("publicationsInBibTexFormatProvider")
   @DisplayName("Search with content type 'text/x-bibtex' produces BibTeX export")
-  @Description("Test content returned with content type 'text/x-bibtex' is correct BibTex-format")
+  @Description(useJavaDoc = true)
   void shouldReturnPublicationsInBibTexFormat(
       Category category, BibTexExpectation expectation, SoftAssertions softly) {
 
@@ -135,11 +136,11 @@ class BibTexTest extends SearchTestBase {
     return body -> body.lines().filter(line -> line.startsWith("@")).count() >= expectedCount;
   }
 
+  /** Search returned with content type 'text/x-bibtex' is correct BibTex-format for customer. */
   @ParameterizedTest
   @MethodSource("publicationsInBibTexFormatProvider")
   @DisplayName("Search with content type 'text/x-bibtex' produces BibTeX export for customer")
-  @Description(
-      "Search returned with content type 'text/x-bibtex' is correct BibTex-format for customer")
+  @Description(useJavaDoc = true)
   void shouldReturnPublicationsInBibTexFormatForCustomer(
       Category category, BibTexExpectation expectation, SoftAssertions softly) {
 
@@ -193,11 +194,13 @@ class BibTexTest extends SearchTestBase {
         .toList();
   }
 
+  /**
+   * A list of publications should contain a type that starts with '@' and two newlines between
+   * publications.
+   */
   @Test
   @DisplayName("Search for multiple publications, return text/x-bibtex format")
-  @Description(
-      "A list of publications should contain a type that starts with '@' and two newlines between"
-          + " publications")
+  @Description(useJavaDoc = true)
   void shouldReturnListOfPublicationsInBibTexFormat(SoftAssertions softly) {
 
     var commonUuid = UUID.randomUUID().toString();
@@ -227,11 +230,13 @@ class BibTexTest extends SearchTestBase {
     softly.assertThat(responseBody.lines().filter(String::isBlank)).hasSize(categories.size() - 1);
   }
 
+  /**
+   * A publication with both onlineIssn and printIssn should only return onlineIssn in BibTex
+   * format.
+   */
   @Test
   @DisplayName("Use onlineIssn when both onlineIssn and printIssn exists")
-  @Description(
-      "A publication with both onlineIssn and printIssn should only return onlineIssn in BibTex"
-          + " format")
+  @Description(useJavaDoc = true)
   void shouldReturnOnlineIssnWhenBothOnlineIssnAndPrintIssnIsPresent() {
 
     final var onlineIssn = "1520-4898";
@@ -262,10 +267,10 @@ class BibTexTest extends SearchTestBase {
         referenceMap);
   }
 
+  /** A publication with multiple authors should present a list of authors separated with 'and'. */
   @Test
   @DisplayName("Authors are joined with 'and'")
-  @Description(
-      "A publication with multiple authors should present a list of authors separated with 'and'")
+  @Description(useJavaDoc = true)
   void shouldPresentMultipleAuthorsSeparatedWithAnd(SoftAssertions softly) {
     var titleUuid = UUID.randomUUID().toString();
     var title = "BibTex Integration test publication multiple authors " + titleUuid;
@@ -299,10 +304,10 @@ class BibTexTest extends SearchTestBase {
                 + "},");
   }
 
+  /** A publication with multiple keywords should present a list of keywords separated with ','. */
   @Test
   @DisplayName("Keywords are joined with ','")
-  @Description(
-      "A publication with multiple keywords should present a list of keywords separated with ','")
+  @Description(useJavaDoc = true)
   void shouldPresentMultipleKeywordsSeparatedWithComma(SoftAssertions softly) {
     var titleUuid = UUID.randomUUID().toString();
     var title = "BibTex Integration test publication multiple keywords " + titleUuid;

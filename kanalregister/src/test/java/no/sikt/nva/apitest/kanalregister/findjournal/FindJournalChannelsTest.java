@@ -16,9 +16,10 @@ class FindJournalChannelsTest extends ChannelRegistryTestBase {
 
   private static final String RESOURCE = "findjournal";
 
+  /** A name search returns hits with the level for the requested year. */
   @Test
   @DisplayName("Search by name returns level for the requested year")
-  @Description("A name search returns hits with the level for the requested year")
+  @Description(useJavaDoc = true)
   void shouldReturnLevelForRequestedYearWhenSearchingByName(SoftAssertions softly) {
     var hit =
         searchChannels(environment, RESOURCE, "name", ACP.name(), ACP.year())

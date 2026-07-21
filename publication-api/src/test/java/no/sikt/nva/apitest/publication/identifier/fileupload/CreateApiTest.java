@@ -18,9 +18,10 @@ class CreateApiTest extends FileUploadTestBase {
   private static final String UPLOAD_ID = "uploadId";
   private static final String KEY = "key";
 
+  /** Calling file-upload/create should return uploadId and key with status {@code 200 OK}. */
   @Test
   @DisplayName("file-upload/create returns uploadId and key")
-  @Description("Calling file-upload/create should return uploadId and key with statuscode 200")
+  @Description(useJavaDoc = true)
   void shouldReturnUploadIdAndKeyWhenCreatingFileUpload(SoftAssertions softly) {
     var identifier = setupDraftPublication();
 
@@ -38,10 +39,12 @@ class CreateApiTest extends FileUploadTestBase {
     softly.assertThat(response.getString(KEY)).isNotNull();
   }
 
+  /**
+   * Calling file-upload/create with no authorization should return status {@code 401 Unauthorized}.
+   */
   @Test
   @DisplayName("file-upload/create with no authorization")
-  @Description(
-      "Calling file-upload/create with no authorization should return statuscode 401 Unauthorized")
+  @Description(useJavaDoc = true)
   void shouldReturnUnauthorizedWhenCreateWithoutAuthorization() {
     var identifier = setupDraftPublication();
 
@@ -53,11 +56,13 @@ class CreateApiTest extends FileUploadTestBase {
         .statusCode(401);
   }
 
+  /**
+   * Calling file-upload/create with non-existing identifier should return status {@code 404 Not
+   * Found}.
+   */
   @Test
   @DisplayName("file-upload/create with non-existing identifier")
-  @Description(
-      "Calling file-upload/create with non-existing identifier should return statuscode 404 Not"
-          + " Found")
+  @Description(useJavaDoc = true)
   void shouldReturnNotFoundWhenCreateWithNonExistingIdentifier() {
     var identifier = UUID.randomUUID().toString();
 

@@ -15,6 +15,7 @@ nva {
 dependencies {
     implementation(platform(nvaCatalog.aws.sdk2.bom))
     implementation(platform(libs.rest.assured.bom))
+    testAnnotationProcessor(platform(libs.allure.bom))
     testFixturesImplementation(platform(libs.allure.bom))
     testFixturesImplementation(platform(libs.rest.assured.bom))
     testImplementation(platform(libs.allure.bom))

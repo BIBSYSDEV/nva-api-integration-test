@@ -33,10 +33,12 @@ class FetchApiTest extends PublicationTestBase {
     creatorAccessToken = CognitoLogin.login(UIB_CREATOR.userId()).get("accessToken");
   }
 
+  /**
+   * Fetch publication by identifier should return publication metadata and status {@code 200 OK}.
+   */
   @Test
   @DisplayName("Fetch publication by identifier")
-  @Description(
-      "Fetch publication by identifier should return publication metadata and statuscode 200 Ok")
+  @Description(useJavaDoc = true)
   void shouldReturnDraftPublicationWhenFetchedByIdentifier(SoftAssertions softly) {
     var identifier = setupDraftPublication();
 
@@ -63,9 +65,10 @@ class FetchApiTest extends PublicationTestBase {
     softly.assertThat(response.getString("publisher.id")).isEqualTo(customerUib);
   }
 
+  /** Fetch non-existing publication should return status {@code 404 Not Found}. */
   @Test
   @DisplayName("Fetch non-existing publication")
-  @Description("Fetch non-existing publication should return statuscode 404 Not Found")
+  @Description(useJavaDoc = true)
   void shouldReturnNotFoundWhenFetchingUnknownIdentifier(SoftAssertions softly) {
     var randomIdentifier = UUID.randomUUID().toString();
 

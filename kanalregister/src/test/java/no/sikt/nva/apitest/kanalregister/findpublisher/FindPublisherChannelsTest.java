@@ -30,18 +30,20 @@ class FindPublisherChannelsTest extends ChannelRegistryTestBase {
                       GYLDENDAL_UNDERVISNING.year())
                   .setRootPath(hitByPid(GYLDENDAL_UNDERVISNING.pid())));
 
+  /** A name search returns hits with the level for the requested year. */
   @Test
   @DisplayName("Search by name returns level for the requested year")
-  @Description("A name search returns hits with the level for the requested year")
+  @Description(useJavaDoc = true)
   void shouldReturnLevelForRequestedYearWhenSearchingByName(SoftAssertions softly) {
     var hit = GYLDENDAL_UNDERVISNING_HIT.forEnvironment(environment);
 
     assertLevelForYear(softly, hit, GYLDENDAL_UNDERVISNING);
   }
 
+  /** Fields without a value are JSON null, never the literal string "null". */
   @Test
   @DisplayName("Missing values are JSON null, not the string \"null\"")
-  @Description("Fields without a value are JSON null, never the literal string \"null\"")
+  @Description(useJavaDoc = true)
   @Issue("NP-51484")
   void shouldRepresentMissingDecisionTextsAsNull(SoftAssertions softly) {
     var hit = GYLDENDAL_UNDERVISNING_HIT.forEnvironment(environment);

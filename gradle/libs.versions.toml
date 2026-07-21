@@ -11,6 +11,7 @@ rest-assured-json-path = { module = "io.rest-assured:json-path" }
 allure-bom = { module = "io.qameta.allure:allure-bom", version.ref = "allure" }
 allure-rest-assured = { module = "io.qameta.allure:allure-rest-assured" }
 allure-java-commons = { module = "io.qameta.allure:allure-java-commons" }
+allure-descriptions-javadoc = { module = "io.qameta.allure:allure-descriptions-javadoc" }
 allure-model = { module = "io.qameta.allure:allure-model" }
 allure-junit5 = { module = "io.qameta.allure:allure-junit5" }
 

@@ -39,9 +39,10 @@ class SearchNviCandidateApiTest extends ScientificIndexTestBase {
         CANDIDATE_FACTORY.awaitCandidateInSearchIndex(UIB_NVI_CURATOR, candidate);
   }
 
+  /** A new candidate is returned by search with creator, approval and points. */
   @Test
   @DisplayName("Candidate is indexed and searchable with its NVI data")
-  @Description("A new candidate is returned by search with creator, approval and points")
+  @Description(useJavaDoc = true)
   void shouldIndexCandidateForSearchWhenPublicationBecomesCandidate(SoftAssertions softly) {
     var json =
         indexedCandidateResponse
@@ -61,45 +62,52 @@ class SearchNviCandidateApiTest extends ScientificIndexTestBase {
     softly.assertThat(json.getDouble("points")).isPositive();
   }
 
+  /** Searching by the creator name from the original publication returns the candidate. */
   @Test
   @DisplayName("Search by contributor name")
-  @Description("Searching by the creator name from the original publication returns the candidate")
+  @Description(useJavaDoc = true)
   void shouldFindCandidateWhenSearchingByContributorName() {
     var response = searchScopedToCandidate("query", candidate.creatorName());
 
     assertThat(indexedPublicationIds(response)).contains(candidate.publicationId());
   }
 
+  /** Filtering by the publication title returns the candidate. */
   @Test
   @DisplayName("Filter by publication title")
-  @Description("Filtering by the publication title returns the candidate")
+  @Description(useJavaDoc = true)
   void shouldFindCandidateWhenFilteringByTitle() {
     var response = search("title", candidate.title());
 
     assertThat(indexedPublicationIds(response)).contains(candidate.publicationId());
   }
 
+  /** Filtering by the creator's top-level organization returns the candidate. */
   @Test
   @DisplayName("Filter by organization")
-  @Description("Filtering by the creator's top-level organization returns the candidate")
+  @Description(useJavaDoc = true)
   void shouldFindCandidateWhenFilteringByOrganization() {
     var response = searchScopedToCandidate("affiliations", topLevelOrganizationIdentifier());
 
     assertThat(indexedPublicationIds(response)).contains(candidate.publicationId());
   }
 
+  /** Searching by a term that matches nothing does not return the candidate. */
   @Test
   @DisplayName("Search with non-matching term")
-  @Description("Searching by a term that matches nothing does not return the candidate")
+  @Description(useJavaDoc = true)
   void shouldNotFindCandidateWhenSearchingByNonMatchingTerm() {
     var response = search("query", "no-match-" + UUID.randomUUID());
 
     assertThat(indexedPublicationIds(response)).doesNotContain(candidate.publicationId());
   }
 
+  /**
+   * Searching for NVI candidates without authentication returns status {@code 401 Unauthorized}.
+   */
   @Test
   @DisplayName("Search candidates unauthenticated")
-  @Description("Searching for NVI candidates without authentication returns 401 Unauthorized")
+  @Description(useJavaDoc = true)
   void shouldReturnUnauthorizedWhenSearchingUnauthenticated() {
     givenUnauthenticatedJsonRequest()
         .queryParam("query", candidate.title())

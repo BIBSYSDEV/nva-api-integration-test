@@ -21,9 +21,10 @@ class FindJournalserieChannelsTest extends ChannelRegistryTestBase {
 
   private static final String RESOURCE = "findjournalserie";
 
+  /** A name search returns hits with the level for the requested year. */
   @Test
   @DisplayName("Search by name returns level for the requested year")
-  @Description("A name search returns hits with the level for the requested year")
+  @Description(useJavaDoc = true)
   void shouldReturnLevelForRequestedYearWhenSearchingByName(SoftAssertions softly) {
     var hit =
         searchChannels(environment, RESOURCE, "name", ACP.name(), ACP.year())
@@ -32,9 +33,10 @@ class FindJournalserieChannelsTest extends ChannelRegistryTestBase {
     assertLevelForYear(softly, hit, ACP);
   }
 
+  /** An ISSN search resolves to exactly one channel. */
   @Test
   @DisplayName("ISSN search resolves to exactly one channel")
-  @Description("An ISSN search resolves to exactly one channel")
+  @Description(useJavaDoc = true)
   void shouldResolveIssnSearchToSingleChannel(SoftAssertions softly) {
     var response = searchChannels(environment, RESOURCE, "issn", ACP_EISSN, ACP.year());
 
@@ -47,9 +49,10 @@ class FindJournalserieChannelsTest extends ChannelRegistryTestBase {
         .containsExactly(ACP.pid());
   }
 
+  /** A search hit for an X-channel has the counting level and the X mark separately. */
   @Test
   @DisplayName("X-channels carry counting level and X mark separately")
-  @Description("A search hit for an X-channel has the counting level and the X mark separately")
+  @Description(useJavaDoc = true)
   void shouldExposeCountingLevelAndXMarkSeparately(SoftAssertions softly) {
     assumeTrue(
         environment.hasXChannelLevelData(),

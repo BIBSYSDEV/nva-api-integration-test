@@ -55,12 +55,14 @@ class TextExtractionTest extends FileUploadTestBase {
   private static final String SAMPLE_PDF_SENTENCE =
       "Sample PDF for the NVA text extraction integration test.";
 
+  /**
+   * Uploading a CSV with the key of a publication file to the seed bucket should extract the text
+   * of that file to the text storage bucket.
+   */
   @ParameterizedTest(name = "{0}")
   @MethodSource("seedableFiles")
   @DisplayName("Seeding a file key by CSV stores the extracted file text")
-  @Description(
-      "Uploading a CSV with the key of a publication file to the seed bucket should extract the"
-          + " text of that file to the text storage bucket")
+  @Description(useJavaDoc = true)
   void shouldStoreExtractedTextWhenFileKeyIsSeededByCsv(
       byte[] fileContent, String expectedSentence) {
     var publicationIdentifier = setupDraftPublication();

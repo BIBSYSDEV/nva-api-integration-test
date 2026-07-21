@@ -14,9 +14,10 @@ import org.junit.jupiter.api.Test;
 
 class PrepareApiTest extends FileUploadTestBase {
 
+  /** Calling file-upload/prepare should return presigned URL and status {@code 200 OK}. */
   @Test
   @DisplayName("file-upload/prepare returns presigned URL")
-  @Description("Calling file-upload/prepare should return presigned URL and status code 200 OK")
+  @Description(useJavaDoc = true)
   void shouldReturnUploadUrlWhenPrepareFile() {
     var identifier = setupDraftPublication();
 
@@ -25,10 +26,13 @@ class PrepareApiTest extends FileUploadTestBase {
     assertThat(url).startsWith("https://nva-resource-storage");
   }
 
+  /**
+   * Calling file-upload/prepare with no authorization should return status {@code 401
+   * Unauthorized}.
+   */
   @Test
   @DisplayName("file-upload/prepare with no authorization")
-  @Description(
-      "Calling file-upload/prepare with no authorization should return statuscode 401 Unauthorized")
+  @Description(useJavaDoc = true)
   void shouldReturnUnauthorizedWhenPrepareWithoutAuthorization() {
     var identifier = setupDraftPublication();
     var createResponse = createFileUpload(identifier);
@@ -47,12 +51,14 @@ class PrepareApiTest extends FileUploadTestBase {
         .statusCode(401);
   }
 
+  /**
+   * Calling file-upload/prepare with non-existing identifier should return status {@code 404 Not
+   * Found}.
+   */
   @Test
   @Disabled // TODO: Fix bug NP-51209
   @DisplayName("file-upload/prepare with non-existing identifier")
-  @Description(
-      "Calling file-upload/prepare with non-existing identifier should return statuscode 404 Not"
-          + " Found")
+  @Description(useJavaDoc = true)
   void shouldReturnNotFoundWhenPrepareWithWrongIdentifier() {
     var identifier = UUID.randomUUID().toString();
     var preparePayload =
@@ -66,12 +72,14 @@ class PrepareApiTest extends FileUploadTestBase {
         .statusCode(404);
   }
 
+  /**
+   * Calling file-upload/prepare without calling file-upload/create should return status {@code 400
+   * Bad Request}.
+   */
   @Test
   @Disabled // TODO: Fix bug NP-51209
   @DisplayName("file-upload/prepare without file-upload/create")
-  @Description(
-      "Calling file-upload/prepare without calling file-upload/create should return statuscode 400"
-          + " Bad Request")
+  @Description(useJavaDoc = true)
   void shouldReturnBadRequestWhenPrepareFileWithoutCreate() {
     var identifier = setupDraftPublication();
     var preparePayload =
@@ -85,11 +93,11 @@ class PrepareApiTest extends FileUploadTestBase {
         .statusCode(400);
   }
 
+  /** Calling file-upload/prepare wrong uploadId should return status {@code 400 Bad Request}. */
   @Test
   @Disabled // TODO: Fix bug NP-51209
   @DisplayName("file-upload/prepare with wrong uploadId")
-  @Description(
-      "Calling file-upload/prepare wrong uploadId should return statuscode 400 Bad Request")
+  @Description(useJavaDoc = true)
   void shouldReturnBadRequestWhenPrepareFileWithWrongUploadId() {
     var identifier = setupDraftPublication();
     var createResponse = createFileUpload(identifier);
@@ -106,11 +114,11 @@ class PrepareApiTest extends FileUploadTestBase {
         .statusCode(400);
   }
 
+  /** Calling file-upload/prepare missing uploadId should return status {@code 400 Bad Request}. */
   @Test
   @Disabled // TODO: Fix bug NP-51209
   @DisplayName("file-upload/prepare with missing uploadId")
-  @Description(
-      "Calling file-upload/prepare missing uploadId should return statuscode 400 Bad Request")
+  @Description(useJavaDoc = true)
   void shouldReturnBadRequestWhenPrepareFileWithMissingUploadId() {
     var identifier = setupDraftPublication();
     var createResponse = createFileUpload(identifier);
@@ -126,10 +134,11 @@ class PrepareApiTest extends FileUploadTestBase {
         .statusCode(400);
   }
 
+  /** Calling file-upload/prepare wrong key should return status {@code 400 Bad Request}. */
   @Test
   @Disabled // TODO: Fix bug NP-51209
   @DisplayName("file-upload/prepare with wrong key")
-  @Description("Calling file-upload/prepare wrong key should return statuscode 400 Bad Request")
+  @Description(useJavaDoc = true)
   void shouldReturnBadRequestWhenPrepareFileWithWrongKey() {
     var identifier = setupDraftPublication();
     var createResponse = createFileUpload(identifier);
@@ -146,9 +155,10 @@ class PrepareApiTest extends FileUploadTestBase {
         .statusCode(400);
   }
 
+  /** Calling file-upload/prepare missing key should return status {@code 400 Bad Request}. */
   @Test
   @DisplayName("file-upload/prepare with missing key")
-  @Description("Calling file-upload/prepare missing key should return statuscode 400 Bad Request")
+  @Description(useJavaDoc = true)
   void shouldReturnBadRequestWhenPrepareFileWithMissingKey() {
     var identifier = setupDraftPublication();
     var createResponse = createFileUpload(identifier);

@@ -15,9 +15,10 @@ class FindSeriesByPidTest extends ChannelRegistryTestBase {
 
   private static final String RESOURCE = "findseries";
 
+  /** A lookup without year returns the current year's level or null. */
   @Test
   @DisplayName("Lookup without year does not return the highest-year level")
-  @Description("A lookup without year returns the current year's level or null")
+  @Description(useJavaDoc = true)
   void shouldNotReturnHighestYearLevel(SoftAssertions softly) {
     var response = lookUpWithoutYear(environment, RESOURCE, LNCS.pid());
 
