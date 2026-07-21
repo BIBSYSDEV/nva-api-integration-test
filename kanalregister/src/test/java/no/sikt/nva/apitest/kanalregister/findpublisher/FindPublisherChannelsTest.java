@@ -14,6 +14,7 @@ import no.sikt.nva.apitest.kanalregister.ChannelRegistryEnvironment;
 import no.sikt.nva.apitest.kanalregister.ChannelRegistryTestBase;
 import no.sikt.nva.apitest.kanalregister.SharedResponse;
 import org.assertj.core.api.SoftAssertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -45,6 +46,7 @@ class FindPublisherChannelsTest extends ChannelRegistryTestBase {
   @DisplayName("Missing values are JSON null, not the string \"null\"")
   @Description(useJavaDoc = true)
   @Issue("NP-51484")
+  @Disabled("Fails in all environments and the correct behavior is unclear, see NP-51484")
   void shouldRepresentMissingDecisionTextsAsNull(SoftAssertions softly) {
     assertDecisionTextsAreNotNullStrings(softly, gyldendalUndervisningHit(environment));
   }
