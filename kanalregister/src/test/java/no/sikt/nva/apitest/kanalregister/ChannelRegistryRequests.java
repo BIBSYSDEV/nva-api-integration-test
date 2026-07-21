@@ -3,7 +3,7 @@ package no.sikt.nva.apitest.kanalregister;
 import static io.restassured.RestAssured.given;
 
 import io.restassured.http.ContentType;
-import io.restassured.path.json.JsonPath;
+import io.restassured.response.Response;
 
 /** Request helpers and JSON paths for the Kanalregister nva-api. */
 public final class ChannelRegistryRequests {
@@ -17,17 +17,17 @@ public final class ChannelRegistryRequests {
 
   private ChannelRegistryRequests() {}
 
-  public static JsonPath lookUp(
+  public static Response lookUp(
       ChannelRegistryEnvironment environment, String resource, String pid, int year) {
-    return extractJson("%s/%s/%s/%d".formatted(environment.getApiHost(), resource, pid, year));
+    return fetch("%s/%s/%s/%d".formatted(environment.getApiHost(), resource, pid, year));
   }
 
-  public static JsonPath lookUpWithoutYear(
+  public static Response lookUpWithoutYear(
       ChannelRegistryEnvironment environment, String resource, String pid) {
-    return extractJson("%s/%s/%s".formatted(environment.getApiHost(), resource, pid));
+    return fetch("%s/%s/%s".formatted(environment.getApiHost(), resource, pid));
   }
 
-  public static JsonPath searchChannels(
+  public static Response searchChannels(
       ChannelRegistryEnvironment environment,
       String resource,
       String parameterName,
@@ -43,7 +43,7 @@ public final class ChannelRegistryRequests {
         .then()
         .statusCode(200)
         .extract()
-        .jsonPath();
+        .response();
   }
 
   /** GPath expression selecting the search hit with the given PID. */
@@ -51,13 +51,13 @@ public final class ChannelRegistryRequests {
     return "%s.find { it.pid == '%s' }".formatted(SEARCH_HITS_PATH, pid);
   }
 
-  private static JsonPath extractJson(String absoluteUrl) {
+  private static Response fetch(String absoluteUrl) {
     return given()
         .accept(ContentType.JSON)
         .get(absoluteUrl)
         .then()
         .statusCode(200)
         .extract()
-        .jsonPath();
+        .response();
   }
 }

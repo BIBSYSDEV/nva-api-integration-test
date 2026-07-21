@@ -1,0 +1,104 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "description": "Search response returned by the channels endpoints: paging information plus a page of partial channel DTOs (the same union as channel.json, but levelHistories may be null in search hits). additionalProperties is false on purpose, so new upstream fields turn the schema tests red. Value fields are nullable on purpose, so known semantic bugs (NP-51481..NP-51486) keep the tests green.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["entityPageInformationDto", "entityResultSetDto"],
+  "properties": {
+    "entityPageInformationDto": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["totalResults", "totalPages", "size"],
+      "properties": {
+        "totalResults": { "type": ["integer", "null"] },
+        "totalPages": { "type": ["integer", "null"] },
+        "size": { "type": ["integer", "null"] }
+      }
+    },
+    "entityResultSetDto": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["pageresult"],
+      "properties": {
+        "pageresult": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/channel" }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "channel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "pid",
+        "type",
+        "ceased",
+        "isUpdateable",
+        "successors",
+        "levelElementDto",
+        "levelHistories",
+        "kurl",
+        "publishingAgreement",
+        "underordnetPid"
+      ],
+      "properties": {
+        "pid": { "type": "string" },
+        "type": { "type": "string" },
+        "originalTitle": { "type": ["string", "null"] },
+        "internationalTitle": { "type": ["string", "null"] },
+        "pissn": { "type": ["string", "null"] },
+        "eissn": { "type": ["string", "null"] },
+        "name": { "type": ["string", "null"] },
+        "internationalName": { "type": ["string", "null"] },
+        "isbnprefix": { "type": ["string", "null"] },
+        "ceased": { "type": ["string", "null"] },
+        "isUpdateable": { "type": ["boolean", "null"] },
+        "successors": {
+          "type": ["array", "null"],
+          "items": { "$ref": "#/definitions/successor" }
+        },
+        "levelElementDto": { "$ref": "#/definitions/levelElementDto" },
+        "levelHistories": {
+          "type": ["array", "null"],
+          "items": { "$ref": "#/definitions/levelHistory" }
+        },
+        "kurl": { "type": ["string", "null"] },
+        "publishingAgreement": { "type": ["string", "null"] },
+        "underordnetPid": { "type": ["string", "null"] }
+      }
+    },
+    "levelElementDto": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": ["year", "level", "levelDisplay", "vedtak", "decision"],
+      "properties": {
+        "year": { "type": ["integer", "null"] },
+        "level": { "type": ["string", "null"] },
+        "levelDisplay": { "type": ["string", "null"] },
+        "vedtak": { "type": ["string", "null"] },
+        "decision": { "type": ["string", "null"] }
+      }
+    },
+    "levelHistory": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["year", "level"],
+      "properties": {
+        "year": { "type": ["integer", "null"] },
+        "level": { "type": ["string", "null"] }
+      }
+    },
+    "successor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["pid", "name", "kurl"],
+      "properties": {
+        "pid": { "type": ["string", "null"] },
+        "name": { "type": ["string", "null"] },
+        "kurl": { "type": ["string", "null"] }
+      }
+    }
+  }
+}

@@ -7,6 +7,7 @@ import static no.sikt.nva.apitest.kanalregister.ChannelAssertions.assertLevelHis
 import static no.sikt.nva.apitest.kanalregister.ChannelFixtures.ACP;
 import static no.sikt.nva.apitest.kanalregister.ChannelFixtures.JCM;
 import static no.sikt.nva.apitest.kanalregister.ChannelRegistryRequests.lookUp;
+import static no.sikt.nva.apitest.kanalregister.ChannelSchemas.assertMatchesChannelSchema;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import io.qameta.allure.Description;
@@ -31,7 +32,7 @@ class FindJournalserieByPidAndYearTest extends ChannelRegistryTestBase {
   @Description(useJavaDoc = true)
   @Issue("NP-51485")
   void shouldReturnLevelForRequestedYear(SoftAssertions softly) {
-    assertLevelForYear(softly, ACP_LOOKUP.forEnvironment(environment), ACP);
+    assertLevelForYear(softly, ACP_LOOKUP.jsonPathForEnvironment(environment), ACP);
   }
 
   /** A lookup exposes levelDisplay, without which X-channels cannot be distinguished. */
@@ -40,7 +41,7 @@ class FindJournalserieByPidAndYearTest extends ChannelRegistryTestBase {
   @Description(useJavaDoc = true)
   @Issue("NP-51483")
   void shouldExposeLevelDisplay(SoftAssertions softly) {
-    assertLevelDisplayMatchesLevel(softly, ACP_LOOKUP.forEnvironment(environment), ACP);
+    assertLevelDisplayMatchesLevel(softly, ACP_LOOKUP.jsonPathForEnvironment(environment), ACP);
   }
 
   /** A lookup's levelHistories includes the requested year. */
@@ -48,7 +49,7 @@ class FindJournalserieByPidAndYearTest extends ChannelRegistryTestBase {
   @DisplayName("Level history includes the requested year")
   @Description(useJavaDoc = true)
   void shouldIncludeRequestedYearInLevelHistory(SoftAssertions softly) {
-    assertLevelHistoryIncludesYear(softly, ACP_LOOKUP.forEnvironment(environment), ACP);
+    assertLevelHistoryIncludesYear(softly, ACP_LOOKUP.jsonPathForEnvironment(environment), ACP);
   }
 
   /** A lookup on an X-channel has the counting level and the X mark separately. */
@@ -61,8 +62,16 @@ class FindJournalserieByPidAndYearTest extends ChannelRegistryTestBase {
         environment.hasXChannelLevelData(),
         "The X-channel fixture (Journal of Clinical Medicine) has no level data in kar-test");
 
-    var response = lookUp(environment, RESOURCE, JCM.pid(), JCM.year());
+    var response = lookUp(environment, RESOURCE, JCM.pid(), JCM.year()).jsonPath();
 
     assertCountingLevelAndXMark(softly, response, JCM);
+  }
+
+  /** The response body matches the shared channel JSON Schema. */
+  @Test
+  @DisplayName("Response matches the channel contract")
+  @Description(useJavaDoc = true)
+  void shouldMatchChannelContract(SoftAssertions softly) {
+    assertMatchesChannelSchema(softly, ACP_LOOKUP.bodyForEnvironment(environment));
   }
 }

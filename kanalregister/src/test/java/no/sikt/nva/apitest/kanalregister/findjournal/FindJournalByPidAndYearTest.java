@@ -5,6 +5,7 @@ import static no.sikt.nva.apitest.kanalregister.ChannelAssertions.assertLevelFor
 import static no.sikt.nva.apitest.kanalregister.ChannelAssertions.assertLevelHistoryIncludesYear;
 import static no.sikt.nva.apitest.kanalregister.ChannelFixtures.ACP;
 import static no.sikt.nva.apitest.kanalregister.ChannelRegistryRequests.lookUp;
+import static no.sikt.nva.apitest.kanalregister.ChannelSchemas.assertMatchesChannelSchema;
 
 import io.qameta.allure.Description;
 import io.qameta.allure.Issue;
@@ -28,7 +29,7 @@ class FindJournalByPidAndYearTest extends ChannelRegistryTestBase {
   @Description(useJavaDoc = true)
   @Issue("NP-51485")
   void shouldReturnLevelForRequestedYear(SoftAssertions softly) {
-    assertLevelForYear(softly, ACP_LOOKUP.forEnvironment(environment), ACP);
+    assertLevelForYear(softly, ACP_LOOKUP.jsonPathForEnvironment(environment), ACP);
   }
 
   /** A lookup exposes levelDisplay, without which X-channels cannot be distinguished. */
@@ -37,7 +38,7 @@ class FindJournalByPidAndYearTest extends ChannelRegistryTestBase {
   @Description(useJavaDoc = true)
   @Issue("NP-51483")
   void shouldExposeLevelDisplay(SoftAssertions softly) {
-    assertLevelDisplayMatchesLevel(softly, ACP_LOOKUP.forEnvironment(environment), ACP);
+    assertLevelDisplayMatchesLevel(softly, ACP_LOOKUP.jsonPathForEnvironment(environment), ACP);
   }
 
   /** A lookup's levelHistories includes the requested year. */
@@ -45,6 +46,14 @@ class FindJournalByPidAndYearTest extends ChannelRegistryTestBase {
   @DisplayName("Level history includes the requested year")
   @Description(useJavaDoc = true)
   void shouldIncludeRequestedYearInLevelHistory(SoftAssertions softly) {
-    assertLevelHistoryIncludesYear(softly, ACP_LOOKUP.forEnvironment(environment), ACP);
+    assertLevelHistoryIncludesYear(softly, ACP_LOOKUP.jsonPathForEnvironment(environment), ACP);
+  }
+
+  /** The response body matches the shared channel JSON Schema. */
+  @Test
+  @DisplayName("Response matches the channel contract")
+  @Description(useJavaDoc = true)
+  void shouldMatchChannelContract(SoftAssertions softly) {
+    assertMatchesChannelSchema(softly, ACP_LOOKUP.bodyForEnvironment(environment));
   }
 }

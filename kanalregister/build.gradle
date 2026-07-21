@@ -10,6 +10,7 @@ dependencies {
     testImplementation(libs.allure.rest.assured)
     testImplementation(libs.rest.assured.core)
     testImplementation(libs.rest.assured.json.path)
+    testImplementation(libs.rest.assured.json.schema.validator)
     testImplementation(nvaCatalog.assertj.core)
     testImplementation(nvaCatalog.junit.jupiter.api)
     testImplementation(nvaCatalog.junit.jupiter.params)
