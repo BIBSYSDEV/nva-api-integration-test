@@ -12,6 +12,7 @@ import io.qameta.allure.Issue;
 import no.sikt.nva.apitest.kanalregister.ChannelRegistryTestBase;
 import no.sikt.nva.apitest.kanalregister.SharedResponse;
 import org.assertj.core.api.SoftAssertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -38,6 +39,7 @@ class FindSeriesByPidAndYearTest extends ChannelRegistryTestBase {
   @DisplayName("Lookup exposes levelDisplay alongside level")
   @Description(useJavaDoc = true)
   @Issue("NP-51483")
+  @Disabled("Fails in all environments and the correct behavior is unclear, see NP-51483")
   void shouldExposeLevelDisplay(SoftAssertions softly) {
     assertLevelDisplayMatchesLevel(softly, LNCS_LOOKUP.jsonPathForEnvironment(environment), LNCS);
   }

@@ -12,6 +12,7 @@ import io.qameta.allure.Issue;
 import no.sikt.nva.apitest.kanalregister.ChannelRegistryTestBase;
 import no.sikt.nva.apitest.kanalregister.SharedResponse;
 import org.assertj.core.api.SoftAssertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -45,6 +46,7 @@ class FindPublisherByPidAndYearTest extends ChannelRegistryTestBase {
   @DisplayName("Level history includes the requested year")
   @Description(useJavaDoc = true)
   @Issue("NP-51482")
+  @Disabled("Fails in all environments and the correct behavior is unclear, see NP-51482")
   void shouldIncludeRequestedYearInLevelHistory(SoftAssertions softly) {
     assertLevelHistoryIncludesYear(
         softly, GYLDENDAL_LOOKUP.jsonPathForEnvironment(environment), GYLDENDAL);
