@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(SoftAssertionsExtension.class)
+@DisplayName("POST /publication")
 class CreateApiTest extends PublicationTestBase {
 
   private static String customerUib;

@@ -4,7 +4,6 @@ plugins {
 
 dependencies {
     api(libs.rest.assured.core)
-    testFixturesApi(nvaCatalog.junit.jupiter.api)
     implementation('software.amazon.awssdk:aws-core')
     implementation('software.amazon.awssdk:regions')
     implementation('software.amazon.awssdk:s3')
@@ -19,10 +18,10 @@ dependencies {
     runtimeOnly('software.amazon.awssdk:ssooidc')
     runtimeOnly(nvaCatalog.jackson.core)
     runtimeOnly(nvaCatalog.jackson.databind)
-    testFixturesImplementation(libs.allure.java.commons)
-    testFixturesImplementation(libs.allure.model)
     testFixturesImplementation(libs.allure.rest.assured)
     testFixturesImplementation(libs.awaitility.core)
+    testFixturesImplementation(nvaCatalog.junit.jupiter.api)
+    testFixturesRuntimeOnly(libs.allure.java.commons)
     testFixturesRuntimeOnly(libs.allure.junit5)
     testFixturesRuntimeOnly(nvaCatalog.junit.jupiter.engine)
     testFixturesRuntimeOnly(nvaCatalog.junit.platform.launcher)

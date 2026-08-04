@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(SoftAssertionsExtension.class)
+@DisplayName("GET /publication/{identifier}")
 class FetchApiTest extends PublicationTestBase {
 
   private static String creatorAccessToken;

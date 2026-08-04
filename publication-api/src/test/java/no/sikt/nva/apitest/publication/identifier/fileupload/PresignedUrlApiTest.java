@@ -8,6 +8,7 @@ import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+@DisplayName("PUT {presignedUrl} (S3)")
 class PresignedUrlApiTest extends FileUploadTestBase {
 
   /** Calling presigned url should return ETag and status {@code 200 OK}. */

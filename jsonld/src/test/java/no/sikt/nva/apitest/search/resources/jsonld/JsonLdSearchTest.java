@@ -54,6 +54,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 @ExtendWith(SoftAssertionsExtension.class)
+@DisplayName("GET /search/resources")
 class JsonLdSearchTest extends JsonLdTestBase {
 
   private static final String APPLICATION_VND_SCHEMAORG_LD_JSON =
@@ -101,6 +102,7 @@ class JsonLdSearchTest extends JsonLdTestBase {
    * the nested class' BeforeAll instead of once per test.
    */
   @Nested
+  @DisplayName("GET /search/resources")
   class SharedPublicationSearches {
 
     private static final String SHARED_TITLE_PREFIX = "JsonLd Integration test publication ";

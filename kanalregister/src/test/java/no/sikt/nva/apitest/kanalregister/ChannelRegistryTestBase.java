@@ -1,7 +1,5 @@
 package no.sikt.nva.apitest.kanalregister;
 
-import static java.util.Objects.nonNull;
-
 import io.qameta.allure.Allure;
 import io.qameta.allure.model.Label;
 import io.qameta.allure.restassured.AllureRestAssured;
@@ -12,7 +10,6 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.Parameter;
 import org.junit.jupiter.params.ParameterizedClass;
@@ -56,31 +53,14 @@ public abstract class ChannelRegistryTestBase {
   }
 
   /**
-   * Builds the report hierarchy Kanalregisteret > environment > endpoint: adds the environment
-   * label as its own layer, removes the package label allure-junit5 derives from the class so that
-   * layer collapses, and adds the endpoint as subSuite. The environment parameter keeps separate
-   * report history per environment invocation.
+   * Adds the environment layer of the report hierarchy Kanalregisteret > environment > endpoint
+   * (the module label comes from build.gradle and the suite label from the class DisplayName). The
+   * environment parameter keeps separate report history per environment invocation.
    */
   @BeforeEach
   protected void labelAllureResult() {
-    var endpoint = endpointDisplayName();
-    var apiHost = environment.getApiHost();
-    Allure.getLifecycle()
-        .updateTestCase(
-            result -> {
-              result.getLabels().removeIf(label -> "package".equals(label.getName()));
-              result.getLabels().add(label("environment", apiHost));
-              result.getLabels().add(label("subSuite", endpoint));
-            });
+    var environmentLabel = new Label().setName("environment").setValue(environment.getApiHost());
+    Allure.getLifecycle().updateTestCase(result -> result.getLabels().add(environmentLabel));
     Allure.parameter("environment", environment);
-  }
-
-  private String endpointDisplayName() {
-    var displayName = getClass().getAnnotation(DisplayName.class);
-    return nonNull(displayName) ? displayName.value() : getClass().getSimpleName();
-  }
-
-  private static Label label(String name, String value) {
-    return new Label().setName(name).setValue(value);
   }
 }

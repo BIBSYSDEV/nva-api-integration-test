@@ -36,6 +36,7 @@ import org.junit.jupiter.params.provider.MethodSource;
  * <p>Prerequisites: the text-extraction stack is deployed to the environment, and the test runner
  * role has s3:PutObject on the seed bucket and s3:GetObject on the text storage bucket.
  */
+@DisplayName("Text extraction pipeline (S3)")
 class TextExtractionTest extends FileUploadTestBase {
 
   /**

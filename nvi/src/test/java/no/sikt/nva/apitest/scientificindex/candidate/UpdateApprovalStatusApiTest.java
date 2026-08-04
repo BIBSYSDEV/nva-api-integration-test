@@ -30,6 +30,7 @@ import org.junit.jupiter.api.parallel.ExecutionMode;
 // this class's methods on a single thread so at most one candidate is being evaluated at a time.
 @Execution(ExecutionMode.SAME_THREAD)
 @ExtendWith(SoftAssertionsExtension.class)
+@DisplayName("PUT /scientific-index/candidate/{identifier}/status")
 class UpdateApprovalStatusApiTest extends ScientificIndexTestBase {
 
   private static final String APPROVED = "Approved";

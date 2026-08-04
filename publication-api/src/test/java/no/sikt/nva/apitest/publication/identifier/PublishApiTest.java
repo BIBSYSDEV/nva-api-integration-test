@@ -26,6 +26,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
 @ExtendWith(SoftAssertionsExtension.class)
+@DisplayName("POST /publication/{identifier}/publish")
 class PublishApiTest extends PublicationTestBase {
 
   private static String curatorAccessToken;

@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(SoftAssertionsExtension.class)
+@DisplayName("GET /scientific-index/period/{year}")
 class FetchPeriodApiTest extends ScientificIndexTestBase {
 
   private static final String NONEXISTENT_PERIOD_YEAR = "1900";

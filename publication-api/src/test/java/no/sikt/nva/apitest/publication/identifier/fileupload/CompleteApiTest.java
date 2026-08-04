@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(SoftAssertionsExtension.class)
+@DisplayName("POST /publication/{identifier}/file-upload/complete")
 class CompleteApiTest extends FileUploadTestBase {
 
   private static final String EXAMPLE_FILE = "example.txt";

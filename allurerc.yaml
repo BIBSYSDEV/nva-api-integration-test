@@ -6,4 +6,4 @@ plugins:
   awesome:
     options:
       singleFile: true
-      groupBy: ["module", "environment", "package", "subSuite"]
+      groupBy: ["module", "environment", "suite", "subSuite"]
