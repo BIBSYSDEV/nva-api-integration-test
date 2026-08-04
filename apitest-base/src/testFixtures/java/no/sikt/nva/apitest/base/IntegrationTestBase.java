@@ -6,7 +6,9 @@ import io.restassured.config.LogConfig;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.extension.ExtendWith;
 
+@ExtendWith(AllurePackageLabelExtension.class)
 public abstract class IntegrationTestBase {
 
   private static final ReentrantLock CONFIGURATION_LOCK = new ReentrantLock();

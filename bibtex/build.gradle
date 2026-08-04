@@ -19,3 +19,7 @@ dependencies {
     testRuntimeOnly(nvaCatalog.junit.jupiter.engine)
     testRuntimeOnly(nvaCatalog.junit.platform.launcher)
 }
+
+tasks.withType(Test).configureEach {
+    systemProperty 'allure.label.module', 'Search API - BibTeX'
+}
