@@ -29,6 +29,7 @@ import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(SoftAssertionsExtension.class)
+@DisplayName("GET /search/resources (volume)")
 class BibTexVolumeTest extends SearchTestBase {
 
   private static final int NUMBER_OF_TEST_PUBLICATIONS = 100;

@@ -14,6 +14,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+@DisplayName("DELETE /publication/{identifier}")
 class DeleteApiTest extends PublicationTestBase {
 
   private static String creatorAccessToken;

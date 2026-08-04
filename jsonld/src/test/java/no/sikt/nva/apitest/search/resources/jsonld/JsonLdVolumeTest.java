@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(SoftAssertionsExtension.class)
+@DisplayName("GET /search/resources (volume)")
 class JsonLdVolumeTest extends JsonLdTestBase {
 
   private static final int NUMBER_OF_TEST_PUBLICATIONS = 50;

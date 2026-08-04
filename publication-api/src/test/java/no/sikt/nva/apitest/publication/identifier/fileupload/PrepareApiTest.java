@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+@DisplayName("POST /publication/{identifier}/file-upload/prepare")
 class PrepareApiTest extends FileUploadTestBase {
 
   /** Calling file-upload/prepare should return presigned URL and status {@code 200 OK}. */

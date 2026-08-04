@@ -56,6 +56,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 @ExtendWith(SoftAssertionsExtension.class)
+@DisplayName("GET /search/resources")
 class BibTexTest extends SearchTestBase {
 
   private static final String TEXT_X_BIBTEX = "text/x-bibtex";

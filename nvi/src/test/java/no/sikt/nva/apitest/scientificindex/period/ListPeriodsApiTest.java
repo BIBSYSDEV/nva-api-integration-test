@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+@DisplayName("GET /scientific-index/period")
 class ListPeriodsApiTest extends ScientificIndexTestBase {
 
   /** Listing periods returns all periods with status {@code 200 OK}. */

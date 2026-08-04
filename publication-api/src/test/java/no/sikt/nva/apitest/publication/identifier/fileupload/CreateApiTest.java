@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(SoftAssertionsExtension.class)
+@DisplayName("POST /publication/{identifier}/file-upload/create")
 class CreateApiTest extends FileUploadTestBase {
 
   private static final String UPLOAD_ID = "uploadId";
