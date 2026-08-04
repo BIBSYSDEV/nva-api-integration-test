@@ -56,19 +56,20 @@ public abstract class ChannelRegistryTestBase {
   }
 
   /**
-   * Rebuilds the report hierarchy as Kanalregister > environment > endpoint, replacing the suite
-   * label allure-junit5 derives from the class. The environment parameter keeps separate report
-   * history per environment invocation.
+   * Builds the report hierarchy Kanalregisteret > environment > endpoint: adds the environment
+   * label as its own layer, removes the package label allure-junit5 derives from the class so that
+   * layer collapses, and adds the endpoint as subSuite. The environment parameter keeps separate
+   * report history per environment invocation.
    */
   @BeforeEach
   protected void labelAllureResult() {
     var endpoint = endpointDisplayName();
+    var apiHost = environment.getApiHost();
     Allure.getLifecycle()
         .updateTestCase(
             result -> {
-              result.getLabels().removeIf(label -> "suite".equals(label.getName()));
-              result.getLabels().add(label("parentSuite", "Kanalregisteret"));
-              result.getLabels().add(label("suite", environment.getApiHost()));
+              result.getLabels().removeIf(label -> "package".equals(label.getName()));
+              result.getLabels().add(label("environment", apiHost));
               result.getLabels().add(label("subSuite", endpoint));
             });
     Allure.parameter("environment", environment);

@@ -25,6 +25,8 @@ tasks.withType(Test).configureEach {
     if (project.hasProperty('awsProfile')) {
         systemProperty 'aws.profile', project.awsProfile
     }
+    // Top level of the Allure report tree (groupBy in allurerc.yaml); modules override with a display name
+    systemProperty 'allure.label.module', project.name
     systemProperty 'junit.jupiter.execution.parallel.enabled', 'true'
     systemProperty 'junit.jupiter.execution.parallel.mode.default', 'concurrent'
     systemProperty 'junit.jupiter.execution.parallel.mode.classes.default', 'concurrent'
