@@ -23,7 +23,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(SoftAssertionsExtension.class)
 @DisplayName("GET /scientific-index/candidate/{identifier}")
-class FetchCandidateApiTest extends ScientificIndexTestBase {
+class FetchCandidateTest extends ScientificIndexTestBase {
 
   private static NviCandidate candidate;
 

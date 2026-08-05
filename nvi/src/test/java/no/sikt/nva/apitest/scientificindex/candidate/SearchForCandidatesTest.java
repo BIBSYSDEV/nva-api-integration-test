@@ -25,7 +25,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(SoftAssertionsExtension.class)
 @DisplayName("GET /scientific-index/candidate")
-class SearchNviCandidateApiTest extends ScientificIndexTestBase {
+class SearchForCandidatesTest extends ScientificIndexTestBase {
 
   private static final int SEARCH_PAGE_SIZE = 100;
 

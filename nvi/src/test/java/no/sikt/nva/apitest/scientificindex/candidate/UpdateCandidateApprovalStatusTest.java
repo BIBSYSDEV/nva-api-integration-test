@@ -31,7 +31,7 @@ import org.junit.jupiter.api.parallel.ExecutionMode;
 @Execution(ExecutionMode.SAME_THREAD)
 @ExtendWith(SoftAssertionsExtension.class)
 @DisplayName("PUT /scientific-index/candidate/{identifier}/status")
-class UpdateApprovalStatusApiTest extends ScientificIndexTestBase {
+class UpdateCandidateApprovalStatusTest extends ScientificIndexTestBase {
 
   private static final String APPROVED = "Approved";
   private static final String PENDING = "Pending";
@@ -134,7 +134,7 @@ class UpdateApprovalStatusApiTest extends ScientificIndexTestBase {
       User user, NviCandidate candidate, Map<String, Object> requestBody) {
     return pollUntil(
         putApprovalStatusRequest(user, candidate, requestBody),
-        UpdateApprovalStatusApiTest::isNotConflict);
+        UpdateCandidateApprovalStatusTest::isNotConflict);
   }
 
   private static Callable<Response> putApprovalStatusRequest(
