@@ -1,0 +1,12 @@
+{
+  "name": "nva-api-integration-test",
+  "private": true,
+  "description": "Pins the Allure report generator used in buildspec.yaml. Install with npm ci.",
+  "scripts": {
+    "allure:version": "allure --version",
+    "allure:generate": "allure generate '*/build/allure-results'"
+  },
+  "devDependencies": {
+    "allure": "3.14.3"
+  }
+}
