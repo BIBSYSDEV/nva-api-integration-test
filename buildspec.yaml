@@ -6,8 +6,8 @@ phases:
       java: corretto21
       nodejs: 24
     commands:
-      - npm install allure@3.14.3
-      - npx allure --version
+      - npm ci --ignore-scripts --no-audit --no-fund
+      - npm run allure:version
 
   build:
     commands:
@@ -15,7 +15,7 @@ phases:
   post_build:
     commands:
       - aws s3 cp s3://$TESTREPORTS_BUCKET/allure-history.jsonl allure-history.jsonl || true
-      - npx allure generate "*/build/allure-results"
+      - npm run allure:generate
       - aws s3 cp allure-history.jsonl s3://$TESTREPORTS_BUCKET/allure-history.jsonl
       - aws s3 cp allure-report/index.html s3://$TESTREPORTS_BUCKET/reports/$(date +%Y-%m-%d).html
       - aws s3 cp allure-report s3://$TESTREPORTS_BUCKET --recursive
