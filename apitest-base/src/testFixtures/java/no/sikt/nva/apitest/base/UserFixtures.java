@@ -161,5 +161,13 @@ public final class UserFixtures {
           .withAffiliations(Affiliation.UIS)
           .build();
 
+  public static final User APP_ADMIN =
+      User.builder()
+          .withName("Create testdata TestUser")
+          .withUserId("admin-user-testdata@test.no")
+          .withCristinId("1862138@20754.0.0.0")
+          .withAffiliations(Affiliation.SIKT)
+          .build();
+
   private UserFixtures() {}
 }
