@@ -12,11 +12,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import io.qameta.allure.Description;
 import io.restassured.RestAssured;
 import no.sikt.nva.apitest.base.Affiliation;
-import no.sikt.nva.apitest.base.CognitoLogin;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_YEAR;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
 import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
-import no.sikt.nva.apitest.base.UserFixtures;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_NVI_CURATOR;
 import no.sikt.nva.apitest.scientificindex.NviCandidate;
 import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.candidateByPublicationIdPath;
@@ -33,8 +31,6 @@ class FetchCandidateApiTest extends ScientificIndexTestBase {
   @BeforeAll
   static void createSharedCandidate() {
     candidate = CANDIDATE_FACTORY.createCandidate("NVI integration test publication " + UUID.randomUUID());
-    CognitoLogin.login(UserFixtures.KRISTIANIA_PUBLISHING_CURATOR.userId());
-    CognitoLogin.login(UserFixtures.UIS_PUBLISHING_CURATOR.userId());
   }
 
   /**
