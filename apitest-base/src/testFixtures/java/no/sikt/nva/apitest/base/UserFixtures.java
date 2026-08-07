@@ -3,7 +3,7 @@ package no.sikt.nva.apitest.base;
 public final class UserFixtures {
   public static final User UIB_CREATOR =
       User.builder()
-          .withName("Creator UiB ApiTestUser")
+          .withName("Registrar UiB ApiTestUser")
           .withUserId("api-test-user-creator-uib@test.sikt.no")
           .withCristinId("1862458@184.0.0.0")
           .withAffiliations(Affiliation.UIB)
@@ -67,7 +67,7 @@ public final class UserFixtures {
 
   public static final User KRISTIANIA_CREATOR =
       User.builder()
-          .withName("Registrator Kristiania ApiTestUser")
+          .withName("Registrar Kristiania ApiTestUser")
           .withUserId("api-test-user-registrator-kristiania@test.sikt.no")
           .withCristinId("1862476@1615.0.0.0")
           .withAffiliations(Affiliation.KRISTIANIA)
@@ -99,7 +99,7 @@ public final class UserFixtures {
 
   public static final User OSLO_MET_CREATOR =
       User.builder()
-          .withName("Registrator OsloMet ApiTestUser")
+          .withName("Registrar OsloMet ApiTestUser")
           .withUserId("api-test-user-registrator-oslomet@test.sikt.no")
           .withCristinId("1862480@215.0.0.0")
           .withAffiliations(Affiliation.OSLO_MET)
@@ -131,7 +131,7 @@ public final class UserFixtures {
 
   public static final User UIS_CREATOR =
       User.builder()
-          .withName("Registrator UiS ApiTestUser")
+          .withName("Registrar UiS ApiTestUser")
           .withUserId("api-test-user-registrator-uis@test.sikt.no")
           .withCristinId("1862472@217.0.0.0")
           .withAffiliations(Affiliation.UIS)
