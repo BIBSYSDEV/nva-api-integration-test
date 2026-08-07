@@ -1,26 +1,25 @@
 package no.sikt.nva.apitest.scientificindex.candidate;
 
-import java.util.UUID;
+import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_YEAR;
+import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
+import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
+import static no.sikt.nva.apitest.base.UserFixtures.UIB_NVI_CURATOR;
+import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.candidateByPublicationIdPath;
+import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.candidatePath;
+import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.reportStatusPath;
 
+import io.qameta.allure.Description;
+import io.restassured.RestAssured;
+import java.util.UUID;
+import no.sikt.nva.apitest.base.Affiliation;
+import no.sikt.nva.apitest.scientificindex.NviCandidate;
+import no.sikt.nva.apitest.scientificindex.ScientificIndexTestBase;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-
-import io.qameta.allure.Description;
-import io.restassured.RestAssured;
-import no.sikt.nva.apitest.base.Affiliation;
-import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_YEAR;
-import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
-import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
-import static no.sikt.nva.apitest.base.UserFixtures.UIB_NVI_CURATOR;
-import no.sikt.nva.apitest.scientificindex.NviCandidate;
-import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.candidateByPublicationIdPath;
-import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.candidatePath;
-import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.reportStatusPath;
-import no.sikt.nva.apitest.scientificindex.ScientificIndexTestBase;
 
 @ExtendWith(SoftAssertionsExtension.class)
 @DisplayName("GET /scientific-index/candidate/{identifier}")
@@ -30,23 +29,22 @@ class FetchCandidateApiTest extends ScientificIndexTestBase {
 
   @BeforeAll
   static void createSharedCandidate() {
-    candidate = CANDIDATE_FACTORY.createCandidate("NVI integration test publication " + UUID.randomUUID());
+    candidate =
+        CANDIDATE_FACTORY.createCandidate("NVI integration test publication " + UUID.randomUUID());
   }
 
-  /**
-   * Publishing an eligible academic article creates a candidate with a new
-   * approval.
-   */
+  /** Publishing an eligible academic article creates a candidate with a new approval. */
   @Test
   @DisplayName("Published academic article becomes NVI candidate")
   @Description(useJavaDoc = true)
   void shouldCreateCandidateWhenAcademicArticleIsPublished(SoftAssertions softly) {
-    var response = CANDIDATE_FACTORY
-        .fetchCandidateByPublicationId(UIB_NVI_CURATOR, candidate.publicationId())
-        .then()
-        .statusCode(200)
-        .extract()
-        .jsonPath();
+    var response =
+        CANDIDATE_FACTORY
+            .fetchCandidateByPublicationId(UIB_NVI_CURATOR, candidate.publicationId())
+            .then()
+            .statusCode(200)
+            .extract()
+            .jsonPath();
 
     softly.assertThat(response.getString("type")).isEqualTo("NviCandidate");
     softly.assertThat(response.getString("publicationId")).isEqualTo(candidate.publicationId());
@@ -60,48 +58,43 @@ class FetchCandidateApiTest extends ScientificIndexTestBase {
     softly.assertThat(response.getDouble("totalPoints")).isPositive();
   }
 
-  /**
-   * Fetching a candidate by its identifier returns it with status {@code 200 OK}.
-   */
+  /** Fetching a candidate by its identifier returns it with status {@code 200 OK}. */
   @Test
   @DisplayName("Fetch candidate by candidate identifier")
   @Description(useJavaDoc = true)
   void shouldReturnCandidateWhenFetchingByCandidateIdentifier(SoftAssertions softly) {
-    var response = givenAuthenticatedJsonRequestAsUser(UIB_NVI_CURATOR)
-        .get(candidatePath(candidate.candidateIdentifier()))
-        .then()
-        .statusCode(200)
-        .extract()
-        .jsonPath();
+    var response =
+        givenAuthenticatedJsonRequestAsUser(UIB_NVI_CURATOR)
+            .get(candidatePath(candidate.candidateIdentifier()))
+            .then()
+            .statusCode(200)
+            .extract()
+            .jsonPath();
 
     softly.assertThat(response.getString("identifier")).isEqualTo(candidate.candidateIdentifier());
     softly.assertThat(response.getString("publicationId")).isEqualTo(candidate.publicationId());
   }
 
-  /**
-   * Fetching the report status of a candidate publication returns PENDING_REVIEW.
-   */
+  /** Fetching the report status of a candidate publication returns PENDING_REVIEW. */
   @Test
   @DisplayName("Fetch report status for candidate publication")
   @Description(useJavaDoc = true)
   void shouldReturnReportStatusWhenPublicationIsCandidate(SoftAssertions softly) {
-    var response = givenUnauthenticatedJsonRequest()
-        .urlEncodingEnabled(false)
-        .get(reportStatusPath(candidate.publicationId()))
-        .then()
-        .statusCode(200)
-        .extract()
-        .jsonPath();
+    var response =
+        givenUnauthenticatedJsonRequest()
+            .urlEncodingEnabled(false)
+            .get(reportStatusPath(candidate.publicationId()))
+            .then()
+            .statusCode(200)
+            .extract()
+            .jsonPath();
 
     softly.assertThat(response.getString("publicationId")).isEqualTo(candidate.publicationId());
     softly.assertThat(response.getString("reportStatus.status")).isEqualTo("PENDING_REVIEW");
     softly.assertThat(response.getString("period")).isEqualTo(CURRENT_YEAR);
   }
 
-  /**
-   * Fetching a candidate without authentication returns status
-   * {@code 401 Unauthorized}.
-   */
+  /** Fetching a candidate without authentication returns status {@code 401 Unauthorized}. */
   @Test
   @DisplayName("Fetch candidate unauthenticated")
   @Description(useJavaDoc = true)
@@ -113,10 +106,7 @@ class FetchCandidateApiTest extends ScientificIndexTestBase {
         .statusCode(401);
   }
 
-  /**
-   * Fetching a candidate for a non-candidate publication returns status
-   * {@code 404 Not Found}.
-   */
+  /** Fetching a candidate for a non-candidate publication returns status {@code 404 Not Found}. */
   @Test
   @DisplayName("Fetch candidate for publication that is not a candidate")
   @Description(useJavaDoc = true)
