@@ -4,7 +4,7 @@ import static no.sikt.nva.apitest.base.Polling.pollUntil;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_NVI_CURATOR;
-import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.candidateStatusPath;
+import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATE_APPROVAL_STATUS_PATH;
 
 import io.qameta.allure.Description;
 import io.restassured.response.Response;
@@ -142,7 +142,7 @@ class UpdateCandidateApprovalStatusTest extends ScientificIndexTestBase {
     return () ->
         givenAuthenticatedJsonRequestAsUser(user)
             .body(requestBody)
-            .put(candidateStatusPath(candidate.candidateIdentifier()))
+            .put(CANDIDATE_APPROVAL_STATUS_PATH, candidate.candidateIdentifier())
             .then()
             .extract()
             .response();

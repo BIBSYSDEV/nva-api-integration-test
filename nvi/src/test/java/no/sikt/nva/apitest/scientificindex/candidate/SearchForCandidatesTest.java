@@ -5,7 +5,7 @@ import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_NVI_CURATOR;
 import static no.sikt.nva.apitest.scientificindex.NviCandidateFactory.indexedCandidateByPublicationId;
 import static no.sikt.nva.apitest.scientificindex.NviCandidateFactory.indexedPublicationIds;
-import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.candidateSearchPath;
+import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATE_SEARCH_PATH;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import io.qameta.allure.Description;
@@ -112,7 +112,7 @@ class SearchForCandidatesTest extends ScientificIndexTestBase {
   void shouldReturnUnauthorizedWhenSearchingUnauthenticated() {
     givenUnauthenticatedJsonRequest()
         .queryParam("query", candidate.title())
-        .get(candidateSearchPath())
+        .get(CANDIDATE_SEARCH_PATH)
         .then()
         .statusCode(401);
   }
@@ -143,7 +143,7 @@ class SearchForCandidatesTest extends ScientificIndexTestBase {
     return givenAuthenticatedJsonRequestAsUser(UIB_NVI_CURATOR)
         .queryParams(queryParameters)
         .queryParam("size", SEARCH_PAGE_SIZE)
-        .get(candidateSearchPath())
+        .get(CANDIDATE_SEARCH_PATH)
         .then()
         .statusCode(200)
         .extract()
