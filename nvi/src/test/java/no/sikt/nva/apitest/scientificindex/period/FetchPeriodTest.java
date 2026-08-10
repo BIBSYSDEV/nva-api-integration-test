@@ -2,7 +2,7 @@ package no.sikt.nva.apitest.scientificindex.period;
 
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_YEAR;
 import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
-import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.periodPath;
+import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.PERIOD_PATH;
 
 import io.qameta.allure.Description;
 import no.sikt.nva.apitest.scientificindex.ScientificIndexTestBase;
@@ -13,8 +13,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(SoftAssertionsExtension.class)
-@DisplayName("GET /scientific-index/period/{year}")
-class FetchPeriodApiTest extends ScientificIndexTestBase {
+@DisplayName("GET " + PERIOD_PATH)
+class FetchPeriodTest extends ScientificIndexTestBase {
 
   private static final String NONEXISTENT_PERIOD_YEAR = "1900";
 
@@ -25,7 +25,7 @@ class FetchPeriodApiTest extends ScientificIndexTestBase {
   void shouldReturnPeriodWhenFetchingExistingPeriod(SoftAssertions softly) {
     var response =
         givenUnauthenticatedJsonRequest()
-            .get(periodPath(CURRENT_YEAR))
+            .get(PERIOD_PATH, CURRENT_YEAR)
             .then()
             .statusCode(200)
             .extract()
@@ -43,7 +43,7 @@ class FetchPeriodApiTest extends ScientificIndexTestBase {
   @Description(useJavaDoc = true)
   void shouldReturnNotFoundWhenPeriodDoesNotExist() {
     givenUnauthenticatedJsonRequest()
-        .get(periodPath(NONEXISTENT_PERIOD_YEAR))
+        .get(PERIOD_PATH, NONEXISTENT_PERIOD_YEAR)
         .then()
         .statusCode(404);
   }

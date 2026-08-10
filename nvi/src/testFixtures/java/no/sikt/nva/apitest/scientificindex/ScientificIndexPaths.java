@@ -5,41 +5,35 @@ import java.nio.charset.StandardCharsets;
 
 public final class ScientificIndexPaths {
 
-  private static final String BASE_PATH = "/scientific-index";
-  private static final String PERIOD_PATH = BASE_PATH + "/period";
-  private static final String CANDIDATE_PATH = BASE_PATH + "/candidate";
+  public static final String BASE_PATH = "/scientific-index";
+
+  public static final String CONTEXT_PATH = BASE_PATH + "/context";
+
+  public static final String PERIODS_PATH = BASE_PATH + "/period";
+  public static final String PERIOD_PATH = PERIODS_PATH + "/{period}";
+
+  public static final String CANDIDATES_PATH = BASE_PATH + "/candidate";
+  public static final String CANDIDATE_PATH = CANDIDATES_PATH + "/{candidate}";
+  public static final String CANDIDATE_STATUS_PATH = CANDIDATE_PATH + "/status";
+  public static final String CANDIDATE_ASSIGNEE_PATH = CANDIDATE_PATH + "/assignee";
+  public static final String CANDIDATE_NOTES_PATH = CANDIDATE_PATH + "/note";
+  public static final String DELETE_NOTE_PATH = CANDIDATE_NOTES_PATH + "/{note}";
+  public static final String CANDIDATE_BY_PUBLICATION_PATH =
+      CANDIDATES_PATH + "/publication/{publication}";
+
+  public static final String REPORTS_PATH = BASE_PATH + "/reports";
+  public static final String PERIOD_REPORT_PATH = REPORTS_PATH + "/{period}";
+  public static final String INSTITUTION_REPORTS_PATH = PERIOD_REPORT_PATH + "/institutions";
+  public static final String INSTITUTION_REPORT_PATH = INSTITUTION_REPORTS_PATH + "/{institution}";
+
+  public static final String PUBLICATION_REPORT_STATUS_PATH =
+      BASE_PATH + "/publication/{publication}/report-status";
+  public static final String DEPRECATED_INSTITUTION_REPORT_PATH =
+      BASE_PATH + "/institution-report/{period}";
 
   private ScientificIndexPaths() {}
 
-  public static String listPeriodsPath() {
-    return PERIOD_PATH;
-  }
-
-  public static String periodPath(String publishingYear) {
-    return PERIOD_PATH + "/" + publishingYear;
-  }
-
-  public static String candidatePath(String candidateIdentifier) {
-    return CANDIDATE_PATH + "/" + candidateIdentifier;
-  }
-
-  public static String candidateSearchPath() {
-    return CANDIDATE_PATH;
-  }
-
-  public static String candidateByPublicationIdPath(String publicationId) {
-    return CANDIDATE_PATH + "/publication/" + encode(publicationId);
-  }
-
-  public static String candidateStatusPath(String candidateIdentifier) {
-    return candidatePath(candidateIdentifier) + "/status";
-  }
-
-  public static String reportStatusPath(String publicationId) {
-    return BASE_PATH + "/publication/" + encode(publicationId) + "/report-status";
-  }
-
-  private static String encode(String publicationId) {
+  public static String encode(String publicationId) {
     return URLEncoder.encode(publicationId, StandardCharsets.UTF_8);
   }
 }
