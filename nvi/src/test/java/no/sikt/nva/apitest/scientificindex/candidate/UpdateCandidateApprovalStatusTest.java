@@ -4,7 +4,7 @@ import static no.sikt.nva.apitest.base.Polling.pollUntil;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_NVI_CURATOR;
-import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATE_APPROVAL_STATUS_PATH;
+import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATE_STATUS_PATH;
 
 import io.qameta.allure.Description;
 import io.restassured.response.Response;
@@ -30,7 +30,7 @@ import org.junit.jupiter.api.parallel.ExecutionMode;
 // this class's methods on a single thread so at most one candidate is being evaluated at a time.
 @Execution(ExecutionMode.SAME_THREAD)
 @ExtendWith(SoftAssertionsExtension.class)
-@DisplayName("PUT /scientific-index/candidate/{identifier}/status")
+@DisplayName("PUT " + CANDIDATE_STATUS_PATH)
 class UpdateCandidateApprovalStatusTest extends ScientificIndexTestBase {
 
   private static final String APPROVED = "Approved";
@@ -142,7 +142,7 @@ class UpdateCandidateApprovalStatusTest extends ScientificIndexTestBase {
     return () ->
         givenAuthenticatedJsonRequestAsUser(user)
             .body(requestBody)
-            .put(CANDIDATE_APPROVAL_STATUS_PATH, candidate.candidateIdentifier())
+            .put(CANDIDATE_STATUS_PATH, candidate.candidateIdentifier())
             .then()
             .extract()
             .response();

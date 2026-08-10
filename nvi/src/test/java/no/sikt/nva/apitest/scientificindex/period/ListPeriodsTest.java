@@ -4,7 +4,7 @@ import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_YEAR;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
 import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CONTRIBUTOR;
-import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.LIST_PERIODS_PATH;
+import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.PERIODS_PATH;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import io.qameta.allure.Description;
@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-@DisplayName("GET /scientific-index/period")
+@DisplayName("GET " + PERIODS_PATH)
 class ListPeriodsTest extends ScientificIndexTestBase {
 
   /** Listing periods returns all periods with status {@code 200 OK}. */
@@ -25,7 +25,7 @@ class ListPeriodsTest extends ScientificIndexTestBase {
   void shouldReturnPeriodsWhenUserIsAuthenticated() {
     var response =
         givenAuthenticatedJsonRequestAsUser(UIB_CONTRIBUTOR)
-            .get(LIST_PERIODS_PATH)
+            .get(PERIODS_PATH)
             .then()
             .statusCode(200)
             .extract()
@@ -39,6 +39,6 @@ class ListPeriodsTest extends ScientificIndexTestBase {
   @DisplayName("List periods unauthenticated")
   @Description(useJavaDoc = true)
   void shouldReturnUnauthorizedWhenUnauthenticated() {
-    givenUnauthenticatedJsonRequest().get(LIST_PERIODS_PATH).then().statusCode(401);
+    givenUnauthenticatedJsonRequest().get(PERIODS_PATH).then().statusCode(401);
   }
 }

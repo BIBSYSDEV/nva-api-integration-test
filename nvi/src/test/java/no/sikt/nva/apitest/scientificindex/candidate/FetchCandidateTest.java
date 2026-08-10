@@ -4,9 +4,9 @@ import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_YEAR;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
 import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_NVI_CURATOR;
-import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATE_BY_IDENTIFIER_PATH;
-import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATE_FOR_PUBLICATION_PATH;
-import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.REPORT_STATUS_FOR_PUBLICATION_PATH;
+import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATE_BY_PUBLICATION_PATH;
+import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATE_PATH;
+import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.PUBLICATION_REPORT_STATUS_PATH;
 import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.encode;
 
 import io.qameta.allure.Description;
@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(SoftAssertionsExtension.class)
-@DisplayName("GET /scientific-index/candidate/{identifier}")
+@DisplayName("GET " + CANDIDATE_PATH)
 class FetchCandidateTest extends ScientificIndexTestBase {
 
   private static NviCandidate candidate;
@@ -66,7 +66,7 @@ class FetchCandidateTest extends ScientificIndexTestBase {
   void shouldReturnCandidateWhenFetchingByCandidateIdentifier(SoftAssertions softly) {
     var response =
         givenAuthenticatedJsonRequestAsUser(UIB_NVI_CURATOR)
-            .get(CANDIDATE_BY_IDENTIFIER_PATH, candidate.candidateIdentifier())
+            .get(CANDIDATE_PATH, candidate.candidateIdentifier())
             .then()
             .statusCode(200)
             .extract()
@@ -84,7 +84,7 @@ class FetchCandidateTest extends ScientificIndexTestBase {
     var response =
         givenUnauthenticatedJsonRequest()
             .urlEncodingEnabled(false)
-            .get(REPORT_STATUS_FOR_PUBLICATION_PATH, encode(candidate.publicationId()))
+            .get(PUBLICATION_REPORT_STATUS_PATH, encode(candidate.publicationId()))
             .then()
             .statusCode(200)
             .extract()
@@ -102,7 +102,7 @@ class FetchCandidateTest extends ScientificIndexTestBase {
   void shouldReturnUnauthorizedWhenFetchingCandidateUnauthenticated() {
     givenUnauthenticatedJsonRequest()
         .urlEncodingEnabled(false)
-        .get(CANDIDATE_FOR_PUBLICATION_PATH, encode(candidate.publicationId()))
+        .get(CANDIDATE_BY_PUBLICATION_PATH, encode(candidate.publicationId()))
         .then()
         .statusCode(401);
   }

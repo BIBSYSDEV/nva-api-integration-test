@@ -7,8 +7,8 @@ import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsU
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_NVI_CURATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_PUBLISHING_CURATOR;
-import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATE_FOR_PUBLICATION_PATH;
-import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATE_SEARCH_PATH;
+import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATES_PATH;
+import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATE_BY_PUBLICATION_PATH;
 import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.encode;
 
 import io.restassured.RestAssured;
@@ -48,7 +48,7 @@ public class NviCandidateFactory {
   public Response fetchCandidateByPublicationId(User user, String publicationId) {
     return givenAuthenticatedJsonRequestAsUser(user)
         .urlEncodingEnabled(false)
-        .get(CANDIDATE_FOR_PUBLICATION_PATH, encode(publicationId))
+        .get(CANDIDATE_BY_PUBLICATION_PATH, encode(publicationId))
         .then()
         .extract()
         .response();
@@ -58,7 +58,7 @@ public class NviCandidateFactory {
     return givenAuthenticatedJsonRequestAsUser(curator)
         .queryParam("query", query)
         .queryParam("size", SEARCH_PAGE_SIZE)
-        .get(CANDIDATE_SEARCH_PATH)
+        .get(CANDIDATES_PATH)
         .then()
         .extract()
         .response();
