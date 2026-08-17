@@ -1,22 +1,31 @@
 package no.sikt.nva.apitest.scientificindex.period;
 
-import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
-import static no.sikt.nva.apitest.base.UserFixtures.APP_ADMIN;
-import static no.sikt.nva.apitest.base.UserFixtures.UIB_EDITOR;
-import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.PERIODS_PATH;
-
-import io.qameta.allure.Description;
 import java.time.Year;
 import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.Map;
-import no.sikt.nva.apitest.scientificindex.ScientificIndexTestBase;
+import java.util.stream.Stream;
+
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import static org.junit.jupiter.params.provider.Arguments.argumentSet;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import io.qameta.allure.Description;
+import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
+import no.sikt.nva.apitest.base.User;
+import no.sikt.nva.apitest.base.UserFixtures;
+import static no.sikt.nva.apitest.base.UserFixtures.APP_ADMIN;
+import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
+import static no.sikt.nva.apitest.base.UserFixtures.UIB_EDITOR;
+import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.PERIODS_PATH;
+import no.sikt.nva.apitest.scientificindex.ScientificIndexTestBase;
 
 @ExtendWith(SoftAssertionsExtension.class)
 @DisplayName("POST " + PERIODS_PATH)
@@ -24,7 +33,7 @@ class CreatePeriodTest extends ScientificIndexTestBase {
 
   private static final int YEAR_OFFSET = 10;
 
-  private Map<String, Object> createPeriodPayload(String year) {
+  private Map<String, String> createPeriodPayload(String year) {
 
     var futureYearStartDate = String.format("%s-01-01T01:00:00Z", year);
     var futureYearReportingDate = String.format("%s-12-31T23:59:00Z", year);
@@ -44,7 +53,7 @@ class CreatePeriodTest extends ScientificIndexTestBase {
     var futureYear =
         Integer.toString(Year.now(ZoneId.systemDefault()).plusYears(YEAR_OFFSET).getValue());
 
-    Map<String, Object> payload = createPeriodPayload(futureYear);
+    var payload = createPeriodPayload(futureYear);
 
     var response =
         givenAuthenticatedJsonRequestAsUser(APP_ADMIN)
@@ -72,7 +81,7 @@ class CreatePeriodTest extends ScientificIndexTestBase {
     var futureYear =
         Integer.toString(Year.now(ZoneId.systemDefault()).plusYears(YEAR_OFFSET + 1).getValue());
 
-    Map<String, Object> payload = createPeriodPayload(futureYear);
+    var payload = createPeriodPayload(futureYear);
 
     givenAuthenticatedJsonRequestAsUser(UIB_EDITOR)
         .body(payload)
@@ -89,7 +98,7 @@ class CreatePeriodTest extends ScientificIndexTestBase {
 
     var year = Integer.toString(Year.now(ZoneId.systemDefault()).getValue());
 
-    Map<String, Object> payload = createPeriodPayload(year);
+    var payload = createPeriodPayload(year);
 
     var response =
         givenAuthenticatedJsonRequestAsUser(APP_ADMIN)
@@ -114,7 +123,7 @@ class CreatePeriodTest extends ScientificIndexTestBase {
     var year =
         Integer.toString(Year.now(ZoneId.systemDefault()).plusYears(YEAR_OFFSET + 2).getValue());
 
-    Map<String, Object> payload = createPeriodPayload(year);
+    var payload = createPeriodPayload(year);
     var modifiedPayload = new HashMap<>(payload);
     modifiedPayload.put("reportingDate", String.format("%s-31-121T23:59:00Z", year));
 
@@ -124,8 +133,6 @@ class CreatePeriodTest extends ScientificIndexTestBase {
             .when()
             .post(PERIODS_PATH)
             .then()
-            .log()
-            .all()
             .statusCode(400)
             .extract()
             .jsonPath();
@@ -144,7 +151,7 @@ class CreatePeriodTest extends ScientificIndexTestBase {
     var yearMinusTwo = Integer.toString(Year.now(ZoneId.systemDefault()).minusYears(2).getValue());
     var yearMinusOne = Integer.toString(Year.now(ZoneId.systemDefault()).minusYears(1).getValue());
 
-    Map<String, Object> payload = createPeriodPayload(yearMinusTwo);
+    var payload = createPeriodPayload(yearMinusTwo);
     var modifiedPayload = new HashMap<>(payload);
     modifiedPayload.put("reportingDate", String.format("%s-06-01T23:59:00Z", yearMinusOne));
 
@@ -156,5 +163,35 @@ class CreatePeriodTest extends ScientificIndexTestBase {
         .statusCode(400)
         .extract()
         .jsonPath();
+  }
+
+  private static Stream<Arguments> userByRoleProvider() {
+    return Stream.of(
+      argumentSet("Registrar", UIB_CREATOR),
+      argumentSet("Nvi-curator", UserFixtures.UIB_NVI_CURATOR),
+      argumentSet("DOI-curator", UserFixtures.UIB_DOI_CURATOR),
+      argumentSet("Publishing-curator", UserFixtures.UIB_PUBLISHING_CURATOR),
+      argumentSet("Support curator", UserFixtures.UIB_SUPPORT_CURATOR),
+      argumentSet("Editor", UserFixtures.UIB_EDITOR)
+    );
+  }
+
+  @ParameterizedTest
+  @MethodSource("userByRoleProvider")
+  @DisplayName("Create new period user is not AppAdmin")
+  @Description(useJavaDoc = true)
+  void shouldReturnUnauthorizedWhenCreatorNotAppAdmin(User user, SoftAssertions softly) {
+    var year =
+        Integer.toString(Year.now(ZoneId.systemDefault()).plusYears(YEAR_OFFSET + 3).getValue());
+
+    var payload = createPeriodPayload(year);
+
+    givenAuthenticatedJsonRequestAsUser(user)
+        .body(payload)
+        .when()
+        .post(PERIODS_PATH)
+        .then()
+        .log().all()
+        .statusCode(401);
   }
 }
