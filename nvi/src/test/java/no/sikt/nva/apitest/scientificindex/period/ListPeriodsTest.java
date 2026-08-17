@@ -3,7 +3,7 @@ package no.sikt.nva.apitest.scientificindex.period;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_YEAR;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
 import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
-import static no.sikt.nva.apitest.base.UserFixtures.UIB_CONTRIBUTOR;
+import static no.sikt.nva.apitest.base.UserFixtures.APP_ADMIN;
 import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.PERIODS_PATH;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -24,7 +24,7 @@ class ListPeriodsTest extends ScientificIndexTestBase {
   @Description(useJavaDoc = true)
   void shouldReturnPeriodsWhenUserIsAuthenticated() {
     var response =
-        givenAuthenticatedJsonRequestAsUser(UIB_CONTRIBUTOR)
+        givenAuthenticatedJsonRequestAsUser(APP_ADMIN)
             .get(PERIODS_PATH)
             .then()
             .statusCode(200)

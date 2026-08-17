@@ -1,0 +1,7 @@
+{
+  "type": "NviPeriod",
+  "id": "{year}",
+  "publishingYear": "{year}",
+  "reportingDate": "{dateTime}",
+  "startDate": "{dateTime}"
+}
