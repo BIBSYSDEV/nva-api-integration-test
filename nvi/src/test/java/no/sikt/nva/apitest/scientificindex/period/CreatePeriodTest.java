@@ -2,6 +2,7 @@ package no.sikt.nva.apitest.scientificindex.period;
 
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_YEAR;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
+import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
 import static no.sikt.nva.apitest.base.UserFixtures.APP_ADMIN;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_DOI_CURATOR;
@@ -109,7 +110,7 @@ class CreatePeriodTest extends ScientificIndexTestBase {
   void shouldReturnUnauthorizedWhenUserIsUnauthenticated(SoftAssertions softly) {
     var payload = createPeriodPayload(UNAUTHENTICATED_PERIOD_YEAR);
 
-    givenAuthenticatedJsonRequestAsUser(UIB_EDITOR)
+    givenUnauthenticatedJsonRequest()
         .body(payload)
         .when()
         .post(PERIODS_PATH)
