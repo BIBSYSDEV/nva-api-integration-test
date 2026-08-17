@@ -13,6 +13,7 @@ import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.PERIODS_P
 import static org.junit.jupiter.params.provider.Arguments.argumentSet;
 
 import io.qameta.allure.Description;
+import io.restassured.RestAssured;
 import java.time.Year;
 import java.time.ZoneId;
 import java.util.HashMap;
@@ -97,11 +98,8 @@ class CreatePeriodTest extends ScientificIndexTestBase {
             .extract()
             .jsonPath();
 
-    softly
-        .assertThat(response.getString("id"))
-        .isEqualTo(
-            String.format(
-                "https://api.e2e.nva.aws.unit.no/scientific-index/period/%s", NEW_PERIOD_YEAR));
+    var expectedPeriodId = RestAssured.baseURI + "/scientific-index/period/" + NEW_PERIOD_YEAR;
+    softly.assertThat(response.getString("id")).isEqualTo(expectedPeriodId);
     softly.assertThat(response.getString("status")).isEqualTo("UnopenedPeriod");
   }
 
