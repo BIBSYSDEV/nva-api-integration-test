@@ -1,25 +1,6 @@
 package no.sikt.nva.apitest.scientificindex.period;
 
-import java.time.Year;
-import java.time.ZoneId;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.stream.Stream;
-
-import org.assertj.core.api.SoftAssertions;
-import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import static org.junit.jupiter.params.provider.Arguments.argumentSet;
-import org.junit.jupiter.params.provider.MethodSource;
-
-import io.qameta.allure.Description;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
-import no.sikt.nva.apitest.base.User;
 import static no.sikt.nva.apitest.base.UserFixtures.APP_ADMIN;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_DOI_CURATOR;
@@ -28,7 +9,25 @@ import static no.sikt.nva.apitest.base.UserFixtures.UIB_NVI_CURATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_PUBLISHING_CURATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_SUPPORT_CURATOR;
 import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.PERIODS_PATH;
+import static org.junit.jupiter.params.provider.Arguments.argumentSet;
+
+import io.qameta.allure.Description;
+import java.time.Year;
+import java.time.ZoneId;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Stream;
+import no.sikt.nva.apitest.base.User;
 import no.sikt.nva.apitest.scientificindex.ScientificIndexTestBase;
+import org.assertj.core.api.SoftAssertions;
+import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 @ExtendWith(SoftAssertionsExtension.class)
 @DisplayName("POST " + PERIODS_PATH)
@@ -169,7 +168,8 @@ class CreatePeriodTest extends ScientificIndexTestBase {
   }
 
   private static Stream<Arguments> userByRoleProvider() {
-    return Stream.of(argumentSet("Registrar", UIB_CREATOR),
+    return Stream.of(
+        argumentSet("Registrar", UIB_CREATOR),
         argumentSet("Nvi-curator", UIB_NVI_CURATOR),
         argumentSet("DOI-curator", UIB_DOI_CURATOR),
         argumentSet("Publishing-curator", UIB_PUBLISHING_CURATOR),
