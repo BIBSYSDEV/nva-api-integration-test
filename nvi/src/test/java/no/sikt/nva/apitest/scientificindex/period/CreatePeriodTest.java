@@ -20,9 +20,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(SoftAssertionsExtension.class)
 @DisplayName("POST " + PERIODS_PATH)
-public class CreatePeriodTest extends ScientificIndexTestBase {
+class CreatePeriodTest extends ScientificIndexTestBase {
 
-  private int YEAR_OFFSET = 10;
+  private static final int YEAR_OFFSET = 10;
 
   private Map<String, Object> createPeriodPayload(String year) {
 
@@ -39,7 +39,7 @@ public class CreatePeriodTest extends ScientificIndexTestBase {
   @Test
   @DisplayName("Create new period")
   @Description(useJavaDoc = true)
-  public void shouldReturnNewPeriodWhenUserIsAuthenticated(SoftAssertions softly) {
+  void shouldReturnNewPeriodWhenUserIsAuthenticated(SoftAssertions softly) {
 
     var futureYear =
         Integer.toString(Year.now(ZoneId.systemDefault()).plusYears(YEAR_OFFSET).getValue());
@@ -67,7 +67,7 @@ public class CreatePeriodTest extends ScientificIndexTestBase {
   @Test
   @DisplayName("Create new period unauthenticated")
   @Description(useJavaDoc = true)
-  public void shouldReturnUnauthorizedWhenUserIsUnauthenticated(SoftAssertions softly) {
+  void shouldReturnUnauthorizedWhenUserIsUnauthenticated(SoftAssertions softly) {
 
     var futureYear =
         Integer.toString(Year.now(ZoneId.systemDefault()).plusYears(YEAR_OFFSET + 1).getValue());
@@ -85,7 +85,7 @@ public class CreatePeriodTest extends ScientificIndexTestBase {
   @Test
   @DisplayName("Create new period already exists")
   @Description(useJavaDoc = true)
-  public void shouldReturnErrorWhenTryingToCreateExistingPeriod(SoftAssertions softly) {
+  void shouldReturnErrorWhenTryingToCreateExistingPeriod(SoftAssertions softly) {
 
     var year = Integer.toString(Year.now(ZoneId.systemDefault()).getValue());
 
@@ -109,7 +109,7 @@ public class CreatePeriodTest extends ScientificIndexTestBase {
   @Test
   @DisplayName("Create new period wrong date format")
   @Description(useJavaDoc = true)
-  public void shouldReturnErrorWhenWrongDateFormat(SoftAssertions softly) {
+  void shouldReturnErrorWhenWrongDateFormat(SoftAssertions softly) {
 
     var year =
         Integer.toString(Year.now(ZoneId.systemDefault()).plusYears(YEAR_OFFSET + 2).getValue());
@@ -139,7 +139,7 @@ public class CreatePeriodTest extends ScientificIndexTestBase {
   @DisplayName("Create new period overlapping already existing period")
   @Disabled("Not implemented")
   @Description(useJavaDoc = true)
-  public void shouldReturnErrorWhenTryingToCreateOverlappingPeriod(SoftAssertions softly) {
+  void shouldReturnErrorWhenTryingToCreateOverlappingPeriod(SoftAssertions softly) {
 
     var yearMinusTwo = Integer.toString(Year.now(ZoneId.systemDefault()).minusYears(2).getValue());
     var yearMinusOne = Integer.toString(Year.now(ZoneId.systemDefault()).minusYears(1).getValue());
