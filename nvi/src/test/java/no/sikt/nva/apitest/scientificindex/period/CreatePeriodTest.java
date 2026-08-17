@@ -1,23 +1,22 @@
 package no.sikt.nva.apitest.scientificindex.period;
 
+import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
+import static no.sikt.nva.apitest.base.UserFixtures.APP_ADMIN;
+import static no.sikt.nva.apitest.base.UserFixtures.UIB_EDITOR;
+import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.PERIODS_PATH;
+
+import io.qameta.allure.Description;
 import java.time.Year;
 import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.Map;
-
+import no.sikt.nva.apitest.scientificindex.ScientificIndexTestBase;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-
-import io.qameta.allure.Description;
-import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
-import static no.sikt.nva.apitest.base.UserFixtures.APP_ADMIN;
-import static no.sikt.nva.apitest.base.UserFixtures.UIB_EDITOR;
-import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.PERIODS_PATH;
-import no.sikt.nva.apitest.scientificindex.ScientificIndexTestBase;
 
 @ExtendWith(SoftAssertionsExtension.class)
 @DisplayName("POST " + PERIODS_PATH)
@@ -42,7 +41,8 @@ public class CreatePeriodTest extends ScientificIndexTestBase {
   @Description(useJavaDoc = true)
   public void shouldReturnNewPeriodWhenUserIsAuthenticated(SoftAssertions softly) {
 
-    var futureYear = Integer.toString(Year.now(ZoneId.systemDefault()).plusYears(YEAR_OFFSET).getValue());
+    var futureYear =
+        Integer.toString(Year.now(ZoneId.systemDefault()).plusYears(YEAR_OFFSET).getValue());
 
     Map<String, Object> payload = createPeriodPayload(futureYear);
 
@@ -69,7 +69,8 @@ public class CreatePeriodTest extends ScientificIndexTestBase {
   @Description(useJavaDoc = true)
   public void shouldReturnUnauthorizedWhenUserIsUnauthenticated(SoftAssertions softly) {
 
-    var futureYear = Integer.toString(Year.now(ZoneId.systemDefault()).plusYears(YEAR_OFFSET + 1).getValue());
+    var futureYear =
+        Integer.toString(Year.now(ZoneId.systemDefault()).plusYears(YEAR_OFFSET + 1).getValue());
 
     Map<String, Object> payload = createPeriodPayload(futureYear);
 
@@ -90,16 +91,19 @@ public class CreatePeriodTest extends ScientificIndexTestBase {
 
     Map<String, Object> payload = createPeriodPayload(year);
 
-    var response = givenAuthenticatedJsonRequestAsUser(APP_ADMIN)
-        .body(payload)
-        .when()
-        .post(PERIODS_PATH)
-        .then()
-        .statusCode(400)
-        .extract()
-        .jsonPath();
+    var response =
+        givenAuthenticatedJsonRequestAsUser(APP_ADMIN)
+            .body(payload)
+            .when()
+            .post(PERIODS_PATH)
+            .then()
+            .statusCode(400)
+            .extract()
+            .jsonPath();
 
-        softly.assertThat(response.getString("detail")).isEqualTo(String.format("Period with publishing year %s already exists!", year));
+    softly
+        .assertThat(response.getString("detail"))
+        .isEqualTo(String.format("Period with publishing year %s already exists!", year));
   }
 
   @Test
@@ -107,23 +111,28 @@ public class CreatePeriodTest extends ScientificIndexTestBase {
   @Description(useJavaDoc = true)
   public void shouldReturnErrorWhenWrongDateFormat(SoftAssertions softly) {
 
-    var year = Integer.toString(Year.now(ZoneId.systemDefault()).plusYears(YEAR_OFFSET + 2).getValue());
+    var year =
+        Integer.toString(Year.now(ZoneId.systemDefault()).plusYears(YEAR_OFFSET + 2).getValue());
 
     Map<String, Object> payload = createPeriodPayload(year);
     var modifiedPayload = new HashMap<>(payload);
     modifiedPayload.put("reportingDate", String.format("%s-31-121T23:59:00Z", year));
 
-    var response = givenAuthenticatedJsonRequestAsUser(APP_ADMIN)
-        .body(modifiedPayload)
-        .when()
-        .post(PERIODS_PATH)
-        .then()
-        .log().all()
-        .statusCode(400)
-        .extract()
-        .jsonPath();
+    var response =
+        givenAuthenticatedJsonRequestAsUser(APP_ADMIN)
+            .body(modifiedPayload)
+            .when()
+            .post(PERIODS_PATH)
+            .then()
+            .log()
+            .all()
+            .statusCode(400)
+            .extract()
+            .jsonPath();
 
-        softly.assertThat(response.getString("detail")).contains(String.format("%s-31-121T23:59:00Z", year));
+    softly
+        .assertThat(response.getString("detail"))
+        .contains(String.format("%s-31-121T23:59:00Z", year));
   }
 
   @Test
