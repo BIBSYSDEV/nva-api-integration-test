@@ -20,10 +20,13 @@ import org.junit.jupiter.params.provider.MethodSource;
 import io.qameta.allure.Description;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
 import no.sikt.nva.apitest.base.User;
-import no.sikt.nva.apitest.base.UserFixtures;
 import static no.sikt.nva.apitest.base.UserFixtures.APP_ADMIN;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
+import static no.sikt.nva.apitest.base.UserFixtures.UIB_DOI_CURATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_EDITOR;
+import static no.sikt.nva.apitest.base.UserFixtures.UIB_NVI_CURATOR;
+import static no.sikt.nva.apitest.base.UserFixtures.UIB_PUBLISHING_CURATOR;
+import static no.sikt.nva.apitest.base.UserFixtures.UIB_SUPPORT_CURATOR;
 import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.PERIODS_PATH;
 import no.sikt.nva.apitest.scientificindex.ScientificIndexTestBase;
 
@@ -166,14 +169,12 @@ class CreatePeriodTest extends ScientificIndexTestBase {
   }
 
   private static Stream<Arguments> userByRoleProvider() {
-    return Stream.of(
-      argumentSet("Registrar", UIB_CREATOR),
-      argumentSet("Nvi-curator", UserFixtures.UIB_NVI_CURATOR),
-      argumentSet("DOI-curator", UserFixtures.UIB_DOI_CURATOR),
-      argumentSet("Publishing-curator", UserFixtures.UIB_PUBLISHING_CURATOR),
-      argumentSet("Support curator", UserFixtures.UIB_SUPPORT_CURATOR),
-      argumentSet("Editor", UserFixtures.UIB_EDITOR)
-    );
+    return Stream.of(argumentSet("Registrar", UIB_CREATOR),
+        argumentSet("Nvi-curator", UIB_NVI_CURATOR),
+        argumentSet("DOI-curator", UIB_DOI_CURATOR),
+        argumentSet("Publishing-curator", UIB_PUBLISHING_CURATOR),
+        argumentSet("Support curator", UIB_SUPPORT_CURATOR),
+        argumentSet("Editor", UIB_EDITOR));
   }
 
   @ParameterizedTest
@@ -191,7 +192,8 @@ class CreatePeriodTest extends ScientificIndexTestBase {
         .when()
         .post(PERIODS_PATH)
         .then()
-        .log().all()
+        .log()
+        .all()
         .statusCode(401);
   }
 }
