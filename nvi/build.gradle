@@ -14,6 +14,7 @@ dependencies {
     testImplementation(libs.rest.assured.json.path)
     testImplementation(nvaCatalog.assertj.core)
     testImplementation(nvaCatalog.junit.jupiter.api)
+    testImplementation(nvaCatalog.junit.jupiter.params)
     testImplementation(project(':apitest-base'))
     testImplementation(testFixtures(project(':apitest-base')))
     testRuntimeOnly(nvaCatalog.junit.jupiter.engine)
