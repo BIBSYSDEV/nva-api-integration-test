@@ -107,7 +107,7 @@ class CreatePeriodTest extends ScientificIndexTestBase {
   @Test
   @DisplayName("Create new period unauthenticated")
   @Description(useJavaDoc = true)
-  void shouldReturnUnauthorizedWhenUserIsUnauthenticated(SoftAssertions softly) {
+  void shouldReturnUnauthorizedWhenUserIsUnauthenticated() {
     var payload = createPeriodPayload(UNAUTHENTICATED_PERIOD_YEAR);
 
     givenUnauthenticatedJsonRequest()
@@ -167,7 +167,7 @@ class CreatePeriodTest extends ScientificIndexTestBase {
   @DisplayName("Create new period overlapping already existing period")
   @Disabled("Not implemented")
   @Description(useJavaDoc = true)
-  void shouldReturnErrorWhenTryingToCreateOverlappingPeriod(SoftAssertions softly) {
+  void shouldReturnErrorWhenTryingToCreateOverlappingPeriod() {
 
     var yearMinusTwo = Integer.toString(Year.now(ZoneId.systemDefault()).minusYears(2).getValue());
     var yearMinusOne = Integer.toString(Year.now(ZoneId.systemDefault()).minusYears(1).getValue());
@@ -200,7 +200,7 @@ class CreatePeriodTest extends ScientificIndexTestBase {
   @MethodSource("userByRoleProvider")
   @DisplayName("Create new period user is not AppAdmin")
   @Description(useJavaDoc = true)
-  void shouldReturnUnauthorizedWhenCreatorNotAppAdmin(User user, SoftAssertions softly) {
+  void shouldReturnUnauthorizedWhenCreatorNotAppAdmin(User user) {
     var payload = createPeriodPayload(NON_ADMIN_PERIOD_YEAR);
 
     givenAuthenticatedJsonRequestAsUser(user)
