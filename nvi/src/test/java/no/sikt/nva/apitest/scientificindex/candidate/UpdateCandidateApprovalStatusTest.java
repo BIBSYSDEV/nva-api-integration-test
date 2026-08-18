@@ -5,16 +5,20 @@ import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsU
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_NVI_CURATOR;
 import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATE_STATUS_PATH;
+import static org.junit.jupiter.params.provider.Arguments.argumentSet;
 
 import io.qameta.allure.Description;
 import io.restassured.response.Response;
 import java.net.HttpURLConnection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Callable;
+import java.util.stream.Stream;
 import no.sikt.nva.apitest.base.Affiliation;
 import no.sikt.nva.apitest.base.User;
+import no.sikt.nva.apitest.base.UserFixtures;
 import no.sikt.nva.apitest.scientificindex.NviCandidate;
 import no.sikt.nva.apitest.scientificindex.ScientificIndexTestBase;
 import org.assertj.core.api.SoftAssertions;
@@ -22,13 +26,14 @@ import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.parallel.Execution;
-import org.junit.jupiter.api.parallel.ExecutionMode;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 // Each test method creates its own NVI candidate, and running them concurrently fires a burst of
 // asynchronous evaluations that backs up the pipeline and makes candidate creation time out. Run
 // this class's methods on a single thread so at most one candidate is being evaluated at a time.
-@Execution(ExecutionMode.SAME_THREAD)
+// @Execution(ExecutionMode.SAME_THREAD)
 @ExtendWith(SoftAssertionsExtension.class)
 @DisplayName("PUT " + CANDIDATE_STATUS_PATH)
 class UpdateCandidateApprovalStatusTest extends ScientificIndexTestBase {
@@ -55,6 +60,38 @@ class UpdateCandidateApprovalStatusTest extends ScientificIndexTestBase {
     softly.assertThat(response.getString("approvals[0].status")).isEqualTo(APPROVED);
     softly.assertThat(response.getString("approvals[0].finalizedBy")).isNotEmpty();
     softly.assertThat(response.getString("approvals[0].finalizedDate")).isNotEmpty();
+  }
+
+  @ParameterizedTest
+  @MethodSource("curatorProvider")
+  @DisplayName("Approve candidate as NVI curator at a given institution")
+  @Description(useJavaDoc = true)
+  void shouldApproveCandidateWhenRequestedBySomeNviCurator(
+      User curator, User creator, SoftAssertions softly) {
+    var title = String.format("Approved by %s - %s", curator.name(), UUID.randomUUID());
+    var candidate = CANDIDATE_FACTORY.createCandidate(title, List.of(creator));
+
+    var response =
+        updateApprovalStatus(curator, candidate, approvalRequest(APPROVED))
+            .then()
+            .statusCode(200)
+            .extract()
+            .jsonPath();
+
+    softly.assertThat(response.getString("approvals[0].status")).isEqualTo(APPROVED);
+    softly
+        .assertThat(response.getString("approvals[0].finalizedBy"))
+        .isEqualTo(curator.cristinId());
+    softly.assertThat(response.getString("approvals[0].finalizedDate")).isNotEmpty();
+  }
+
+  private static Stream<Arguments> curatorProvider() {
+    return Stream.of(
+        argumentSet(
+            "Kristiania", UserFixtures.KRISTIANIA_NVI_CURATOR, UserFixtures.KRISTIANIA_CREATOR),
+        argumentSet("OsloMet", UserFixtures.OSLO_MET_NVI_CURATOR, UserFixtures.OSLO_MET_CREATOR),
+        argumentSet("UiB", UserFixtures.UIB_NVI_CURATOR, UserFixtures.UIB_CREATOR),
+        argumentSet("UiS", UserFixtures.UIS_NVI_CURATOR, UserFixtures.UIS_CREATOR));
   }
 
   /** Rejecting a candidate with a reason returns status {@code 200 OK}. */

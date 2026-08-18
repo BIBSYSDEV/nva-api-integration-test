@@ -9,13 +9,14 @@ import static no.sikt.nva.apitest.base.UserFixtures.UIB_NVI_CURATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_PUBLISHING_CURATOR;
 import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATES_PATH;
 import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATE_BY_PUBLICATION_PATH;
+import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATE_STATUS_PATH;
 import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.encode;
 
-import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import java.net.HttpURLConnection;
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.function.Predicate;
 import no.sikt.Category;
@@ -33,16 +34,33 @@ public class NviCandidateFactory {
   private final PublicationFactory publicationFactory = new PublicationFactory();
 
   public NviCandidate createCandidate(String title) {
-    var publicationIdentifier =
-        publicationFactory.createPublishedPublication(
-            UIB_CREATOR,
-            title,
-            Category.ACADEMIC_ARTICLE,
-            List.of(new Contributor(UIB_CREATOR, CREATOR)),
-            UIB_PUBLISHING_CURATOR);
-    var publicationId = RestAssured.baseURI + "/publication/" + publicationIdentifier;
-    var candidateIdentifier = awaitCandidate(publicationId);
-    return new NviCandidate(candidateIdentifier, publicationId, title, UIB_CREATOR.name());
+    var publicationIdentifier = createAcademicArticle(title);
+    var candidateIdentifier = awaitCandidate(publicationIdentifier);
+    return new NviCandidate(candidateIdentifier, publicationIdentifier, title, UIB_CREATOR.name());
+  }
+
+  public NviCandidate createCandidate(String title, List<User> creators) {
+    var contributors = creators.stream().map(Contributor::asCreator).toList();
+    var publicationIdentifier = createAcademicArticle(title, contributors);
+    var candidateIdentifier = awaitCandidate(publicationIdentifier);
+    return new NviCandidate(candidateIdentifier, publicationIdentifier, title, UIB_CREATOR.name());
+  }
+
+  private String createAcademicArticle(String title) {
+    return createAcademicArticle(title, List.of(new Contributor(UIB_CREATOR, CREATOR)));
+  }
+
+  private String createAcademicArticle(String title, List<Contributor> contributors) {
+    return publicationFactory.createPublishedPublication(
+        UIB_CREATOR, title, Category.ACADEMIC_ARTICLE, contributors, UIB_PUBLISHING_CURATOR);
+  }
+
+  public Response fetchCandidateByPublicationIdentifier(User user, String publicationIdentifier) {
+    return givenAuthenticatedJsonRequestAsUser(user)
+        .get(CANDIDATE_BY_PUBLICATION_PATH, publicationIdentifier)
+        .then()
+        .extract()
+        .response();
   }
 
   public Response fetchCandidateByPublicationId(User user, String publicationId) {
@@ -100,6 +118,31 @@ public class NviCandidateFactory {
             && nonNull(response.jsonPath().getMap(indexedCandidateByPublicationId(publicationId)));
   }
 
+  public static Response updateApprovalStatus(NviCandidate candidate, User user, String status) {
+    var requestBody = approvalRequest(user, status);
+    return pollUntil(
+        putApprovalStatusRequest(user, candidate, requestBody), NviCandidateFactory::isNotConflict);
+  }
+
+  private static Map<String, String> approvalRequest(User user, String status) {
+    return Map.of("institutionId", user.affiliations().iterator().next(), "status", status);
+  }
+
+  public static Callable<Response> putApprovalStatusRequest(
+      User user, NviCandidate candidate, Map<String, String> requestBody) {
+    return () ->
+        givenAuthenticatedJsonRequestAsUser(user)
+            .body(requestBody)
+            .put(CANDIDATE_STATUS_PATH, candidate.candidateIdentifier())
+            .then()
+            .extract()
+            .response();
+  }
+
+  private static boolean isNotConflict(Response response) {
+    return response.statusCode() != HttpURLConnection.HTTP_CONFLICT;
+  }
+
   /**
    * Waits until the candidate is fully evaluated, not just fetchable, since a 200 response may
    * arrive before the evaluator has populated approvals and points.
@@ -115,8 +158,8 @@ public class NviCandidateFactory {
     return evaluatedCandidate.jsonPath().getString(IDENTIFIER_FIELD_IN_CANDIDATE);
   }
 
-  private Callable<Response> fetchCandidateRequest(String publicationId) {
-    return () -> fetchCandidateByPublicationId(UIB_NVI_CURATOR, publicationId);
+  private Callable<Response> fetchCandidateRequest(String publicationIdentifier) {
+    return () -> fetchCandidateByPublicationIdentifier(UIB_NVI_CURATOR, publicationIdentifier);
   }
 
   private boolean isFullyEvaluated(Response response) {
