@@ -3,6 +3,7 @@ package no.sikt.nva.apitest.scientificindex;
 import static no.sikt.nva.apitest.base.ApplicationConstants.getRegion;
 
 import java.util.Map;
+import no.sikt.nva.apitest.base.CognitoLogin;
 import nva.commons.core.Environment;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
@@ -14,9 +15,8 @@ import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
  */
 public final class NviPeriods {
 
-  private static final String DEFAULT_TABLE_NAME =
-      "nva-nvi-master-pipelines-NvaNvi-1V33HP5I7F42I-nva-nvi";
-  private static final String TABLE_NAME = getTableName(new Environment());
+  private static final String TABLE_NAME =
+      CognitoLogin.getValueFromParameterStore("/test/NviTable");
 
   private static final String PARTITION_KEY_ATTRIBUTE = "PrimaryKeyHashKey";
   private static final String SORT_KEY_ATTRIBUTE = "PrimaryKeyRangeKey";
@@ -44,9 +44,5 @@ public final class NviPeriods {
         AttributeValue.fromS(PERIOD_TYPE),
         SORT_KEY_ATTRIBUTE,
         AttributeValue.fromS(PERIOD_TYPE + KEY_DELIMITER + publishingYear));
-  }
-
-  private static String getTableName(Environment environment) {
-    return environment.readEnvOpt("NVI_TABLE_NAME").orElse(DEFAULT_TABLE_NAME);
   }
 }
