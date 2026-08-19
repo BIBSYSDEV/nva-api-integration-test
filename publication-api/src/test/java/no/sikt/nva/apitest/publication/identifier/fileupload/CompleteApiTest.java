@@ -1,5 +1,6 @@
 package no.sikt.nva.apitest.publication.identifier.fileupload;
 
+import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_DATE;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequest;
 import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
@@ -7,9 +8,6 @@ import static no.sikt.nva.apitest.publication.PublicationFields.IDENTIFIER_FIELD
 import static no.sikt.nva.apitest.publication.PublicationPaths.fileUploadCompletePath;
 
 import io.qameta.allure.Description;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import org.assertj.core.api.SoftAssertions;
@@ -43,9 +41,6 @@ class CompleteApiTest extends FileUploadTestBase {
     var key = createResponse.jsonPath().getString(KEY);
     var eTag = prepareAndUpload(identifier, uploadId, key);
 
-    var today =
-        LocalDate.now(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-
     var response =
         givenAuthenticatedJsonRequest(getCreatorAccessToken())
             .body(completePayload(uploadId, key, eTag))
@@ -70,7 +65,7 @@ class CompleteApiTest extends FileUploadTestBase {
     softly
         .assertThat(response.getString("uploadDetails.uploadedBy"))
         .isEqualTo(UIB_CREATOR.cristinId());
-    softly.assertThat(response.getString("uploadDetails.uploadedDate")).startsWith(today);
+    softly.assertThat(response.getString("uploadDetails.uploadedDate")).startsWith(CURRENT_DATE);
   }
 
   /**

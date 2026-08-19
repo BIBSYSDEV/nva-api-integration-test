@@ -1,9 +1,9 @@
 package no.sikt.nva.apitest.scientificindex;
 
-import static java.util.Objects.nonNull;
+import static no.sikt.nva.apitest.base.ApplicationConstants.getRegion;
 
 import java.util.Map;
-import software.amazon.awssdk.regions.Region;
+import nva.commons.core.Environment;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
@@ -14,16 +14,9 @@ import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
  */
 public final class NviPeriods {
 
-  private static final String REGION =
-      nonNull(System.getenv("AWS_REGION")) ? System.getenv("AWS_REGION") : "eu-west-1";
-
   private static final String DEFAULT_TABLE_NAME =
       "nva-nvi-master-pipelines-NvaNvi-1V33HP5I7F42I-nva-nvi";
-
-  private static final String TABLE_NAME =
-      nonNull(System.getenv("NVI_TABLE_NAME"))
-          ? System.getenv("NVI_TABLE_NAME")
-          : DEFAULT_TABLE_NAME;
+  private static final String TABLE_NAME = getTableName(new Environment());
 
   private static final String PARTITION_KEY_ATTRIBUTE = "PrimaryKeyHashKey";
   private static final String SORT_KEY_ATTRIBUTE = "PrimaryKeyRangeKey";
@@ -31,7 +24,7 @@ public final class NviPeriods {
   private static final String KEY_DELIMITER = "#";
 
   private static final DynamoDbClient DYNAMO_DB_CLIENT =
-      DynamoDbClient.builder().region(Region.of(REGION)).build();
+      DynamoDbClient.builder().region(getRegion(new Environment())).build();
 
   private NviPeriods() {}
 
@@ -51,5 +44,9 @@ public final class NviPeriods {
         AttributeValue.fromS(PERIOD_TYPE),
         SORT_KEY_ATTRIBUTE,
         AttributeValue.fromS(PERIOD_TYPE + KEY_DELIMITER + publishingYear));
+  }
+
+  private static String getTableName(Environment environment) {
+    return environment.readEnvOpt("NVI_TABLE_NAME").orElse(DEFAULT_TABLE_NAME);
   }
 }

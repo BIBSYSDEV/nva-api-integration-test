@@ -2,6 +2,7 @@ package no.sikt.nva.apitest.publication;
 
 import static io.restassured.RestAssured.given;
 import static no.sikt.nva.apitest.base.Affiliation.UIB;
+import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_DATE;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedRequest;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
 import static no.sikt.nva.apitest.publication.PublicationFields.IDENTIFIER_FIELD;
@@ -11,9 +12,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import io.qameta.allure.Description;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import no.sikt.nva.apitest.base.CognitoLogin;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
@@ -45,9 +43,6 @@ class CreateApiTest extends PublicationTestBase {
   @DisplayName("Creator create draft publication")
   @Description(useJavaDoc = true)
   void shouldCreateDraftPublicationOwnedByCreator(SoftAssertions softly) {
-    var today =
-        LocalDate.now(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-
     var response =
         givenAuthenticatedRequest(creatorAccessToken)
             .accept(ContentType.JSON)
@@ -67,8 +62,8 @@ class CreateApiTest extends PublicationTestBase {
         .isEqualTo(UIB.getValue());
     softly.assertThat(response.getString("publisher.type")).isEqualTo("Organization");
     softly.assertThat(response.getString("publisher.id")).isEqualTo(customerUib);
-    softly.assertThat(response.getString("createdDate")).startsWith(today);
-    softly.assertThat(response.getString("modifiedDate")).startsWith(today);
+    softly.assertThat(response.getString("createdDate")).startsWith(CURRENT_DATE);
+    softly.assertThat(response.getString("modifiedDate")).startsWith(CURRENT_DATE);
   }
 
   /** An unauthenticated user calling create should return status {@code 401 Unauthorized}. */

@@ -1,6 +1,7 @@
 package no.sikt.nva.apitest.scientificindex.period;
 
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_YEAR;
+import static no.sikt.nva.apitest.base.CurrentTimeConstants.getCurrentYear;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
 import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
 import static no.sikt.nva.apitest.base.UserFixtures.APP_ADMIN;
@@ -15,8 +16,6 @@ import static org.junit.jupiter.params.provider.Arguments.argumentSet;
 
 import io.qameta.allure.Description;
 import io.restassured.RestAssured;
-import java.time.Year;
-import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -68,7 +67,11 @@ class CreatePeriodTest extends ScientificIndexTestBase {
   }
 
   private static String futureYear(int yearsFromNow) {
-    return Integer.toString(Year.now(ZoneId.systemDefault()).plusYears(yearsFromNow).getValue());
+    return getCurrentYear().plusYears(yearsFromNow).toString();
+  }
+
+  private static String pastYear(int yearsAgo) {
+    return getCurrentYear().minusYears(yearsAgo).toString();
   }
 
   private Map<String, String> createPeriodPayload(String year) {
@@ -169,8 +172,8 @@ class CreatePeriodTest extends ScientificIndexTestBase {
   @Description(useJavaDoc = true)
   void shouldReturnErrorWhenTryingToCreateOverlappingPeriod() {
 
-    var yearMinusTwo = Integer.toString(Year.now(ZoneId.systemDefault()).minusYears(2).getValue());
-    var yearMinusOne = Integer.toString(Year.now(ZoneId.systemDefault()).minusYears(1).getValue());
+    var yearMinusTwo = pastYear(2);
+    var yearMinusOne = pastYear(1);
 
     var payload = createPeriodPayload(yearMinusTwo);
     var modifiedPayload = new HashMap<>(payload);
