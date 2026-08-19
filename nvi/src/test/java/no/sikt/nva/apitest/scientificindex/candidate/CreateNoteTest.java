@@ -1,22 +1,23 @@
 package no.sikt.nva.apitest.scientificindex.candidate;
 
-import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
-import static no.sikt.nva.apitest.base.UserFixtures.OSLO_MET_CREATOR;
-import static no.sikt.nva.apitest.base.UserFixtures.OSLO_MET_NVI_CURATOR;
-import static no.sikt.nva.apitest.base.UserFixtures.UIB_NVI_CURATOR;
-import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATE_NOTES_PATH;
-
-import io.qameta.allure.Description;
 import java.util.Map;
 import java.util.UUID;
-import no.sikt.nva.apitest.base.User;
-import no.sikt.nva.apitest.scientificindex.NviCandidate;
-import no.sikt.nva.apitest.scientificindex.ScientificIndexTestBase;
+
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+
+import io.qameta.allure.Description;
+import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
+import no.sikt.nva.apitest.base.User;
+import static no.sikt.nva.apitest.base.UserFixtures.OSLO_MET_CREATOR;
+import static no.sikt.nva.apitest.base.UserFixtures.OSLO_MET_NVI_CURATOR;
+import static no.sikt.nva.apitest.base.UserFixtures.UIB_NVI_CURATOR;
+import no.sikt.nva.apitest.scientificindex.NviCandidate;
+import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATE_NOTES_PATH;
+import no.sikt.nva.apitest.scientificindex.ScientificIndexTestBase;
 
 @ExtendWith(SoftAssertionsExtension.class)
 @DisplayName("POST " + CANDIDATE_NOTES_PATH)
@@ -30,14 +31,14 @@ class CreateNoteTest extends ScientificIndexTestBase {
 
     var candidate = createCandidate(OSLO_MET_CREATOR);
 
-    var canidateIdentifier = candidate.candidateIdentifier();
+    var candidateIdentifier = candidate.candidateIdentifier();
     var payload = createNote();
 
     var response =
         givenAuthenticatedJsonRequestAsUser(OSLO_MET_NVI_CURATOR)
             .body(payload)
             .when()
-            .post(CANDIDATE_NOTES_PATH, canidateIdentifier)
+            .post(CANDIDATE_NOTES_PATH, candidateIdentifier)
             .then()
             .statusCode(200)
             .extract()
@@ -57,13 +58,13 @@ class CreateNoteTest extends ScientificIndexTestBase {
 
     var candidate = createCandidate(OSLO_MET_CREATOR);
 
-    var canidateIdentifier = candidate.candidateIdentifier();
+    var candidateIdentifier = candidate.candidateIdentifier();
     var payload = createNote();
 
     givenAuthenticatedJsonRequestAsUser(UIB_NVI_CURATOR)
         .body(payload)
         .when()
-        .post(CANDIDATE_NOTES_PATH, canidateIdentifier)
+        .post(CANDIDATE_NOTES_PATH, candidateIdentifier)
         .then()
         .statusCode(401);
   }
@@ -74,13 +75,13 @@ class CreateNoteTest extends ScientificIndexTestBase {
   @Description(useJavaDoc = true)
   void shouldReturnNotFoundWhenCreatingNoteOnNonExistingCandidate() {
 
-    var canidateIdentifier = UUID.randomUUID().toString();
+    var candidateIdentifier = UUID.randomUUID().toString();
     var payload = createNote();
 
     givenAuthenticatedJsonRequestAsUser(UIB_NVI_CURATOR)
         .body(payload)
         .when()
-        .post(CANDIDATE_NOTES_PATH, canidateIdentifier)
+        .post(CANDIDATE_NOTES_PATH, candidateIdentifier)
         .then()
         .statusCode(404);
   }
@@ -93,12 +94,12 @@ class CreateNoteTest extends ScientificIndexTestBase {
 
     var candidate = createCandidate(OSLO_MET_CREATOR);
 
-    var canidateIdentifier = candidate.candidateIdentifier();
+    var candidateIdentifier = candidate.candidateIdentifier();
 
     var response =
         givenAuthenticatedJsonRequestAsUser(OSLO_MET_NVI_CURATOR)
             .when()
-            .post(CANDIDATE_NOTES_PATH, canidateIdentifier)
+            .post(CANDIDATE_NOTES_PATH, candidateIdentifier)
             .then()
             .statusCode(400)
             .extract()
@@ -115,14 +116,14 @@ class CreateNoteTest extends ScientificIndexTestBase {
 
     var candidate = createCandidate(OSLO_MET_CREATOR);
 
-    var canidateIdentifier = candidate.candidateIdentifier();
+    var candidateIdentifier = candidate.candidateIdentifier();
     var payload = Map.of("noteText", "NVI integration test " + UUID.randomUUID());
 
     var response =
         givenAuthenticatedJsonRequestAsUser(OSLO_MET_NVI_CURATOR)
             .body(payload)
             .when()
-            .post(CANDIDATE_NOTES_PATH, canidateIdentifier)
+            .post(CANDIDATE_NOTES_PATH, candidateIdentifier)
             .then()
             .statusCode(400)
             .extract()
