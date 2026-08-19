@@ -1,6 +1,9 @@
 package no.sikt.nva.apitest.scientificindex.period;
 
+import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_YEAR;
+import static no.sikt.nva.apitest.base.CurrentTimeConstants.getCurrentYear;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
+import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
 import static no.sikt.nva.apitest.base.UserFixtures.APP_ADMIN;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_DOI_CURATOR;
@@ -12,15 +15,18 @@ import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.PERIODS_P
 import static org.junit.jupiter.params.provider.Arguments.argumentSet;
 
 import io.qameta.allure.Description;
-import java.time.Year;
-import java.time.ZoneId;
+import io.restassured.RestAssured;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 import no.sikt.nva.apitest.base.User;
+import no.sikt.nva.apitest.scientificindex.NviPeriods;
 import no.sikt.nva.apitest.scientificindex.ScientificIndexTestBase;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -33,7 +39,40 @@ import org.junit.jupiter.params.provider.MethodSource;
 @DisplayName("POST " + PERIODS_PATH)
 class CreatePeriodTest extends ScientificIndexTestBase {
 
-  private static final int YEAR_OFFSET = 10;
+  private static final int FIRST_TEST_YEAR_OFFSET = 10;
+
+  private static final String NEW_PERIOD_YEAR = futureYear(FIRST_TEST_YEAR_OFFSET);
+  private static final String UNAUTHENTICATED_PERIOD_YEAR = futureYear(FIRST_TEST_YEAR_OFFSET + 1);
+  private static final String INVALID_DATE_PERIOD_YEAR = futureYear(FIRST_TEST_YEAR_OFFSET + 2);
+  private static final String NON_ADMIN_PERIOD_YEAR = futureYear(FIRST_TEST_YEAR_OFFSET + 3);
+
+  private static final List<String> TEST_PERIOD_YEARS =
+      List.of(
+          NEW_PERIOD_YEAR,
+          UNAUTHENTICATED_PERIOD_YEAR,
+          INVALID_DATE_PERIOD_YEAR,
+          NON_ADMIN_PERIOD_YEAR);
+
+  /**
+   * Removes periods left behind by an earlier run, which would otherwise be rejected as conflicts.
+   */
+  @BeforeAll
+  static void deleteLeftoverPeriods() {
+    TEST_PERIOD_YEARS.forEach(NviPeriods::deletePeriod);
+  }
+
+  @AfterAll
+  static void deleteCreatedPeriods() {
+    TEST_PERIOD_YEARS.forEach(NviPeriods::deletePeriod);
+  }
+
+  private static String futureYear(int yearsFromNow) {
+    return getCurrentYear().plusYears(yearsFromNow).toString();
+  }
+
+  private static String pastYear(int yearsAgo) {
+    return getCurrentYear().minusYears(yearsAgo).toString();
+  }
 
   private Map<String, String> createPeriodPayload(String year) {
 
@@ -51,11 +90,7 @@ class CreatePeriodTest extends ScientificIndexTestBase {
   @DisplayName("Create new period")
   @Description(useJavaDoc = true)
   void shouldReturnNewPeriodWhenUserIsAuthenticated(SoftAssertions softly) {
-
-    var futureYear =
-        Integer.toString(Year.now(ZoneId.systemDefault()).plusYears(YEAR_OFFSET).getValue());
-
-    var payload = createPeriodPayload(futureYear);
+    var payload = createPeriodPayload(NEW_PERIOD_YEAR);
 
     var response =
         givenAuthenticatedJsonRequestAsUser(APP_ADMIN)
@@ -67,25 +102,18 @@ class CreatePeriodTest extends ScientificIndexTestBase {
             .extract()
             .jsonPath();
 
-    softly
-        .assertThat(response.getString("id"))
-        .isEqualTo(
-            String.format(
-                "https://api.e2e.nva.aws.unit.no/scientific-index/period/%s", futureYear));
+    var expectedPeriodId = RestAssured.baseURI + "/scientific-index/period/" + NEW_PERIOD_YEAR;
+    softly.assertThat(response.getString("id")).isEqualTo(expectedPeriodId);
     softly.assertThat(response.getString("status")).isEqualTo("UnopenedPeriod");
   }
 
   @Test
   @DisplayName("Create new period unauthenticated")
   @Description(useJavaDoc = true)
-  void shouldReturnUnauthorizedWhenUserIsUnauthenticated(SoftAssertions softly) {
+  void shouldReturnUnauthorizedWhenUserIsUnauthenticated() {
+    var payload = createPeriodPayload(UNAUTHENTICATED_PERIOD_YEAR);
 
-    var futureYear =
-        Integer.toString(Year.now(ZoneId.systemDefault()).plusYears(YEAR_OFFSET + 1).getValue());
-
-    var payload = createPeriodPayload(futureYear);
-
-    givenAuthenticatedJsonRequestAsUser(UIB_EDITOR)
+    givenUnauthenticatedJsonRequest()
         .body(payload)
         .when()
         .post(PERIODS_PATH)
@@ -97,10 +125,7 @@ class CreatePeriodTest extends ScientificIndexTestBase {
   @DisplayName("Create new period already exists")
   @Description(useJavaDoc = true)
   void shouldReturnErrorWhenTryingToCreateExistingPeriod(SoftAssertions softly) {
-
-    var year = Integer.toString(Year.now(ZoneId.systemDefault()).getValue());
-
-    var payload = createPeriodPayload(year);
+    var payload = createPeriodPayload(CURRENT_YEAR);
 
     var response =
         givenAuthenticatedJsonRequestAsUser(APP_ADMIN)
@@ -114,20 +139,17 @@ class CreatePeriodTest extends ScientificIndexTestBase {
 
     softly
         .assertThat(response.getString("detail"))
-        .isEqualTo(String.format("Period with publishing year %s already exists!", year));
+        .isEqualTo(String.format("Period with publishing year %s already exists!", CURRENT_YEAR));
   }
 
   @Test
   @DisplayName("Create new period wrong date format")
   @Description(useJavaDoc = true)
   void shouldReturnErrorWhenWrongDateFormat(SoftAssertions softly) {
-
-    var year =
-        Integer.toString(Year.now(ZoneId.systemDefault()).plusYears(YEAR_OFFSET + 2).getValue());
-
-    var payload = createPeriodPayload(year);
+    var payload = createPeriodPayload(INVALID_DATE_PERIOD_YEAR);
     var modifiedPayload = new HashMap<>(payload);
-    modifiedPayload.put("reportingDate", String.format("%s-31-121T23:59:00Z", year));
+    modifiedPayload.put(
+        "reportingDate", String.format("%s-31-121T23:59:00Z", INVALID_DATE_PERIOD_YEAR));
 
     var response =
         givenAuthenticatedJsonRequestAsUser(APP_ADMIN)
@@ -141,17 +163,17 @@ class CreatePeriodTest extends ScientificIndexTestBase {
 
     softly
         .assertThat(response.getString("detail"))
-        .contains(String.format("%s-31-121T23:59:00Z", year));
+        .contains(String.format("%s-31-121T23:59:00Z", INVALID_DATE_PERIOD_YEAR));
   }
 
   @Test
   @DisplayName("Create new period overlapping already existing period")
   @Disabled("Not implemented")
   @Description(useJavaDoc = true)
-  void shouldReturnErrorWhenTryingToCreateOverlappingPeriod(SoftAssertions softly) {
+  void shouldReturnErrorWhenTryingToCreateOverlappingPeriod() {
 
-    var yearMinusTwo = Integer.toString(Year.now(ZoneId.systemDefault()).minusYears(2).getValue());
-    var yearMinusOne = Integer.toString(Year.now(ZoneId.systemDefault()).minusYears(1).getValue());
+    var yearMinusTwo = pastYear(2);
+    var yearMinusOne = pastYear(1);
 
     var payload = createPeriodPayload(yearMinusTwo);
     var modifiedPayload = new HashMap<>(payload);
@@ -181,11 +203,8 @@ class CreatePeriodTest extends ScientificIndexTestBase {
   @MethodSource("userByRoleProvider")
   @DisplayName("Create new period user is not AppAdmin")
   @Description(useJavaDoc = true)
-  void shouldReturnUnauthorizedWhenCreatorNotAppAdmin(User user, SoftAssertions softly) {
-    var year =
-        Integer.toString(Year.now(ZoneId.systemDefault()).plusYears(YEAR_OFFSET + 3).getValue());
-
-    var payload = createPeriodPayload(year);
+  void shouldReturnUnauthorizedWhenCreatorNotAppAdmin(User user) {
+    var payload = createPeriodPayload(NON_ADMIN_PERIOD_YEAR);
 
     givenAuthenticatedJsonRequestAsUser(user)
         .body(payload)

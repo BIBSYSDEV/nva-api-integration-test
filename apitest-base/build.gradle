@@ -4,8 +4,9 @@ plugins {
 
 dependencies {
     api(libs.rest.assured.core)
+    api(nvaCatalog.aws.sdk2.regions)
+    api(nvaLibs.core)
     implementation('software.amazon.awssdk:aws-core')
-    implementation('software.amazon.awssdk:regions')
     implementation('software.amazon.awssdk:s3')
     implementation('software.amazon.awssdk:secretsmanager')
     implementation('software.amazon.awssdk:ssm')
