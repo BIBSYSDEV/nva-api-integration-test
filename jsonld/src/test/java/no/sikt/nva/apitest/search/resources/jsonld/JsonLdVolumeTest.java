@@ -4,6 +4,7 @@ import static io.restassured.RestAssured.given;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static no.sikt.Category.ACADEMIC_ARTICLE;
 import static no.sikt.nva.apitest.base.Polling.pollUntil;
+import static no.sikt.nva.apitest.base.SettledCondition.settledWhen;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_PUBLISHING_CURATOR;
 
@@ -135,8 +136,10 @@ class JsonLdVolumeTest extends JsonLdTestBase {
     return pollUntil(
         VOLUME_INDEXING_TIMEOUT,
         () -> getResponse(VOLUME_UUID, size),
-        response ->
-            Integer.toString(NUMBER_OF_TEST_PUBLICATIONS).equals(response.header(X_TOTAL_COUNT)));
+        settledWhen(
+            X_TOTAL_COUNT,
+            Integer.toString(NUMBER_OF_TEST_PUBLICATIONS),
+            response -> response.header(X_TOTAL_COUNT)));
   }
 
   private Response getResponse(String query, int size) {

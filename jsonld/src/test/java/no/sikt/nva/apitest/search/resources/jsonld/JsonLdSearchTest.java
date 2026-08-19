@@ -13,6 +13,8 @@ import static no.sikt.Role.CREATOR;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_YEAR;
 import static no.sikt.nva.apitest.base.Polling.pollUntil;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
+import static no.sikt.nva.apitest.base.SettledCondition.settledWhen;
+import static no.sikt.nva.apitest.base.SettledCondition.settledWhenAtLeast;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CONTRIBUTOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_PUBLISHING_CURATOR;
@@ -41,6 +43,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import no.sikt.Category;
 import no.sikt.Contributor;
+import no.sikt.nva.apitest.base.SettledCondition;
 import no.sikt.nva.apitest.search.SchemaOrgExpectation;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
@@ -197,7 +200,7 @@ class JsonLdSearchTest extends JsonLdTestBase {
       var response =
           pollUntil(
               () -> searchCustomerResources(sharedTitleUuid(category), APPLICATION_LD_JSON),
-              result -> itemList(result).getInt(NUMBER_OF_ITEMS_POINTER) >= 1);
+              hasAnyItem());
       var body = itemList(response);
 
       softly.assertThat(response.getContentType()).contains(LD_JSON_CONTENT_TYPE_FRAGMENT);
@@ -222,8 +225,7 @@ class JsonLdSearchTest extends JsonLdTestBase {
 
       var response =
           pollUntil(
-              () -> searchResources(sharedTitleUuid(ACADEMIC_ARTICLE), acceptHeader),
-              result -> itemList(result).getInt(NUMBER_OF_ITEMS_POINTER) >= 1);
+              () -> searchResources(sharedTitleUuid(ACADEMIC_ARTICLE), acceptHeader), hasAnyItem());
       var body = itemList(response);
 
       softly.assertThat(response.getContentType()).contains(LD_JSON_CONTENT_TYPE_FRAGMENT);
@@ -248,7 +250,7 @@ class JsonLdSearchTest extends JsonLdTestBase {
       var response =
           pollUntil(
               () -> searchCustomerResources(sharedTitleUuid(ACADEMIC_ARTICLE), acceptHeader),
-              result -> itemList(result).getInt(NUMBER_OF_ITEMS_POINTER) >= 1);
+              hasAnyItem());
       var body = itemList(response);
 
       softly.assertThat(response.getContentType()).contains(LD_JSON_CONTENT_TYPE_FRAGMENT);
@@ -473,9 +475,12 @@ class JsonLdSearchTest extends JsonLdTestBase {
   }
 
   private Response awaitIndexed(String query) {
-    return pollUntil(
-        () -> searchResources(query, APPLICATION_LD_JSON),
-        response -> itemList(response).getInt(NUMBER_OF_ITEMS_POINTER) >= 1);
+    return pollUntil(() -> searchResources(query, APPLICATION_LD_JSON), hasAnyItem());
+  }
+
+  private static SettledCondition<Response> hasAnyItem() {
+    return settledWhenAtLeast(
+        NUMBER_OF_ITEMS_POINTER, 1, response -> itemList(response).getInt(NUMBER_OF_ITEMS_POINTER));
   }
 
   /**
@@ -486,18 +491,23 @@ class JsonLdSearchTest extends JsonLdTestBase {
   private Response awaitIndexedContaining(String query, String... expectedFragments) {
     return pollUntil(
         () -> searchResources(query, APPLICATION_LD_JSON),
-        response -> bodyContainsAll(response, expectedFragments));
+        settledWhen(
+            response -> missingFragments(response, expectedFragments).isEmpty(),
+            response -> "missing fragments " + missingFragments(response, expectedFragments)));
   }
 
-  private static boolean bodyContainsAll(Response response, String... expectedFragments) {
+  private static List<String> missingFragments(Response response, String... expectedFragments) {
     var body = response.body().asString();
-    return Arrays.stream(expectedFragments).allMatch(body::contains);
+    return Arrays.stream(expectedFragments).filter(fragment -> !body.contains(fragment)).toList();
   }
 
   private Response awaitIndexedCount(String query, int expectedCount) {
     return pollUntil(
         () -> searchResources(query, APPLICATION_LD_JSON),
-        response -> itemList(response).getList(ITEM_LIST_ELEMENT_POINTER).size() >= expectedCount);
+        settledWhenAtLeast(
+            ITEM_LIST_ELEMENT_POINTER,
+            expectedCount,
+            response -> itemList(response).getList(ITEM_LIST_ELEMENT_POINTER).size()));
   }
 
   private void createIssnPublication(String title) {
