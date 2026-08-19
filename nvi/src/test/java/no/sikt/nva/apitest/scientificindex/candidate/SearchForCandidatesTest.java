@@ -56,7 +56,7 @@ class SearchForCandidatesTest extends ScientificIndexTestBase {
     assertHitFieldEquals(softly, json, "publicationDetails.title", candidate.title());
     softly
         .assertThat(json.getList("publicationDetails.nviContributors.name", String.class))
-        .contains(candidate.creatorName());
+        .containsExactlyInAnyOrderElementsOf(candidate.creatorNames());
     softly
         .assertThat(json.getList("approvals.institutionId", String.class))
         .contains(Affiliation.UIB.getValue());
@@ -68,7 +68,7 @@ class SearchForCandidatesTest extends ScientificIndexTestBase {
   @DisplayName("Search by contributor name")
   @Description(useJavaDoc = true)
   void shouldFindCandidateWhenSearchingByContributorName() {
-    var response = searchScopedToCandidate("query", candidate.creatorName());
+    var response = searchScopedToCandidate("query", candidate.creatorNames().getFirst());
 
     assertThat(indexedPublicationIds(response)).contains(candidate.publicationId());
   }
