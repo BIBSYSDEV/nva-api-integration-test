@@ -1,22 +1,9 @@
 package no.sikt.nva.apitest.scientificindex;
 
-import java.net.HttpURLConnection;
-import java.time.Duration;
-import java.util.List;
-import java.util.Map;
 import static java.util.Objects.nonNull;
-import java.util.concurrent.Callable;
-import java.util.function.Predicate;
-
-import io.restassured.RestAssured;
-import io.restassured.response.Response;
-import no.sikt.Category;
-import no.sikt.Contributor;
 import static no.sikt.Role.CREATOR;
-import no.sikt.nva.PublicationFactory;
 import static no.sikt.nva.apitest.base.Polling.pollUntil;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
-import no.sikt.nva.apitest.base.User;
 import static no.sikt.nva.apitest.base.UserFixtures.KRISTIANIA_CREATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.KRISTIANIA_PUBLISHING_CURATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.OSLO_MET_CREATOR;
@@ -30,6 +17,19 @@ import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATE
 import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATE_BY_PUBLICATION_PATH;
 import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.encode;
 
+import io.restassured.RestAssured;
+import io.restassured.response.Response;
+import java.net.HttpURLConnection;
+import java.time.Duration;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.function.Predicate;
+import no.sikt.Category;
+import no.sikt.Contributor;
+import no.sikt.nva.PublicationFactory;
+import no.sikt.nva.apitest.base.User;
+
 public class NviCandidateFactory {
 
   private static final Duration CANDIDATE_EVALUATION_TIMEOUT = Duration.ofMinutes(5);
@@ -39,12 +39,12 @@ public class NviCandidateFactory {
 
   private final PublicationFactory publicationFactory = new PublicationFactory();
 
-  private final Map<User, User> publishingCurators = Map.of(
-    UIS_CREATOR, UIS_PUBLISHING_CURATOR,
-    KRISTIANIA_CREATOR, KRISTIANIA_PUBLISHING_CURATOR,
-    OSLO_MET_CREATOR, OSLO_MET_NVI_CURATOR,
-    UIB_CREATOR, UIB_PUBLISHING_CURATOR
-  );
+  private final Map<User, User> publishingCurators =
+      Map.of(
+          UIS_CREATOR, UIS_PUBLISHING_CURATOR,
+          KRISTIANIA_CREATOR, KRISTIANIA_PUBLISHING_CURATOR,
+          OSLO_MET_CREATOR, OSLO_MET_NVI_CURATOR,
+          UIB_CREATOR, UIB_PUBLISHING_CURATOR);
 
   public NviCandidate createCandidate(String title) {
     return createCandidate(title, UIB_CREATOR);
