@@ -2,7 +2,7 @@ package no.sikt.nva.apitest.search;
 
 import java.util.List;
 
-public class BibTexExpectationFixtures {
+public final class BibTexExpectationFixtures {
 
   private static final String ISBN = "isbn = {9783161484100}";
   private static final String MONOGRAPH_PAGES = "pages = {150}";
@@ -69,4 +69,6 @@ public class BibTexExpectationFixtures {
       new BibTexExpectation(
           "inproceedings",
           List.of("note = {nva type: ConferenceLecture", "booktitle = {Conference lecture}"));
+
+  private BibTexExpectationFixtures() {}
 }
