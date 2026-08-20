@@ -28,16 +28,10 @@ import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.parallel.Execution;
-import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-// Each test method creates its own NVI candidate, and running them concurrently fires a burst of
-// asynchronous evaluations that backs up the pipeline and makes candidate creation time out. Run
-// this class's methods on a single thread so at most one candidate is being evaluated at a time.
-@Execution(ExecutionMode.SAME_THREAD)
 @ExtendWith(SoftAssertionsExtension.class)
 @DisplayName("PUT " + CANDIDATE_STATUS_PATH)
 class UpdateCandidateApprovalStatusTest extends ScientificIndexTestBase {
