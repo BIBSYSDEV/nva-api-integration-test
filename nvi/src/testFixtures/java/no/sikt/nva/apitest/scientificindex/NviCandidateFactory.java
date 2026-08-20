@@ -4,7 +4,9 @@ import static java.util.Objects.nonNull;
 import static no.sikt.Role.CREATOR;
 import static no.sikt.nva.apitest.base.Polling.pollUntil;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
+import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedRequestAsUser;
 import static no.sikt.nva.apitest.base.UserFixtures.KRISTIANIA_CREATOR;
+import static no.sikt.nva.apitest.base.UserFixtures.KRISTIANIA_NVI_CURATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.KRISTIANIA_PUBLISHING_CURATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.OSLO_MET_CREATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.OSLO_MET_NVI_CURATOR;
@@ -12,17 +14,21 @@ import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_NVI_CURATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_PUBLISHING_CURATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIS_CREATOR;
+import static no.sikt.nva.apitest.base.UserFixtures.UIS_NVI_CURATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIS_PUBLISHING_CURATOR;
 import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATES_PATH;
 import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATE_BY_PUBLICATION_PATH;
+import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATE_NOTES_PATH;
 import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.encode;
 
 import io.restassured.RestAssured;
+import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import java.net.HttpURLConnection;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.function.Predicate;
 import no.sikt.Category;
@@ -45,6 +51,13 @@ public class NviCandidateFactory {
           KRISTIANIA_CREATOR, KRISTIANIA_PUBLISHING_CURATOR,
           OSLO_MET_CREATOR, OSLO_MET_NVI_CURATOR,
           UIB_CREATOR, UIB_PUBLISHING_CURATOR);
+
+  private final Map<User, User> nviCurators =
+      Map.of(
+          UIB_CREATOR, UIB_NVI_CURATOR,
+          UIS_CREATOR, UIS_NVI_CURATOR,
+          KRISTIANIA_CREATOR, KRISTIANIA_NVI_CURATOR,
+          OSLO_MET_CREATOR, OSLO_MET_NVI_CURATOR);
 
   public NviCandidate createCandidate(String title) {
     return createCandidate(title, UIB_CREATOR);
@@ -80,6 +93,26 @@ public class NviCandidateFactory {
         .then()
         .extract()
         .response();
+  }
+
+  public JsonPath createCandidateWithNote(String title, User user) {
+    return createCandidateWithNote(title, "NVI integration test " + UUID.randomUUID(), user);
+  }
+
+  public JsonPath createCandidateWithNote(String title, String noteText, User user) {
+    var candidate = createCandidate(title, user);
+    var candidateIdentifier = candidate.candidateIdentifier();
+
+    var candidateNote = Map.of("text", noteText);
+
+    return givenAuthenticatedRequestAsUser(nviCurators.get(user))
+        .body(candidateNote)
+        .when()
+        .post(CANDIDATE_NOTES_PATH, candidateIdentifier)
+        .then()
+        .statusCode(200)
+        .extract()
+        .jsonPath();
   }
 
   /**

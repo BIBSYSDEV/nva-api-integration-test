@@ -1,18 +1,12 @@
 package no.sikt.nva.apitest.scientificindex.candidate;
 
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
-import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedRequestAsUser;
 import static no.sikt.nva.apitest.base.UserFixtures.OSLO_MET_CREATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.OSLO_MET_NVI_CURATOR;
-import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATE_NOTES_PATH;
 import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATE_PATH;
 
 import io.qameta.allure.Description;
-import io.restassured.path.json.JsonPath;
-import java.util.Map;
 import java.util.UUID;
-import no.sikt.nva.apitest.base.User;
-import no.sikt.nva.apitest.scientificindex.NviCandidate;
 import no.sikt.nva.apitest.scientificindex.ScientificIndexTestBase;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
@@ -30,8 +24,9 @@ class FetchNoteTest extends ScientificIndexTestBase {
   @Description(useJavaDoc = true)
   void shouldFetchNote(SoftAssertions softly) {
 
+    var title = "NVI integration test " + UUID.randomUUID();
     var noteText = "NVI integration test " + UUID.randomUUID();
-    var candidate = createCandidateWithNote(noteText);
+    var candidate = CANDIDATE_FACTORY.createCandidateWithNote(title, noteText, OSLO_MET_CREATOR);
 
     var candidateIdentifier = candidate.getString("identifier");
     var noteIdentifier = candidate.getString("notes[0].identifier");
@@ -50,29 +45,5 @@ class FetchNoteTest extends ScientificIndexTestBase {
     softly
         .assertThat(response.getString("notes[0].user"))
         .isEqualTo(OSLO_MET_NVI_CURATOR.cristinId());
-  }
-
-  private JsonPath createCandidateWithNote(String noteText) {
-    var candidate = createCandidate(OSLO_MET_CREATOR);
-    var candidateIdentifier = candidate.candidateIdentifier();
-
-    var candidateNote = createNote(noteText);
-
-    return givenAuthenticatedRequestAsUser(OSLO_MET_NVI_CURATOR)
-        .body(candidateNote)
-        .when()
-        .post(CANDIDATE_NOTES_PATH, candidateIdentifier)
-        .then()
-        .statusCode(200)
-        .extract()
-        .jsonPath();
-  }
-
-  private NviCandidate createCandidate(User user) {
-    return CANDIDATE_FACTORY.createCandidate("NVI integration test " + UUID.randomUUID(), user);
-  }
-
-  private Map<String, String> createNote(String text) {
-    return Map.of("text", text);
   }
 }

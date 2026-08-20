@@ -7,7 +7,7 @@ dependencies {
     testFixturesApi(libs.rest.assured.core)
     testFixturesApi(project(':apitest-base'))
     testFixturesApi(testFixtures(project(':apitest-base')))
-    testFixturesImplementation(libs.rest.assured.json.path)
+    testFixturesApi(libs.rest.assured.json.path)
     testFixturesImplementation(nvaCatalog.aws.sdk2.aws.core)
     testFixturesImplementation(nvaCatalog.aws.sdk2.dynamo)
     testFixturesImplementation(nvaCatalog.aws.sdk2.regions)

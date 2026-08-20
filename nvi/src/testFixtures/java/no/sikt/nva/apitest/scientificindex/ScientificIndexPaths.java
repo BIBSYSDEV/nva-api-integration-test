@@ -18,6 +18,8 @@ public final class ScientificIndexPaths {
   public static final String CANDIDATE_ASSIGNEE_PATH = CANDIDATE_PATH + "/assignee";
   public static final String CANDIDATE_NOTES_PATH = CANDIDATE_PATH + "/note";
   public static final String DELETE_NOTE_PATH = CANDIDATE_NOTES_PATH + "/{note}";
+  public static final String CANDIDATE_NOTES_DELETE_PATH =
+      CANDIDATE_NOTES_PATH + "/{noteIdentifier}";
   public static final String CANDIDATE_BY_PUBLICATION_PATH =
       CANDIDATES_PATH + "/publication/{publication}";
 

@@ -1,26 +1,21 @@
 package no.sikt.nva.apitest.scientificindex.candidate;
 
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedRequestAsUser;
-import static no.sikt.nva.apitest.base.UserFixtures.KRISTIANIA_CREATOR;
-import static no.sikt.nva.apitest.base.UserFixtures.KRISTIANIA_NVI_CURATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.OSLO_MET_CREATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.OSLO_MET_NVI_CURATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_DOI_CURATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_EDITOR;
-import static no.sikt.nva.apitest.base.UserFixtures.UIB_NVI_CURATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_PUBLISHING_CURATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_SUPPORT_CURATOR;
-import static no.sikt.nva.apitest.base.UserFixtures.UIS_CREATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIS_NVI_CURATOR;
-import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATE_NOTES_PATH;
+import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATE_NOTES_DELETE_PATH;
 import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATE_PATH;
 import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.DELETE_NOTE_PATH;
 import static org.junit.jupiter.params.provider.Arguments.argumentSet;
 
 import io.qameta.allure.Description;
 import io.restassured.path.json.JsonPath;
-import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Stream;
 import no.sikt.nva.apitest.base.User;
@@ -39,16 +34,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 @ExtendWith(SoftAssertionsExtension.class)
 @DisplayName("DELETE " + DELETE_NOTE_PATH)
 class DeleteNoteTest extends ScientificIndexTestBase {
-
-  private static final String CANDIDATE_NOTES_DELETE_PATH =
-      CANDIDATE_NOTES_PATH + "/{noteIdentifier}";
-
-  private final Map<User, User> nviCurators =
-      Map.of(
-          UIB_CREATOR, UIB_NVI_CURATOR,
-          UIS_CREATOR, UIS_NVI_CURATOR,
-          KRISTIANIA_CREATOR, KRISTIANIA_NVI_CURATOR,
-          OSLO_MET_CREATOR, OSLO_MET_NVI_CURATOR);
 
   private static Stream<Arguments> userByRoleProvider() {
     return Stream.of(
@@ -155,27 +140,12 @@ class DeleteNoteTest extends ScientificIndexTestBase {
         .statusCode(404);
   }
 
-  private JsonPath createCandidateWithNote(User user) {
-    var candidate = createCandidate(user);
-    var candidateIdentifier = candidate.candidateIdentifier();
-
-    var candidateNote = createNote();
-
-    return givenAuthenticatedRequestAsUser(nviCurators.get(user))
-        .body(candidateNote)
-        .when()
-        .post(CANDIDATE_NOTES_PATH, candidateIdentifier)
-        .then()
-        .statusCode(200)
-        .extract()
-        .jsonPath();
-  }
-
   private NviCandidate createCandidate(User user) {
     return CANDIDATE_FACTORY.createCandidate("NVI integration test " + UUID.randomUUID(), user);
   }
 
-  private Map<String, String> createNote() {
-    return Map.of("text", "NVI integration test " + UUID.randomUUID());
+  private JsonPath createCandidateWithNote(User user) {
+    return CANDIDATE_FACTORY.createCandidateWithNote(
+        "NVI integration test " + UUID.randomUUID(), user);
   }
 }
