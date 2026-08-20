@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  Logging configuration for the API integration tests.
+  The shared nva.java-conventions plugin points log4j2 at nva-commons' nva-log4j2.xml, which only
+  declares the AWS Lambda appender and therefore produces no output in a test JVM. Test tasks
+  override log4j2.configurationFile to select this file instead.
+-->
+<Configuration>
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} %-5p %c{1} - %m%n"/>
+        </Console>
+    </Appenders>
+    <Loggers>
+        <Logger name="no.sikt.nva.apitest" level="${env:LOG_LEVEL:-info}"/>
+        <Root level="warn">
+            <AppenderRef ref="Console"/>
+        </Root>
+    </Loggers>
+</Configuration>

@@ -1,19 +1,25 @@
 package no.sikt.nva.apitest.scientificindex.candidate;
 
-import static no.sikt.nva.apitest.base.Polling.pollUntil;
-import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
+import static java.util.UUID.randomUUID;
+import static no.sikt.nva.apitest.base.UserFixtures.KRISTIANIA_CREATOR;
+import static no.sikt.nva.apitest.base.UserFixtures.KRISTIANIA_NVI_CURATOR;
+import static no.sikt.nva.apitest.base.UserFixtures.OSLO_MET_CREATOR;
+import static no.sikt.nva.apitest.base.UserFixtures.OSLO_MET_NVI_CURATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_NVI_CURATOR;
+import static no.sikt.nva.apitest.base.UserFixtures.UIS_CREATOR;
+import static no.sikt.nva.apitest.base.UserFixtures.UIS_NVI_CURATOR;
+import static no.sikt.nva.apitest.scientificindex.NviApprovals.APPROVED;
+import static no.sikt.nva.apitest.scientificindex.NviApprovals.PENDING;
+import static no.sikt.nva.apitest.scientificindex.NviApprovals.REJECTED;
+import static no.sikt.nva.apitest.scientificindex.NviApprovals.updateApprovalStatus;
 import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATE_STATUS_PATH;
+import static org.junit.jupiter.params.provider.Arguments.argumentSet;
 
 import io.qameta.allure.Description;
-import io.restassured.response.Response;
-import java.net.HttpURLConnection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.Callable;
-import no.sikt.nva.apitest.base.Affiliation;
+import java.util.List;
+import java.util.stream.Stream;
+import no.sikt.Contributor;
 import no.sikt.nva.apitest.base.User;
 import no.sikt.nva.apitest.scientificindex.NviCandidate;
 import no.sikt.nva.apitest.scientificindex.ScientificIndexTestBase;
@@ -24,6 +30,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 // Each test method creates its own NVI candidate, and running them concurrently fires a burst of
 // asynchronous evaluations that backs up the pipeline and makes candidate creation time out. Run
@@ -33,10 +42,15 @@ import org.junit.jupiter.api.parallel.ExecutionMode;
 @DisplayName("PUT " + CANDIDATE_STATUS_PATH)
 class UpdateCandidateApprovalStatusTest extends ScientificIndexTestBase {
 
-  private static final String APPROVED = "Approved";
-  private static final String PENDING = "Pending";
-  private static final String REJECTED = "Rejected";
   private static final String REJECTION_REASON = "Rejected by API integration test";
+  private static final String FINALIZED_BY_FIELD = "approvals[0].finalizedBy";
+  private static final String FINALIZED_DATE_FIELD = "approvals[0].finalizedDate";
+  private static final String STATUS_FIELD = "approvals[0].status";
+  private static final String REASON_FIELD = "approvals[0].reason";
+
+  private static String title() {
+    return "NVI - Update approval status test - %s".formatted(randomUUID());
+  }
 
   /** Approving a candidate as an NVI curator returns status {@code 200 OK}. */
   @Test
@@ -46,15 +60,44 @@ class UpdateCandidateApprovalStatusTest extends ScientificIndexTestBase {
     var candidate = createCandidate();
 
     var response =
-        updateApprovalStatus(UIB_NVI_CURATOR, candidate, approvalRequest(APPROVED))
+        updateApprovalStatus(UIB_NVI_CURATOR, candidate, APPROVED)
             .then()
             .statusCode(200)
             .extract()
             .jsonPath();
 
-    softly.assertThat(response.getString("approvals[0].status")).isEqualTo(APPROVED);
-    softly.assertThat(response.getString("approvals[0].finalizedBy")).isNotEmpty();
-    softly.assertThat(response.getString("approvals[0].finalizedDate")).isNotEmpty();
+    softly.assertThat(response.getString(STATUS_FIELD)).isEqualTo(APPROVED);
+    softly.assertThat(response.getString(FINALIZED_BY_FIELD)).isNotEmpty();
+    softly.assertThat(response.getString(FINALIZED_DATE_FIELD)).isNotEmpty();
+  }
+
+  @ParameterizedTest
+  @MethodSource("curatorProvider")
+  @DisplayName("Approve candidate as NVI curator at a given institution")
+  @Description(useJavaDoc = true)
+  void shouldApproveCandidateWhenRequestedBySomeNviCurator(
+      User curator, User creator, SoftAssertions softly) {
+    var contributors = List.of(Contributor.asCreator(creator));
+    var candidate = CANDIDATE_FACTORY.createCandidate(title(), curator, contributors);
+
+    var response =
+        updateApprovalStatus(curator, candidate, APPROVED)
+            .then()
+            .statusCode(200)
+            .extract()
+            .jsonPath();
+
+    softly.assertThat(response.getString(STATUS_FIELD)).isEqualTo(APPROVED);
+    softly.assertThat(response.getString(FINALIZED_BY_FIELD)).isEqualTo(curator.cristinId());
+    softly.assertThat(response.getString(FINALIZED_DATE_FIELD)).isNotEmpty();
+  }
+
+  private static Stream<Arguments> curatorProvider() {
+    return Stream.of(
+        argumentSet("Kristiania", KRISTIANIA_NVI_CURATOR, KRISTIANIA_CREATOR),
+        argumentSet("OsloMet", OSLO_MET_NVI_CURATOR, OSLO_MET_CREATOR),
+        argumentSet("UiB", UIB_NVI_CURATOR, UIB_CREATOR),
+        argumentSet("UiS", UIS_NVI_CURATOR, UIS_CREATOR));
   }
 
   /** Rejecting a candidate with a reason returns status {@code 200 OK}. */
@@ -65,16 +108,15 @@ class UpdateCandidateApprovalStatusTest extends ScientificIndexTestBase {
     var candidate = createCandidate();
 
     var response =
-        updateApprovalStatus(
-                UIB_NVI_CURATOR, candidate, approvalRequestWithReason(REJECTED, REJECTION_REASON))
+        updateApprovalStatus(UIB_NVI_CURATOR, candidate, REJECTED, REJECTION_REASON)
             .then()
             .statusCode(200)
             .extract()
             .jsonPath();
 
-    softly.assertThat(response.getString("approvals[0].status")).isEqualTo(REJECTED);
-    softly.assertThat(response.getString("approvals[0].reason")).isEqualTo(REJECTION_REASON);
-    softly.assertThat(response.getString("approvals[0].finalizedBy")).isNotEmpty();
+    softly.assertThat(response.getString(STATUS_FIELD)).isEqualTo(REJECTED);
+    softly.assertThat(response.getString(REASON_FIELD)).isEqualTo(REJECTION_REASON);
+    softly.assertThat(response.getString(FINALIZED_BY_FIELD)).isNotEmpty();
   }
 
   /** Rejecting a candidate without a reason returns status {@code 400 Bad Request}. */
@@ -84,9 +126,7 @@ class UpdateCandidateApprovalStatusTest extends ScientificIndexTestBase {
   void shouldReturnBadRequestWhenRejectingWithoutReason() {
     var candidate = createCandidate();
 
-    updateApprovalStatus(UIB_NVI_CURATOR, candidate, approvalRequest(REJECTED))
-        .then()
-        .statusCode(400);
+    updateApprovalStatus(UIB_NVI_CURATOR, candidate, REJECTED).then().statusCode(400);
   }
 
   /** Reverting an approved candidate to Pending stays Pending, not New. */
@@ -96,20 +136,18 @@ class UpdateCandidateApprovalStatusTest extends ScientificIndexTestBase {
   void shouldResetApprovalWhenApprovedCandidateIsSetToPending(SoftAssertions softly) {
     var candidate = createCandidate();
 
-    updateApprovalStatus(UIB_NVI_CURATOR, candidate, approvalRequest(APPROVED))
-        .then()
-        .statusCode(200);
+    updateApprovalStatus(UIB_NVI_CURATOR, candidate, APPROVED).then().statusCode(200);
 
     var response =
-        updateApprovalStatus(UIB_NVI_CURATOR, candidate, approvalRequest(PENDING))
+        updateApprovalStatus(UIB_NVI_CURATOR, candidate, PENDING)
             .then()
             .statusCode(200)
             .extract()
             .jsonPath();
 
-    softly.assertThat(response.getString("approvals[0].status")).isEqualTo(PENDING);
-    softly.assertThat(response.getString("approvals[0].finalizedBy")).isNull();
-    softly.assertThat(response.getString("approvals[0].finalizedDate")).isNull();
+    softly.assertThat(response.getString(STATUS_FIELD)).isEqualTo(PENDING);
+    softly.assertThat(response.getString(FINALIZED_BY_FIELD)).isNull();
+    softly.assertThat(response.getString(FINALIZED_DATE_FIELD)).isNull();
   }
 
   /** Updating approval without MANAGE_NVI_CANDIDATES returns status {@code 401 Unauthorized}. */
@@ -119,49 +157,10 @@ class UpdateCandidateApprovalStatusTest extends ScientificIndexTestBase {
   void shouldReturnUnauthorizedWhenUserLacksManageNviCandidates() {
     var candidate = createCandidate();
 
-    updateApprovalStatus(UIB_CREATOR, candidate, approvalRequest(APPROVED)).then().statusCode(401);
+    updateApprovalStatus(UIB_CREATOR, candidate, APPROVED).then().statusCode(401);
   }
 
   private static NviCandidate createCandidate() {
-    return CANDIDATE_FACTORY.createCandidate(
-        "NVI integration test publication " + UUID.randomUUID());
-  }
-
-  // Trailing re-evaluation events from the publish flow can cause transient DynamoDB transaction
-  // conflicts (409) right after the candidate is created, so the request is retried until it
-  // returns a non-conflict response, which is then returned to the caller.
-  private static Response updateApprovalStatus(
-      User user, NviCandidate candidate, Map<String, Object> requestBody) {
-    return pollUntil(
-        putApprovalStatusRequest(user, candidate, requestBody),
-        UpdateCandidateApprovalStatusTest::isNotConflict);
-  }
-
-  private static Callable<Response> putApprovalStatusRequest(
-      User user, NviCandidate candidate, Map<String, Object> requestBody) {
-    return () ->
-        givenAuthenticatedJsonRequestAsUser(user)
-            .body(requestBody)
-            .put(CANDIDATE_STATUS_PATH, candidate.candidateIdentifier())
-            .then()
-            .extract()
-            .response();
-  }
-
-  private static boolean isNotConflict(Response response) {
-    return response.statusCode() != HttpURLConnection.HTTP_CONFLICT;
-  }
-
-  private static Map<String, Object> approvalRequest(String status) {
-    var requestBody = new HashMap<String, Object>();
-    requestBody.put("institutionId", Affiliation.UIB.getValue());
-    requestBody.put("status", status);
-    return requestBody;
-  }
-
-  private static Map<String, Object> approvalRequestWithReason(String status, String reason) {
-    var requestBody = approvalRequest(status);
-    requestBody.put("reason", reason);
-    return requestBody;
+    return CANDIDATE_FACTORY.createCandidate(title());
   }
 }

@@ -4,6 +4,7 @@ import static io.restassured.RestAssured.given;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static no.sikt.Category.ACADEMIC_ARTICLE;
 import static no.sikt.nva.apitest.base.Polling.pollUntil;
+import static no.sikt.nva.apitest.base.SettledCondition.settledWhen;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_PUBLISHING_CURATOR;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -14,11 +15,11 @@ import io.restassured.parsing.Parser;
 import io.restassured.response.Response;
 import java.util.List;
 import java.util.UUID;
-import java.util.function.Predicate;
 import java.util.stream.IntStream;
 import no.sikt.Contributor;
 import no.sikt.Role;
 import no.sikt.nva.apitest.base.CognitoLogin;
+import no.sikt.nva.apitest.base.SettledCondition;
 import no.sikt.nva.apitest.search.SearchTestBase;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
@@ -66,8 +67,9 @@ class BibTexVolumeTest extends SearchTestBase {
             });
   }
 
-  private static Predicate<Response> hasTotalCount(int expectedCount) {
-    return response -> response.header(X_TOTAL_COUNT).equals(Integer.toString(expectedCount));
+  private static SettledCondition<Response> hasTotalCount(int expectedCount) {
+    return settledWhen(
+        X_TOTAL_COUNT, Integer.toString(expectedCount), response -> response.header(X_TOTAL_COUNT));
   }
 
   private Response getResponse(String query, String size) {

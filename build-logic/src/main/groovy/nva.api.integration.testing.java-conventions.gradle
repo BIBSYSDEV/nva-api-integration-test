@@ -27,6 +27,8 @@ tasks.withType(Test).configureEach {
     }
     // Top level of the Allure report tree (groupBy in allurerc.yaml); modules override with a display name
     systemProperty 'allure.label.module', project.name
+
+    systemProperty 'log4j2.configurationFile', 'classpath:log4j2-test.xml'
     systemProperty 'junit.jupiter.execution.parallel.enabled', 'true'
     systemProperty 'junit.jupiter.execution.parallel.mode.default', 'concurrent'
     systemProperty 'junit.jupiter.execution.parallel.mode.classes.default', 'concurrent'

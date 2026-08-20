@@ -25,7 +25,8 @@ public abstract class IntegrationTestBase {
         RestAssured.replaceFiltersWith(
             new AllureRestAssured()
                 .setRequestTemplate("sanitized-http-request.ftl")
-                .setResponseTemplate("sanitized-http-response.ftl"));
+                .setResponseTemplate("sanitized-http-response.ftl"),
+            new RequestLogger());
         var logConfig =
             LogConfig.logConfig()
                 .enableLoggingOfRequestAndResponseIfValidationFails()
