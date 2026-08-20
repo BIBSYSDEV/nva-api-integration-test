@@ -12,6 +12,8 @@ dependencies {
     testFixturesImplementation(nvaCatalog.aws.sdk2.aws.core)
     testFixturesImplementation(nvaCatalog.aws.sdk2.dynamo)
     testFixturesImplementation(nvaCatalog.aws.sdk2.regions)
+    testFixturesImplementation(nvaCatalog.junit.jupiter.api)
+    testFixturesImplementation(nvaCatalog.junit.jupiter.params)
     testFixturesImplementation(nvaLibs.core)
     testFixturesImplementation(testFixtures(project(':publication-api')))
     testImplementation(libs.allure.java.commons)
