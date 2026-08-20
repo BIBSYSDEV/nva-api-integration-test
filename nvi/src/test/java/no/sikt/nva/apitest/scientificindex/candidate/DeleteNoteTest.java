@@ -1,23 +1,25 @@
 package no.sikt.nva.apitest.scientificindex.candidate;
 
+import static no.sikt.nva.apitest.base.Polling.pollUntil;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedRequestAsUser;
-import static no.sikt.nva.apitest.base.UserFixtures.OSLO_MET_CREATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.OSLO_MET_NVI_CURATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_DOI_CURATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_EDITOR;
+import static no.sikt.nva.apitest.base.UserFixtures.UIB_NVI_CURATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_PUBLISHING_CURATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_SUPPORT_CURATOR;
-import static no.sikt.nva.apitest.base.UserFixtures.UIS_NVI_CURATOR;
 import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATE_NOTES_DELETE_PATH;
 import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATE_PATH;
 import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.DELETE_NOTE_PATH;
 import static org.junit.jupiter.params.provider.Arguments.argumentSet;
 
 import io.qameta.allure.Description;
-import io.restassured.path.json.JsonPath;
+import io.restassured.response.Response;
+import java.net.HttpURLConnection;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.Callable;
 import java.util.stream.Stream;
 import no.sikt.Contributor;
 import no.sikt.nva.apitest.base.User;
@@ -52,21 +54,19 @@ class DeleteNoteTest extends ScientificIndexTestBase {
   @Description(useJavaDoc = true)
   void shouldDeleteNoteFromCandidate(SoftAssertions softly) {
 
-    var candidateWithNote = createCandidateWithNote(OSLO_MET_CREATOR);
+    var candidateWithNote =
+        pollUntil(createCandidateWithNote(OSLO_MET_NVI_CURATOR), DeleteNoteTest::isNotConflict);
 
-    var candidateIdentifier = candidateWithNote.getString("identifier");
-    var noteIdentifer = candidateWithNote.getString("notes[0].identifier");
+    var candidateIdentifier = candidateWithNote.jsonPath().getString("identifier");
+    var noteIdentifier = candidateWithNote.jsonPath().getString("notes[0].identifier");
 
-    var deleteResponse =
-        givenAuthenticatedRequestAsUser(OSLO_MET_NVI_CURATOR)
-            .when()
-            .delete(CANDIDATE_NOTES_DELETE_PATH, candidateIdentifier, noteIdentifer)
-            .then()
-            .statusCode(200)
-            .extract()
-            .jsonPath();
+    var deleteNoteResponse =
+        pollUntil(
+            deleteCandidateNote(OSLO_MET_NVI_CURATOR, candidateIdentifier, noteIdentifier),
+            DeleteNoteTest::isNotConflict);
 
-    softly.assertThat(deleteResponse.getList("notes")).isEmpty();
+    softly.assertThat(deleteNoteResponse.statusCode()).isEqualTo(200);
+    softly.assertThat(deleteNoteResponse.jsonPath().getList("notes")).isEmpty();
 
     var verifyResponse =
         givenAuthenticatedRequestAsUser(OSLO_MET_NVI_CURATOR)
@@ -88,18 +88,19 @@ class DeleteNoteTest extends ScientificIndexTestBase {
   @MethodSource("userByRoleProvider")
   @DisplayName("Delete note when not Nvi-curator returns unauthorized")
   @Description(useJavaDoc = true)
-  void shouldReturnUnauthorizedWhenNonNviCuratprDeletingNote(User user) {
+  void shouldReturnUnauthorizedWhenNonNviCuratprDeletingNote(User user, SoftAssertions softly) {
 
-    var candidateWithNote = createCandidateWithNote(UIB_CREATOR);
+    var candidateWithNote =
+        pollUntil(createCandidateWithNote(UIB_NVI_CURATOR), DeleteNoteTest::isNotConflict);
 
-    var candidateIdentifier = candidateWithNote.getString("identifier");
-    var noteIdentifer = candidateWithNote.getString("notes[0].identifier");
+    var candidateIdentifier = candidateWithNote.jsonPath().getString("identifier");
+    var noteIdentifier = candidateWithNote.jsonPath().getString("notes[0].identifier");
 
-    givenAuthenticatedRequestAsUser(user)
-        .when()
-        .delete(CANDIDATE_NOTES_DELETE_PATH, candidateIdentifier, noteIdentifer)
-        .then()
-        .statusCode(401);
+    var deleteNoteResponse =
+        pollUntil(
+            deleteCandidateNote(user, candidateIdentifier, noteIdentifier),
+            DeleteNoteTest::isNotConflict);
+    softly.assertThat(deleteNoteResponse.statusCode()).isEqualTo(401);
   }
 
   /**
@@ -109,18 +110,19 @@ class DeleteNoteTest extends ScientificIndexTestBase {
   @Test
   @DisplayName("Delete note from candidate from other institution returns unauthorized")
   @Description(useJavaDoc = true)
-  void shouldReturnUnauthorizedWhenDeletingNoteFromOtherInstitution() {
+  void shouldReturnUnauthorizedWhenDeletingNoteFromOtherInstitution(SoftAssertions softly) {
 
-    var candidateWithNote = createCandidateWithNote(OSLO_MET_CREATOR);
+    var candidateWithNote =
+        pollUntil(createCandidateWithNote(OSLO_MET_NVI_CURATOR), DeleteNoteTest::isNotConflict);
 
-    var candidateIdentifier = candidateWithNote.getString("identifier");
-    var noteIdentifer = candidateWithNote.getString("notes[0].identifier");
+    var candidateIdentifier = candidateWithNote.jsonPath().getString("identifier");
+    var noteIdentifier = candidateWithNote.jsonPath().getString("notes[0].identifier");
 
-    givenAuthenticatedRequestAsUser(UIS_NVI_CURATOR)
-        .when()
-        .delete(CANDIDATE_NOTES_DELETE_PATH, candidateIdentifier, noteIdentifer)
-        .then()
-        .statusCode(401);
+    var deleteNoteResponse =
+        pollUntil(
+            deleteCandidateNote(UIB_NVI_CURATOR, candidateIdentifier, noteIdentifier),
+            DeleteNoteTest::isNotConflict);
+    softly.assertThat(deleteNoteResponse.statusCode()).isEqualTo(401);
   }
 
   /** Trying to delete a non-existing note from a NVI candidate returns {@code 404 Not Found} */
@@ -128,18 +130,18 @@ class DeleteNoteTest extends ScientificIndexTestBase {
   @Disabled("FIXME: Returns 502, should return 505. See NP-51616")
   @DisplayName("Delete non-existing note from candidate returns not found")
   @Description(useJavaDoc = true)
-  void shouldReturnNotFoundWhenDeletingNonExistingNote() {
+  void shouldReturnNotFoundWhenDeletingNonExistingNote(SoftAssertions softly) {
 
-    var candidate = createCandidate(OSLO_MET_CREATOR);
+    var candidate = createCandidate(OSLO_MET_NVI_CURATOR);
 
     var candidateIdentifier = candidate.candidateIdentifier();
-    var noteIdentifer = UUID.randomUUID().toString();
+    var noteIdentifier = UUID.randomUUID().toString();
 
-    givenAuthenticatedRequestAsUser(OSLO_MET_NVI_CURATOR)
-        .when()
-        .delete(CANDIDATE_NOTES_DELETE_PATH, candidateIdentifier, noteIdentifer)
-        .then()
-        .statusCode(404);
+    var deleteNoteResponse =
+        pollUntil(
+            deleteCandidateNote(OSLO_MET_NVI_CURATOR, candidateIdentifier, noteIdentifier),
+            DeleteNoteTest::isNotConflict);
+    softly.assertThat(deleteNoteResponse.statusCode()).isEqualTo(401);
   }
 
   private NviCandidate createCandidate(User user) {
@@ -147,8 +149,20 @@ class DeleteNoteTest extends ScientificIndexTestBase {
         "NVI integration test " + UUID.randomUUID(), user, List.of(Contributor.asCreator(user)));
   }
 
-  private JsonPath createCandidateWithNote(User user) {
-    return CANDIDATE_FACTORY.createCandidateWithNote(
-        "NVI integration test " + UUID.randomUUID(), user);
+  private static Callable<Response> deleteCandidateNote(
+      User user, String candidateIdentifier, String noteIdentifier) {
+    return () ->
+        givenAuthenticatedRequestAsUser(user)
+            .delete(CANDIDATE_NOTES_DELETE_PATH, candidateIdentifier, noteIdentifier);
+  }
+
+  private Callable<Response> createCandidateWithNote(User user) {
+    return () ->
+        CANDIDATE_FACTORY.createCandidateWithNote(
+            "NVI integration test " + UUID.randomUUID(), user);
+  }
+
+  private static boolean isNotConflict(Response response) {
+    return response.statusCode() != HttpURLConnection.HTTP_CONFLICT;
   }
 }

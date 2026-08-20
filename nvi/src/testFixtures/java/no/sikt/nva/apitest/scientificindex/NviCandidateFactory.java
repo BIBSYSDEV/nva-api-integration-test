@@ -11,7 +11,6 @@ import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATE
 import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATE_NOTES_PATH;
 import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.encode;
 
-import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import java.net.HttpURLConnection;
 import java.time.Duration;
@@ -78,24 +77,34 @@ public class NviCandidateFactory {
         .response();
   }
 
-  public JsonPath createCandidateWithNote(String title, User user) {
-    return createCandidateWithNote(title, "NVI integration test " + UUID.randomUUID(), user);
+  public Response createCandidateWithNote(String title, User user) {
+    return createCandidateWithNote(
+        title, "NVI integration test candidate note " + UUID.randomUUID(), user);
   }
 
-  public JsonPath createCandidateWithNote(String title, String noteText, User user) {
-    var candidate = createCandidate(title, user, List.of(Contributor.asCreator(user)));
-    var candidateIdentifier = candidate.candidateIdentifier();
+  public Response createCandidateWithNote(String title, String noteText, User user) {
 
-    var candidateNote = Map.of("text", noteText);
+    return pollUntil(
+        awaitCreateCandidateWithNote(title, noteText, user), NviCandidateFactory::isNotConflict);
+  }
 
-    return givenAuthenticatedJsonRequestAsUser(user)
-        .body(candidateNote)
-        .when()
-        .post(CANDIDATE_NOTES_PATH, candidateIdentifier)
-        .then()
-        .statusCode(200)
-        .extract()
-        .jsonPath();
+  public Callable<Response> awaitCreateCandidateWithNote(String title, User user) {
+    return awaitCreateCandidateWithNote(
+        title, "NVI integration test candidate note " + UUID.randomUUID(), user);
+  }
+
+  public Callable<Response> awaitCreateCandidateWithNote(String title, String noteText, User user) {
+    return () -> {
+      var candidate = createCandidate(title, user, List.of(Contributor.asCreator(user)));
+      var candidateIdentifier = candidate.candidateIdentifier();
+
+      var candidateNote = Map.of("text", noteText);
+
+      return givenAuthenticatedJsonRequestAsUser(user)
+          .body(candidateNote)
+          .when()
+          .post(CANDIDATE_NOTES_PATH, candidateIdentifier);
+    };
   }
 
   /**
@@ -166,5 +175,9 @@ public class NviCandidateFactory {
               && points.doubleValue() > 0;
     }
     return fullyEvaluated;
+  }
+
+  private static boolean isNotConflict(Response response) {
+    return response.statusCode() != HttpURLConnection.HTTP_CONFLICT;
   }
 }
