@@ -28,13 +28,34 @@ class FetchCandidateByPublicationTest extends ScientificIndexTestBase {
 
   @BeforeAll
   static void createSharedCandidate() {
-    candidate =
-        CANDIDATE_FACTORY.createCandidate("NVI integration test publication " + randomUUID());
+    candidate = CANDIDATE_FACTORY.createCandidate(title());
+  }
+
+  private static String title() {
+    return "NVI - Fetch candidate by publication test - %s".formatted(randomUUID());
+  }
+
+  /** Fetching a candidate by its publication identifier returns it with status {@code 200 OK}. */
+  @ParameterizedTest
+  @MethodSource("usersWithNviReadAccess")
+  @DisplayName("Fetch candidate for publication as NVI user")
+  @Description(useJavaDoc = true)
+  void shouldReturnCandidateWhenFetchingByPublicationIdentifier(User user, SoftAssertions softly) {
+    var response =
+        givenAuthenticatedJsonRequestAsUser(user)
+            .get(CANDIDATE_BY_PUBLICATION_PATH, candidate.publicationIdentifier())
+            .then()
+            .statusCode(200)
+            .extract()
+            .jsonPath();
+
+    softly.assertThat(response.getString("identifier")).isEqualTo(candidate.candidateIdentifier());
+    softly.assertThat(response.getString("publicationId")).isEqualTo(candidate.publicationId());
   }
 
   /** Fetching a candidate without authentication returns status {@code 401 Unauthorized}. */
   @Test
-  @DisplayName("Fetch candidate unauthenticated")
+  @DisplayName("Fetch candidate for publication unauthenticated")
   @Description(useJavaDoc = true)
   void shouldReturnUnauthorizedWhenFetchingCandidateUnauthenticated() {
     givenUnauthenticatedJsonRequest()
@@ -47,7 +68,7 @@ class FetchCandidateByPublicationTest extends ScientificIndexTestBase {
   @ParameterizedTest
   @Disabled("FIXME: Returns 401, but should be 403. See NP-51618.")
   @MethodSource("usersWithoutNviAccess")
-  @DisplayName("Fetch candidate unauthorized")
+  @DisplayName("Fetch candidate for publication unauthorized")
   @Description(useJavaDoc = true)
   void shouldReturnUnauthorizedWhenFetchingCandidateWithoutAccess(User user) {
     givenAuthenticatedJsonRequestAsUser(user)
@@ -61,27 +82,9 @@ class FetchCandidateByPublicationTest extends ScientificIndexTestBase {
   @DisplayName("Fetch candidate for publication that is not a candidate")
   @Description(useJavaDoc = true)
   void shouldReturnNotFoundWhenPublicationIsNotCandidate() {
-    CANDIDATE_FACTORY
-        .fetchCandidateByPublicationId(UIB_NVI_CURATOR, randomUUID().toString())
+    givenAuthenticatedJsonRequestAsUser(UIB_NVI_CURATOR)
+        .get(CANDIDATE_BY_PUBLICATION_PATH, randomUUID().toString())
         .then()
         .statusCode(404);
-  }
-
-  /** Fetching a candidate by its publication identifier returns it with status {@code 200 OK}. */
-  @ParameterizedTest
-  @MethodSource("usersWithNviReadAccess")
-  @DisplayName("Fetch candidate as NVI user")
-  @Description(useJavaDoc = true)
-  void shouldReturnCandidateWhenFetchingByCandidateIdentifier(User user, SoftAssertions softly) {
-    var response =
-        givenAuthenticatedJsonRequestAsUser(user)
-            .get(CANDIDATE_BY_PUBLICATION_PATH, candidate.publicationIdentifier())
-            .then()
-            .statusCode(200)
-            .extract()
-            .jsonPath();
-
-    softly.assertThat(response.getString("identifier")).isEqualTo(candidate.candidateIdentifier());
-    softly.assertThat(response.getString("publicationId")).isEqualTo(candidate.publicationId());
   }
 }
