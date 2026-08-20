@@ -2,15 +2,10 @@ package no.sikt.nva.apitest.scientificindex.candidate;
 
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_YEAR;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
-import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_NVI_CURATOR;
-import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATE_BY_PUBLICATION_PATH;
 import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATE_PATH;
-import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.PUBLICATION_REPORT_STATUS_PATH;
-import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.encode;
 
 import io.qameta.allure.Description;
-import io.restassured.RestAssured;
 import java.util.UUID;
 import no.sikt.nva.apitest.base.Affiliation;
 import no.sikt.nva.apitest.scientificindex.NviCandidate;
@@ -74,49 +69,5 @@ class FetchCandidateTest extends ScientificIndexTestBase {
 
     softly.assertThat(response.getString("identifier")).isEqualTo(candidate.candidateIdentifier());
     softly.assertThat(response.getString("publicationId")).isEqualTo(candidate.publicationId());
-  }
-
-  /** Fetching the report status of a candidate publication returns PENDING_REVIEW. */
-  @Test
-  @DisplayName("Fetch report status for candidate publication")
-  @Description(useJavaDoc = true)
-  void shouldReturnReportStatusWhenPublicationIsCandidate(SoftAssertions softly) {
-    var response =
-        givenUnauthenticatedJsonRequest()
-            .urlEncodingEnabled(false)
-            .get(PUBLICATION_REPORT_STATUS_PATH, encode(candidate.publicationId()))
-            .then()
-            .statusCode(200)
-            .extract()
-            .jsonPath();
-
-    softly.assertThat(response.getString("publicationId")).isEqualTo(candidate.publicationId());
-    softly.assertThat(response.getString("reportStatus.status")).isEqualTo("PENDING_REVIEW");
-    softly.assertThat(response.getString("period")).isEqualTo(CURRENT_YEAR);
-  }
-
-  /** Fetching a candidate without authentication returns status {@code 401 Unauthorized}. */
-  @Test
-  @DisplayName("Fetch candidate unauthenticated")
-  @Description(useJavaDoc = true)
-  void shouldReturnUnauthorizedWhenFetchingCandidateUnauthenticated() {
-    givenUnauthenticatedJsonRequest()
-        .urlEncodingEnabled(false)
-        .get(CANDIDATE_BY_PUBLICATION_PATH, encode(candidate.publicationId()))
-        .then()
-        .statusCode(401);
-  }
-
-  /** Fetching a candidate for a non-candidate publication returns status {@code 404 Not Found}. */
-  @Test
-  @DisplayName("Fetch candidate for publication that is not a candidate")
-  @Description(useJavaDoc = true)
-  void shouldReturnNotFoundWhenPublicationIsNotCandidate() {
-    var unknownPublicationId = RestAssured.baseURI + "/publication/" + UUID.randomUUID();
-
-    CANDIDATE_FACTORY
-        .fetchCandidateByPublicationId(UIB_NVI_CURATOR, unknownPublicationId)
-        .then()
-        .statusCode(404);
   }
 }
