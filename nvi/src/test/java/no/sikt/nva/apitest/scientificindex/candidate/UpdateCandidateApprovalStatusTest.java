@@ -1,6 +1,14 @@
 package no.sikt.nva.apitest.scientificindex.candidate;
 
 import static java.util.UUID.randomUUID;
+import static no.sikt.nva.apitest.base.UserFixtures.KRISTIANIA_CREATOR;
+import static no.sikt.nva.apitest.base.UserFixtures.KRISTIANIA_NVI_CURATOR;
+import static no.sikt.nva.apitest.base.UserFixtures.OSLO_MET_CREATOR;
+import static no.sikt.nva.apitest.base.UserFixtures.OSLO_MET_NVI_CURATOR;
+import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
+import static no.sikt.nva.apitest.base.UserFixtures.UIB_NVI_CURATOR;
+import static no.sikt.nva.apitest.base.UserFixtures.UIS_CREATOR;
+import static no.sikt.nva.apitest.base.UserFixtures.UIS_NVI_CURATOR;
 import static no.sikt.nva.apitest.scientificindex.NviApprovals.APPROVED;
 import static no.sikt.nva.apitest.scientificindex.NviApprovals.PENDING;
 import static no.sikt.nva.apitest.scientificindex.NviApprovals.REJECTED;
@@ -13,7 +21,6 @@ import java.util.List;
 import java.util.stream.Stream;
 import no.sikt.Contributor;
 import no.sikt.nva.apitest.base.User;
-import no.sikt.nva.apitest.base.UserFixtures;
 import no.sikt.nva.apitest.scientificindex.NviCandidate;
 import no.sikt.nva.apitest.scientificindex.ScientificIndexTestBase;
 import org.assertj.core.api.SoftAssertions;
@@ -53,7 +60,7 @@ class UpdateCandidateApprovalStatusTest extends ScientificIndexTestBase {
     var candidate = createCandidate();
 
     var response =
-        updateApprovalStatus(UserFixtures.UIB_NVI_CURATOR, candidate, APPROVED)
+        updateApprovalStatus(UIB_NVI_CURATOR, candidate, APPROVED)
             .then()
             .statusCode(200)
             .extract()
@@ -87,11 +94,10 @@ class UpdateCandidateApprovalStatusTest extends ScientificIndexTestBase {
 
   private static Stream<Arguments> curatorProvider() {
     return Stream.of(
-        argumentSet(
-            "Kristiania", UserFixtures.KRISTIANIA_NVI_CURATOR, UserFixtures.KRISTIANIA_CREATOR),
-        argumentSet("OsloMet", UserFixtures.OSLO_MET_NVI_CURATOR, UserFixtures.OSLO_MET_CREATOR),
-        argumentSet("UiB", UserFixtures.UIB_NVI_CURATOR, UserFixtures.UIB_CREATOR),
-        argumentSet("UiS", UserFixtures.UIS_NVI_CURATOR, UserFixtures.UIS_CREATOR));
+        argumentSet("Kristiania", KRISTIANIA_NVI_CURATOR, KRISTIANIA_CREATOR),
+        argumentSet("OsloMet", OSLO_MET_NVI_CURATOR, OSLO_MET_CREATOR),
+        argumentSet("UiB", UIB_NVI_CURATOR, UIB_CREATOR),
+        argumentSet("UiS", UIS_NVI_CURATOR, UIS_CREATOR));
   }
 
   /** Rejecting a candidate with a reason returns status {@code 200 OK}. */
@@ -102,7 +108,7 @@ class UpdateCandidateApprovalStatusTest extends ScientificIndexTestBase {
     var candidate = createCandidate();
 
     var response =
-        updateApprovalStatus(UserFixtures.UIB_NVI_CURATOR, candidate, REJECTED, REJECTION_REASON)
+        updateApprovalStatus(UIB_NVI_CURATOR, candidate, REJECTED, REJECTION_REASON)
             .then()
             .statusCode(200)
             .extract()
@@ -120,7 +126,7 @@ class UpdateCandidateApprovalStatusTest extends ScientificIndexTestBase {
   void shouldReturnBadRequestWhenRejectingWithoutReason() {
     var candidate = createCandidate();
 
-    updateApprovalStatus(UserFixtures.UIB_NVI_CURATOR, candidate, REJECTED).then().statusCode(400);
+    updateApprovalStatus(UIB_NVI_CURATOR, candidate, REJECTED).then().statusCode(400);
   }
 
   /** Reverting an approved candidate to Pending stays Pending, not New. */
@@ -130,10 +136,10 @@ class UpdateCandidateApprovalStatusTest extends ScientificIndexTestBase {
   void shouldResetApprovalWhenApprovedCandidateIsSetToPending(SoftAssertions softly) {
     var candidate = createCandidate();
 
-    updateApprovalStatus(UserFixtures.UIB_NVI_CURATOR, candidate, APPROVED).then().statusCode(200);
+    updateApprovalStatus(UIB_NVI_CURATOR, candidate, APPROVED).then().statusCode(200);
 
     var response =
-        updateApprovalStatus(UserFixtures.UIB_NVI_CURATOR, candidate, PENDING)
+        updateApprovalStatus(UIB_NVI_CURATOR, candidate, PENDING)
             .then()
             .statusCode(200)
             .extract()
@@ -151,7 +157,7 @@ class UpdateCandidateApprovalStatusTest extends ScientificIndexTestBase {
   void shouldReturnUnauthorizedWhenUserLacksManageNviCandidates() {
     var candidate = createCandidate();
 
-    updateApprovalStatus(UserFixtures.UIB_CREATOR, candidate, APPROVED).then().statusCode(401);
+    updateApprovalStatus(UIB_CREATOR, candidate, APPROVED).then().statusCode(401);
   }
 
   private static NviCandidate createCandidate() {
