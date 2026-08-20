@@ -7,6 +7,7 @@ import static no.sikt.nva.apitest.base.UserFixtures.UIB_NVI_CURATOR;
 import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATE_BY_PUBLICATION_PATH;
 
 import io.qameta.allure.Description;
+import no.sikt.Category;
 import no.sikt.nva.apitest.base.User;
 import no.sikt.nva.apitest.scientificindex.NviCandidate;
 import no.sikt.nva.apitest.scientificindex.ScientificIndexTestBase;
@@ -82,8 +83,11 @@ class FetchCandidateByPublicationTest extends ScientificIndexTestBase {
   @DisplayName("Fetch candidate for publication that is not a candidate")
   @Description(useJavaDoc = true)
   void shouldReturnNotFoundWhenPublicationIsNotCandidate() {
+    var publicationIdentifier =
+        PUBLICATION_FACTORY.createPublishedPublication(Category.CONFERENCE_REPORT, title());
+
     givenAuthenticatedJsonRequestAsUser(UIB_NVI_CURATOR)
-        .get(CANDIDATE_BY_PUBLICATION_PATH, randomUUID().toString())
+        .get(CANDIDATE_BY_PUBLICATION_PATH, publicationIdentifier)
         .then()
         .statusCode(404);
   }

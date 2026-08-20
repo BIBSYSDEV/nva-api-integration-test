@@ -28,7 +28,11 @@ public class NviCandidateFactory {
   private static final int SEARCH_PAGE_SIZE = 100;
   private static final String IDENTIFIER_FIELD_IN_CANDIDATE = "identifier";
 
-  private final PublicationFactory publicationFactory = new PublicationFactory();
+  private final PublicationFactory publicationFactory;
+
+  public NviCandidateFactory(PublicationFactory publicationFactory) {
+    this.publicationFactory = publicationFactory;
+  }
 
   public NviCandidate createCandidate(String title) {
     var contributors = List.of(Contributor.asCreator(UIB_CREATOR));

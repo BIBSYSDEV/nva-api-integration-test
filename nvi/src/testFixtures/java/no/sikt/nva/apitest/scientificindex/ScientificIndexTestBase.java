@@ -12,12 +12,15 @@ import static no.sikt.nva.apitest.base.UserFixtures.UIS_NVI_CURATOR;
 import static org.junit.jupiter.params.provider.Arguments.argumentSet;
 
 import java.util.stream.Stream;
+import no.sikt.nva.PublicationFactory;
 import no.sikt.nva.apitest.base.IntegrationTestBase;
 import org.junit.jupiter.params.provider.Arguments;
 
 public class ScientificIndexTestBase extends IntegrationTestBase {
 
-  public static final NviCandidateFactory CANDIDATE_FACTORY = new NviCandidateFactory();
+  public static final PublicationFactory PUBLICATION_FACTORY = new PublicationFactory();
+  public static final NviCandidateFactory CANDIDATE_FACTORY =
+      new NviCandidateFactory(PUBLICATION_FACTORY);
 
   /** Test users that should have read access to all NVI endpoints. */
   protected static Stream<Arguments> usersWithNviReadAccess() {
