@@ -1,28 +1,19 @@
 package no.sikt.nva.apitest.scientificindex;
 
 import static java.util.Objects.nonNull;
-import static no.sikt.Role.CREATOR;
 import static no.sikt.nva.apitest.base.Polling.pollUntil;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
-import static no.sikt.nva.apitest.base.UserFixtures.KRISTIANIA_CREATOR;
-import static no.sikt.nva.apitest.base.UserFixtures.KRISTIANIA_PUBLISHING_CURATOR;
-import static no.sikt.nva.apitest.base.UserFixtures.OSLO_MET_CREATOR;
-import static no.sikt.nva.apitest.base.UserFixtures.OSLO_MET_NVI_CURATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_NVI_CURATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_PUBLISHING_CURATOR;
-import static no.sikt.nva.apitest.base.UserFixtures.UIS_CREATOR;
-import static no.sikt.nva.apitest.base.UserFixtures.UIS_PUBLISHING_CURATOR;
 import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATES_PATH;
 import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATE_BY_PUBLICATION_PATH;
 import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.encode;
 
-import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import java.net.HttpURLConnection;
 import java.time.Duration;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.function.Predicate;
 import no.sikt.Category;
@@ -39,28 +30,25 @@ public class NviCandidateFactory {
 
   private final PublicationFactory publicationFactory = new PublicationFactory();
 
-  private final Map<User, User> publishingCurators =
-      Map.of(
-          UIS_CREATOR, UIS_PUBLISHING_CURATOR,
-          KRISTIANIA_CREATOR, KRISTIANIA_PUBLISHING_CURATOR,
-          OSLO_MET_CREATOR, OSLO_MET_NVI_CURATOR,
-          UIB_CREATOR, UIB_PUBLISHING_CURATOR);
-
   public NviCandidate createCandidate(String title) {
-    return createCandidate(title, UIB_CREATOR);
+    var contributors = List.of(Contributor.asCreator(UIB_CREATOR));
+    return createCandidate(title, UIB_PUBLISHING_CURATOR, contributors);
   }
 
-  public NviCandidate createCandidate(String title, User user) {
+  public NviCandidate createCandidate(String title, User curator, List<Contributor> contributors) {
     var publicationIdentifier =
         publicationFactory.createPublishedPublication(
-            user,
-            title,
-            Category.ACADEMIC_ARTICLE,
-            List.of(new Contributor(user, CREATOR)),
-            publishingCurators.get(user));
-    var publicationId = RestAssured.baseURI + "/publication/" + publicationIdentifier;
-    var candidateIdentifier = awaitCandidate(publicationId);
-    return new NviCandidate(candidateIdentifier, publicationId, title, UIB_CREATOR.name());
+            curator, title, Category.ACADEMIC_ARTICLE, contributors, curator);
+    var candidateIdentifier = awaitCandidate(publicationIdentifier);
+    return new NviCandidate(candidateIdentifier, publicationIdentifier, title, contributors);
+  }
+
+  public Response fetchCandidateByPublicationIdentifier(User user, String publicationIdentifier) {
+    return givenAuthenticatedJsonRequestAsUser(user)
+        .get(CANDIDATE_BY_PUBLICATION_PATH, publicationIdentifier)
+        .then()
+        .extract()
+        .response();
   }
 
   public Response fetchCandidateByPublicationId(User user, String publicationId) {
@@ -133,8 +121,8 @@ public class NviCandidateFactory {
     return evaluatedCandidate.jsonPath().getString(IDENTIFIER_FIELD_IN_CANDIDATE);
   }
 
-  private Callable<Response> fetchCandidateRequest(String publicationId) {
-    return () -> fetchCandidateByPublicationId(UIB_NVI_CURATOR, publicationId);
+  private Callable<Response> fetchCandidateRequest(String publicationIdentifier) {
+    return () -> fetchCandidateByPublicationIdentifier(UIB_NVI_CURATOR, publicationIdentifier);
   }
 
   private boolean isFullyEvaluated(Response response) {

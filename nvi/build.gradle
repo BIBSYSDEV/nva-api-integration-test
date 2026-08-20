@@ -6,6 +6,7 @@ dependencies {
     testAnnotationProcessor(libs.allure.descriptions.javadoc)
     testFixturesApi(libs.rest.assured.core)
     testFixturesApi(project(':apitest-base'))
+    testFixturesApi(project(':publication-api'))
     testFixturesApi(testFixtures(project(':apitest-base')))
     testFixturesImplementation(libs.rest.assured.json.path)
     testFixturesImplementation(nvaCatalog.aws.sdk2.aws.core)

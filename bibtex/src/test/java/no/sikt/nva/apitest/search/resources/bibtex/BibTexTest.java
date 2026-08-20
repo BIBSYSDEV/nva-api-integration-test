@@ -14,6 +14,7 @@ import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_MONTH_SHORT_
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_YEAR;
 import static no.sikt.nva.apitest.base.Polling.pollUntil;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
+import static no.sikt.nva.apitest.base.SettledCondition.settledWhenAtLeast;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CONTRIBUTOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_PUBLISHING_CURATOR;
@@ -36,11 +37,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Callable;
-import java.util.function.Predicate;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import no.sikt.Category;
 import no.sikt.Contributor;
+import no.sikt.nva.apitest.base.SettledCondition;
 import no.sikt.nva.apitest.base.User;
 import no.sikt.nva.apitest.publication.PublicationFields;
 import no.sikt.nva.apitest.search.BibTexExpectation;
@@ -133,8 +134,12 @@ class BibTexTest extends SearchTestBase {
     return () -> getResponseBody(query);
   }
 
-  private static Predicate<String> hasNumberOfBibTexEntries(int expectedCount) {
-    return body -> body.lines().filter(line -> line.startsWith("@")).count() >= expectedCount;
+  private static SettledCondition<String> hasNumberOfBibTexEntries(int expectedCount) {
+    return settledWhenAtLeast("bibtex entries", expectedCount, BibTexTest::countBibTexEntries);
+  }
+
+  private static int countBibTexEntries(String body) {
+    return (int) body.lines().filter(line -> line.startsWith("@")).count();
   }
 
   /** Search returned with content type 'text/x-bibtex' is correct BibTex-format for customer. */
