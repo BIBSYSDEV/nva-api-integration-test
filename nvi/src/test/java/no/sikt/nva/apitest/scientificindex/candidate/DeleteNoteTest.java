@@ -88,7 +88,7 @@ class DeleteNoteTest extends ScientificIndexTestBase {
   @MethodSource("userByRoleProvider")
   @DisplayName("Delete note when not Nvi-curator returns unauthorized")
   @Description(useJavaDoc = true)
-  void shouldReturnUnauthorizedWhenNonNviCuratprDeletingNote(User user, SoftAssertions softly) {
+  void shouldReturnUnauthorizedWhenNonNviCuratorDeletingNote(User user, SoftAssertions softly) {
 
     var candidateWithNote =
         pollUntil(createCandidateWithNote(UIB_NVI_CURATOR), DeleteNoteTest::isNotConflict);
