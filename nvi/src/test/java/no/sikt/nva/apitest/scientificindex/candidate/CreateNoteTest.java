@@ -36,16 +36,16 @@ class CreateNoteTest extends ScientificIndexTestBase {
   void shouldCreateNote(SoftAssertions softly) {
     var candidate = createCandidate();
     var candidateIdentifier = candidate.candidateIdentifier();
-    var payload = createNoteRequest();
+    var candidateNote = createNoteRequest();
 
     var response =
-        givenCreateNoteRequest(OSLO_MET_NVI_CURATOR, candidateIdentifier, payload)
+        givenCreateNoteRequest(OSLO_MET_NVI_CURATOR, candidateIdentifier, candidateNote)
             .then()
             .statusCode(200)
             .extract()
             .jsonPath();
 
-    softly.assertThat(response.getString("notes[0].text")).isEqualTo(payload.get("text"));
+    softly.assertThat(response.getString("notes[0].text")).isEqualTo(candidateNote.get("text"));
   }
 
   /**
@@ -74,7 +74,7 @@ class CreateNoteTest extends ScientificIndexTestBase {
     givenCreateNoteRequest(UIB_NVI_CURATOR, candidateIdentifier, payload).then().statusCode(404);
   }
 
-  /** Creating a note with no payload returns {@code 400 Bad Request} */
+  /** Creating a note with no candidateNote returns {@code 400 Bad Request} */
   @Test
   @DisplayName("Create empty note")
   @Description(useJavaDoc = true)
@@ -94,9 +94,9 @@ class CreateNoteTest extends ScientificIndexTestBase {
     softly.assertThat(response.getString("title")).isEqualTo("Invalid request body");
   }
 
-  /** Creating a note with wrong payload returns {@code 400 Bad Request} */
+  /** Creating a note with wrong candidateNote returns {@code 400 Bad Request} */
   @Test
-  @DisplayName("Create note with wrong payload")
+  @DisplayName("Create note with wrong candidateNote")
   @Description(useJavaDoc = true)
   void shouldReturnBadRequestWhenCreatingNoteWithWrongPayload(SoftAssertions softly) {
     var candidate = createCandidate();

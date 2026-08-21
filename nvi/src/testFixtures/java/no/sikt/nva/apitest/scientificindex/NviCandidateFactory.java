@@ -8,12 +8,15 @@ import static no.sikt.nva.apitest.base.UserFixtures.UIB_NVI_CURATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_PUBLISHING_CURATOR;
 import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATES_PATH;
 import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATE_BY_PUBLICATION_PATH;
+import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATE_NOTES_PATH;
 import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.encode;
 
 import io.restassured.response.Response;
 import java.net.HttpURLConnection;
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.function.Predicate;
 import no.sikt.Category;
@@ -72,6 +75,36 @@ public class NviCandidateFactory {
         .then()
         .extract()
         .response();
+  }
+
+  public Response createCandidateWithNote(String title, User user) {
+    return createCandidateWithNote(
+        title, "NVI integration test candidate note " + UUID.randomUUID(), user);
+  }
+
+  public Response createCandidateWithNote(String title, String noteText, User user) {
+
+    return pollUntil(
+        awaitCreateCandidateWithNote(title, noteText, user), NviCandidateFactory::isNotConflict);
+  }
+
+  public Callable<Response> awaitCreateCandidateWithNote(String title, User user) {
+    return awaitCreateCandidateWithNote(
+        title, "NVI integration test candidate note " + UUID.randomUUID(), user);
+  }
+
+  public Callable<Response> awaitCreateCandidateWithNote(String title, String noteText, User user) {
+    return () -> {
+      var candidate = createCandidate(title, user, List.of(Contributor.asCreator(user)));
+      var candidateIdentifier = candidate.candidateIdentifier();
+
+      var candidateNote = Map.of("text", noteText);
+
+      return givenAuthenticatedJsonRequestAsUser(user)
+          .body(candidateNote)
+          .when()
+          .post(CANDIDATE_NOTES_PATH, candidateIdentifier);
+    };
   }
 
   /**
@@ -142,5 +175,9 @@ public class NviCandidateFactory {
               && points.doubleValue() > 0;
     }
     return fullyEvaluated;
+  }
+
+  private static boolean isNotConflict(Response response) {
+    return response.statusCode() != HttpURLConnection.HTTP_CONFLICT;
   }
 }
