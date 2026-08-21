@@ -24,7 +24,7 @@ class FetchNoteTest extends ScientificIndexTestBase {
 
   /** Fetch a note on a NVI candidate returns {@code 200 OK} with the note in the response */
   @Test
-  @DisplayName("Fetch note fromn NVI candidate")
+  @DisplayName("Fetch note from NVI candidate")
   @Description(useJavaDoc = true)
   void shouldFetchNote(SoftAssertions softly) {
 
