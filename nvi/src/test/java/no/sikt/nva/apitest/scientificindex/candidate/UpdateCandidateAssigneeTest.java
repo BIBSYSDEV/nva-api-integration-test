@@ -1,21 +1,9 @@
 package no.sikt.nva.apitest.scientificindex.candidate;
 
-import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedRequestAsUser;
-import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
-import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
-import static no.sikt.nva.apitest.base.UserFixtures.UIB_NVI_CURATOR;
-import static no.sikt.nva.apitest.base.UserFixtures.UIS_CREATOR;
-import static no.sikt.nva.apitest.base.UserFixtures.UIS_NVI_CURATOR;
-import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATE_ASSIGNEE_PATH;
-
-import io.qameta.allure.Description;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import no.sikt.Contributor;
-import no.sikt.nva.apitest.base.User;
-import no.sikt.nva.apitest.scientificindex.NviCandidate;
-import no.sikt.nva.apitest.scientificindex.ScientificIndexTestBase;
+
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.DisplayName;
@@ -23,6 +11,19 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+
+import io.qameta.allure.Description;
+import no.sikt.Contributor;
+import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedRequestAsUser;
+import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
+import no.sikt.nva.apitest.base.User;
+import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
+import static no.sikt.nva.apitest.base.UserFixtures.UIB_NVI_CURATOR;
+import static no.sikt.nva.apitest.base.UserFixtures.UIS_CREATOR;
+import static no.sikt.nva.apitest.base.UserFixtures.UIS_NVI_CURATOR;
+import no.sikt.nva.apitest.scientificindex.NviCandidate;
+import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATE_ASSIGNEE_PATH;
+import no.sikt.nva.apitest.scientificindex.ScientificIndexTestBase;
 
 @ExtendWith(SoftAssertionsExtension.class)
 @DisplayName("PUT " + CANDIDATE_ASSIGNEE_PATH)
@@ -172,7 +173,7 @@ class UpdateCandidateAssigneeTest extends ScientificIndexTestBase {
   }
 
   private NviCandidate createCandidate(User curator, List<Contributor> contributors) {
-    var title = "Test NVI canidate " + UUID.randomUUID();
+    var title = "NVI test canidate " + UUID.randomUUID();
     return CANDIDATE_FACTORY.createCandidate(title, curator, contributors);
   }
 }
