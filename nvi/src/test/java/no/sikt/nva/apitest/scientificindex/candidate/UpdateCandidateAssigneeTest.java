@@ -173,7 +173,7 @@ class UpdateCandidateAssigneeTest extends ScientificIndexTestBase {
   }
 
   private NviCandidate createCandidate(User curator, List<Contributor> contributors) {
-    var title = "NVI test canidate " + UUID.randomUUID();
+    var title = "NVI test candidate " + UUID.randomUUID();
     return CANDIDATE_FACTORY.createCandidate(title, curator, contributors);
   }
 }
