@@ -166,11 +166,9 @@ class UpdateCandidateAssigneeTest extends ScientificIndexTestBase {
   }
 
   private Map<String, String> createPayload(User user) {
-    var payload =
-        Map.of(
-            "institutionId", user.affiliations().iterator().next(),
-            "assignee", user.cristinId());
-    return payload;
+    return Map.of(
+        "institutionId", user.affiliations().iterator().next(),
+        "assignee", user.cristinId());
   }
 
   private NviCandidate createCandidate(User curator, List<Contributor> contributors) {
