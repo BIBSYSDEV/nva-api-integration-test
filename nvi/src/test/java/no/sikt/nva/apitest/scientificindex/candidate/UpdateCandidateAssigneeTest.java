@@ -29,6 +29,7 @@ import no.sikt.nva.apitest.scientificindex.ScientificIndexTestBase;
 @DisplayName("PUT " + CANDIDATE_ASSIGNEE_PATH)
 class UpdateCandidateAssigneeTest extends ScientificIndexTestBase {
 
+  //* Assigning a nvi-curator to a candidate returns the candidate with the curator assigned to it and status {@code Ok} */
   @Test
   @DisplayName("Assign curator to candidate")
   @Description(useJavaDoc = true)
@@ -58,6 +59,7 @@ class UpdateCandidateAssigneeTest extends ScientificIndexTestBase {
     softly.assertThat(response.jsonPath().getString("approvals[0].status")).isEqualTo("Pending");
   }
 
+  /** Assigning a curator from the insitution of a contributor to a candidate returns the candidate with the curator assigned to it and status {@code 200 Ok} */
   @Test
   @DisplayName(
       "Assign curator to candidate created at other institution with contributor from own"
@@ -92,6 +94,7 @@ class UpdateCandidateAssigneeTest extends ScientificIndexTestBase {
     softly.assertThat(response.jsonPath().getString("approvals[0].status")).isEqualTo("Pending");
   }
 
+  /** Trying to assign a curator to a non-existing candidate returns status {@code 404 Not Found} */
   @Test
   @DisplayName("Trying to assign a curator to a non-existing candidate")
   @Description(useJavaDoc = true)
@@ -109,6 +112,7 @@ class UpdateCandidateAssigneeTest extends ScientificIndexTestBase {
         .statusCode(404);
   }
 
+  /** Calling the service with no body returns status {@code 400 Bad Request} */
   @Test
   @DisplayName("Calling with no body should return 400 Bad Request")
   @Description(useJavaDoc = true)
@@ -132,21 +136,26 @@ class UpdateCandidateAssigneeTest extends ScientificIndexTestBase {
         .isEqualTo("[Unknown error parsing request body]");
   }
 
+  /** Assigning a curator to a candidate with no authentication returns {@code 401 Unauthorized} */
   @Test
-  @DisplayName("Calling with no authentication should return 401 Unauthorized")
+  @DisplayName("Assigning a curator with no authentication should return 401 Unauthorized")
   @Description(useJavaDoc = true)
   void shouldReturnUnauthorizedWhenNotAuthenticated() {
 
     var candidate = createCandidate(UIS_NVI_CURATOR, List.of(Contributor.asCreator(UIS_CREATOR)));
     var candidateIdentifier = candidate.candidateIdentifier();
 
+    var payload = createPayload(UIS_NVI_CURATOR);
+
     givenUnauthenticatedJsonRequest()
+        .body(payload)
         .when()
         .put(CANDIDATE_ASSIGNEE_PATH, candidateIdentifier)
         .then()
         .statusCode(401);
   }
 
+  /** Assigning a curator while not a nvi-curator return {@code 401 Unauthorized} */
   @ParameterizedTest
   @MethodSource("usersWithoutNviAccess")
   @DisplayName("Non Nvi-curator should return 401 Unauthorized")
