@@ -29,7 +29,7 @@ import no.sikt.nva.apitest.scientificindex.ScientificIndexTestBase;
 @DisplayName("PUT " + CANDIDATE_ASSIGNEE_PATH)
 class UpdateCandidateAssigneeTest extends ScientificIndexTestBase {
 
-  //* Assigning a nvi-curator to a candidate returns the candidate with the curator assigned to it and status {@code Ok} */
+  /* Assigning a nvi-curator to a candidate returns the candidate with the curator assigned to it and status {@code Ok} */
   @Test
   @DisplayName("Assign curator to candidate")
   @Description(useJavaDoc = true)
