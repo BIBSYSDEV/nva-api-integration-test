@@ -155,7 +155,7 @@ class UpdateCandidateAssigneeTest extends ScientificIndexTestBase {
         .statusCode(401);
   }
 
-  /** Assigning a curator while not a nvi-curator return {@code 401 Unauthorized} */
+  /** Assigning a curator while not a nvi-curator returns {@code 401 Unauthorized} */
   @ParameterizedTest
   @MethodSource("usersWithoutNviAccess")
   @DisplayName("Non Nvi-curator should return 401 Unauthorized")
