@@ -65,7 +65,7 @@ class UpdateCandidateAssigneeTest extends ScientificIndexTestBase {
       "Assign curator to candidate created at other institution with contributor from own"
           + " institution")
   @Description(useJavaDoc = true)
-  void shouldAssignCuratorToCandidateWithContributorFromOwnInstiution(SoftAssertions softly) {
+  void shouldAssignCuratorToCandidateWithContributorFromOwnInstitution(SoftAssertions softly) {
 
     var candidate =
         createCandidate(
