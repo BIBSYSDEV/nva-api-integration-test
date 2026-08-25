@@ -9,11 +9,11 @@ import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.DELETE_NO
 
 import io.qameta.allure.Description;
 import io.restassured.response.Response;
-import java.net.HttpURLConnection;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import no.sikt.Contributor;
+import no.sikt.nva.apitest.base.IntegrationTestBase;
 import no.sikt.nva.apitest.base.User;
 import no.sikt.nva.apitest.scientificindex.NviCandidate;
 import no.sikt.nva.apitest.scientificindex.ScientificIndexTestBase;
@@ -78,7 +78,7 @@ class DeleteNoteTest extends ScientificIndexTestBase {
     var deleteNoteResponse =
         pollUntil(
             deleteCandidateNote(user, candidateIdentifier, noteIdentifier),
-            DeleteNoteTest::isNotConflict);
+            IntegrationTestBase::isNotConflict);
     softly.assertThat(deleteNoteResponse.statusCode()).isEqualTo(403);
   }
 
@@ -100,7 +100,7 @@ class DeleteNoteTest extends ScientificIndexTestBase {
     var deleteNoteResponse =
         pollUntil(
             deleteCandidateNote(UIB_NVI_CURATOR, candidateIdentifier, noteIdentifier),
-            DeleteNoteTest::isNotConflict);
+            IntegrationTestBase::isNotConflict);
     softly.assertThat(deleteNoteResponse.statusCode()).isEqualTo(403);
   }
 
@@ -119,7 +119,7 @@ class DeleteNoteTest extends ScientificIndexTestBase {
     var deleteNoteResponse =
         pollUntil(
             deleteCandidateNote(OSLO_MET_NVI_CURATOR, candidateIdentifier, noteIdentifier),
-            DeleteNoteTest::isNotConflict);
+            IntegrationTestBase::isNotConflict);
     softly.assertThat(deleteNoteResponse.statusCode()).isEqualTo(401);
   }
 
@@ -132,7 +132,7 @@ class DeleteNoteTest extends ScientificIndexTestBase {
       User user, String candidateIdentifier, String noteIdentifier) {
     return pollUntil(
         deleteCandidateNote(user, candidateIdentifier, noteIdentifier),
-        DeleteNoteTest::isNotConflict);
+        IntegrationTestBase::isNotConflict);
   }
 
   private static Callable<Response> deleteCandidateNote(
@@ -145,9 +145,5 @@ class DeleteNoteTest extends ScientificIndexTestBase {
   private Response createCandidateWithNote(User user) {
     return CANDIDATE_FACTORY.createCandidateWithNote(
         "NVI integration test " + UUID.randomUUID(), user);
-  }
-
-  private static boolean isNotConflict(Response response) {
-    return response.statusCode() != HttpURLConnection.HTTP_CONFLICT;
   }
 }

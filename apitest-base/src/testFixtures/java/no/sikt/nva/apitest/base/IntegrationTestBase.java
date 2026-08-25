@@ -3,6 +3,8 @@ package no.sikt.nva.apitest.base;
 import io.qameta.allure.restassured.AllureRestAssured;
 import io.restassured.RestAssured;
 import io.restassured.config.LogConfig;
+import io.restassured.response.Response;
+import java.net.HttpURLConnection;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 import org.junit.jupiter.api.BeforeAll;
@@ -37,5 +39,9 @@ public abstract class IntegrationTestBase {
     } finally {
       CONFIGURATION_LOCK.unlock();
     }
+  }
+
+  protected static boolean isNotConflict(Response response) {
+    return response.statusCode() != HttpURLConnection.HTTP_CONFLICT;
   }
 }

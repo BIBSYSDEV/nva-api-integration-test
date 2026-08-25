@@ -26,6 +26,13 @@ public record User(String name, String userId, String cristinId, Collection<Stri
         .withAffiliations(affiliations);
   }
 
+  public String extractAffiliation(Affiliation affiliation) {
+    return this.affiliations.stream()
+        .filter(aff -> aff.equals(affiliation.getValue()))
+        .findFirst()
+        .get();
+  }
+
   public static final class Builder {
     private String name;
     private String userId;
