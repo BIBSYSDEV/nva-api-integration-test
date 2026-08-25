@@ -1,17 +1,7 @@
 package no.sikt.nva.apitest.scientificindex.reports;
 
-import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_YEAR;
-import static no.sikt.nva.apitest.base.CurrentTimeConstants.getCurrentYear;
-import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedRequestAsUser;
-import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
-import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.REPORTS_PATH;
-
-import io.qameta.allure.Description;
-import io.restassured.response.Response;
 import java.util.Map;
-import no.sikt.nva.apitest.base.User;
-import no.sikt.nva.apitest.base.UserFixtures;
-import no.sikt.nva.apitest.scientificindex.ScientificIndexTestBase;
+
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.DisplayName;
@@ -20,9 +10,24 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import io.qameta.allure.Description;
+import io.restassured.response.Response;
+import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_YEAR;
+import static no.sikt.nva.apitest.base.CurrentTimeConstants.getCurrentYear;
+import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedRequestAsUser;
+import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
+import no.sikt.nva.apitest.base.User;
+import no.sikt.nva.apitest.base.UserFixtures;
+import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.REPORTS_PATH;
+import no.sikt.nva.apitest.scientificindex.ScientificIndexTestBase;
+
 @ExtendWith(SoftAssertionsExtension.class)
 @DisplayName("GET " + REPORTS_PATH)
 class FetchAllPeriodsReportTest extends ScientificIndexTestBase {
+
+  private static final String PREVIOUS_PERIOD = "Last year";
+  private static final String THIS_PERIOD = "This year";
+  private static final String NEXT_PERIOD = "Next year";
 
   /** Fetching periods report as Nvi-curator returns the report with status {@code 200 Ok} */
   @Test
@@ -44,34 +49,36 @@ class FetchAllPeriodsReportTest extends ScientificIndexTestBase {
 
     var years =
         Map.of(
-            0, getCurrentYear().minusYears(1).toString(),
-            1, CURRENT_YEAR,
-            2, getCurrentYear().plusYears(1).toString());
+            PREVIOUS_PERIOD, getCurrentYear().minusYears(1).toString(),
+            THIS_PERIOD, CURRENT_YEAR,
+            NEXT_PERIOD, getCurrentYear().plusYears(1).toString()
+          );
 
     years
         .entrySet()
         .forEach(entry -> assertContent(entry.getKey(), entry.getValue(), response, softly));
   }
 
-  private void assertContent(Integer index, String year, Response response, SoftAssertions softly) {
-    softly
-        .assertThat(
-            response
-                .jsonPath()
-                .getString(String.format("periods[%d].period.publishingYear", index)))
-        .isEqualTo(year);
-    softly
-        .assertThat(response.jsonPath().getString(String.format("periods[%d].period", index)))
-        .isNotBlank();
-    softly
-        .assertThat(response.jsonPath().getString(String.format("periods[%d].totals", index)))
-        .isNotBlank();
-    softly
-        .assertThat(
-            response
-                .jsonPath()
-                .getString(String.format("periods[%d].byGlobalApprovalStatus", index)))
-        .isNotBlank();
+  private void assertContent(String period, String year, Response response, SoftAssertions softly) {
+
+    var jsonPath = response.jsonPath().param("year", year);
+
+    softly.assertThat(jsonPath.getString("periods.find { it.period.publishingYear == year }"))
+        .isNotEmpty();
+    softly.assertThat(jsonPath.getString("periods.find { it.period.publishingYear == year }.totals"))
+        .isNotEmpty();
+    softly.assertThat(jsonPath.getString("periods.find { it.period.publishingYear == year }.byGlobalApprovalStatus"))
+        .isNotEmpty();
+
+    switch (period) {
+      case PREVIOUS_PERIOD -> softly.assertThat(jsonPath.getString("periods.find { it.period.publishingYear == year }.period.status"))
+        .isEqualTo("ClosedPeriod");
+      case THIS_PERIOD -> softly.assertThat(jsonPath.getString("periods.find { it.period.publishingYear == year }.period.status"))
+        .isEqualTo("OpenPeriod");
+      case NEXT_PERIOD -> softly.assertThat(jsonPath.getString("periods.find { it.period.publishingYear == year }.period.status"))
+        .isEqualTo("UnopenedPeriod");
+      default -> throw new AssertionError();
+    }
   }
 
   /**
