@@ -57,8 +57,4 @@ class FetchNoteTest extends ScientificIndexTestBase {
   private Callable<Response> createCandidateWithNote(String title, String noteText, User user) {
     return () -> CANDIDATE_FACTORY.createCandidateWithNote(title, noteText, user);
   }
-
-  // private static boolean isNotConflict(Response response) {
-  //   return response.statusCode() != HttpURLConnection.HTTP_CONFLICT;
-  // }
 }

@@ -198,9 +198,4 @@ class UpdateCandidateAssigneeTest extends ScientificIndexTestBase {
             .body(payload)
             .put(CANDIDATE_ASSIGNEE_PATH, candidateIdentifier);
   }
-
-  // private static boolean isNotConflict(Response response) {
-  //   return response.statusCode() != HttpURLConnection.HTTP_CONFLICT;
-  // }
-
 }
