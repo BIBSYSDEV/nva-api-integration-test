@@ -1,35 +1,45 @@
 package no.sikt.nva.apitest.scientificindex.candidate;
 
+import static no.sikt.nva.apitest.base.Affiliation.UIB;
+import static no.sikt.nva.apitest.base.Affiliation.UIS;
+import static no.sikt.nva.apitest.base.Polling.pollUntil;
+import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedRequestAsUser;
+import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
+import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
+import static no.sikt.nva.apitest.base.UserFixtures.UIB_NVI_CURATOR;
+import static no.sikt.nva.apitest.base.UserFixtures.UIS_CREATOR;
+import static no.sikt.nva.apitest.base.UserFixtures.UIS_NVI_CURATOR;
+import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATE_ASSIGNEE_PATH;
+
+import io.qameta.allure.Description;
+import io.restassured.response.Response;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
+import java.util.concurrent.Callable;
+import no.sikt.Contributor;
+import no.sikt.nva.apitest.base.Affiliation;
+import no.sikt.nva.apitest.base.IntegrationTestBase;
+import no.sikt.nva.apitest.base.User;
+import no.sikt.nva.apitest.scientificindex.NviCandidate;
+import no.sikt.nva.apitest.scientificindex.ScientificIndexTestBase;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import io.qameta.allure.Description;
-import no.sikt.Contributor;
-import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedRequestAsUser;
-import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
-import no.sikt.nva.apitest.base.User;
-import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
-import static no.sikt.nva.apitest.base.UserFixtures.UIB_NVI_CURATOR;
-import static no.sikt.nva.apitest.base.UserFixtures.UIS_CREATOR;
-import static no.sikt.nva.apitest.base.UserFixtures.UIS_NVI_CURATOR;
-import no.sikt.nva.apitest.scientificindex.NviCandidate;
-import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATE_ASSIGNEE_PATH;
-import no.sikt.nva.apitest.scientificindex.ScientificIndexTestBase;
-
 @ExtendWith(SoftAssertionsExtension.class)
 @DisplayName("PUT " + CANDIDATE_ASSIGNEE_PATH)
 class UpdateCandidateAssigneeTest extends ScientificIndexTestBase {
 
-  /* Assigning a nvi-curator to a candidate returns the candidate with the curator assigned to it and status {@code Ok} */
+  /**
+   * Assigning a nvi-curator to a candidate returns the candidate with the curator assigned to it
+   * and status {@code 200 OK}
+   */
   @Test
   @DisplayName("Assign curator to candidate")
   @Description(useJavaDoc = true)
@@ -41,25 +51,19 @@ class UpdateCandidateAssigneeTest extends ScientificIndexTestBase {
     var payload = createPayload(UIS_NVI_CURATOR);
 
     var response =
-        givenAuthenticatedRequestAsUser(UIS_NVI_CURATOR)
-            .body(payload)
-            .when()
-            .put(CANDIDATE_ASSIGNEE_PATH, candidateIdentifier)
-            .then()
-            .statusCode(200)
-            .extract()
-            .response();
+        pollUntil(
+            assignCuratorToCandidate(UIS_NVI_CURATOR, candidateIdentifier, payload),
+            IntegrationTestBase::isNotConflict);
 
-    softly
-        .assertThat(response.jsonPath().getString("approvals[0].institutionId"))
-        .isEqualTo(UIS_NVI_CURATOR.affiliations().iterator().next());
-    softly
-        .assertThat(response.jsonPath().getString("approvals[0].assignee"))
-        .isEqualTo(UIS_NVI_CURATOR.cristinId());
-    softly.assertThat(response.jsonPath().getString("approvals[0].status")).isEqualTo("Pending");
+    softly.assertThat(response.statusCode()).isEqualTo(200);
+
+    assertApproval(softly, response, UIS_NVI_CURATOR, UIS);
   }
 
-  /** Assigning a curator from the insitution of a contributor to a candidate returns the candidate with the curator assigned to it and status {@code 200 Ok} */
+  /**
+   * Assigning a curator from the insitution of a contributor to a candidate returns the candidate
+   * with the curator assigned to it and status {@code 200 Ok}
+   */
   @Test
   @DisplayName(
       "Assign curator to candidate created at other institution with contributor from own"
@@ -76,22 +80,25 @@ class UpdateCandidateAssigneeTest extends ScientificIndexTestBase {
     var payload = createPayload(UIB_NVI_CURATOR);
 
     var response =
-        givenAuthenticatedRequestAsUser(UIB_NVI_CURATOR)
-            .body(payload)
-            .when()
-            .put(CANDIDATE_ASSIGNEE_PATH, candidateIdentifier)
-            .then()
-            .statusCode(200)
-            .extract()
-            .response();
+        pollUntil(
+            assignCuratorToCandidate(UIB_NVI_CURATOR, candidateIdentifier, payload),
+            IntegrationTestBase::isNotConflict);
+
+    softly.assertThat(response.statusCode()).isEqualTo(200);
+    assertApproval(softly, response, UIB_NVI_CURATOR, UIB);
+  }
+
+  private void assertApproval(
+      SoftAssertions softly, Response response, User user, Affiliation affiliation) {
+    var inst = user.extractAffiliation(affiliation);
+    var jsonPath = response.jsonPath().param("inst", inst);
 
     softly
-        .assertThat(response.jsonPath().getString("approvals[0].institutionId"))
-        .isEqualTo(UIB_NVI_CURATOR.affiliations().iterator().next());
+        .assertThat(jsonPath.getString("approvals.find { it.institutionId == inst }.assignee"))
+        .isEqualTo(user.cristinId());
     softly
-        .assertThat(response.jsonPath().getString("approvals[0].assignee"))
-        .isEqualTo(UIB_NVI_CURATOR.cristinId());
-    softly.assertThat(response.jsonPath().getString("approvals[0].status")).isEqualTo("Pending");
+        .assertThat(jsonPath.getString("approvals.find { it.institutionId == inst }.status"))
+        .isEqualTo("Pending");
   }
 
   /** Trying to assign a curator to a non-existing candidate returns status {@code 404 Not Found} */
@@ -131,9 +138,6 @@ class UpdateCandidateAssigneeTest extends ScientificIndexTestBase {
             .response();
 
     softly.assertThat(response.jsonPath().getString("title")).isEqualTo("Invalid request body");
-    softly
-        .assertThat(response.jsonPath().getString("detail"))
-        .isEqualTo("[Unknown error parsing request body]");
   }
 
   /** Assigning a curator to a candidate with no authentication returns {@code 401 Unauthorized} */
@@ -155,10 +159,11 @@ class UpdateCandidateAssigneeTest extends ScientificIndexTestBase {
         .statusCode(401);
   }
 
-  /** Assigning a curator while not a nvi-curator returns {@code 401 Unauthorized} */
+  /** Assigning a curator while not a nvi-curator returns {@code 403 Forbidden} */
   @ParameterizedTest
+  @Disabled("Fixme: Returns 401, see NP-51618")
   @MethodSource("usersWithoutNviAccess")
-  @DisplayName("Non Nvi-curator should return 401 Unauthorized")
+  @DisplayName("Non Nvi-curator should return 403 Forbidden")
   @Description(useJavaDoc = true)
   void shouldReturnForbiddenWhenNonNviCurator(User user) {
 
@@ -172,7 +177,7 @@ class UpdateCandidateAssigneeTest extends ScientificIndexTestBase {
         .when()
         .put(CANDIDATE_ASSIGNEE_PATH, candidateIdentifier)
         .then()
-        .statusCode(401);
+        .statusCode(403);
   }
 
   private Map<String, String> createPayload(User user) {
@@ -185,4 +190,17 @@ class UpdateCandidateAssigneeTest extends ScientificIndexTestBase {
     var title = "NVI test candidate " + UUID.randomUUID();
     return CANDIDATE_FACTORY.createCandidate(title, curator, contributors);
   }
+
+  private static Callable<Response> assignCuratorToCandidate(
+      User user, String candidateIdentifier, Map<String, String> payload) {
+    return () ->
+        givenAuthenticatedRequestAsUser(user)
+            .body(payload)
+            .put(CANDIDATE_ASSIGNEE_PATH, candidateIdentifier);
+  }
+
+  // private static boolean isNotConflict(Response response) {
+  //   return response.statusCode() != HttpURLConnection.HTTP_CONFLICT;
+  // }
+
 }

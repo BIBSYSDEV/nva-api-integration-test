@@ -7,9 +7,9 @@ import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATE
 
 import io.qameta.allure.Description;
 import io.restassured.response.Response;
-import java.net.HttpURLConnection;
 import java.util.UUID;
 import java.util.concurrent.Callable;
+import no.sikt.nva.apitest.base.IntegrationTestBase;
 import no.sikt.nva.apitest.base.User;
 import no.sikt.nva.apitest.scientificindex.ScientificIndexTestBase;
 import org.assertj.core.api.SoftAssertions;
@@ -33,7 +33,7 @@ class FetchNoteTest extends ScientificIndexTestBase {
     var candidate =
         pollUntil(
             createCandidateWithNote(title, noteText, OSLO_MET_NVI_CURATOR),
-            FetchNoteTest::isNotConflict);
+            IntegrationTestBase::isNotConflict);
 
     var candidateIdentifier = candidate.jsonPath().getString("identifier");
     var noteIdentifier = candidate.jsonPath().getString("notes[0].identifier");
@@ -58,7 +58,7 @@ class FetchNoteTest extends ScientificIndexTestBase {
     return () -> CANDIDATE_FACTORY.createCandidateWithNote(title, noteText, user);
   }
 
-  private static boolean isNotConflict(Response response) {
-    return response.statusCode() != HttpURLConnection.HTTP_CONFLICT;
-  }
+  // private static boolean isNotConflict(Response response) {
+  //   return response.statusCode() != HttpURLConnection.HTTP_CONFLICT;
+  // }
 }

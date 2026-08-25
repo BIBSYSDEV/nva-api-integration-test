@@ -11,11 +11,11 @@ import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATE
 
 import io.qameta.allure.Description;
 import io.restassured.response.Response;
-import java.net.HttpURLConnection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import no.sikt.Contributor;
+import no.sikt.nva.apitest.base.IntegrationTestBase;
 import no.sikt.nva.apitest.base.User;
 import no.sikt.nva.apitest.scientificindex.NviCandidate;
 import no.sikt.nva.apitest.scientificindex.ScientificIndexTestBase;
@@ -125,7 +125,7 @@ class CreateNoteTest extends ScientificIndexTestBase {
       User user, String candidateIdentifier, Map<String, String> requestBody) {
     return pollUntil(
         postCreateNoteRequest(user, candidateIdentifier, requestBody),
-        CreateNoteTest::isNotConflict);
+        IntegrationTestBase::isNotConflict);
   }
 
   private static Map<String, String> createNoteRequest() {
@@ -138,9 +138,5 @@ class CreateNoteTest extends ScientificIndexTestBase {
         givenAuthenticatedJsonRequestAsUser(user)
             .body(requestBody)
             .post(CANDIDATE_NOTES_PATH, candidateIdentifier);
-  }
-
-  private static boolean isNotConflict(Response response) {
-    return response.statusCode() != HttpURLConnection.HTTP_CONFLICT;
   }
 }
