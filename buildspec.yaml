@@ -1,5 +1,10 @@
 version: 0.2
 
+env:
+  variables:
+    # Mirrors E2E_ACCOUNT_ID in IntegrationTestBase, which refuses to run anywhere else
+    E2E_ACCOUNT_ID: "282305091481"
+
 phases:
   install:
     runtime-versions:
@@ -11,6 +16,16 @@ phases:
 
   build:
     commands:
+      # The suite refuses to run outside the e2e account, and the `|| true` below would report that
+      # refusal as a successful build with an empty report. Fail the build here instead, so a
+      # misconfigured role is visible rather than silent.
+      - |
+        ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+        if [ "$ACCOUNT_ID" != "$E2E_ACCOUNT_ID" ]; then
+          echo "Refusing to run: this build is in account $ACCOUNT_ID, not the e2e account $E2E_ACCOUNT_ID"
+          exit 1
+        fi
+      # Test failures must not stop the report from being generated and published below
       - ./gradlew test || true
   post_build:
     commands:
