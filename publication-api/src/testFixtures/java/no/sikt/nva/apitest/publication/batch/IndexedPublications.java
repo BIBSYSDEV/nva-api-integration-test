@@ -63,8 +63,13 @@ public final class IndexedPublications {
             .parallel()
             .mapToObj(index -> createPublication(titleToken))
             .toList();
-    pollUntil(INDEXING_TIMEOUT, () -> searchableCount(titleToken), hits -> hits == count);
+    awaitSearchable(count, titleToken);
     return identifiers;
+  }
+
+  /** Blocks until the search api reports exactly the expected number of publications. */
+  public static void awaitSearchable(int count, String titleToken) {
+    pollUntil(INDEXING_TIMEOUT, () -> searchableCount(titleToken), hits -> hits == count);
   }
 
   /** The search parameters that scope a handler run to the publications with this title token. */

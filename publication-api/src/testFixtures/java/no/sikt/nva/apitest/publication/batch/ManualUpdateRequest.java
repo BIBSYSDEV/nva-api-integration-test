@@ -37,6 +37,11 @@ public record ManualUpdateRequest(
         type, oldValue, newValue, searchParams, null, DRY_RUN, null, null);
   }
 
+  public ManualUpdateRequest withComparator(String newComparator) {
+    return new ManualUpdateRequest(
+        type, oldValue, newValue, searchParams, newComparator, dryRun, limit, pageSize);
+  }
+
   public ManualUpdateRequest withDryRun(Boolean newDryRun) {
     return new ManualUpdateRequest(
         type, oldValue, newValue, searchParams, comparator, newDryRun, limit, pageSize);

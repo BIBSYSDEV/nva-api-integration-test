@@ -8,12 +8,10 @@ import static no.sikt.nva.apitest.publication.batch.ManuallyUpdatePublications.C
 import static no.sikt.nva.apitest.publication.batch.ManuallyUpdatePublications.run;
 
 import io.qameta.allure.Description;
-import java.util.HashMap;
 import java.util.Map;
 import no.sikt.nva.apitest.publication.PublicationTestBase;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,14 +36,17 @@ import org.junit.jupiter.api.extension.ExtendWith;
 @DisplayName("Manually update publications (lambda)")
 class ManuallyUpdatePublicationsTest extends PublicationTestBase {
 
-  private static final int MATCHING_PUBLICATIONS = 100;
+  /** Every publication in the shared set carries the contributor affiliation these tests move. */
+  private static final int MATCHING_PUBLICATIONS = SharedPublicationSet.TOTAL_PUBLICATIONS;
+
   private static final int PAGE_SIZE = 20;
-  private static final int PAGES_IN_FULL_SERIES = MATCHING_PUBLICATIONS / PAGE_SIZE;
+  private static final int PAGES_IN_FULL_SERIES =
+      (MATCHING_PUBLICATIONS + PAGE_SIZE - 1) / PAGE_SIZE;
   private static final int LIMIT_ABOVE_ALL_HITS = 2 * MATCHING_PUBLICATIONS;
 
   /**
-   * The limit lands in the middle of the third of five pages: two pages are changed in full, the
-   * third is fetched whole but changed only up to the limit, and the run stops before page four.
+   * The limit lands in the middle of the third page: two pages are changed in full, the third is
+   * fetched whole but changed only up to the limit, and the run stops before page four.
    */
   private static final int LIMIT_MID_SERIES = 50;
 
@@ -62,14 +63,6 @@ class ManuallyUpdatePublicationsTest extends PublicationTestBase {
   private static final int LIMIT_AS_SIZE_PARAM = 3;
   private static final String SIZE_PARAM = "size";
   private static final int SINGLE_PAGE = 1;
-
-  private static String titleToken;
-
-  @BeforeAll
-  static void createSearchablePublications() {
-    titleToken = IndexedPublications.randomTitleToken();
-    IndexedPublications.createSearchable(MATCHING_PUBLICATIONS, titleToken);
-  }
 
   /**
    * A dry run should report the change it would make to every matching resource, and leave the
@@ -219,12 +212,10 @@ class ManuallyUpdatePublicationsTest extends PublicationTestBase {
         CONTRIBUTOR_AFFILIATION,
         UIB.getValue(),
         SIKT.getValue(),
-        IndexedPublications.searchParamsFor(titleToken));
+        SharedPublicationSet.get().searchParams());
   }
 
   private static Map<String, String> searchParamsWithSize(int size) {
-    var searchParams = new HashMap<>(IndexedPublications.searchParamsFor(titleToken));
-    searchParams.put(SIZE_PARAM, String.valueOf(size));
-    return searchParams;
+    return SharedPublicationSet.get().searchParamsWith(SIZE_PARAM, String.valueOf(size));
   }
 }
