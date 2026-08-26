@@ -7,8 +7,6 @@ import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
-import software.amazon.awssdk.services.sts.StsClient;
-import software.amazon.awssdk.services.sts.model.GetCallerIdentityRequest;
 
 /**
  * Direct S3 access for testing pipelines that have no REST API, such as the text-extraction lambdas
@@ -29,7 +27,7 @@ public final class S3Storage {
    * The account id of the test runner credentials, for constructing account-suffixed bucket names.
    */
   public static String accountId() {
-    return AccountId.VALUE;
+    return AwsAccount.accountId();
   }
 
   public static void putTextObject(String bucketName, String key, String content) {
@@ -50,18 +48,5 @@ public final class S3Storage {
       textObject = Optional.empty();
     }
     return textObject;
-  }
-
-  private static final class AccountId {
-
-    private static final String VALUE = fetchAccountId();
-
-    private static String fetchAccountId() {
-      try (var stsClient = StsClient.builder().region(Region.of(REGION)).build()) {
-        var callerIdentity =
-            stsClient.getCallerIdentity(GetCallerIdentityRequest.builder().build());
-        return callerIdentity.account();
-      }
-    }
   }
 }
