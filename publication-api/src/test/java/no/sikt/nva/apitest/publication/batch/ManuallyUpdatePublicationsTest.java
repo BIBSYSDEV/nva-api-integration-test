@@ -52,7 +52,10 @@ class ManuallyUpdatePublicationsTest extends PublicationTestBase {
   private static final int PAGES_UNTIL_LIMIT = 3;
   private static final int HITS_UNTIL_LIMIT = PAGES_UNTIL_LIMIT * PAGE_SIZE;
 
-  /** Mirrors DEFAULT_LIMIT in ManuallyUpdatePublicationsRequest. */
+  /**
+   * The limit the handler falls back to when a request names none, mirrored from DEFAULT_LIMIT in
+   * ManuallyUpdatePublicationsRequest in nva-publication-api.
+   */
   private static final int DEFAULT_LIMIT = 10;
 
   private static final int LIMIT_BELOW_PAGE_SIZE = 5;

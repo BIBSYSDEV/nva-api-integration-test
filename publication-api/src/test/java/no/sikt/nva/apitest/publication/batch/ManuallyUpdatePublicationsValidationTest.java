@@ -18,9 +18,10 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 /**
- * The guards ManuallyUpdatePublicationsRequest puts on a run. These are what stands between an
- * operator invoking the handler by hand and a run that rewrites more of the archive than intended,
- * so the handler is expected to reject the request outright rather than fall back to a default.
+ * The guards ManuallyUpdatePublicationsRequest in nva-publication-api puts on a run. These are what
+ * stands between an operator invoking the handler by hand and a run that rewrites more of the
+ * archive than intended, so the handler is expected to reject the request outright rather than fall
+ * back to a default.
  *
  * <p>No publications are set up: a rejected request never reaches the search api, so these tests
  * need no data and cannot touch any.

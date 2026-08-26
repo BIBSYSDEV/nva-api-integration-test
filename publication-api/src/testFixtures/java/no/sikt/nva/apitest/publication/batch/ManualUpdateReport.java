@@ -1,5 +1,7 @@
 package no.sikt.nva.apitest.publication.batch;
 
+import static java.util.Objects.isNull;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
@@ -30,6 +32,15 @@ public record ManualUpdateReport(
     List<ResourceChange> changes) {
 
   private static final JsonMapper MAPPER = JsonMapper.builder().build();
+
+  /**
+   * A report always carries a changes array, but a handler that stopped short of writing one would
+   * otherwise turn every reader of it into a null check, and fail as a NullPointerException that
+   * says nothing about the report being incomplete.
+   */
+  public ManualUpdateReport {
+    changes = isNull(changes) ? List.of() : List.copyOf(changes);
+  }
 
   public static ManualUpdateReport fromJson(String json) {
     try {
