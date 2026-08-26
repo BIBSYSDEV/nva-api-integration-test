@@ -1,18 +1,8 @@
 package no.sikt.nva.apitest.scientificindex.reports;
 
-import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_YEAR;
-import static no.sikt.nva.apitest.base.CurrentTimeConstants.getCurrentYear;
-import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedRequestAsUser;
-import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
-import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.REPORTS_PATH;
-
-import io.qameta.allure.Description;
-import io.restassured.response.Response;
 import java.util.List;
 import java.util.Map;
-import no.sikt.nva.apitest.base.User;
-import no.sikt.nva.apitest.base.UserFixtures;
-import no.sikt.nva.apitest.scientificindex.ScientificIndexTestBase;
+
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.DisplayName;
@@ -20,6 +10,17 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+
+import io.qameta.allure.Description;
+import io.restassured.response.Response;
+import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_YEAR;
+import static no.sikt.nva.apitest.base.CurrentTimeConstants.getCurrentYear;
+import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedRequestAsUser;
+import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
+import no.sikt.nva.apitest.base.User;
+import no.sikt.nva.apitest.base.UserFixtures;
+import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.REPORTS_PATH;
+import no.sikt.nva.apitest.scientificindex.ScientificIndexTestBase;
 
 @ExtendWith(SoftAssertionsExtension.class)
 @DisplayName("GET " + REPORTS_PATH)
@@ -68,79 +69,36 @@ class FetchAllPeriodsReportTest extends ScientificIndexTestBase {
     var byGlobalApprovalStatusPaths = List.of("dispute", "pending", "rejected", "approved");
 
     var jsonPath = response.jsonPath().param("year", year);
+    jsonPath.setRootPath("periods.find { it.period.publishingYear == year }");
 
-    softly
-        .assertThat(jsonPath.getString("periods.find { it.period.publishingYear == year }"))
-        .isNotEmpty();
-    softly
-        .assertThat(jsonPath.getString("periods.find { it.period.publishingYear == year }.totals"))
-        .isNotEmpty();
-    softly
-        .assertThat(
-            jsonPath.getString(
-                "periods.find { it.period.publishingYear == year }.byGlobalApprovalStatus"))
-        .isNotEmpty();
+    softly.assertThat(jsonPath.getMap("")).isNotEmpty();
+    softly.assertThat(jsonPath.getMap("totals")).isNotEmpty();
+    softly.assertThat(jsonPath.getMap("byGlobalApprovalStatus")).isNotEmpty();
 
-    softly
-        .assertThat(
-            jsonPath.getString("periods.find { it.period.publishingYear == year }.period.type"))
-        .isEqualTo("NviPeriod");
+    softly.assertThat(jsonPath.getString("period.type")).isEqualTo("NviPeriod");
     periodPaths.forEach(
-        path ->
-            softly
-                .assertThat(
-                    jsonPath.getString(
-                        String.format(
-                            "periods.find { it.period.publishingYear == year }.period.%s", path)))
-                .isNotEmpty());
+        path -> softly.assertThat(jsonPath.getString("period.%s".formatted(path))).isNotEmpty());
+
+    softly.assertThat(jsonPath.getString("totals.type")).isEqualTo("PeriodTotals");
+    totalsPaths.forEach(
+        path -> softly.assertThat(jsonPath.getString("totals.%s".formatted(path))).isNotEmpty());
 
     softly
-        .assertThat(
-            jsonPath.getString("periods.find { it.period.publishingYear == year }.totals.type"))
-        .isEqualTo("PeriodTotals");
-    totalsPaths.forEach(
-        path ->
-            softly
-                .assertThat(
-                    jsonPath.getString(
-                        String.format(
-                            "periods.find { it.period.publishingYear == year }.totals.%s", path)))
-                .isNotEmpty());
-    softly
-        .assertThat(
-            jsonPath.getString(
-                "periods.find { it.period.publishingYear == year }.byGlobalApprovalStatus.type"))
+        .assertThat(jsonPath.getString("byGlobalApprovalStatus.type"))
         .isEqualTo("CandidatesByGlobalApprovalStatus");
     byGlobalApprovalStatusPaths.forEach(
         path ->
             softly
-                .assertThat(
-                    jsonPath.getString(
-                        String.format(
-                            "periods.find { it.period.publishingYear == year"
-                                + " }.byGlobalApprovalStatus.%s",
-                            path)))
+                .assertThat(jsonPath.getString("byGlobalApprovalStatus.%s".formatted(path)))
                 .isNotEmpty());
 
     switch (period) {
       case PREVIOUS_PERIOD ->
-          softly
-              .assertThat(
-                  jsonPath.getString(
-                      "periods.find { it.period.publishingYear == year }.period.status"))
-              .isEqualTo("ClosedPeriod");
+          softly.assertThat(jsonPath.getString("period.status")).isEqualTo("ClosedPeriod");
       case THIS_PERIOD ->
-          softly
-              .assertThat(
-                  jsonPath.getString(
-                      "periods.find { it.period.publishingYear == year }.period.status"))
-              .isEqualTo("OpenPeriod");
+          softly.assertThat(jsonPath.getString("period.status")).isEqualTo("OpenPeriod");
       case NEXT_PERIOD ->
-          softly
-              .assertThat(
-                  jsonPath.getString(
-                      "periods.find { it.period.publishingYear == year }.period.status"))
-              .isEqualTo("UnopenedPeriod");
+          softly.assertThat(jsonPath.getString("period.status")).isEqualTo("UnopenedPeriod");
       default -> throw new AssertionError();
     }
   }
