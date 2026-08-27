@@ -10,6 +10,7 @@ dependencies {
     testFixturesApi(project(':publication-api'))
     testFixturesApi(testFixtures(project(':apitest-base')))
     testFixturesApi(testFixtures(project(':publication-api')))
+    testFixturesApi(nvaCatalog.assertj.core)
     testFixturesImplementation(libs.rest.assured.json.path)
     testFixturesImplementation(nvaCatalog.aws.sdk2.aws.core)
     testFixturesImplementation(nvaCatalog.aws.sdk2.dynamo)
