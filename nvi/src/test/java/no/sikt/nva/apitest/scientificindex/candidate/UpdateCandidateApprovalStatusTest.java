@@ -1,6 +1,25 @@
 package no.sikt.nva.apitest.scientificindex.candidate;
 
+import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
+import static java.net.HttpURLConnection.HTTP_OK;
+import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
+import java.util.List;
 import static java.util.UUID.randomUUID;
+import java.util.stream.Stream;
+
+import org.assertj.core.api.SoftAssertions;
+import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import static org.junit.jupiter.params.provider.Arguments.argumentSet;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import io.qameta.allure.Description;
+import no.sikt.Contributor;
+import no.sikt.nva.apitest.base.User;
 import static no.sikt.nva.apitest.base.UserFixtures.KRISTIANIA_CREATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.KRISTIANIA_NVI_CURATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.OSLO_MET_CREATOR;
@@ -13,24 +32,9 @@ import static no.sikt.nva.apitest.scientificindex.NviApprovals.APPROVED;
 import static no.sikt.nva.apitest.scientificindex.NviApprovals.PENDING;
 import static no.sikt.nva.apitest.scientificindex.NviApprovals.REJECTED;
 import static no.sikt.nva.apitest.scientificindex.NviApprovals.updateApprovalStatus;
-import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATE_STATUS_PATH;
-import static org.junit.jupiter.params.provider.Arguments.argumentSet;
-
-import io.qameta.allure.Description;
-import java.util.List;
-import java.util.stream.Stream;
-import no.sikt.Contributor;
-import no.sikt.nva.apitest.base.User;
 import no.sikt.nva.apitest.scientificindex.NviCandidate;
+import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATE_STATUS_PATH;
 import no.sikt.nva.apitest.scientificindex.ScientificIndexTestBase;
-import org.assertj.core.api.SoftAssertions;
-import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 
 @ExtendWith(SoftAssertionsExtension.class)
 @DisplayName("PUT " + CANDIDATE_STATUS_PATH)
@@ -56,7 +60,7 @@ class UpdateCandidateApprovalStatusTest extends ScientificIndexTestBase {
     var response =
         updateApprovalStatus(UIB_NVI_CURATOR, candidate, APPROVED)
             .then()
-            .statusCode(200)
+            .statusCode(HTTP_OK)
             .extract()
             .jsonPath();
 
@@ -77,7 +81,7 @@ class UpdateCandidateApprovalStatusTest extends ScientificIndexTestBase {
     var response =
         updateApprovalStatus(curator, candidate, APPROVED)
             .then()
-            .statusCode(200)
+            .statusCode(HTTP_OK)
             .extract()
             .jsonPath();
 
@@ -104,7 +108,7 @@ class UpdateCandidateApprovalStatusTest extends ScientificIndexTestBase {
     var response =
         updateApprovalStatus(UIB_NVI_CURATOR, candidate, REJECTED, REJECTION_REASON)
             .then()
-            .statusCode(200)
+            .statusCode(HTTP_OK)
             .extract()
             .jsonPath();
 
@@ -120,7 +124,7 @@ class UpdateCandidateApprovalStatusTest extends ScientificIndexTestBase {
   void shouldReturnBadRequestWhenRejectingWithoutReason() {
     var candidate = createCandidate();
 
-    updateApprovalStatus(UIB_NVI_CURATOR, candidate, REJECTED).then().statusCode(400);
+    updateApprovalStatus(UIB_NVI_CURATOR, candidate, REJECTED).then().statusCode(HTTP_BAD_REQUEST);
   }
 
   /** Reverting an approved candidate to Pending stays Pending, not New. */
@@ -130,12 +134,12 @@ class UpdateCandidateApprovalStatusTest extends ScientificIndexTestBase {
   void shouldResetApprovalWhenApprovedCandidateIsSetToPending(SoftAssertions softly) {
     var candidate = createCandidate();
 
-    updateApprovalStatus(UIB_NVI_CURATOR, candidate, APPROVED).then().statusCode(200);
+    updateApprovalStatus(UIB_NVI_CURATOR, candidate, APPROVED).then().statusCode(HTTP_OK);
 
     var response =
         updateApprovalStatus(UIB_NVI_CURATOR, candidate, PENDING)
             .then()
-            .statusCode(200)
+            .statusCode(HTTP_OK)
             .extract()
             .jsonPath();
 
@@ -151,7 +155,7 @@ class UpdateCandidateApprovalStatusTest extends ScientificIndexTestBase {
   void shouldReturnUnauthorizedWhenUserLacksManageNviCandidates() {
     var candidate = createCandidate();
 
-    updateApprovalStatus(UIB_CREATOR, candidate, APPROVED).then().statusCode(401);
+    updateApprovalStatus(UIB_CREATOR, candidate, APPROVED).then().statusCode(HTTP_UNAUTHORIZED);
   }
 
   private static NviCandidate createCandidate() {

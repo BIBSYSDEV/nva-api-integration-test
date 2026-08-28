@@ -1,28 +1,13 @@
 package no.sikt.nva.apitest.scientificindex.period;
 
-import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_YEAR;
-import static no.sikt.nva.apitest.base.CurrentTimeConstants.getCurrentYear;
-import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
-import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
-import static no.sikt.nva.apitest.base.UserFixtures.APP_ADMIN;
-import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
-import static no.sikt.nva.apitest.base.UserFixtures.UIB_DOI_CURATOR;
-import static no.sikt.nva.apitest.base.UserFixtures.UIB_EDITOR;
-import static no.sikt.nva.apitest.base.UserFixtures.UIB_NVI_CURATOR;
-import static no.sikt.nva.apitest.base.UserFixtures.UIB_PUBLISHING_CURATOR;
-import static no.sikt.nva.apitest.base.UserFixtures.UIB_SUPPORT_CURATOR;
-import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.PERIODS_PATH;
-import static org.junit.jupiter.params.provider.Arguments.argumentSet;
-
-import io.qameta.allure.Description;
-import io.restassured.RestAssured;
+import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
+import static java.net.HttpURLConnection.HTTP_CREATED;
+import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
-import no.sikt.nva.apitest.base.User;
-import no.sikt.nva.apitest.scientificindex.NviPeriods;
-import no.sikt.nva.apitest.scientificindex.ScientificIndexTestBase;
+
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.AfterAll;
@@ -33,7 +18,26 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import static org.junit.jupiter.params.provider.Arguments.argumentSet;
 import org.junit.jupiter.params.provider.MethodSource;
+
+import io.qameta.allure.Description;
+import io.restassured.RestAssured;
+import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_YEAR;
+import static no.sikt.nva.apitest.base.CurrentTimeConstants.getCurrentYear;
+import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
+import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
+import no.sikt.nva.apitest.base.User;
+import static no.sikt.nva.apitest.base.UserFixtures.APP_ADMIN;
+import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
+import static no.sikt.nva.apitest.base.UserFixtures.UIB_DOI_CURATOR;
+import static no.sikt.nva.apitest.base.UserFixtures.UIB_EDITOR;
+import static no.sikt.nva.apitest.base.UserFixtures.UIB_NVI_CURATOR;
+import static no.sikt.nva.apitest.base.UserFixtures.UIB_PUBLISHING_CURATOR;
+import static no.sikt.nva.apitest.base.UserFixtures.UIB_SUPPORT_CURATOR;
+import no.sikt.nva.apitest.scientificindex.NviPeriods;
+import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.PERIODS_PATH;
+import no.sikt.nva.apitest.scientificindex.ScientificIndexTestBase;
 
 @ExtendWith(SoftAssertionsExtension.class)
 @DisplayName("POST " + PERIODS_PATH)
@@ -98,7 +102,7 @@ class CreatePeriodTest extends ScientificIndexTestBase {
             .when()
             .post(PERIODS_PATH)
             .then()
-            .statusCode(201)
+            .statusCode(HTTP_CREATED)
             .extract()
             .jsonPath();
 
@@ -118,7 +122,7 @@ class CreatePeriodTest extends ScientificIndexTestBase {
         .when()
         .post(PERIODS_PATH)
         .then()
-        .statusCode(401);
+        .statusCode(HTTP_UNAUTHORIZED);
   }
 
   @Test
@@ -133,7 +137,7 @@ class CreatePeriodTest extends ScientificIndexTestBase {
             .when()
             .post(PERIODS_PATH)
             .then()
-            .statusCode(400)
+            .statusCode(HTTP_BAD_REQUEST)
             .extract()
             .jsonPath();
 
@@ -157,7 +161,7 @@ class CreatePeriodTest extends ScientificIndexTestBase {
             .when()
             .post(PERIODS_PATH)
             .then()
-            .statusCode(400)
+            .statusCode(HTTP_BAD_REQUEST)
             .extract()
             .jsonPath();
 
@@ -184,7 +188,7 @@ class CreatePeriodTest extends ScientificIndexTestBase {
         .when()
         .post(PERIODS_PATH)
         .then()
-        .statusCode(400)
+        .statusCode(HTTP_BAD_REQUEST)
         .extract()
         .jsonPath();
   }
@@ -213,6 +217,6 @@ class CreatePeriodTest extends ScientificIndexTestBase {
         .then()
         .log()
         .all()
-        .statusCode(401);
+        .statusCode(HTTP_UNAUTHORIZED);
   }
 }

@@ -1,22 +1,12 @@
 package no.sikt.nva.apitest.scientificindex.candidate;
 
-import static no.sikt.nva.apitest.base.Polling.pollUntil;
-import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedRequestAsUser;
-import static no.sikt.nva.apitest.base.UserFixtures.OSLO_MET_NVI_CURATOR;
-import static no.sikt.nva.apitest.base.UserFixtures.UIB_NVI_CURATOR;
-import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATE_PATH;
-import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.DELETE_NOTE_PATH;
-
-import io.qameta.allure.Description;
-import io.restassured.response.Response;
+import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
+import static java.net.HttpURLConnection.HTTP_OK;
+import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Callable;
-import no.sikt.Contributor;
-import no.sikt.nva.apitest.base.IntegrationTestBase;
-import no.sikt.nva.apitest.base.User;
-import no.sikt.nva.apitest.scientificindex.NviCandidate;
-import no.sikt.nva.apitest.scientificindex.ScientificIndexTestBase;
+
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.Disabled;
@@ -25,6 +15,20 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+
+import io.qameta.allure.Description;
+import io.restassured.response.Response;
+import no.sikt.Contributor;
+import no.sikt.nva.apitest.base.IntegrationTestBase;
+import static no.sikt.nva.apitest.base.Polling.pollUntil;
+import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedRequestAsUser;
+import no.sikt.nva.apitest.base.User;
+import static no.sikt.nva.apitest.base.UserFixtures.OSLO_MET_NVI_CURATOR;
+import static no.sikt.nva.apitest.base.UserFixtures.UIB_NVI_CURATOR;
+import no.sikt.nva.apitest.scientificindex.NviCandidate;
+import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATE_PATH;
+import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.DELETE_NOTE_PATH;
+import no.sikt.nva.apitest.scientificindex.ScientificIndexTestBase;
 
 @ExtendWith(SoftAssertionsExtension.class)
 @DisplayName("DELETE " + DELETE_NOTE_PATH)
@@ -44,7 +48,7 @@ class DeleteNoteTest extends ScientificIndexTestBase {
     var deleteNoteResponse =
         givenDeleteNoteRequest(OSLO_MET_NVI_CURATOR, candidateIdentifier, noteIdentifier);
 
-    softly.assertThat(deleteNoteResponse.statusCode()).isEqualTo(200);
+    softly.assertThat(deleteNoteResponse.statusCode()).isEqualTo(HTTP_OK);
     softly.assertThat(deleteNoteResponse.jsonPath().getList("notes")).isEmpty();
 
     var verifyResponse =
@@ -52,7 +56,7 @@ class DeleteNoteTest extends ScientificIndexTestBase {
             .when()
             .get(CANDIDATE_PATH, candidateIdentifier)
             .then()
-            .statusCode(200)
+            .statusCode(HTTP_OK)
             .extract()
             .jsonPath();
 
@@ -79,7 +83,7 @@ class DeleteNoteTest extends ScientificIndexTestBase {
         pollUntil(
             deleteCandidateNote(user, candidateIdentifier, noteIdentifier),
             IntegrationTestBase::isNotConflict);
-    softly.assertThat(deleteNoteResponse.statusCode()).isEqualTo(403);
+    softly.assertThat(deleteNoteResponse.statusCode()).isEqualTo(HTTP_FORBIDDEN);
   }
 
   /**
@@ -101,7 +105,7 @@ class DeleteNoteTest extends ScientificIndexTestBase {
         pollUntil(
             deleteCandidateNote(UIB_NVI_CURATOR, candidateIdentifier, noteIdentifier),
             IntegrationTestBase::isNotConflict);
-    softly.assertThat(deleteNoteResponse.statusCode()).isEqualTo(403);
+    softly.assertThat(deleteNoteResponse.statusCode()).isEqualTo(HTTP_FORBIDDEN);
   }
 
   /** Trying to delete a non-existing note from a NVI candidate returns {@code 404 Not Found} */
@@ -120,7 +124,7 @@ class DeleteNoteTest extends ScientificIndexTestBase {
         pollUntil(
             deleteCandidateNote(OSLO_MET_NVI_CURATOR, candidateIdentifier, noteIdentifier),
             IntegrationTestBase::isNotConflict);
-    softly.assertThat(deleteNoteResponse.statusCode()).isEqualTo(401);
+    softly.assertThat(deleteNoteResponse.statusCode()).isEqualTo(HTTP_UNAUTHORIZED);
   }
 
   private NviCandidate createCandidate(User user) {
