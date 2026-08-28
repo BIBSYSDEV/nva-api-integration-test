@@ -2,29 +2,28 @@ package no.sikt.nva.apitest.scientificindex.candidate;
 
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
+import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
+import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
+import static no.sikt.nva.apitest.base.UserFixtures.UIB_NVI_CURATOR;
+import static no.sikt.nva.apitest.scientificindex.NviCandidateFactory.indexedCandidateByPublicationId;
+import static no.sikt.nva.apitest.scientificindex.NviCandidateFactory.indexedPublicationIds;
+import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATES_PATH;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import io.qameta.allure.Description;
+import io.restassured.path.json.JsonPath;
+import io.restassured.response.Response;
 import java.util.Map;
 import java.util.UUID;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import no.sikt.nva.apitest.base.Affiliation;
+import no.sikt.nva.apitest.scientificindex.NviCandidate;
+import no.sikt.nva.apitest.scientificindex.ScientificIndexTestBase;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-
-import io.qameta.allure.Description;
-import io.restassured.path.json.JsonPath;
-import io.restassured.response.Response;
-import no.sikt.nva.apitest.base.Affiliation;
-import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
-import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
-import static no.sikt.nva.apitest.base.UserFixtures.UIB_NVI_CURATOR;
-import no.sikt.nva.apitest.scientificindex.NviCandidate;
-import static no.sikt.nva.apitest.scientificindex.NviCandidateFactory.indexedCandidateByPublicationId;
-import static no.sikt.nva.apitest.scientificindex.NviCandidateFactory.indexedPublicationIds;
-import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATES_PATH;
-import no.sikt.nva.apitest.scientificindex.ScientificIndexTestBase;
 
 @ExtendWith(SoftAssertionsExtension.class)
 @DisplayName("GET " + CANDIDATES_PATH)

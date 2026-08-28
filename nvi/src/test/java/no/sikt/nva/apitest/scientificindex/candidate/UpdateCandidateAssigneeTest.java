@@ -5,11 +5,29 @@ import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
+import static no.sikt.nva.apitest.base.Affiliation.UIB;
+import static no.sikt.nva.apitest.base.Affiliation.UIS;
+import static no.sikt.nva.apitest.base.Polling.pollUntil;
+import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedRequestAsUser;
+import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
+import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
+import static no.sikt.nva.apitest.base.UserFixtures.UIB_NVI_CURATOR;
+import static no.sikt.nva.apitest.base.UserFixtures.UIS_CREATOR;
+import static no.sikt.nva.apitest.base.UserFixtures.UIS_NVI_CURATOR;
+import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATE_ASSIGNEE_PATH;
+
+import io.qameta.allure.Description;
+import io.restassured.response.Response;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Callable;
-
+import no.sikt.Contributor;
+import no.sikt.nva.apitest.base.Affiliation;
+import no.sikt.nva.apitest.base.IntegrationTestBase;
+import no.sikt.nva.apitest.base.User;
+import no.sikt.nva.apitest.scientificindex.NviCandidate;
+import no.sikt.nva.apitest.scientificindex.ScientificIndexTestBase;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.Disabled;
@@ -18,25 +36,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-
-import io.qameta.allure.Description;
-import io.restassured.response.Response;
-import no.sikt.Contributor;
-import no.sikt.nva.apitest.base.Affiliation;
-import static no.sikt.nva.apitest.base.Affiliation.UIB;
-import static no.sikt.nva.apitest.base.Affiliation.UIS;
-import no.sikt.nva.apitest.base.IntegrationTestBase;
-import static no.sikt.nva.apitest.base.Polling.pollUntil;
-import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedRequestAsUser;
-import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
-import no.sikt.nva.apitest.base.User;
-import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
-import static no.sikt.nva.apitest.base.UserFixtures.UIB_NVI_CURATOR;
-import static no.sikt.nva.apitest.base.UserFixtures.UIS_CREATOR;
-import static no.sikt.nva.apitest.base.UserFixtures.UIS_NVI_CURATOR;
-import no.sikt.nva.apitest.scientificindex.NviCandidate;
-import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATE_ASSIGNEE_PATH;
-import no.sikt.nva.apitest.scientificindex.ScientificIndexTestBase;
 
 @ExtendWith(SoftAssertionsExtension.class)
 @DisplayName("PUT " + CANDIDATE_ASSIGNEE_PATH)

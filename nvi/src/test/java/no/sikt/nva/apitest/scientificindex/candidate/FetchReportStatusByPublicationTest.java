@@ -1,23 +1,10 @@
 package no.sikt.nva.apitest.scientificindex.candidate;
 
 import static java.net.HttpURLConnection.HTTP_OK;
-import java.util.List;
 import static java.util.UUID.randomUUID;
-import java.util.concurrent.Callable;
-
-import org.assertj.core.api.SoftAssertions;
-import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-
-import io.qameta.allure.Description;
-import io.restassured.path.json.JsonPath;
-import no.sikt.Contributor;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_YEAR;
 import static no.sikt.nva.apitest.base.Polling.pollUntil;
 import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
-import no.sikt.nva.apitest.base.SettledCondition;
 import static no.sikt.nva.apitest.base.SettledCondition.settledWhen;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_NVI_CURATOR;
@@ -26,9 +13,21 @@ import static no.sikt.nva.apitest.base.UserFixtures.UIS_CREATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIS_NVI_CURATOR;
 import static no.sikt.nva.apitest.scientificindex.NviApprovals.APPROVED;
 import static no.sikt.nva.apitest.scientificindex.NviApprovals.updateApprovalStatus;
-import no.sikt.nva.apitest.scientificindex.NviCandidate;
 import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.PUBLICATION_REPORT_STATUS_PATH;
+
+import io.qameta.allure.Description;
+import io.restassured.path.json.JsonPath;
+import java.util.List;
+import java.util.concurrent.Callable;
+import no.sikt.Contributor;
+import no.sikt.nva.apitest.base.SettledCondition;
+import no.sikt.nva.apitest.scientificindex.NviCandidate;
 import no.sikt.nva.apitest.scientificindex.ScientificIndexTestBase;
+import org.assertj.core.api.SoftAssertions;
+import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(SoftAssertionsExtension.class)
 @DisplayName("GET " + PUBLICATION_REPORT_STATUS_PATH)

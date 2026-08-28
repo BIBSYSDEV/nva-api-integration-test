@@ -1,24 +1,23 @@
 package no.sikt.nva.apitest.scientificindex.candidate;
 
 import static java.net.HttpURLConnection.HTTP_OK;
+import static no.sikt.nva.apitest.base.Polling.pollUntil;
+import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
+import static no.sikt.nva.apitest.base.UserFixtures.OSLO_MET_NVI_CURATOR;
+import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATE_PATH;
+
+import io.qameta.allure.Description;
+import io.restassured.response.Response;
 import java.util.UUID;
 import java.util.concurrent.Callable;
-
+import no.sikt.nva.apitest.base.IntegrationTestBase;
+import no.sikt.nva.apitest.base.User;
+import no.sikt.nva.apitest.scientificindex.ScientificIndexTestBase;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-
-import io.qameta.allure.Description;
-import io.restassured.response.Response;
-import no.sikt.nva.apitest.base.IntegrationTestBase;
-import static no.sikt.nva.apitest.base.Polling.pollUntil;
-import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
-import no.sikt.nva.apitest.base.User;
-import static no.sikt.nva.apitest.base.UserFixtures.OSLO_MET_NVI_CURATOR;
-import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATE_PATH;
-import no.sikt.nva.apitest.scientificindex.ScientificIndexTestBase;
 
 @ExtendWith(SoftAssertionsExtension.class)
 @DisplayName("GET " + CANDIDATE_PATH)

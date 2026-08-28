@@ -2,19 +2,18 @@ package no.sikt.nva.apitest.scientificindex.period;
 
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-
-import io.qameta.allure.Description;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_YEAR;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
 import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CONTRIBUTOR;
 import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.PERIODS_PATH;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import io.qameta.allure.Description;
 import no.sikt.nva.apitest.scientificindex.ScientificIndexTestBase;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 @DisplayName("GET " + PERIODS_PATH)
 class ListPeriodsTest extends ScientificIndexTestBase {

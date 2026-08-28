@@ -3,23 +3,7 @@ package no.sikt.nva.apitest.scientificindex.candidate;
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
-import java.util.List;
 import static java.util.UUID.randomUUID;
-import java.util.stream.Stream;
-
-import org.assertj.core.api.SoftAssertions;
-import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import static org.junit.jupiter.params.provider.Arguments.argumentSet;
-import org.junit.jupiter.params.provider.MethodSource;
-
-import io.qameta.allure.Description;
-import no.sikt.Contributor;
-import no.sikt.nva.apitest.base.User;
 import static no.sikt.nva.apitest.base.UserFixtures.KRISTIANIA_CREATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.KRISTIANIA_NVI_CURATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.OSLO_MET_CREATOR;
@@ -32,9 +16,24 @@ import static no.sikt.nva.apitest.scientificindex.NviApprovals.APPROVED;
 import static no.sikt.nva.apitest.scientificindex.NviApprovals.PENDING;
 import static no.sikt.nva.apitest.scientificindex.NviApprovals.REJECTED;
 import static no.sikt.nva.apitest.scientificindex.NviApprovals.updateApprovalStatus;
-import no.sikt.nva.apitest.scientificindex.NviCandidate;
 import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATE_STATUS_PATH;
+import static org.junit.jupiter.params.provider.Arguments.argumentSet;
+
+import io.qameta.allure.Description;
+import java.util.List;
+import java.util.stream.Stream;
+import no.sikt.Contributor;
+import no.sikt.nva.apitest.base.User;
+import no.sikt.nva.apitest.scientificindex.NviCandidate;
 import no.sikt.nva.apitest.scientificindex.ScientificIndexTestBase;
+import org.assertj.core.api.SoftAssertions;
+import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 @ExtendWith(SoftAssertionsExtension.class)
 @DisplayName("PUT " + CANDIDATE_STATUS_PATH)

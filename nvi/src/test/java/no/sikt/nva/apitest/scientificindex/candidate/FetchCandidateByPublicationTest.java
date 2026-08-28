@@ -5,7 +5,16 @@ import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static java.util.UUID.randomUUID;
+import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
+import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
+import static no.sikt.nva.apitest.base.UserFixtures.UIB_NVI_CURATOR;
+import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATE_BY_PUBLICATION_PATH;
 
+import io.qameta.allure.Description;
+import no.sikt.Category;
+import no.sikt.nva.apitest.base.User;
+import no.sikt.nva.apitest.scientificindex.NviCandidate;
+import no.sikt.nva.apitest.scientificindex.ScientificIndexTestBase;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.BeforeAll;
@@ -15,16 +24,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-
-import io.qameta.allure.Description;
-import no.sikt.Category;
-import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
-import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
-import no.sikt.nva.apitest.base.User;
-import static no.sikt.nva.apitest.base.UserFixtures.UIB_NVI_CURATOR;
-import no.sikt.nva.apitest.scientificindex.NviCandidate;
-import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATE_BY_PUBLICATION_PATH;
-import no.sikt.nva.apitest.scientificindex.ScientificIndexTestBase;
 
 @ExtendWith(SoftAssertionsExtension.class)
 @DisplayName("GET " + CANDIDATE_BY_PUBLICATION_PATH)

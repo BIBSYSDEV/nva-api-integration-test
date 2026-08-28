@@ -3,8 +3,16 @@ package no.sikt.nva.apitest.scientificindex.reports;
 import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
-import java.util.List;
+import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedRequestAsUser;
+import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
+import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.REPORTS_PATH;
 
+import io.qameta.allure.Description;
+import java.util.List;
+import no.sikt.nva.apitest.base.User;
+import no.sikt.nva.apitest.base.UserFixtures;
+import no.sikt.nva.apitest.scientificindex.NviReports;
+import no.sikt.nva.apitest.scientificindex.ScientificIndexTestBase;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.DisplayName;
@@ -12,15 +20,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-
-import io.qameta.allure.Description;
-import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedRequestAsUser;
-import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
-import no.sikt.nva.apitest.base.User;
-import no.sikt.nva.apitest.base.UserFixtures;
-import no.sikt.nva.apitest.scientificindex.NviReports;
-import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.REPORTS_PATH;
-import no.sikt.nva.apitest.scientificindex.ScientificIndexTestBase;
 
 @ExtendWith(SoftAssertionsExtension.class)
 @DisplayName("GET " + REPORTS_PATH)
@@ -76,6 +75,10 @@ class FetchAllPeriodsReportTest extends ScientificIndexTestBase {
   @Description(useJavaDoc = true)
   void shouldReturnForbiddenWhenNotNviCurator(User user) {
 
-    givenAuthenticatedRequestAsUser(user).when().get(REPORTS_PATH).then().statusCode(HTTP_FORBIDDEN);
+    givenAuthenticatedRequestAsUser(user)
+        .when()
+        .get(REPORTS_PATH)
+        .then()
+        .statusCode(HTTP_FORBIDDEN);
   }
 }
