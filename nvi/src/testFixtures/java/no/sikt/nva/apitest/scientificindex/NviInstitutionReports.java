@@ -1,23 +1,19 @@
 package no.sikt.nva.apitest.scientificindex;
 
+import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_YEAR;
+
+import io.restassured.path.json.JsonPath;
 import java.util.List;
 import java.util.Map;
-
-import org.assertj.core.api.SoftAssertions;
-
-import io.restassured.response.Response;
 import no.sikt.nva.apitest.base.Affiliation;
-import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_YEAR;
+import org.assertj.core.api.SoftAssertions;
 
 public final class NviInstitutionReports {
 
+  private NviInstitutionReports() {}
+
   public static void assertContent(
-      Response response, SoftAssertions softly, Affiliation affiliation) {
-    var jsonPath =
-        response
-            .jsonPath()
-            .param("affiliation", affiliation.getValue())
-            .setRootPath("institutions.find {it.institution.id == affiliation} ");
+      JsonPath jsonPath, SoftAssertions softly, Affiliation affiliation) {
 
     var valueAssertions =
         Map.of(
