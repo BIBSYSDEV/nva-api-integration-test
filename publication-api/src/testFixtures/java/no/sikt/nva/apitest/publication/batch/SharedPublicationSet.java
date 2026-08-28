@@ -45,9 +45,10 @@ public record SharedPublicationSet(
     String titleToken, String unconfirmedPublisherName, List<String> identifiers) {
 
   /** Comfortably more than one page at the page size the tests use, so each type spans pages. */
-  private static final int PUBLICATIONS_PER_GROUP = 35;
+  public static final int PUBLICATIONS_PER_GROUP = 35;
 
-  public static final int TOTAL_PUBLICATIONS = 3 * PUBLICATIONS_PER_GROUP;
+  private static final int GROUPS = 3;
+  public static final int TOTAL_PUBLICATIONS = GROUPS * PUBLICATIONS_PER_GROUP;
 
   private static final String UNCONFIRMED_PUBLISHER_PREFIX = "Testforlaget ";
   private static final String UNCONFIRMED_PUBLISHER_TYPE = "UnconfirmedPublisher";
