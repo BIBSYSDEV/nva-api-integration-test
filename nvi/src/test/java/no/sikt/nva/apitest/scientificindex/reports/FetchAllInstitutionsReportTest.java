@@ -1,23 +1,34 @@
 package no.sikt.nva.apitest.scientificindex.reports;
 
+import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
+import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
+import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static no.sikt.nva.apitest.base.Affiliation.KRISTIANIA;
 import static no.sikt.nva.apitest.base.Affiliation.OSLO_MET;
 import static no.sikt.nva.apitest.base.Affiliation.UIB;
 import static no.sikt.nva.apitest.base.Affiliation.UIS;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_YEAR;
+import static no.sikt.nva.apitest.base.CurrentTimeConstants.getCurrentYear;
+import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedRequestAsUser;
+import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
+import static no.sikt.nva.apitest.base.UserFixtures.UIS_NVI_CURATOR;
 import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.INSTITUTION_REPORTS_PATH;
 
 import io.qameta.allure.Description;
 import java.util.List;
-import no.sikt.nva.apitest.base.UserFixtures;
+import no.sikt.nva.apitest.base.Affiliation;
+import no.sikt.nva.apitest.base.User;
+import no.sikt.nva.apitest.scientificindex.NviReports;
 import no.sikt.nva.apitest.scientificindex.ScientificIndexTestBase;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 @ExtendWith(SoftAssertionsExtension.class)
 @DisplayName("GET " + INSTITUTION_REPORTS_PATH)
@@ -38,7 +49,7 @@ class FetchAllInstitutionsReportTest extends ScientificIndexTestBase {
   @Description(useJavaDoc = true)
   void shouldReturnReportFromAllInstitutionsForCurrentYear(SoftAssertions softly) {
     var response =
-        givenAuthenticatedRequestAsUser(UserFixtures.UIS_NVI_CURATOR)
+        givenAuthenticatedRequestAsUser(UIS_NVI_CURATOR)
             .when()
             .get(INSTITUTION_REPORTS_PATH, CURRENT_YEAR)
             .then()
@@ -46,11 +57,68 @@ class FetchAllInstitutionsReportTest extends ScientificIndexTestBase {
             .extract()
             .response();
 
-    var affiliations =
-        List.of(UIB.getValue(), UIS.getValue(), KRISTIANIA.getValue(), OSLO_MET.getValue());
+    var affiliations = List.of(UIB, UIS, KRISTIANIA, OSLO_MET);
+    var affiliationValues = affiliations.stream().map(Affiliation::getValue).toList();
     var reportedInstitutions = response.jsonPath().getList(INSTITUTION_IDS_FIELD, String.class);
 
     softly.assertThat(response.jsonPath().getString(TYPE_FIELD)).isEqualTo(ALL_INSTITUTIONS_REPORT);
-    softly.assertThat(reportedInstitutions).containsAll(affiliations);
+    softly.assertThat(reportedInstitutions).containsAll(affiliationValues);
+
+    affiliations.forEach(
+        affiliation -> {
+          var jsonPath =
+              response
+                  .jsonPath()
+                  .param("affiliation", affiliation.getValue())
+                  .setRootPath("institutions.find {it.institution.id == affiliation} ");
+
+          NviReports.assertInstitutionReportContent(jsonPath, softly, affiliation);
+        });
+  }
+
+  /**
+   * Trying to fetch report for all institutions when unauthenticated return {@code 401
+   * Unauthorized}
+   */
+  @Test
+  @DisplayName("Fetch report for all institutions when unauthenticated return Unauthorized")
+  @Description(useJavaDoc = true)
+  void shouldReturnUnauthorizedWhenNotAuthenticated() {
+    givenUnauthenticatedJsonRequest()
+        .when()
+        .get(INSTITUTION_REPORTS_PATH, CURRENT_YEAR)
+        .then()
+        .statusCode(HTTP_UNAUTHORIZED);
+  }
+
+  /**
+   * Trying to fetch report for all institutions when not Nvi-curator return {@code 403 Forbidden}
+   */
+  @ParameterizedTest
+  @MethodSource("usersWithoutNviAccess")
+  @DisplayName("Fetch report for all institutions when non Nvi-curator returns Forbidden")
+  @Description(useJavaDoc = true)
+  void shouldReturnForbiddenWhenNonNviCurator(User user) {
+    givenAuthenticatedJsonRequestAsUser(user)
+        .when()
+        .get(INSTITUTION_REPORTS_PATH, CURRENT_YEAR)
+        .then()
+        .statusCode(HTTP_FORBIDDEN);
+  }
+
+  /**
+   * Trying to fetch report for all institutions for a non-existing period return {@code 404 Not
+   * Found}
+   */
+  @Test
+  @DisplayName("Fetch report for all institutions for a non-existing period return Not Found")
+  @Description(useJavaDoc = true)
+  void shouldReturnNotFoundForNonExistingPeriod() {
+    var nonExistingPeriod = getCurrentYear().plusYears(50).toString();
+    givenAuthenticatedJsonRequestAsUser(UIS_NVI_CURATOR)
+        .when()
+        .get(INSTITUTION_REPORTS_PATH, nonExistingPeriod)
+        .then()
+        .statusCode(HTTP_NOT_FOUND);
   }
 }

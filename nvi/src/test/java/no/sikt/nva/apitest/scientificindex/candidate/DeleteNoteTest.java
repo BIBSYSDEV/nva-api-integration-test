@@ -66,9 +66,9 @@ class DeleteNoteTest extends ScientificIndexTestBase {
   @ParameterizedTest
   @Disabled("Fixme: See NP-51618")
   @MethodSource("usersWithoutNviAccess")
-  @DisplayName("Delete note when not Nvi-curator returns forbidden")
+  @DisplayName("Delete note when not Nvi-curator returns Forbidden")
   @Description(useJavaDoc = true)
-  void shouldReturnUnauthorizedWhenNonNviCuratprDeletingNote(User user, SoftAssertions softly) {
+  void shouldReturnForbiddenWhenNonNvicuratorDeletingNote(User user, SoftAssertions softly) {
 
     var candidateWithNote = createCandidateWithNote(UIB_NVI_CURATOR);
 
@@ -88,9 +88,9 @@ class DeleteNoteTest extends ScientificIndexTestBase {
    */
   @Test
   @Disabled("Fixme: See NP-51618")
-  @DisplayName("Delete note from candidate from other institution returns unauthorized")
+  @DisplayName("Delete note from candidate from other institution returns Forbidden")
   @Description(useJavaDoc = true)
-  void shouldReturnUnauthorizedWhenDeletingNoteFromOtherInstitution(SoftAssertions softly) {
+  void shouldReturnForbiddenWhenDeletingNoteFromOtherInstitution(SoftAssertions softly) {
 
     var candidateWithNote = createCandidateWithNote(OSLO_MET_NVI_CURATOR);
 
