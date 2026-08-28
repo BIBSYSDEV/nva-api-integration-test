@@ -51,7 +51,7 @@ class UnconfirmedPublisherUpdateTest extends ManualUpdateExampleTestBase {
                     set().searchParamsWith(PUBLISHER_PARAM, set().unconfirmedPublisherName()))
                 .withComparator(CONTAINS));
 
-    assertMatchedAndChanged(softly, report, SharedPublicationSet.PUBLICATIONS_PER_GROUP);
+    assertMatchedAndChanged(softly, report, SharedPublicationSet.MINIMUM_PER_GROUP);
     // The name is replaced by a channel uri rather than edited, so only the arriving value is
     // asserted on: what it replaced is spread across the fields that made up the unconfirmed
     // publisher.

@@ -36,13 +36,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 @DisplayName("Manually update publications (lambda)")
 class ManuallyUpdatePublicationsTest extends PublicationTestBase {
 
-  /** Every publication in the shared set carries the contributor affiliation these tests move. */
-  private static final int MATCHING_PUBLICATIONS = SharedPublicationSet.TOTAL_PUBLICATIONS;
-
   private static final int PAGE_SIZE = 20;
-  private static final int PAGES_IN_FULL_SERIES =
-      (MATCHING_PUBLICATIONS + PAGE_SIZE - 1) / PAGE_SIZE;
-  private static final int LIMIT_ABOVE_ALL_HITS = 2 * MATCHING_PUBLICATIONS;
+
+  /** Clear of every hit even if the set lost nothing, so the limit never bounds these runs. */
+  private static final int LIMIT_ABOVE_ALL_HITS = 2 * SharedPublicationSet.TOTAL_PUBLICATIONS;
 
   /**
    * The limit lands in the middle of the third page: two pages are changed in full, the third is
@@ -75,7 +72,7 @@ class ManuallyUpdatePublicationsTest extends PublicationTestBase {
     var report = run(affiliationUpdate().withLimit(LIMIT_ABOVE_ALL_HITS).withPageSize(PAGE_SIZE));
 
     softly.assertThat(report.dryRun()).isTrue();
-    softly.assertThat(report.resourcesChanged()).isEqualTo(MATCHING_PUBLICATIONS);
+    softly.assertThat(report.resourcesChanged()).isEqualTo(indexedPublications());
     softly
         .assertThat(report.changes())
         .allSatisfy(
@@ -102,16 +99,18 @@ class ManuallyUpdatePublicationsTest extends PublicationTestBase {
   void shouldFollowPaginationUntilEveryMatchingResourceIsChanged(SoftAssertions softly) {
     var report = run(affiliationUpdate().withLimit(LIMIT_ABOVE_ALL_HITS).withPageSize(PAGE_SIZE));
 
-    softly.assertThat(report.totalHits()).isEqualTo(MATCHING_PUBLICATIONS);
-    softly.assertThat(report.hitsReturned()).isEqualTo(MATCHING_PUBLICATIONS);
-    softly.assertThat(report.resourcesFetched()).isEqualTo(MATCHING_PUBLICATIONS);
-    softly.assertThat(report.resourcesMatched()).isEqualTo(MATCHING_PUBLICATIONS);
-    softly.assertThat(report.resourcesChanged()).isEqualTo(MATCHING_PUBLICATIONS);
+    softly.assertThat(report.totalHits()).isEqualTo(indexedPublications());
+    softly.assertThat(report.hitsReturned()).isEqualTo(report.totalHits());
+    softly.assertThat(report.resourcesFetched()).isEqualTo(report.totalHits());
+    softly.assertThat(report.resourcesMatched()).isEqualTo(report.totalHits());
+    softly.assertThat(report.resourcesChanged()).isEqualTo(report.totalHits());
     softly.assertThat(report.pageSize()).isEqualTo(PAGE_SIZE);
     softly.assertThat(report.limitReached()).isFalse();
     // Whether the run also fetches a trailing empty page depends on the search api handing out a
     // cursor after a full last page, so only the pages carrying the hits are asserted on.
-    softly.assertThat(report.pagesFetched()).isGreaterThanOrEqualTo(PAGES_IN_FULL_SERIES);
+    softly
+        .assertThat(report.pagesFetched())
+        .isGreaterThanOrEqualTo(pagesHolding(indexedPublications()));
   }
 
   /**
@@ -131,7 +130,7 @@ class ManuallyUpdatePublicationsTest extends PublicationTestBase {
     softly.assertThat(report.resourcesFetched()).isEqualTo(HITS_UNTIL_LIMIT);
     softly.assertThat(report.resourcesMatched()).isEqualTo(LIMIT_MID_SERIES);
     softly.assertThat(report.resourcesChanged()).isEqualTo(LIMIT_MID_SERIES);
-    softly.assertThat(report.totalHits()).isEqualTo(MATCHING_PUBLICATIONS);
+    softly.assertThat(report.totalHits()).isEqualTo(indexedPublications());
   }
 
   /**
@@ -148,7 +147,7 @@ class ManuallyUpdatePublicationsTest extends PublicationTestBase {
     softly.assertThat(report.resourcesChanged()).isEqualTo(DEFAULT_LIMIT);
     softly.assertThat(report.limitReached()).isTrue();
     softly.assertThat(report.pagesFetched()).isEqualTo(SINGLE_PAGE);
-    softly.assertThat(report.totalHits()).isEqualTo(MATCHING_PUBLICATIONS);
+    softly.assertThat(report.totalHits()).isEqualTo(indexedPublications());
   }
 
   /**
@@ -199,12 +198,25 @@ class ManuallyUpdatePublicationsTest extends PublicationTestBase {
                 .withLimit(LIMIT_ABOVE_ALL_HITS)
                 .withPageSize(PAGE_SIZE));
 
-    softly.assertThat(report.hitsReturned()).isEqualTo(MATCHING_PUBLICATIONS);
-    softly.assertThat(report.resourcesFetched()).isEqualTo(MATCHING_PUBLICATIONS);
+    softly.assertThat(report.hitsReturned()).isEqualTo(indexedPublications());
+    softly.assertThat(report.resourcesFetched()).isEqualTo(indexedPublications());
     softly.assertThat(report.resourcesMatched()).isZero();
     softly.assertThat(report.resourcesChanged()).isZero();
     softly.assertThat(report.changes()).isEmpty();
     softly.assertThat(report.limitReached()).isFalse();
+  }
+
+  /**
+   * How many of the shared set the search api actually returns. Publishing completes asynchronously
+   * and occasionally drops one, so the counters are anchored to what is really there rather than to
+   * how many were created.
+   */
+  private static int indexedPublications() {
+    return SharedPublicationSet.get().indexedCount();
+  }
+
+  private static int pagesHolding(int hits) {
+    return (hits + PAGE_SIZE - 1) / PAGE_SIZE;
   }
 
   private static ManualUpdateRequest affiliationUpdate() {

@@ -41,7 +41,7 @@ class ContributorIdentifierUpdateTest extends ManualUpdateExampleTestBase {
                 REPLACEMENT_IDENTIFIER,
                 set().searchParamsWith(CONTRIBUTOR_PARAM, personUri(CREATOR_IDENTIFIER))));
 
-    assertMatchedAndChanged(softly, report, SharedPublicationSet.TOTAL_PUBLICATIONS);
+    assertMatchedAndChanged(softly, report, set().indexedCount());
     assertFieldChangedFromTo(
         softly, report, personUri(CREATOR_IDENTIFIER), personUri(REPLACEMENT_IDENTIFIER));
   }

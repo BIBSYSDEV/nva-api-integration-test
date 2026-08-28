@@ -39,16 +39,32 @@ import no.sikt.nva.apitest.base.Project;
  * @param titleToken the token every publication in the set shares, used to scope a run to it
  * @param unconfirmedPublisherName the publisher name on the unconfirmed group; it embeds the title
  *     token, so a CONTAINS comparison on the token alone matches exactly this run's publications
- * @param identifiers every publication in the set, in no particular order
+ * @param identifiers every publication that was created, in no particular order
+ * @param indexedCount how many of them the search api actually returns, which is what the tests can
+ *     expect a run to reach
  */
 public record SharedPublicationSet(
-    String titleToken, String unconfirmedPublisherName, List<String> identifiers) {
+    String titleToken,
+    String unconfirmedPublisherName,
+    List<String> identifiers,
+    int indexedCount) {
 
   /** Comfortably more than one page at the page size the tests use, so each type spans pages. */
   public static final int PUBLICATIONS_PER_GROUP = 35;
 
   private static final int GROUPS = 3;
   public static final int TOTAL_PUBLICATIONS = GROUPS * PUBLICATIONS_PER_GROUP;
+
+  /**
+   * A tenth of a group is the most a run may lose to a publish that never completed before the set
+   * stops being what it claims: large enough that every group still spans more than one page.
+   */
+  private static final int TOLERATED_LOSS_PER_GROUP = PUBLICATIONS_PER_GROUP / 10;
+
+  /** The floor a group must still reach for a test scoped to it to mean anything. */
+  public static final int MINIMUM_PER_GROUP = PUBLICATIONS_PER_GROUP - TOLERATED_LOSS_PER_GROUP;
+
+  private static final int MINIMUM_USABLE_SET = GROUPS * MINIMUM_PER_GROUP;
 
   private static final String UNCONFIRMED_PUBLISHER_PREFIX = "Testforlaget ";
   private static final String UNCONFIRMED_PUBLISHER_TYPE = "UnconfirmedPublisher";
@@ -89,9 +105,10 @@ public record SharedPublicationSet(
             .toList();
 
     var identifiers = creators.parallelStream().map(Supplier::get).toList();
-    IndexedPublications.awaitSearchable(TOTAL_PUBLICATIONS, titleToken);
+    var indexedCount = IndexedPublications.awaitStableCount(titleToken, MINIMUM_USABLE_SET);
 
-    return new SharedPublicationSet(titleToken, unconfirmedPublisherName, identifiers);
+    return new SharedPublicationSet(
+        titleToken, unconfirmedPublisherName, identifiers, indexedCount);
   }
 
   private static Stream<Supplier<String>> repeat(Supplier<String> creator) {

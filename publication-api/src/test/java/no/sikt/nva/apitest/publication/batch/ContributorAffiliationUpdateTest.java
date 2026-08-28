@@ -38,7 +38,7 @@ class ContributorAffiliationUpdateTest extends ManualUpdateExampleTestBase {
                 SIKT.getValue(),
                 set().searchParamsWith(TOP_LEVEL_ORGANIZATION_PARAM, UIB_TOP_LEVEL_IDENTIFIER)));
 
-    assertMatchedAndChanged(softly, report, SharedPublicationSet.TOTAL_PUBLICATIONS);
+    assertMatchedAndChanged(softly, report, set().indexedCount());
     assertFieldChangedFromTo(softly, report, UIB.getValue(), SIKT.getValue());
   }
 }

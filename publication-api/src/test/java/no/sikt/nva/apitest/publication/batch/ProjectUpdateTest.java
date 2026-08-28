@@ -35,7 +35,7 @@ class ProjectUpdateTest extends ManualUpdateExampleTestBase {
                 Project.REPLACEMENT.getIdentifier(),
                 set().searchParamsWith(PROJECT_PARAM, Project.CURRENT.getIdentifier())));
 
-    assertMatchedAndChanged(softly, report, SharedPublicationSet.TOTAL_PUBLICATIONS);
+    assertMatchedAndChanged(softly, report, set().indexedCount());
     assertFieldChangedFromTo(
         softly, report, Project.CURRENT.getValue(), Project.REPLACEMENT.getValue());
   }

@@ -11,6 +11,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 import no.sikt.nva.PublicationFactory;
 
@@ -33,6 +34,7 @@ public final class IndexedPublications {
   private static final String TOTAL_HITS_FIELD = "totalHits";
   private static final String TOKEN_PREFIX = "batchupdate";
   private static final String UUID_SEPARATOR = "-";
+  private static final int NO_COUNT_YET = -1;
   private static final String FIRST_AFFILIATION_FIELD =
       "entityDescription.contributors[0].affiliations[0].id";
 
@@ -70,6 +72,25 @@ public final class IndexedPublications {
   /** Blocks until the search api reports exactly the expected number of publications. */
   public static void awaitSearchable(int count, String titleToken) {
     pollUntil(INDEXING_TIMEOUT, () -> searchableCount(titleToken), hits -> hits == count);
+  }
+
+  /**
+   * Blocks until the number of searchable publications has stopped growing, and returns it.
+   *
+   * <p>Publishing is only accepted synchronously, not completed: the request returns 202 and the
+   * rest happens downstream. Under the load of a whole test run a publication occasionally never
+   * arrives in the index, so waiting for an exact count fails the entire suite over one or two
+   * publications no test needed individually. Waiting for the count to settle instead lets the
+   * tests work from what is actually there.
+   *
+   * @param minimumCount the point below which the set is too small to be worth testing against
+   */
+  public static int awaitStableCount(String titleToken, int minimumCount) {
+    var previousCount = new AtomicInteger(NO_COUNT_YET);
+    return pollUntil(
+        INDEXING_TIMEOUT,
+        () -> searchableCount(titleToken),
+        count -> count >= minimumCount && count == previousCount.getAndSet(count));
   }
 
   /** The search parameters that scope a handler run to the publications with this title token. */

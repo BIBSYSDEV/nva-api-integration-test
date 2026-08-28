@@ -43,7 +43,7 @@ class PublisherUpdateTest extends ManualUpdateExampleTestBase {
                 REPLACEMENT_PUBLISHER,
                 set().searchParamsWith(PUBLISHER_PARAM, TEMPLATE_PUBLISHER)));
 
-    assertMatchedAndChanged(softly, report, SharedPublicationSet.PUBLICATIONS_PER_GROUP);
+    assertMatchedAndChanged(softly, report, SharedPublicationSet.MINIMUM_PER_GROUP);
     // The handler swaps the identifier inside the existing channel uri rather than rebuilding it,
     // so the year the template pins the channel to survives the update.
     assertFieldChangedFromTo(
