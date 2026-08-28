@@ -77,7 +77,7 @@ class FetchInstitutionReportTest extends ScientificIndexTestBase {
 
   /** Fetch institution report for non-existing period return {@code 404 Not Found} */
   @Test
-  @DisplayName("Fetch institution report for non-existing period reutrns Not Found")
+  @DisplayName("Fetch institution report for non-existing period returns Not Found")
   @Description(useJavaDoc = true)
   void shouldReturnNotFoundWhenFetchingReportForNonExistingPeriod() {
 
