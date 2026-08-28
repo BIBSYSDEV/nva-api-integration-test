@@ -1,5 +1,7 @@
 package no.sikt.nva.apitest.scientificindex.period;
 
+import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
+import static java.net.HttpURLConnection.HTTP_OK;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_YEAR;
 import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
 import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.PERIOD_PATH;
@@ -27,7 +29,7 @@ class FetchPeriodTest extends ScientificIndexTestBase {
         givenUnauthenticatedJsonRequest()
             .get(PERIOD_PATH, CURRENT_YEAR)
             .then()
-            .statusCode(200)
+            .statusCode(HTTP_OK)
             .extract()
             .jsonPath();
 
@@ -45,6 +47,6 @@ class FetchPeriodTest extends ScientificIndexTestBase {
     givenUnauthenticatedJsonRequest()
         .get(PERIOD_PATH, NONEXISTENT_PERIOD_YEAR)
         .then()
-        .statusCode(404);
+        .statusCode(HTTP_NOT_FOUND);
   }
 }

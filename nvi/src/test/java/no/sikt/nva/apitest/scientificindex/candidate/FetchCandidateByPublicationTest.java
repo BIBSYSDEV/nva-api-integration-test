@@ -1,5 +1,9 @@
 package no.sikt.nva.apitest.scientificindex.candidate;
 
+import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
+import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
+import static java.net.HttpURLConnection.HTTP_OK;
+import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static java.util.UUID.randomUUID;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
 import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
@@ -46,7 +50,7 @@ class FetchCandidateByPublicationTest extends ScientificIndexTestBase {
         givenAuthenticatedJsonRequestAsUser(user)
             .get(CANDIDATE_BY_PUBLICATION_PATH, candidate.publicationIdentifier())
             .then()
-            .statusCode(200)
+            .statusCode(HTTP_OK)
             .extract()
             .jsonPath();
 
@@ -62,7 +66,7 @@ class FetchCandidateByPublicationTest extends ScientificIndexTestBase {
     givenUnauthenticatedJsonRequest()
         .get(CANDIDATE_BY_PUBLICATION_PATH, candidate.publicationIdentifier())
         .then()
-        .statusCode(401);
+        .statusCode(HTTP_UNAUTHORIZED);
   }
 
   /** Fetching a candidate as a non-NVI user returns status {@code 403 Forbidden}. */
@@ -75,7 +79,7 @@ class FetchCandidateByPublicationTest extends ScientificIndexTestBase {
     givenAuthenticatedJsonRequestAsUser(user)
         .get(CANDIDATE_BY_PUBLICATION_PATH, candidate.publicationIdentifier())
         .then()
-        .statusCode(403);
+        .statusCode(HTTP_FORBIDDEN);
   }
 
   /** Fetching a candidate for a non-candidate publication returns status {@code 404 Not Found}. */
@@ -89,6 +93,6 @@ class FetchCandidateByPublicationTest extends ScientificIndexTestBase {
     givenAuthenticatedJsonRequestAsUser(UIB_NVI_CURATOR)
         .get(CANDIDATE_BY_PUBLICATION_PATH, publicationIdentifier)
         .then()
-        .statusCode(404);
+        .statusCode(HTTP_NOT_FOUND);
   }
 }

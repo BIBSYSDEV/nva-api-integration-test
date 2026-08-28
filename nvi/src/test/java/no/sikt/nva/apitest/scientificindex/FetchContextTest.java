@@ -1,5 +1,6 @@
 package no.sikt.nva.apitest.scientificindex;
 
+import static java.net.HttpURLConnection.HTTP_OK;
 import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
 import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CONTEXT_PATH;
 
@@ -25,7 +26,7 @@ class FetchContextTest extends ScientificIndexTestBase {
         givenUnauthenticatedJsonRequest()
             .get(CONTEXT_PATH)
             .then()
-            .statusCode(200)
+            .statusCode(HTTP_OK)
             .extract()
             .jsonPath();
     softly.assertThat(response.getMap("@context")).isNotEmpty();

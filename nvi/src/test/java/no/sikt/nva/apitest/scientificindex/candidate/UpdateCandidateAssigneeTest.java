@@ -1,5 +1,10 @@
 package no.sikt.nva.apitest.scientificindex.candidate;
 
+import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
+import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
+import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
+import static java.net.HttpURLConnection.HTTP_OK;
+import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static no.sikt.nva.apitest.base.Affiliation.UIB;
 import static no.sikt.nva.apitest.base.Affiliation.UIS;
 import static no.sikt.nva.apitest.base.Polling.pollUntil;
@@ -55,7 +60,7 @@ class UpdateCandidateAssigneeTest extends ScientificIndexTestBase {
             assignCuratorToCandidate(UIS_NVI_CURATOR, candidateIdentifier, payload),
             IntegrationTestBase::isNotConflict);
 
-    softly.assertThat(response.statusCode()).isEqualTo(200);
+    softly.assertThat(response.statusCode()).isEqualTo(HTTP_OK);
 
     assertApproval(softly, response, UIS_NVI_CURATOR, UIS);
   }
@@ -79,7 +84,7 @@ class UpdateCandidateAssigneeTest extends ScientificIndexTestBase {
             assignCuratorToCandidate(assigningCurator, candidateIdentifier, payload),
             IntegrationTestBase::isNotConflict);
 
-    softly.assertThat(response.statusCode()).isEqualTo(403);
+    softly.assertThat(response.statusCode()).isEqualTo(HTTP_UNAUTHORIZED);
 
     assertApproval(softly, response, assignedCurator, UIB);
   }
@@ -108,7 +113,7 @@ class UpdateCandidateAssigneeTest extends ScientificIndexTestBase {
             assignCuratorToCandidate(UIB_NVI_CURATOR, candidateIdentifier, payload),
             IntegrationTestBase::isNotConflict);
 
-    softly.assertThat(response.statusCode()).isEqualTo(200);
+    softly.assertThat(response.statusCode()).isEqualTo(HTTP_OK);
     assertApproval(softly, response, UIB_NVI_CURATOR, UIB);
   }
 
@@ -140,7 +145,7 @@ class UpdateCandidateAssigneeTest extends ScientificIndexTestBase {
         .when()
         .put(CANDIDATE_ASSIGNEE_PATH, candidateIdentifier)
         .then()
-        .statusCode(404);
+        .statusCode(HTTP_NOT_FOUND);
   }
 
   /** Calling the service with no body returns status {@code 400 Bad Request} */
@@ -157,7 +162,7 @@ class UpdateCandidateAssigneeTest extends ScientificIndexTestBase {
             .when()
             .put(CANDIDATE_ASSIGNEE_PATH, candidateIdentifier)
             .then()
-            .statusCode(400)
+            .statusCode(HTTP_BAD_REQUEST)
             .extract()
             .response();
 
@@ -180,7 +185,7 @@ class UpdateCandidateAssigneeTest extends ScientificIndexTestBase {
         .when()
         .put(CANDIDATE_ASSIGNEE_PATH, candidateIdentifier)
         .then()
-        .statusCode(401);
+        .statusCode(HTTP_UNAUTHORIZED);
   }
 
   /** Assigning a curator while not a nvi-curator returns {@code 403 Forbidden} */
@@ -201,7 +206,7 @@ class UpdateCandidateAssigneeTest extends ScientificIndexTestBase {
         .when()
         .put(CANDIDATE_ASSIGNEE_PATH, candidateIdentifier)
         .then()
-        .statusCode(403);
+        .statusCode(HTTP_FORBIDDEN);
   }
 
   private Map<String, String> createPayload(User user) {

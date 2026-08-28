@@ -1,5 +1,8 @@
 package no.sikt.nva.apitest.scientificindex.period;
 
+import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
+import static java.net.HttpURLConnection.HTTP_CREATED;
+import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_YEAR;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.getCurrentYear;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
@@ -98,7 +101,7 @@ class CreatePeriodTest extends ScientificIndexTestBase {
             .when()
             .post(PERIODS_PATH)
             .then()
-            .statusCode(201)
+            .statusCode(HTTP_CREATED)
             .extract()
             .jsonPath();
 
@@ -118,7 +121,7 @@ class CreatePeriodTest extends ScientificIndexTestBase {
         .when()
         .post(PERIODS_PATH)
         .then()
-        .statusCode(401);
+        .statusCode(HTTP_UNAUTHORIZED);
   }
 
   @Test
@@ -133,7 +136,7 @@ class CreatePeriodTest extends ScientificIndexTestBase {
             .when()
             .post(PERIODS_PATH)
             .then()
-            .statusCode(400)
+            .statusCode(HTTP_BAD_REQUEST)
             .extract()
             .jsonPath();
 
@@ -157,7 +160,7 @@ class CreatePeriodTest extends ScientificIndexTestBase {
             .when()
             .post(PERIODS_PATH)
             .then()
-            .statusCode(400)
+            .statusCode(HTTP_BAD_REQUEST)
             .extract()
             .jsonPath();
 
@@ -184,7 +187,7 @@ class CreatePeriodTest extends ScientificIndexTestBase {
         .when()
         .post(PERIODS_PATH)
         .then()
-        .statusCode(400)
+        .statusCode(HTTP_BAD_REQUEST)
         .extract()
         .jsonPath();
   }
@@ -213,6 +216,6 @@ class CreatePeriodTest extends ScientificIndexTestBase {
         .then()
         .log()
         .all()
-        .statusCode(401);
+        .statusCode(HTTP_UNAUTHORIZED);
   }
 }

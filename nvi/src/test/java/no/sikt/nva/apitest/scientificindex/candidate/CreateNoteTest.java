@@ -1,5 +1,9 @@
 package no.sikt.nva.apitest.scientificindex.candidate;
 
+import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
+import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
+import static java.net.HttpURLConnection.HTTP_OK;
+import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static java.util.UUID.randomUUID;
 import static no.sikt.nva.apitest.base.Polling.pollUntil;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
@@ -41,7 +45,7 @@ class CreateNoteTest extends ScientificIndexTestBase {
     var response =
         givenCreateNoteRequest(OSLO_MET_NVI_CURATOR, candidateIdentifier, candidateNote)
             .then()
-            .statusCode(200)
+            .statusCode(HTTP_OK)
             .extract()
             .jsonPath();
 
@@ -60,7 +64,9 @@ class CreateNoteTest extends ScientificIndexTestBase {
     var candidateIdentifier = candidate.candidateIdentifier();
     var payload = createNoteRequest();
 
-    givenCreateNoteRequest(UIB_NVI_CURATOR, candidateIdentifier, payload).then().statusCode(401);
+    givenCreateNoteRequest(UIB_NVI_CURATOR, candidateIdentifier, payload)
+        .then()
+        .statusCode(HTTP_UNAUTHORIZED);
   }
 
   /** Trying to create a note on a non-existing candidate returns {@code 404 Not Found} */
@@ -71,7 +77,9 @@ class CreateNoteTest extends ScientificIndexTestBase {
     var candidateIdentifier = randomUUID().toString();
     var payload = createNoteRequest();
 
-    givenCreateNoteRequest(UIB_NVI_CURATOR, candidateIdentifier, payload).then().statusCode(404);
+    givenCreateNoteRequest(UIB_NVI_CURATOR, candidateIdentifier, payload)
+        .then()
+        .statusCode(HTTP_NOT_FOUND);
   }
 
   /** Creating a note with no candidateNote returns {@code 400 Bad Request} */
@@ -87,7 +95,7 @@ class CreateNoteTest extends ScientificIndexTestBase {
             .when()
             .post(CANDIDATE_NOTES_PATH, candidateIdentifier)
             .then()
-            .statusCode(400)
+            .statusCode(HTTP_BAD_REQUEST)
             .extract()
             .jsonPath();
 
@@ -106,7 +114,7 @@ class CreateNoteTest extends ScientificIndexTestBase {
     var response =
         givenCreateNoteRequest(OSLO_MET_NVI_CURATOR, candidateIdentifier, payload)
             .then()
-            .statusCode(400)
+            .statusCode(HTTP_BAD_REQUEST)
             .extract()
             .jsonPath();
 

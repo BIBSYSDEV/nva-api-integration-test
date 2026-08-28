@@ -1,5 +1,8 @@
 package no.sikt.nva.apitest.scientificindex.candidate;
 
+import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
+import static java.net.HttpURLConnection.HTTP_OK;
+import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static java.util.UUID.randomUUID;
 import static no.sikt.nva.apitest.base.UserFixtures.KRISTIANIA_CREATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.KRISTIANIA_NVI_CURATOR;
@@ -56,7 +59,7 @@ class UpdateCandidateApprovalStatusTest extends ScientificIndexTestBase {
     var response =
         updateApprovalStatus(UIB_NVI_CURATOR, candidate, APPROVED)
             .then()
-            .statusCode(200)
+            .statusCode(HTTP_OK)
             .extract()
             .jsonPath();
 
@@ -77,7 +80,7 @@ class UpdateCandidateApprovalStatusTest extends ScientificIndexTestBase {
     var response =
         updateApprovalStatus(curator, candidate, APPROVED)
             .then()
-            .statusCode(200)
+            .statusCode(HTTP_OK)
             .extract()
             .jsonPath();
 
@@ -104,7 +107,7 @@ class UpdateCandidateApprovalStatusTest extends ScientificIndexTestBase {
     var response =
         updateApprovalStatus(UIB_NVI_CURATOR, candidate, REJECTED, REJECTION_REASON)
             .then()
-            .statusCode(200)
+            .statusCode(HTTP_OK)
             .extract()
             .jsonPath();
 
@@ -120,7 +123,7 @@ class UpdateCandidateApprovalStatusTest extends ScientificIndexTestBase {
   void shouldReturnBadRequestWhenRejectingWithoutReason() {
     var candidate = createCandidate();
 
-    updateApprovalStatus(UIB_NVI_CURATOR, candidate, REJECTED).then().statusCode(400);
+    updateApprovalStatus(UIB_NVI_CURATOR, candidate, REJECTED).then().statusCode(HTTP_BAD_REQUEST);
   }
 
   /** Reverting an approved candidate to Pending stays Pending, not New. */
@@ -130,12 +133,12 @@ class UpdateCandidateApprovalStatusTest extends ScientificIndexTestBase {
   void shouldResetApprovalWhenApprovedCandidateIsSetToPending(SoftAssertions softly) {
     var candidate = createCandidate();
 
-    updateApprovalStatus(UIB_NVI_CURATOR, candidate, APPROVED).then().statusCode(200);
+    updateApprovalStatus(UIB_NVI_CURATOR, candidate, APPROVED).then().statusCode(HTTP_OK);
 
     var response =
         updateApprovalStatus(UIB_NVI_CURATOR, candidate, PENDING)
             .then()
-            .statusCode(200)
+            .statusCode(HTTP_OK)
             .extract()
             .jsonPath();
 
@@ -151,7 +154,7 @@ class UpdateCandidateApprovalStatusTest extends ScientificIndexTestBase {
   void shouldReturnUnauthorizedWhenUserLacksManageNviCandidates() {
     var candidate = createCandidate();
 
-    updateApprovalStatus(UIB_CREATOR, candidate, APPROVED).then().statusCode(401);
+    updateApprovalStatus(UIB_CREATOR, candidate, APPROVED).then().statusCode(HTTP_UNAUTHORIZED);
   }
 
   private static NviCandidate createCandidate() {

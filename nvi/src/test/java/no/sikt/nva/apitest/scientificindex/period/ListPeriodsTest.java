@@ -1,5 +1,7 @@
 package no.sikt.nva.apitest.scientificindex.period;
 
+import static java.net.HttpURLConnection.HTTP_OK;
+import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_YEAR;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
 import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
@@ -27,7 +29,7 @@ class ListPeriodsTest extends ScientificIndexTestBase {
         givenAuthenticatedJsonRequestAsUser(UIB_CONTRIBUTOR)
             .get(PERIODS_PATH)
             .then()
-            .statusCode(200)
+            .statusCode(HTTP_OK)
             .extract()
             .jsonPath();
 
@@ -39,6 +41,6 @@ class ListPeriodsTest extends ScientificIndexTestBase {
   @DisplayName("List periods unauthenticated")
   @Description(useJavaDoc = true)
   void shouldReturnUnauthorizedWhenUnauthenticated() {
-    givenUnauthenticatedJsonRequest().get(PERIODS_PATH).then().statusCode(401);
+    givenUnauthenticatedJsonRequest().get(PERIODS_PATH).then().statusCode(HTTP_UNAUTHORIZED);
   }
 }

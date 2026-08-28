@@ -1,5 +1,6 @@
 package no.sikt.nva.apitest.scientificindex.candidate;
 
+import static java.net.HttpURLConnection.HTTP_OK;
 import static java.util.UUID.randomUUID;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_YEAR;
 import static no.sikt.nva.apitest.base.Polling.pollUntil;
@@ -46,7 +47,7 @@ class FetchReportStatusByPublicationTest extends ScientificIndexTestBase {
         givenUnauthenticatedJsonRequest()
             .get(PUBLICATION_REPORT_STATUS_PATH, publicationIdentifier)
             .then()
-            .statusCode(200)
+            .statusCode(HTTP_OK)
             .extract()
             .jsonPath();
   }

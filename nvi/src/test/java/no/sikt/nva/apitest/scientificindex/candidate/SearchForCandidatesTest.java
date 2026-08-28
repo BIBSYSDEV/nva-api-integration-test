@@ -1,5 +1,7 @@
 package no.sikt.nva.apitest.scientificindex.candidate;
 
+import static java.net.HttpURLConnection.HTTP_OK;
+import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
 import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_NVI_CURATOR;
@@ -114,7 +116,7 @@ class SearchForCandidatesTest extends ScientificIndexTestBase {
         .queryParam("query", candidate.title())
         .get(CANDIDATES_PATH)
         .then()
-        .statusCode(401);
+        .statusCode(HTTP_UNAUTHORIZED);
   }
 
   private static void assertHitFieldEquals(
@@ -145,7 +147,7 @@ class SearchForCandidatesTest extends ScientificIndexTestBase {
         .queryParam("size", SEARCH_PAGE_SIZE)
         .get(CANDIDATES_PATH)
         .then()
-        .statusCode(200)
+        .statusCode(HTTP_OK)
         .extract()
         .response();
   }

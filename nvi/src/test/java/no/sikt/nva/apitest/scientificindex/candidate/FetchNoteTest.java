@@ -1,5 +1,6 @@
 package no.sikt.nva.apitest.scientificindex.candidate;
 
+import static java.net.HttpURLConnection.HTTP_OK;
 import static no.sikt.nva.apitest.base.Polling.pollUntil;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
 import static no.sikt.nva.apitest.base.UserFixtures.OSLO_MET_NVI_CURATOR;
@@ -43,7 +44,7 @@ class FetchNoteTest extends ScientificIndexTestBase {
             .when()
             .get(CANDIDATE_PATH, candidateIdentifier)
             .then()
-            .statusCode(200)
+            .statusCode(HTTP_OK)
             .extract()
             .jsonPath();
 
