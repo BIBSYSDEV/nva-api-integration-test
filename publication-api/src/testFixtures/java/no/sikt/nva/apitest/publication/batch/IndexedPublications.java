@@ -1,19 +1,23 @@
 package no.sikt.nva.apitest.publication.batch;
 
 import static java.net.HttpURLConnection.HTTP_OK;
+import static java.util.stream.Collectors.toSet;
 import static no.sikt.Category.ACADEMIC_ARTICLE;
 import static no.sikt.nva.apitest.base.Polling.pollUntil;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
+import static no.sikt.nva.apitest.base.SettledCondition.settledWhen;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
 import static no.sikt.nva.apitest.publication.PublicationPaths.publicationPath;
 
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 import no.sikt.nva.PublicationFactory;
+import nva.commons.core.paths.UriWrapper;
 
 /**
  * Creates published publications that the batch handlers can find through the search api. The
@@ -34,6 +38,8 @@ public final class IndexedPublications {
   private static final String TOTAL_HITS_FIELD = "totalHits";
   private static final String TOKEN_PREFIX = "batchupdate";
   private static final String UUID_SEPARATOR = "-";
+  private static final String SIZE_PARAM = "size";
+  private static final String HIT_IDS_FIELD = "hits.id";
   private static final int NO_COUNT_YET = -1;
   private static final String FIRST_AFFILIATION_FIELD =
       "entityDescription.contributors[0].affiliations[0].id";
@@ -90,7 +96,40 @@ public final class IndexedPublications {
     return pollUntil(
         INDEXING_TIMEOUT,
         () -> searchableCount(titleToken),
-        count -> count >= minimumCount && count == previousCount.getAndSet(count));
+        settledWhen(
+            count -> hasSettled(count, minimumCount, previousCount),
+            count ->
+                "%d searchable, waiting for %d or more to hold across two checks"
+                    .formatted(count, minimumCount)));
+  }
+
+  /**
+   * Carries the previous reading, since settling is about two readings rather than one. Polling
+   * evaluates the condition once per attempt, and the description is derived separately and stays
+   * free of this.
+   */
+  private static boolean hasSettled(int count, int minimumCount, AtomicInteger previousCount) {
+    return count >= minimumCount && count == previousCount.getAndSet(count);
+  }
+
+  /**
+   * The identifiers of the publications the search api returns for this title token. What this set
+   * is missing, compared to what was created, is what never made it through indexing.
+   */
+  public static Set<String> searchableIdentifiers(String titleToken, int maxResults) {
+    return givenAuthenticatedJsonRequestAsUser(UIB_CREATOR)
+        .queryParam(TITLE_PARAM, titleToken)
+        .queryParam(AGGREGATION_PARAM, NO_AGGREGATION)
+        .queryParam(SIZE_PARAM, String.valueOf(maxResults))
+        .get(SEARCH_RESOURCES_PATH)
+        .then()
+        .statusCode(HTTP_OK)
+        .extract()
+        .jsonPath()
+        .getList(HIT_IDS_FIELD, String.class)
+        .stream()
+        .map(IndexedPublications::identifierOf)
+        .collect(toSet());
   }
 
   /** The search parameters that scope a handler run to the publications with this title token. */
@@ -110,6 +149,10 @@ public final class IndexedPublications {
         .extract()
         .jsonPath()
         .getString(FIRST_AFFILIATION_FIELD);
+  }
+
+  private static String identifierOf(String publicationId) {
+    return UriWrapper.fromUri(publicationId).getLastPathElement();
   }
 
   private static String createPublication(String titleToken) {

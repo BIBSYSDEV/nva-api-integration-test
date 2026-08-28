@@ -12,6 +12,7 @@ import static no.sikt.nva.apitest.publication.PublicationFields.TYPE;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -40,14 +41,14 @@ import no.sikt.nva.apitest.base.Project;
  * @param unconfirmedPublisherName the publisher name on the unconfirmed group; it embeds the title
  *     token, so a CONTAINS comparison on the token alone matches exactly this run's publications
  * @param identifiers every publication that was created, in no particular order
- * @param indexedCount how many of them the search api actually returns, which is what the tests can
- *     expect a run to reach
+ * @param searchableIdentifiers those of them the search api returns; what is missing here never
+ *     completed indexing, which the tests report rather than pass over
  */
 public record SharedPublicationSet(
     String titleToken,
     String unconfirmedPublisherName,
     List<String> identifiers,
-    int indexedCount) {
+    Set<String> searchableIdentifiers) {
 
   /** Comfortably more than one page at the page size the tests use, so each type spans pages. */
   public static final int PUBLICATIONS_PER_GROUP = 35;
@@ -75,10 +76,26 @@ public record SharedPublicationSet(
 
   public SharedPublicationSet {
     identifiers = List.copyOf(identifiers);
+    searchableIdentifiers = Set.copyOf(searchableIdentifiers);
   }
 
   public static SharedPublicationSet get() {
     return Holder.INSTANCE;
+  }
+
+  /** How many of the set a handler run can actually reach through the search api. */
+  public int indexedCount() {
+    return searchableIdentifiers.size();
+  }
+
+  /**
+   * The publications that were created and published but never turned up in the index. Publishing
+   * only returns 202, so this is where a failure downstream of it becomes visible.
+   */
+  public List<String> missingFromIndex() {
+    return identifiers.stream()
+        .filter(identifier -> !searchableIdentifiers.contains(identifier))
+        .toList();
   }
 
   public Map<String, String> searchParams() {
@@ -105,10 +122,10 @@ public record SharedPublicationSet(
             .toList();
 
     var identifiers = creators.parallelStream().map(Supplier::get).toList();
-    var indexedCount = IndexedPublications.awaitStableCount(titleToken, MINIMUM_USABLE_SET);
+    IndexedPublications.awaitStableCount(titleToken, MINIMUM_USABLE_SET);
+    var searchable = IndexedPublications.searchableIdentifiers(titleToken, TOTAL_PUBLICATIONS);
 
-    return new SharedPublicationSet(
-        titleToken, unconfirmedPublisherName, identifiers, indexedCount);
+    return new SharedPublicationSet(titleToken, unconfirmedPublisherName, identifiers, searchable);
   }
 
   private static Stream<Supplier<String>> repeat(Supplier<String> creator) {
