@@ -16,6 +16,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
  * <p>This is the only documented example that uses a comparator, because only the unconfirmed types
  * read one. The publisher name in the shared set embeds the title token, so matching on the token
  * alone is a substring match that still cannot reach beyond this run's publications.
+ *
+ * <p>The documented example also passes {@code query: UnconfirmedPublisher}, which is dropped here.
+ * That parameter is an alias for the free text search over the aggregated q field, which carries
+ * titles and names rather than the type of a publication context, so it selects nothing and empties
+ * the whole result. In the documented setting it narrows a search that has nothing else to narrow
+ * it; here the title token already does that job.
  */
 @ExtendWith(SoftAssertionsExtension.class)
 @DisplayName("Manual update: UNCONFIRMED_PUBLISHER")
@@ -23,8 +29,6 @@ class UnconfirmedPublisherUpdateTest extends ManualUpdateExampleTestBase {
 
   private static final String TYPE = "UNCONFIRMED_PUBLISHER";
   private static final String PUBLISHER_PARAM = "publisher";
-  private static final String QUERY_PARAM = "query";
-  private static final String UNCONFIRMED_PUBLISHER_QUERY = "UnconfirmedPublisher";
   private static final String CONTAINS = "CONTAINS";
   private static final String PUBLICATION_CHANNELS_PATH = "publication-channels-v2";
   private static final String PUBLISHER_PATH = "publisher";
@@ -38,13 +42,13 @@ class UnconfirmedPublisherUpdateTest extends ManualUpdateExampleTestBase {
   @DisplayName("Turns an unconfirmed publisher name into a confirmed channel")
   @Description(useJavaDoc = true)
   void shouldTurnUnconfirmedPublisherNameIntoConfirmedChannel(SoftAssertions softly) {
-    var searchParams = set().searchParamsWith(PUBLISHER_PARAM, set().unconfirmedPublisherName());
-    searchParams.put(QUERY_PARAM, UNCONFIRMED_PUBLISHER_QUERY);
-
     var report =
         runExample(
             ManualUpdateRequest.dryRunOf(
-                    TYPE, set().titleToken(), CONFIRMED_PUBLISHER, searchParams)
+                    TYPE,
+                    set().titleToken(),
+                    CONFIRMED_PUBLISHER,
+                    set().searchParamsWith(PUBLISHER_PARAM, set().unconfirmedPublisherName()))
                 .withComparator(CONTAINS));
 
     assertMatchedAndChanged(softly, report, SharedPublicationSet.PUBLICATIONS_PER_GROUP);

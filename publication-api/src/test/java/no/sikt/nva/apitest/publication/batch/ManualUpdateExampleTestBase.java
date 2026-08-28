@@ -31,13 +31,25 @@ abstract class ManualUpdateExampleTestBase extends PublicationTestBase {
   }
 
   /**
-   * Asserts the counters every example shares: it is a dry run, it matched the publications it
-   * targets, it planned a change for each of them, and the limit never cut it short.
+   * Asserts the counters every example shares: it is a dry run, the search found the publications
+   * the example targets, the update matched all of them, it planned a change for each, and the
+   * limit never cut it short.
+   *
+   * <p>totalHits is asserted first and separately from resourcesMatched, because the two fail for
+   * opposite reasons. A search parameter that selects nothing leaves both at zero and says nothing
+   * about which; separating them puts the search on one line and the matching on the next.
    */
   protected static void assertMatchedAndChanged(
       SoftAssertions softly, ManualUpdateReport report, int expectedPublications) {
     softly.assertThat(report.dryRun()).isTrue();
-    softly.assertThat(report.resourcesMatched()).isEqualTo(expectedPublications);
+    softly
+        .assertThat(report.totalHits())
+        .as("publications found by the search parameters")
+        .isEqualTo(expectedPublications);
+    softly
+        .assertThat(report.resourcesMatched())
+        .as("publications the update applied to")
+        .isEqualTo(expectedPublications);
     softly.assertThat(report.resourcesChanged()).isEqualTo(expectedPublications);
     softly.assertThat(report.limitReached()).isFalse();
   }
