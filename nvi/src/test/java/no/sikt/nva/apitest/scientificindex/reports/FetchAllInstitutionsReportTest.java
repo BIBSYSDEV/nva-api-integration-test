@@ -20,7 +20,7 @@ import io.qameta.allure.Description;
 import java.util.List;
 import no.sikt.nva.apitest.base.Affiliation;
 import no.sikt.nva.apitest.base.User;
-import no.sikt.nva.apitest.scientificindex.NviInstitutionReports;
+import no.sikt.nva.apitest.scientificindex.NviReports;
 import no.sikt.nva.apitest.scientificindex.ScientificIndexTestBase;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
@@ -72,7 +72,7 @@ class FetchAllInstitutionsReportTest extends ScientificIndexTestBase {
                   .param("affiliation", affiliation.getValue())
                   .setRootPath("institutions.find {it.institution.id == affiliation} ");
 
-          NviInstitutionReports.assertContent(jsonPath, softly, affiliation);
+          NviReports.assertInstitutionReportContent(jsonPath, softly, affiliation);
         });
   }
 

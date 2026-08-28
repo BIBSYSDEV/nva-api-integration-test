@@ -13,7 +13,7 @@ import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.INSTITUTI
 
 import io.qameta.allure.Description;
 import no.sikt.nva.apitest.base.User;
-import no.sikt.nva.apitest.scientificindex.NviInstitutionReports;
+import no.sikt.nva.apitest.scientificindex.NviReports;
 import no.sikt.nva.apitest.scientificindex.ScientificIndexTestBase;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
@@ -42,7 +42,7 @@ class FetchInstitutionReportTest extends ScientificIndexTestBase {
             .extract()
             .jsonPath();
 
-    NviInstitutionReports.assertContent(jsonPath, softly, UIS);
+    NviReports.assertInstitutionReportContent(jsonPath, softly, UIS);
   }
 
   /** Fetch report when user doesn't have the role Nvi-curator returns {@code 403 Forbidden} */
@@ -50,7 +50,8 @@ class FetchInstitutionReportTest extends ScientificIndexTestBase {
   @MethodSource("usersWithoutNviAccess")
   @DisplayName("Fetch institution report when not Nvi-curator returns Forbidden")
   @Description(useJavaDoc = true)
-  void shouldReturnUnauthorizedWhenNonNviCuratprDeletingNote(User user, SoftAssertions softly) {
+  void shouldReturnForbiddenWhenNonNviCuratorFetchInstitutionReport(
+      User user, SoftAssertions softly) {
 
     givenAuthenticatedRequestAsUser(user)
         .when()
