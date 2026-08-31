@@ -4,18 +4,6 @@ import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
-import java.util.List;
-
-import org.assertj.core.api.SoftAssertions;
-import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
-
-import io.qameta.allure.Description;
-import no.sikt.nva.apitest.base.Affiliation;
 import static no.sikt.nva.apitest.base.Affiliation.KRISTIANIA;
 import static no.sikt.nva.apitest.base.Affiliation.OSLO_MET;
 import static no.sikt.nva.apitest.base.Affiliation.UIB;
@@ -25,11 +13,22 @@ import static no.sikt.nva.apitest.base.CurrentTimeConstants.getCurrentYear;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedRequestAsUser;
 import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
-import no.sikt.nva.apitest.base.User;
 import static no.sikt.nva.apitest.base.UserFixtures.UIS_NVI_CURATOR;
-import no.sikt.nva.apitest.scientificindex.NviReports;
 import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.INSTITUTION_REPORTS_PATH;
+
+import io.qameta.allure.Description;
+import java.util.List;
+import no.sikt.nva.apitest.base.Affiliation;
+import no.sikt.nva.apitest.base.User;
+import no.sikt.nva.apitest.scientificindex.NviReports;
 import no.sikt.nva.apitest.scientificindex.ScientificIndexTestBase;
+import org.assertj.core.api.SoftAssertions;
+import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 @ExtendWith(SoftAssertionsExtension.class)
 @DisplayName("GET " + INSTITUTION_REPORTS_PATH)

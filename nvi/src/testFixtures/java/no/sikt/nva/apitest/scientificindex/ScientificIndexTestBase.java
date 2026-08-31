@@ -1,12 +1,5 @@
 package no.sikt.nva.apitest.scientificindex;
 
-import java.util.stream.Stream;
-
-import org.junit.jupiter.params.provider.Arguments;
-import static org.junit.jupiter.params.provider.Arguments.argumentSet;
-
-import no.sikt.nva.PublicationFactory;
-import no.sikt.nva.apitest.base.IntegrationTestBase;
 import static no.sikt.nva.apitest.base.UserFixtures.APP_ADMIN;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_DOI_CURATOR;
@@ -16,6 +9,12 @@ import static no.sikt.nva.apitest.base.UserFixtures.UIB_PUBLISHING_CURATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_SUPPORT_CURATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_THESIS_CURATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIS_NVI_CURATOR;
+import static org.junit.jupiter.params.provider.Arguments.argumentSet;
+
+import java.util.stream.Stream;
+import no.sikt.nva.PublicationFactory;
+import no.sikt.nva.apitest.base.IntegrationTestBase;
+import org.junit.jupiter.params.provider.Arguments;
 
 public class ScientificIndexTestBase extends IntegrationTestBase {
 
