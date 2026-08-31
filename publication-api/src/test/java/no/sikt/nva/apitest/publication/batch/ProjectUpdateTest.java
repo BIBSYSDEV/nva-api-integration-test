@@ -14,7 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
  */
 @ExtendWith(SoftAssertionsExtension.class)
 @DisplayName("Manual update: PROJECT")
-class ProjectUpdateTest extends ManualUpdateExampleTestBase {
+class ProjectUpdateTest extends ManualUpdateTestBase {
 
   private static final String TYPE = "PROJECT";
   private static final String PROJECT_PARAM = "project";
@@ -28,7 +28,7 @@ class ProjectUpdateTest extends ManualUpdateExampleTestBase {
   @Description(useJavaDoc = true)
   void shouldReplaceProjectWithAnother(SoftAssertions softly) {
     var report =
-        runExample(
+        run(
             ManualUpdateRequest.dryRunOf(
                 TYPE,
                 Project.CURRENT.getIdentifier(),

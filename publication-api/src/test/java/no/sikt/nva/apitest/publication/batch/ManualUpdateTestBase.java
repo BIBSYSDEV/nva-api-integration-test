@@ -17,21 +17,21 @@ import org.assertj.core.api.SoftAssertions;
  * <p>Every subclass runs as a dry run. The set is shared and read by several classes at once, so a
  * test that persists would pull the ground out from under the others.
  */
-abstract class ManualUpdateExampleTestBase extends PublicationTestBase {
+abstract class ManualUpdateTestBase extends PublicationTestBase {
 
-  /** No example is about the limit, so it is set clear of every hit to leave the run unbounded. */
+  /** No test is about the limit, so it is set clear of every hit to leave the run unbounded. */
   private static final int LIMIT_ABOVE_ALL_HITS = 2 * SharedPublicationSet.TOTAL_PUBLICATIONS;
 
   protected static SharedPublicationSet set() {
     return SharedPublicationSet.get();
   }
 
-  protected static ManualUpdateReport runExample(ManualUpdateRequest request) {
+  protected static ManualUpdateReport run(ManualUpdateRequest request) {
     return ManuallyUpdatePublications.run(request.withLimit(LIMIT_ABOVE_ALL_HITS));
   }
 
   /**
-   * Asserts the counters every example shares: it is a dry run, the search found publications, the
+   * Asserts the counters every update type shares: it is a dry run, the search found publications, the
    * update matched every one of them, it planned a change for each, and the limit never cut it
    * short.
    *
@@ -63,7 +63,7 @@ abstract class ManualUpdateExampleTestBase extends PublicationTestBase {
   /**
    * Asserts that every changed resource has a field going from one value to the other. The path is
    * deliberately not asserted on: it comes from how ResourceDiff walks the resource, which is an
-   * implementation detail of the handler rather than something the examples promise.
+   * implementation detail of the handler rather than something the update promise.
    */
   protected static void assertFieldChangedFromTo(
       SoftAssertions softly, ManualUpdateReport report, String oldValue, String newValue) {

@@ -16,7 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
  */
 @ExtendWith(SoftAssertionsExtension.class)
 @DisplayName("Manual update: CONTRIBUTOR_AFFILIATION")
-class ContributorAffiliationUpdateTest extends ManualUpdateExampleTestBase {
+class ContributorAffiliationUpdateTest extends ManualUpdateTestBase {
 
   private static final String TYPE = "CONTRIBUTOR_AFFILIATION";
   private static final String TOP_LEVEL_ORGANIZATION_PARAM = "topLevelOrganization";
@@ -31,7 +31,7 @@ class ContributorAffiliationUpdateTest extends ManualUpdateExampleTestBase {
   @Description(useJavaDoc = true)
   void shouldMoveContributorAffiliationsToAnotherOrganization(SoftAssertions softly) {
     var report =
-        runExample(
+        run(
             ManualUpdateRequest.dryRunOf(
                 TYPE,
                 UIB.getValue(),

@@ -13,7 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
  */
 @ExtendWith(SoftAssertionsExtension.class)
 @DisplayName("Manual update: CONTRIBUTOR_IDENTIFIER")
-class ContributorIdentifierUpdateTest extends ManualUpdateExampleTestBase {
+class ContributorIdentifierUpdateTest extends ManualUpdateTestBase {
 
   private static final String TYPE = "CONTRIBUTOR_IDENTIFIER";
   private static final String CONTRIBUTOR_PARAM = "contributor";
@@ -34,7 +34,7 @@ class ContributorIdentifierUpdateTest extends ManualUpdateExampleTestBase {
   @Description(useJavaDoc = true)
   void shouldReplaceContributorIdentifierWithAnother(SoftAssertions softly) {
     var report =
-        runExample(
+        run(
             ManualUpdateRequest.dryRunOf(
                 TYPE,
                 CREATOR_IDENTIFIER,

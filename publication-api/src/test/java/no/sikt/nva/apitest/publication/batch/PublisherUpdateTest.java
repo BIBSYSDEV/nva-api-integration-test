@@ -15,7 +15,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
  */
 @ExtendWith(SoftAssertionsExtension.class)
 @DisplayName("Manual update: PUBLISHER")
-class PublisherUpdateTest extends ManualUpdateExampleTestBase {
+class PublisherUpdateTest extends ManualUpdateTestBase {
 
   private static final String TYPE = "PUBLISHER";
   private static final String PUBLISHER_PARAM = "publisher";
@@ -36,7 +36,7 @@ class PublisherUpdateTest extends ManualUpdateExampleTestBase {
   @Description(useJavaDoc = true)
   void shouldReplacePublisherIdOnPublicationsThatHaveOne(SoftAssertions softly) {
     var report =
-        runExample(
+        run(
             ManualUpdateRequest.dryRunOf(
                 TYPE,
                 TEMPLATE_PUBLISHER,

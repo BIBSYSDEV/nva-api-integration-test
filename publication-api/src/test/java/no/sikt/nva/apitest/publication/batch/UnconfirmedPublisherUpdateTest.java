@@ -25,7 +25,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
  */
 @ExtendWith(SoftAssertionsExtension.class)
 @DisplayName("Manual update: UNCONFIRMED_PUBLISHER")
-class UnconfirmedPublisherUpdateTest extends ManualUpdateExampleTestBase {
+class UnconfirmedPublisherUpdateTest extends ManualUpdateTestBase {
 
   private static final String TYPE = "UNCONFIRMED_PUBLISHER";
   private static final String PUBLISHER_PARAM = "publisher";
@@ -43,7 +43,7 @@ class UnconfirmedPublisherUpdateTest extends ManualUpdateExampleTestBase {
   @Description(useJavaDoc = true)
   void shouldTurnUnconfirmedPublisherNameIntoConfirmedChannel(SoftAssertions softly) {
     var report =
-        runExample(
+        run(
             ManualUpdateRequest.dryRunOf(
                     TYPE,
                     set().titleToken(),
