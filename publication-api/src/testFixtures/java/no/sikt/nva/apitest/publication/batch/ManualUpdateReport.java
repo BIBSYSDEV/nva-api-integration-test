@@ -3,8 +3,7 @@ package no.sikt.nva.apitest.publication.batch;
 import static java.util.Objects.isNull;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.json.JsonMapper;
+import io.restassured.path.json.JsonPath;
 import java.util.List;
 
 /**
@@ -31,7 +30,8 @@ public record ManualUpdateReport(
     int resourcesChanged,
     List<ResourceChange> changes) {
 
-  private static final JsonMapper MAPPER = JsonMapper.builder().build();
+  /** The whole document, since the report is the payload rather than a field within it. */
+  private static final String ROOT = "";
 
   /**
    * A report always carries a changes array, but a handler that stopped short of writing one would
@@ -43,11 +43,7 @@ public record ManualUpdateReport(
   }
 
   public static ManualUpdateReport fromJson(String json) {
-    try {
-      return MAPPER.readValue(json, ManualUpdateReport.class);
-    } catch (JsonProcessingException exception) {
-      throw new IllegalStateException(exception);
-    }
+    return new JsonPath(json).getObject(ROOT, ManualUpdateReport.class);
   }
 
   public List<String> changedIdentifiers() {

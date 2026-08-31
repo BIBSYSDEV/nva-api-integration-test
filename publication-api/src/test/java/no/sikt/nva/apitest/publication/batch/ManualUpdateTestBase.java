@@ -31,8 +31,8 @@ abstract class ManualUpdateTestBase extends PublicationTestBase {
   }
 
   /**
-   * Asserts the counters every update type shares: it is a dry run, the search found publications, the
-   * update matched every one of them, it planned a change for each, and the limit never cut it
+   * Asserts the counters every update type shares: it is a dry run, the search found publications,
+   * the update matched every one of them, it planned a change for each, and the limit never cut it
    * short.
    *
    * <p>The search result is asserted against a floor rather than an exact count, and the matching
