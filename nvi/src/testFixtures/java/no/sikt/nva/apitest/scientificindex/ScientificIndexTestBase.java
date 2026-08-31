@@ -40,4 +40,14 @@ public class ScientificIndexTestBase extends IntegrationTestBase {
         argumentSet("Support curator", UIB_SUPPORT_CURATOR),
         argumentSet("Thesis curator", UIB_THESIS_CURATOR));
   }
+
+  /** Test users that do not have access to the nvi report endpoints */
+  protected static Stream<Arguments> usersWithoutNviReportAccess() {
+    return Stream.of(
+        argumentSet("Registrar", UIB_CREATOR),
+        argumentSet("DOI curator", UIB_DOI_CURATOR),
+        argumentSet("Publishing curator", UIB_PUBLISHING_CURATOR),
+        argumentSet("Support curator", UIB_SUPPORT_CURATOR),
+        argumentSet("Thesis curator", UIB_THESIS_CURATOR));
+  }
 }

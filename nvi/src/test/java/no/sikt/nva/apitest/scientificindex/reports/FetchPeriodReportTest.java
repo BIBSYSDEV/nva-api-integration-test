@@ -67,7 +67,7 @@ class FetchPeriodReportTest extends ScientificIndexTestBase {
 
   /** Fetch report when user doesn't have the role Nvi-curator returns {@code 403 Forbidden} */
   @ParameterizedTest
-  @MethodSource("usersWithoutNviAccess")
+  @MethodSource("usersWithoutNviReportAccess")
   @DisplayName("Fetch institution report when not Nvi-curator returns Forbidden")
   @Description(useJavaDoc = true)
   void shouldReturnForbiddenWhenNonNvicuratorFetchPeriodReport(User user, SoftAssertions softly) {

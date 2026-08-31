@@ -95,7 +95,7 @@ class FetchAllInstitutionsReportTest extends ScientificIndexTestBase {
    * Trying to fetch report for all institutions when not Nvi-curator return {@code 403 Forbidden}
    */
   @ParameterizedTest
-  @MethodSource("usersWithoutNviAccess")
+  @MethodSource("usersWithoutNviReportAccess")
   @DisplayName("Fetch report for all institutions when non Nvi-curator returns Forbidden")
   @Description(useJavaDoc = true)
   void shouldReturnForbiddenWhenNonNviCurator(User user) {

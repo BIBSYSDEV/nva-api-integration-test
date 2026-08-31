@@ -70,7 +70,7 @@ class FetchAllPeriodsReportTest extends ScientificIndexTestBase {
 
   /** Trying to fetch periods report while not Nvi-curator returns status {@code 403 Forbidden} */
   @ParameterizedTest
-  @MethodSource("usersWithoutNviAccess")
+  @MethodSource("usersWithoutNviReportAccess")
   @DisplayName("Fetch periods report when non-nvi-curator should return Forbidden")
   @Description(useJavaDoc = true)
   void shouldReturnForbiddenWhenNotNviCurator(User user) {
