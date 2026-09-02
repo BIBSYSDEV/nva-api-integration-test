@@ -1,0 +1,20 @@
+plugins {
+    id 'nva.api.integration.testing.java-conventions'
+}
+
+dependencies {
+    testAnnotationProcessor(libs.allure.descriptions.javadoc)
+    testImplementation(libs.allure.java.commons)
+    testImplementation(libs.rest.assured.core)
+    testImplementation(libs.rest.assured.json.path)
+    testImplementation(nvaCatalog.assertj.core)
+    testImplementation(nvaCatalog.junit.jupiter.api)
+    testImplementation(project(':apitest-base'))
+    testImplementation(testFixtures(project(':apitest-base')))
+    testRuntimeOnly(nvaCatalog.junit.jupiter.engine)
+    testRuntimeOnly(nvaCatalog.junit.platform.launcher)
+}
+
+tasks.withType(Test).configureEach {
+    systemProperty 'allure.label.module', 'Approvals'
+}
