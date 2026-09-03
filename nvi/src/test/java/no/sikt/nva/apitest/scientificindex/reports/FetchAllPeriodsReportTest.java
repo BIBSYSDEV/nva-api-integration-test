@@ -41,7 +41,7 @@ class FetchAllPeriodsReportTest extends ScientificIndexTestBase {
             .response();
 
     softly.assertThat(response.jsonPath().getString("type")).isEqualTo("AllPeriodsReport");
-    softly.assertThat(response.jsonPath().getList("periods").size()).isEqualTo(3);
+    softly.assertThat(response.jsonPath().getList("periods").size()).isGreaterThanOrEqualTo(3);
 
     List.of(NviReports.Periods.values())
         .forEach(

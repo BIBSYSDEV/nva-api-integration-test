@@ -47,7 +47,7 @@ class FetchPeriodReportTest extends ScientificIndexTestBase {
   @Description(useJavaDoc = true)
   void shouldReturnNotFoundWhenFetchingReportForNonExistingPeriod() {
 
-    var nonExistingPeriod = getCurrentYear().plusYears(10).toString();
+    var nonExistingPeriod = getCurrentYear().plusYears(15).toString();
 
     fetchPeriodReport(UIS_NVI_CURATOR, nonExistingPeriod, HTTP_NOT_FOUND);
   }
