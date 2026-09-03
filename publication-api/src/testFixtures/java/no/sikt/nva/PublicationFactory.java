@@ -15,6 +15,7 @@ import static no.sikt.nva.apitest.publication.PublicationFields.CONTEXT_FIELD;
 import static no.sikt.nva.apitest.publication.PublicationFields.CONTRIBUTORS;
 import static no.sikt.nva.apitest.publication.PublicationFields.ENTITY_DESCRIPTION_FIELD;
 import static no.sikt.nva.apitest.publication.PublicationFields.IDENTIFIER_FIELD;
+import static no.sikt.nva.apitest.publication.PublicationFields.PROJECTS_FIELD;
 import static no.sikt.nva.apitest.publication.PublicationFields.PUBLICATION_CONTEXT;
 import static no.sikt.nva.apitest.publication.PublicationFields.PUBLICATION_INSTANCE;
 import static no.sikt.nva.apitest.publication.PublicationFields.REFERENCE;
@@ -27,6 +28,7 @@ import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +44,11 @@ public class PublicationFactory {
 
   private static final String ACCESS_TOKEN = "accessToken";
   private static final String YEAR_PLACEHOLDER = "{year}";
+  private static final String RESEARCH_PROJECT_TYPE = "ResearchProject";
+  private static final String RESEARCH_PROJECT_NAME = "Project for testing 20230512";
+  private static final String ID_FIELD = "id";
+  private static final String NAME_FIELD = "name";
+  private static final String APPROVALS_FIELD = "approvals";
 
   private JsonPath loadMetadataResource(String filename) {
     var template = stringFromResources(Path.of("metadata", filename));
@@ -156,6 +163,42 @@ public class PublicationFactory {
       String curatorAccessToken,
       Map<String, Object> reference) {
 
+    return createPublishedPublicationWithProjectsUsingTokens(
+        accessToken, title, category, contributorList, curatorAccessToken, reference, List.of());
+  }
+
+  public String createPublishedPublicationWithProjects(
+      User user,
+      String title,
+      Category category,
+      List<Contributor> contributorList,
+      User curator,
+      Map<String, Object> reference,
+      Collection<String> projectIds) {
+
+    return createPublishedPublicationWithProjectsUsingTokens(
+        CognitoLogin.loginUser(user).get(ACCESS_TOKEN),
+        title,
+        category,
+        contributorList,
+        CognitoLogin.loginUser(curator).get(ACCESS_TOKEN),
+        reference,
+        projectIds);
+  }
+
+  /**
+   * Projects sit on the publication itself rather than in the entity description, so they are added
+   * alongside it rather than through the reference map.
+   */
+  public String createPublishedPublicationWithProjectsUsingTokens(
+      String accessToken,
+      String title,
+      Category category,
+      List<Contributor> contributorList,
+      String curatorAccessToken,
+      Map<String, Object> reference,
+      Collection<String> projectIds) {
+
     var createResponse = createDraftPublicationUsingToken(accessToken);
 
     var identifier = createResponse.body().jsonPath().getString(IDENTIFIER_FIELD);
@@ -183,12 +226,31 @@ public class PublicationFactory {
     }
 
     responseBody.put(ENTITY_DESCRIPTION_FIELD, entityDescription);
+    if (!projectIds.isEmpty()) {
+      responseBody.put(PROJECTS_FIELD, researchProjects(projectIds));
+    }
 
     updatePublicationUsingToken(accessToken, responseBody);
 
     publishUsingToken(curatorAccessToken, identifier);
 
     return createResponse.jsonPath().get(IDENTIFIER_FIELD);
+  }
+
+  private static List<Map<String, Object>> researchProjects(Collection<String> projectIds) {
+    return projectIds.stream().map(PublicationFactory::researchProject).toList();
+  }
+
+  private static Map<String, Object> researchProject(String projectId) {
+    return Map.of(
+        TYPE,
+        RESEARCH_PROJECT_TYPE,
+        ID_FIELD,
+        projectId,
+        NAME_FIELD,
+        RESEARCH_PROJECT_NAME,
+        APPROVALS_FIELD,
+        List.of());
   }
 
   public Map<String, Object> buildReferenceMap(

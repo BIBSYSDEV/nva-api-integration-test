@@ -11,6 +11,7 @@ public final class PublicationFields {
   public static final String RESOURCE_OWNER_FIELD = "resourceOwner";
   public static final String CONTRIBUTORS = "contributors";
   public static final String TYPE = "type";
+  public static final String PROJECTS_FIELD = "projects";
 
   private PublicationFields() {}
 }

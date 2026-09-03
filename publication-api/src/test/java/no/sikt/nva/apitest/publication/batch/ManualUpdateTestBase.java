@@ -1,0 +1,103 @@
+package no.sikt.nva.apitest.publication.batch;
+
+import io.restassured.RestAssured;
+import no.sikt.nva.apitest.publication.PublicationTestBase;
+import nva.commons.core.paths.UriWrapper;
+import org.assertj.core.api.SoftAssertions;
+
+/**
+ * Shared setup for the tests that run one documented update type each, against the publications in
+ * {@link SharedPublicationSet}.
+ *
+ * <p>The types are split into a test class per type rather than parameterized over one, because
+ * what each type does to a resource differs: the interesting assertion is on the field change it
+ * plans, and that has a different shape for every type. What they have in common is only how the
+ * run is set up and how the counters are read, which is what lives here.
+ *
+ * <p>Every subclass runs as a dry run. The set is shared and read by several classes at once, so a
+ * test that persists would pull the ground out from under the others.
+ */
+abstract class ManualUpdateTestBase extends PublicationTestBase {
+
+  /** No test is about the limit, so it is set clear of every hit to leave the run unbounded. */
+  private static final int LIMIT_ABOVE_ALL_HITS = 2 * SharedPublicationSet.TOTAL_PUBLICATIONS;
+
+  protected static SharedPublicationSet set() {
+    return SharedPublicationSet.get();
+  }
+
+  protected static ManualUpdateReport run(ManualUpdateRequest request) {
+    return ManuallyUpdatePublications.run(request.withLimit(LIMIT_ABOVE_ALL_HITS));
+  }
+
+  /**
+   * Asserts the counters every update type shares: it is a dry run, the search found publications,
+   * the update matched every one of them, it planned a change for each, and the limit never cut it
+   * short.
+   *
+   * <p>The search result is asserted against a floor rather than an exact count, and the matching
+   * against the search result rather than against a constant. Publishing completes asynchronously
+   * and occasionally drops a publication under load, so an exact expectation would fail over
+   * something none of these tests is about. What they are about is that nothing the search returned
+   * was skipped, and that is exact.
+   *
+   * <p>The two are separate assertions because they fail for opposite reasons. A search parameter
+   * that selects nothing leaves every counter at zero and says nothing about which; putting the
+   * search on one line and the matching on the next names the culprit.
+   */
+  protected static void assertMatchedAndChanged(
+      SoftAssertions softly, ManualUpdateReport report, int minimumPublications) {
+    softly.assertThat(report.dryRun()).isTrue();
+    softly
+        .assertThat(report.totalHits())
+        .as("publications found by the search parameters")
+        .isGreaterThanOrEqualTo(minimumPublications);
+    softly
+        .assertThat(report.resourcesMatched())
+        .as("publications the update applied to, of those the search found")
+        .isEqualTo(report.totalHits());
+    softly.assertThat(report.resourcesChanged()).isEqualTo(report.totalHits());
+    softly.assertThat(report.limitReached()).isFalse();
+  }
+
+  /**
+   * Asserts that every changed resource has a field going from one value to the other. The path is
+   * deliberately not asserted on: it comes from how ResourceDiff walks the resource, which is an
+   * implementation detail of the handler rather than something the update promise.
+   */
+  protected static void assertFieldChangedFromTo(
+      SoftAssertions softly, ManualUpdateReport report, String oldValue, String newValue) {
+    softly
+        .assertThat(report.changes())
+        .isNotEmpty()
+        .allSatisfy(
+            change ->
+                softly
+                    .assertThat(change.fieldChanges())
+                    .anySatisfy(
+                        fieldChange -> {
+                          softly.assertThat(fieldChange.oldValue()).isEqualTo(oldValue);
+                          softly.assertThat(fieldChange.newValue()).isEqualTo(newValue);
+                        }));
+  }
+
+  /** Asserts that every changed resource has a field arriving at the given value. */
+  protected static void assertFieldChangedTo(
+      SoftAssertions softly, ManualUpdateReport report, String newValue) {
+    softly
+        .assertThat(report.changes())
+        .isNotEmpty()
+        .allSatisfy(
+            change ->
+                softly
+                    .assertThat(change.fieldChanges())
+                    .anySatisfy(
+                        fieldChange ->
+                            softly.assertThat(fieldChange.newValue()).isEqualTo(newValue)));
+  }
+
+  /** An absolute api uri, which is the form the handler writes into a resource. */
+  protected static String apiUri(String... pathElements) {
+    return UriWrapper.fromUri(RestAssured.baseURI).addChild(pathElements).getUri().toString();
+  }
+}
