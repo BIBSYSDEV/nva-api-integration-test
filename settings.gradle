@@ -35,6 +35,7 @@ dependencyResolutionManagement {
 rootProject.name = 'nva-api-integration-test'
 
 include 'apitest-base'
+include 'approvals'
 include 'publication-api'
 include 'search'
 include 'bibtex'
