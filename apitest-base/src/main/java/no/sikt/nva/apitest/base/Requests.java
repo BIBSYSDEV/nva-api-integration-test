@@ -50,4 +50,9 @@ public final class Requests {
     return givenAuthenticatedRequestAsUser(user)
         .header(CONTENT_TYPE, APPLICATION_FORM_URLENCODED.getMimeType());
   }
+
+  /** Authenticates as the external client whose credentials are stored under the secret name. */
+  public static RequestSpecification givenAuthenticatedJsonRequestAsClient(String secretName) {
+    return givenAuthenticatedJsonRequest(ClientCredentialsLogin.accessToken(secretName));
+  }
 }
