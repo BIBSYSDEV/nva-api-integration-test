@@ -12,7 +12,7 @@ public record ExternalClient(String clientId, String clientSecret, URI tokenUri,
 
   private static final String CLIENT_ID_FIELD = "clientId";
   private static final String CLIENT_SECRET_FIELD = "clientSecret";
-  private static final String CLIENT_URL_FIELD = "clientUrl";
+  private static final String TOKEN_URI_FIELD = "clientUrl";
   private static final String CUSTOMER_FIELD = "customer";
 
   public static ExternalClient fromSecret(String secretString) {
@@ -20,7 +20,7 @@ public record ExternalClient(String clientId, String clientSecret, URI tokenUri,
     return new ExternalClient(
         secret.getString(CLIENT_ID_FIELD),
         secret.getString(CLIENT_SECRET_FIELD),
-        URI.create(secret.getString(CLIENT_URL_FIELD)),
+        URI.create(secret.getString(TOKEN_URI_FIELD)),
         URI.create(secret.getString(CUSTOMER_FIELD)));
   }
 
