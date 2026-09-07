@@ -64,7 +64,8 @@ public final class ClientCredentialsLogin {
     }
   }
 
-  // noFilters() keeps the client secret out of the Allure report, which logs every other request.
+  // Runs unfiltered, as CognitoLogin does: a token exchange is not an endpoint under test, and
+  // would otherwise add an entry to the Allure report and a line to the request log.
   private static CachedToken requestToken(String secretName) {
     var externalClient = client(secretName);
     var tokenResponse =
