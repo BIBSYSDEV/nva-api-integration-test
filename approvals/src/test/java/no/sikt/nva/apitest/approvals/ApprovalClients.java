@@ -10,5 +10,10 @@ public final class ApprovalClients {
   public static final String UIB_CLIENT_SECRET = "ApiTestApprovalClientUib";
   public static final String UIS_CLIENT_SECRET = "ApiTestApprovalClientUis";
 
+  /** The identifier names each customer is registered for, seeded alongside the clients. */
+  public static final String UIB_IDENTIFIER_NAME = "apitest-uib";
+
+  public static final String UIS_IDENTIFIER_NAME = "apitest-uis";
+
   private ApprovalClients() {}
 }
