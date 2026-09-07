@@ -43,6 +43,8 @@ class CreateApprovalTest extends IntegrationTestBase {
 
   private static final String LOCATION_HEADER = "Location";
   private static final String RETRY_AFTER_HEADER = "Retry-After";
+  private static final String ID_FIELD = "id";
+  private static final String HANDLE_FIELD = "handle";
   private static final String HANDLE_PREFIX = "https://hdl.handle.net/";
   private static final Duration APPROVAL_AVAILABLE_TIMEOUT = Duration.ofSeconds(30);
 
@@ -79,11 +81,12 @@ class CreateApprovalTest extends IntegrationTestBase {
                 response -> response.statusCode() == HTTP_OK)
             .jsonPath();
 
-    softly.assertThat(approval.getString("id")).isEqualTo(location);
-    softly.assertThat(approval.getString("identifiers[0].name")).isEqualTo(UIB_IDENTIFIER_NAME);
-    softly.assertThat(approval.getString("identifiers[0].value")).isEqualTo(identifierValue);
+    softly.assertThat(approval.getString(ID_FIELD)).isEqualTo(location);
+    softly
+        .assertThat(approval.getList(IDENTIFIERS_FIELD, Map.class))
+        .containsExactly(identifier(UIB_IDENTIFIER_NAME, identifierValue));
     softly.assertThat(approval.getString(SOURCE_FIELD)).isEqualTo(payload.get(SOURCE_FIELD));
-    softly.assertThat(approval.getString("handle")).startsWith(HANDLE_PREFIX);
+    softly.assertThat(approval.getString(HANDLE_FIELD)).startsWith(HANDLE_PREFIX);
   }
 
   private static Stream<Arguments> incompletePayloads() {
