@@ -51,7 +51,11 @@ public final class Approvals {
     return SOURCE_TEMPLATE.formatted(UUID.randomUUID());
   }
 
-  /** Creates an approval, for tests that need one to already exist. Returns its location. */
+  /**
+   * Creates an approval as test setup rather than as the thing under test: the conflict tests need
+   * an approval to collide with, and the update tests need one to change. Returns its location, so
+   * a caller can address the approval it just created.
+   */
   public static String createApproval(String clientSecret, Map<String, Object> payload) {
     return givenAuthenticatedJsonRequestAsClient(clientSecret)
         .body(payload)
