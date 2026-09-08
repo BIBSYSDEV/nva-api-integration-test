@@ -1,9 +1,12 @@
 package no.sikt.nva.apitest.approvals;
 
 import static java.net.HttpURLConnection.HTTP_ACCEPTED;
+import static no.sikt.nva.apitest.approvals.ApprovalPaths.APPROVAL_PATH;
 import static no.sikt.nva.apitest.approvals.ApprovalPaths.BASE_PATH;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsClient;
 
+import io.restassured.RestAssured;
+import io.restassured.response.Response;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -20,6 +23,8 @@ public final class Approvals {
   public static final String SOURCE_FIELD = "source";
   public static final String APPROVAL_TYPE = "Approval";
   public static final String LOCATION_HEADER = "Location";
+
+  private static final String APPROVAL_ID_PARAMETER = "approvalId";
 
   private static final String NAME_FIELD = "name";
   private static final String VALUE_FIELD = "value";
@@ -64,5 +69,16 @@ public final class Approvals {
         .statusCode(HTTP_ACCEPTED)
         .extract()
         .header(LOCATION_HEADER);
+  }
+
+  /**
+   * Fetches an approval by identifier in the requested media type. The endpoint negotiates the
+   * representation, so callers state which one they want rather than relying on a default.
+   */
+  public static Response fetchApproval(String approvalIdentifier, String mediaType) {
+    return RestAssured.given()
+        .accept(mediaType)
+        .pathParam(APPROVAL_ID_PARAMETER, approvalIdentifier)
+        .get(APPROVAL_PATH);
   }
 }

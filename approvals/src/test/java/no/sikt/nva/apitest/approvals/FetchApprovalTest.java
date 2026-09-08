@@ -15,7 +15,6 @@ import static no.sikt.nva.apitest.base.Polling.pollUntil;
 import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
 
 import io.qameta.allure.Description;
-import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import java.time.Duration;
 import java.util.Map;
@@ -40,7 +39,6 @@ class FetchApprovalTest extends IntegrationTestBase {
   private static final String CONTEXT_FIELD = "@context";
   private static final String ID_FIELD = "id";
   private static final String IDENTIFIER_FIELD = "identifier";
-  private static final String APPROVAL_ID_PARAMETER = "approvalId";
   private static final String INVALID_IDENTIFIER = "not-a-uuid";
   private static final Duration APPROVAL_AVAILABLE_TIMEOUT = Duration.ofSeconds(30);
 
@@ -172,9 +170,6 @@ class FetchApprovalTest extends IntegrationTestBase {
   }
 
   private static Response fetchApproval(String mediaType) {
-    return RestAssured.given()
-        .accept(mediaType)
-        .pathParam(APPROVAL_ID_PARAMETER, approvalIdentifier)
-        .get(APPROVAL_PATH);
+    return Approvals.fetchApproval(approvalIdentifier, mediaType);
   }
 }
