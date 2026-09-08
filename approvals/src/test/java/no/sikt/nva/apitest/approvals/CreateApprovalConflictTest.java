@@ -1,6 +1,7 @@
 package no.sikt.nva.apitest.approvals;
 
 import static java.net.HttpURLConnection.HTTP_CONFLICT;
+import static java.net.HttpURLConnection.HTTP_OK;
 import static no.sikt.nva.apitest.approvals.ApprovalClients.UIB_CLIENT_SECRET;
 import static no.sikt.nva.apitest.approvals.ApprovalClients.UIB_IDENTIFIER_NAME;
 import static no.sikt.nva.apitest.approvals.ApprovalPaths.BASE_PATH;
@@ -13,11 +14,15 @@ import static no.sikt.nva.apitest.approvals.Approvals.createApproval;
 import static no.sikt.nva.apitest.approvals.Approvals.identifier;
 import static no.sikt.nva.apitest.approvals.Approvals.uniqueSource;
 import static no.sikt.nva.apitest.approvals.Approvals.uniqueValue;
+import static no.sikt.nva.apitest.base.Polling.pollUntil;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsClient;
+import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
 import static org.assertj.core.api.Assertions.entry;
 
 import io.qameta.allure.Description;
 import io.restassured.path.json.JsonPath;
+import io.restassured.response.Response;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import no.sikt.nva.apitest.base.IntegrationTestBase;
@@ -33,6 +38,9 @@ class CreateApprovalConflictTest extends IntegrationTestBase {
 
   private static final String CONFLICTING_KEYS_FIELD = "conflictingKeys";
   private static final String DETAIL_FIELD = "detail";
+  private static final String NAME_PARAMETER = "name";
+  private static final String VALUE_PARAMETER = "value";
+  private static final Duration IDENTIFIER_VISIBLE_TIMEOUT = Duration.ofSeconds(30);
 
   /**
    * An identifier belongs to exactly one approval, so reusing one is rejected. The response names
@@ -44,6 +52,7 @@ class CreateApprovalConflictTest extends IntegrationTestBase {
   void shouldReturnConflictWhenIdentifierIsAlreadyTaken(SoftAssertions softly) {
     var takenValue = uniqueValue();
     createApproval(UIB_CLIENT_SECRET, approvalPayload(UIB_IDENTIFIER_NAME, takenValue));
+    awaitIdentifierVisible(UIB_IDENTIFIER_NAME, takenValue);
 
     var problem = postExpectingConflict(approvalPayload(UIB_IDENTIFIER_NAME, takenValue));
 
@@ -64,6 +73,7 @@ class CreateApprovalConflictTest extends IntegrationTestBase {
     var takenValue = uniqueValue();
     var freeValue = uniqueValue();
     createApproval(UIB_CLIENT_SECRET, approvalPayload(UIB_IDENTIFIER_NAME, takenValue));
+    awaitIdentifierVisible(UIB_IDENTIFIER_NAME, takenValue);
 
     var payload =
         Map.<String, Object>of(
@@ -93,5 +103,25 @@ class CreateApprovalConflictTest extends IntegrationTestBase {
         .statusCode(HTTP_CONFLICT)
         .extract()
         .jsonPath();
+  }
+
+  /**
+   * The conflict check looks the identifier up with an eventually consistent batch get, so posting
+   * immediately after creating the approval can read a replica that has not caught up and be
+   * accepted instead of rejected. Fetching by the same identifier goes through the same key, so
+   * once that answers the row is visible and the conflict is reliable.
+   */
+  private static void awaitIdentifierVisible(String name, String value) {
+    pollUntil(
+        IDENTIFIER_VISIBLE_TIMEOUT,
+        () -> fetchByIdentifier(name, value),
+        response -> response.statusCode() == HTTP_OK);
+  }
+
+  private static Response fetchByIdentifier(String name, String value) {
+    return givenUnauthenticatedJsonRequest()
+        .queryParam(NAME_PARAMETER, name)
+        .queryParam(VALUE_PARAMETER, value)
+        .get(BASE_PATH);
   }
 }
