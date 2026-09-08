@@ -9,6 +9,7 @@ import static no.sikt.nva.apitest.approvals.ApprovalClients.UIB_IDENTIFIER_NAME;
 import static no.sikt.nva.apitest.approvals.ApprovalPaths.BASE_PATH;
 import static no.sikt.nva.apitest.approvals.Approvals.APPROVAL_TYPE;
 import static no.sikt.nva.apitest.approvals.Approvals.IDENTIFIERS_FIELD;
+import static no.sikt.nva.apitest.approvals.Approvals.LOCATION_HEADER;
 import static no.sikt.nva.apitest.approvals.Approvals.SOURCE_FIELD;
 import static no.sikt.nva.apitest.approvals.Approvals.TYPE_FIELD;
 import static no.sikt.nva.apitest.approvals.Approvals.approvalPayload;
@@ -41,7 +42,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 @DisplayName("POST " + BASE_PATH)
 class CreateApprovalTest extends IntegrationTestBase {
 
-  private static final String LOCATION_HEADER = "Location";
   private static final String RETRY_AFTER_HEADER = "Retry-After";
   private static final String ID_FIELD = "id";
   private static final String HANDLE_FIELD = "handle";

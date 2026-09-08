@@ -1,5 +1,9 @@
 package no.sikt.nva.apitest.approvals;
 
+import static java.net.HttpURLConnection.HTTP_ACCEPTED;
+import static no.sikt.nva.apitest.approvals.ApprovalPaths.BASE_PATH;
+import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsClient;
+
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -15,6 +19,7 @@ public final class Approvals {
   public static final String IDENTIFIERS_FIELD = "identifiers";
   public static final String SOURCE_FIELD = "source";
   public static final String APPROVAL_TYPE = "Approval";
+  public static final String LOCATION_HEADER = "Location";
 
   private static final String NAME_FIELD = "name";
   private static final String VALUE_FIELD = "value";
@@ -44,5 +49,21 @@ public final class Approvals {
 
   public static String uniqueSource() {
     return SOURCE_TEMPLATE.formatted(UUID.randomUUID());
+  }
+
+  /**
+   * Creates an approval as test setup rather than as the thing under test: the conflict tests need
+   * an approval to collide with, and the update tests need one to change. Returns its location, so
+   * a caller can address the approval it just created.
+   */
+  public static String createApproval(String clientSecret, Map<String, Object> payload) {
+    return givenAuthenticatedJsonRequestAsClient(clientSecret)
+        .body(payload)
+        .when()
+        .post(BASE_PATH)
+        .then()
+        .statusCode(HTTP_ACCEPTED)
+        .extract()
+        .header(LOCATION_HEADER);
   }
 }
