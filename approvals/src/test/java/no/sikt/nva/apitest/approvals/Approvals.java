@@ -24,7 +24,6 @@ public final class Approvals {
   private static final String NAME_FIELD = "name";
   private static final String VALUE_FIELD = "value";
   private static final String IDENTIFIER_TYPE = "Identifier";
-  private static final String SOURCE_TEMPLATE = "https://example.org/apitest/%s";
 
   private Approvals() {}
 
@@ -48,7 +47,7 @@ public final class Approvals {
   }
 
   public static String uniqueSource() {
-    return SOURCE_TEMPLATE.formatted(UUID.randomUUID());
+    return "https://example.org/apitest/%s".formatted(UUID.randomUUID());
   }
 
   /**

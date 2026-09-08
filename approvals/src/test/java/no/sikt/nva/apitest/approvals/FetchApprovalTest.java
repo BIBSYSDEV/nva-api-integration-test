@@ -35,6 +35,8 @@ class FetchApprovalTest extends IntegrationTestBase {
   private static final String JSON_MEDIA_TYPE = "application/json";
   private static final String JSON_LD_MEDIA_TYPE = "application/ld+json";
   private static final String HTML_MEDIA_TYPE = "text/html";
+  private static final String ANY_MEDIA_TYPE = "*/*";
+  private static final String DOCTYPE_DECLARATION = "<!DOCTYPE html>";
   private static final String CONTEXT_FIELD = "@context";
   private static final String ID_FIELD = "id";
   private static final String IDENTIFIER_FIELD = "identifier";
@@ -121,22 +123,29 @@ class FetchApprovalTest extends IntegrationTestBase {
             .extract()
             .asString();
 
-    softly.assertThat(page).contains("<!DOCTYPE html>");
+    softly.assertThat(page).contains(DOCTYPE_DECLARATION);
     softly.assertThat(page).contains(identifierValue);
   }
 
-  /** Without an Accept header the approval is served as json rather than as the page. */
+  /**
+   * A browser following a handle accepts anything, and gets the page rather than the document,
+   * because html is the first media type this endpoint offers. Clients that want the document ask
+   * for it by media type.
+   */
   @Test
-  @DisplayName("Get approval without accept header")
+  @DisplayName("Get approval accepting any media type")
   @Description(useJavaDoc = true)
-  void shouldReturnJsonWhenAcceptHeaderIsMissing(SoftAssertions softly) {
-    var response =
-        RestAssured.given().get(APPROVAL_PATH, approvalIdentifier).then().statusCode(HTTP_OK);
+  void shouldReturnPageWhenClientAcceptsAnyMediaType(SoftAssertions softly) {
+    var page =
+        fetchApproval(ANY_MEDIA_TYPE)
+            .then()
+            .statusCode(HTTP_OK)
+            .contentType(HTML_MEDIA_TYPE)
+            .extract()
+            .asString();
 
-    softly.assertThat(response.extract().contentType()).contains(JSON_MEDIA_TYPE);
-    softly
-        .assertThat(response.extract().jsonPath().getString(ID_FIELD))
-        .isEqualTo(approvalLocation);
+    softly.assertThat(page).contains(DOCTYPE_DECLARATION);
+    softly.assertThat(page).contains(identifierValue);
   }
 
   /** An approval identifier that is well formed but unknown is not found. */
