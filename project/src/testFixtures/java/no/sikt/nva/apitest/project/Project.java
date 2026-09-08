@@ -1,5 +1,3 @@
 package no.sikt.nva.apitest.project;
 
-public record Project (String projectIdentifier) {
-
-}
+public record Project(String projectIdentifier) {}
