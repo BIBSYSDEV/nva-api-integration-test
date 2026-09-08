@@ -109,7 +109,10 @@ class FetchApprovalByQueryTest extends IntegrationTestBase {
         argumentSet(
             "Handle on the wrong host", Map.of(HANDLE_PARAMETER, "https://example.org/11250.1/1")),
         argumentSet(
-            "Handle without a suffix", Map.of(HANDLE_PARAMETER, "https://hdl.handle.net/11250.1")));
+            "Handle without a suffix", Map.of(HANDLE_PARAMETER, "https://hdl.handle.net/11250.1")),
+        argumentSet(
+            "Handle with more than a prefix and a suffix",
+            Map.of(HANDLE_PARAMETER, "https://hdl.handle.net/11250.1/1/extra")));
   }
 
   /**
