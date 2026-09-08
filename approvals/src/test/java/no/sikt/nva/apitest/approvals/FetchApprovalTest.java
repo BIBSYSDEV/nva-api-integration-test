@@ -108,8 +108,9 @@ class FetchApprovalTest extends IntegrationTestBase {
   }
 
   /**
-   * A handle resolves to the approval in a browser, so the same URI must also serve a readable page
-   * carrying the identifier it was looked up by.
+   * A handle resolves to this URI in a browser, so it must also serve a readable page. The page has
+   * to render the approval's own data rather than merely be valid html, so it is checked for the
+   * identifier value the approval carries.
    */
   @Test
   @DisplayName("Get approval as html")
