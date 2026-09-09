@@ -28,9 +28,7 @@ public final class Approvals {
   public static final String LOCATION_HEADER = "Location";
 
   private static final String APPROVAL_ID_PARAMETER = "approvalId";
-  private static final String JSON_MEDIA_TYPE = "application/json";
-  private static final Duration READABLE_TIMEOUT = Duration.ofSeconds(10);
-
+  private static final Duration READABLE_TIMEOUT = Duration.ofSeconds(30);
   private static final String NAME_FIELD = "name";
   private static final String VALUE_FIELD = "value";
   private static final String IDENTIFIER_TYPE = "Identifier";
