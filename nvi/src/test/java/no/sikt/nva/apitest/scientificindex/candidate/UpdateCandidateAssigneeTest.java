@@ -1,7 +1,6 @@
 package no.sikt.nva.apitest.scientificindex.candidate;
 
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
-import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
@@ -17,6 +16,7 @@ import static no.sikt.nva.apitest.base.UserFixtures.UIS_NVI_CURATOR;
 import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATE_ASSIGNEE_PATH;
 
 import io.qameta.allure.Description;
+import io.restassured.http.Method;
 import io.restassured.response.Response;
 import java.util.List;
 import java.util.Map;
@@ -199,14 +199,8 @@ class UpdateCandidateAssigneeTest extends ScientificIndexTestBase {
     var candidate = createCandidate(UIB_NVI_CURATOR, List.of(Contributor.asCreator(UIB_CREATOR)));
     var candidateIdentifier = candidate.candidateIdentifier();
 
-    var payload = createPayload(user);
-
-    givenAuthenticatedRequestAsUser(user)
-        .body(payload)
-        .when()
-        .put(CANDIDATE_ASSIGNEE_PATH, candidateIdentifier)
-        .then()
-        .statusCode(HTTP_FORBIDDEN);
+    // var payload = createPayload(user);
+    requestShouldReturnForbidden(Method.POST, user, CANDIDATE_ASSIGNEE_PATH, candidateIdentifier);
   }
 
   private Map<String, String> createPayload(User user) {

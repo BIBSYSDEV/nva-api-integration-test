@@ -1,6 +1,5 @@
 package no.sikt.nva.apitest.scientificindex.reports;
 
-import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
@@ -17,6 +16,7 @@ import static no.sikt.nva.apitest.base.UserFixtures.UIS_NVI_CURATOR;
 import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.INSTITUTION_REPORTS_PATH;
 
 import io.qameta.allure.Description;
+import io.restassured.http.Method;
 import java.util.List;
 import no.sikt.nva.apitest.base.Affiliation;
 import no.sikt.nva.apitest.base.User;
@@ -99,11 +99,7 @@ class FetchAllInstitutionsReportTest extends ScientificIndexTestBase {
   @DisplayName("Fetch report for all institutions when non Nvi-curator returns Forbidden")
   @Description(useJavaDoc = true)
   void shouldReturnForbiddenWhenNonNviCurator(User user) {
-    givenAuthenticatedJsonRequestAsUser(user)
-        .when()
-        .get(INSTITUTION_REPORTS_PATH, CURRENT_YEAR)
-        .then()
-        .statusCode(HTTP_FORBIDDEN);
+    requestShouldReturnForbidden(Method.GET, user, INSTITUTION_REPORTS_PATH, CURRENT_YEAR);
   }
 
   /**

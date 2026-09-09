@@ -1,6 +1,5 @@
 package no.sikt.nva.apitest.scientificindex.reports;
 
-import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
@@ -13,6 +12,7 @@ import static no.sikt.nva.apitest.scientificindex.NviReports.Periods.THIS_PERIOD
 import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.PERIOD_REPORT_PATH;
 
 import io.qameta.allure.Description;
+import io.restassured.http.Method;
 import io.restassured.response.ValidatableResponse;
 import no.sikt.nva.apitest.base.User;
 import no.sikt.nva.apitest.scientificindex.NviReports;
@@ -72,7 +72,7 @@ class FetchPeriodReportTest extends ScientificIndexTestBase {
   @Description(useJavaDoc = true)
   void shouldReturnForbiddenWhenNonNvicuratorFetchPeriodReport(User user, SoftAssertions softly) {
 
-    fetchPeriodReport(user, CURRENT_YEAR, HTTP_FORBIDDEN);
+    requestShouldReturnForbidden(Method.GET, user, PERIOD_REPORT_PATH, CURRENT_YEAR);
   }
 
   private ValidatableResponse fetchPeriodReport(User user, String year, int expectedResponseCode) {

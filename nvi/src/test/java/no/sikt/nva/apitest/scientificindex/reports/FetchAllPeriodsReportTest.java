@@ -1,6 +1,5 @@
 package no.sikt.nva.apitest.scientificindex.reports;
 
-import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedRequestAsUser;
@@ -8,6 +7,7 @@ import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
 import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.REPORTS_PATH;
 
 import io.qameta.allure.Description;
+import io.restassured.http.Method;
 import java.util.List;
 import no.sikt.nva.apitest.base.User;
 import no.sikt.nva.apitest.base.UserFixtures;
@@ -75,10 +75,6 @@ class FetchAllPeriodsReportTest extends ScientificIndexTestBase {
   @Description(useJavaDoc = true)
   void shouldReturnForbiddenWhenNotNviCurator(User user) {
 
-    givenAuthenticatedRequestAsUser(user)
-        .when()
-        .get(REPORTS_PATH)
-        .then()
-        .statusCode(HTTP_FORBIDDEN);
+    requestShouldReturnForbidden(Method.GET, user, REPORTS_PATH);
   }
 }

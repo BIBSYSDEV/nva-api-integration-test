@@ -1,6 +1,5 @@
 package no.sikt.nva.apitest.scientificindex.reports;
 
-import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static no.sikt.nva.apitest.base.Affiliation.UIB;
@@ -12,6 +11,7 @@ import static no.sikt.nva.apitest.base.UserFixtures.UIS_NVI_CURATOR;
 import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.INSTITUTION_REPORT_PATH;
 
 import io.qameta.allure.Description;
+import io.restassured.http.Method;
 import no.sikt.nva.apitest.base.User;
 import no.sikt.nva.apitest.scientificindex.NviReports;
 import no.sikt.nva.apitest.scientificindex.ScientificIndexTestBase;
@@ -53,11 +53,8 @@ class FetchInstitutionReportTest extends ScientificIndexTestBase {
   void shouldReturnForbiddenWhenNonNviCuratorFetchInstitutionReport(
       User user, SoftAssertions softly) {
 
-    givenAuthenticatedRequestAsUser(user)
-        .when()
-        .get(INSTITUTION_REPORT_PATH, CURRENT_YEAR, UIB.getCristinId())
-        .then()
-        .statusCode(HTTP_FORBIDDEN);
+    requestShouldReturnForbidden(
+        Method.GET, user, INSTITUTION_REPORT_PATH, CURRENT_YEAR, UIB.getCristinId());
   }
 
   /** Fetch institution report for non-existing institution return {@code 404 Not Found} */
