@@ -1,28 +1,26 @@
 package no.sikt.nva.apitest.publication.identifier;
 
-import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedRequest;
-import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
-import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
-import static no.sikt.nva.apitest.publication.PublicationPaths.publicationPath;
-import static org.assertj.core.api.Assertions.assertThat;
-
-import io.qameta.allure.Description;
+import static java.net.HttpURLConnection.HTTP_ACCEPTED;
+import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
+import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import java.util.UUID;
-import no.sikt.nva.apitest.base.CognitoLogin;
-import no.sikt.nva.apitest.publication.PublicationTestBase;
-import org.junit.jupiter.api.BeforeAll;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import io.qameta.allure.Description;
+import static io.restassured.http.Method.DELETE;
+import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedRequestAsUser;
+import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
+import static no.sikt.nva.apitest.base.UserFixtures.UIB_CONTRIBUTOR;
+import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
+import static no.sikt.nva.apitest.publication.PublicationPaths.publicationPath;
+import no.sikt.nva.apitest.publication.PublicationTestBase;
+
 @DisplayName("DELETE /publication/{identifier}")
 class DeleteApiTest extends PublicationTestBase {
-
-  private static String creatorAccessToken;
-
-  @BeforeAll
-  static void init() {
-    creatorAccessToken = CognitoLogin.login(UIB_CREATOR.userId()).get("accessToken");
-  }
 
   /** A Creator calling delete on own publication should return status {@code 202 Accepted}. */
   @Test
@@ -31,11 +29,11 @@ class DeleteApiTest extends PublicationTestBase {
   void shouldDeleteDraftWhenRequestedByOwner() {
     var identifier = setupDraftPublication();
 
-    givenAuthenticatedRequest(creatorAccessToken)
+    givenAuthenticatedRequestAsUser(UIB_CREATOR)
         .when()
         .delete(publicationPath(identifier))
         .then()
-        .statusCode(202);
+        .statusCode(HTTP_ACCEPTED);
   }
 
   /**
@@ -47,14 +45,14 @@ class DeleteApiTest extends PublicationTestBase {
   @Description(useJavaDoc = true)
   void shouldReturnNotFoundWhenDeletingUnknownIdentifier() {
 
-    givenAuthenticatedRequest(creatorAccessToken)
+    givenAuthenticatedRequestAsUser(UIB_CREATOR)
         .when()
         .delete(publicationPath(UUID.randomUUID().toString()))
         .then()
-        .statusCode(404);
+        .statusCode(HTTP_NOT_FOUND);
   }
 
-  /** A non authorized user calling delete should return status {@code 401 Unauthorized}. */
+  /** A non authenticated call to delete should return status {@code 401 Unauthorized}. */
   @Test
   @DisplayName("Non authorized user tries to delete publication")
   @Description(useJavaDoc = true)
@@ -66,10 +64,21 @@ class DeleteApiTest extends PublicationTestBase {
             .when()
             .delete(publicationPath(identifier))
             .then()
-            .statusCode(401)
+            .statusCode(HTTP_UNAUTHORIZED)
             .extract()
             .jsonPath();
 
     assertThat(response.getString("message")).isEqualTo("Unauthorized");
+  }
+
+  /** A non authorized user calling delete should return status {@code 403 Forbidden}. */
+  @Test
+  @DisplayName("Non authorized user tries to delete publication")
+  @Disabled("FIXME: Returns 401, see NP-51618")
+  @Description(useJavaDoc = true)
+  void shouldReturnForbiddemWhenNotOwnerDeletingDraftPublication(){
+    var identifier = setupDraftPublication();
+
+    requestShouldReturnForbidden(DELETE, UIB_CONTRIBUTOR, publicationPath(identifier));
   }
 }

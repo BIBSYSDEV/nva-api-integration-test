@@ -1,21 +1,11 @@
 package no.sikt.nva.apitest.publication.identifier;
 
-import static no.sikt.Role.CREATOR;
-import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequest;
-import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedRequest;
-import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
-import static no.sikt.nva.apitest.publication.PublicationFields.IDENTIFIER_FIELD;
-import static no.sikt.nva.apitest.publication.PublicationPaths.publishPublicationPath;
-
-import io.qameta.allure.Description;
-import io.restassured.http.ContentType;
+import static java.net.HttpURLConnection.HTTP_ACCEPTED;
+import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import no.sikt.Category;
-import no.sikt.Contributor;
-import no.sikt.nva.apitest.base.CognitoLogin;
-import no.sikt.nva.apitest.publication.PublicationTestBase;
+
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.BeforeAll;
@@ -24,6 +14,22 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
+
+import io.qameta.allure.Description;
+import io.restassured.http.ContentType;
+import io.restassured.http.Method;
+import no.sikt.Category;
+import no.sikt.Contributor;
+import static no.sikt.Role.CREATOR;
+import no.sikt.nva.apitest.base.CognitoLogin;
+import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequest;
+import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedRequest;
+import static no.sikt.nva.apitest.base.UserFixtures.UIB_CONTRIBUTOR;
+import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
+import static no.sikt.nva.apitest.publication.PublicationFields.IDENTIFIER_FIELD;
+import static no.sikt.nva.apitest.publication.PublicationPaths.publicationPath;
+import static no.sikt.nva.apitest.publication.PublicationPaths.publishPublicationPath;
+import no.sikt.nva.apitest.publication.PublicationTestBase;
 
 @ExtendWith(SoftAssertionsExtension.class)
 @DisplayName("POST /publication/{identifier}/publish")
@@ -63,7 +69,7 @@ class PublishApiTest extends PublicationTestBase {
         .when()
         .post(publishPublicationPath(identifier))
         .then()
-        .statusCode(202);
+        .statusCode(HTTP_ACCEPTED);
   }
 
   /** Publishing an incomplete publication should return status {@code 400 Bad Request}. */
@@ -78,7 +84,7 @@ class PublishApiTest extends PublicationTestBase {
             .when()
             .post(publishPublicationPath(identifier))
             .then()
-            .statusCode(400)
+            .statusCode(HTTP_BAD_REQUEST)
             .extract()
             .jsonPath();
 
@@ -100,11 +106,23 @@ class PublishApiTest extends PublicationTestBase {
             .when()
             .post(publishPublicationPath(identifier))
             .then()
-            .statusCode(400)
+            .statusCode(HTTP_BAD_REQUEST)
             .extract()
             .jsonPath();
 
     softly.assertThat(response.getString("title")).isEqualTo("Bad Request");
     softly.assertThat(response.getString("detail")).isEqualTo("Resource is not publishable!");
   }
+
+  /** A non authorized user calling publish should return status {@code 403 Forbidden}. */
+  @Test
+  @DisplayName("Non authorized user tries to publish publication")
+  // @Disabled("FIXME: Returns 401, see NP-51618")
+  @Description(useJavaDoc = true)
+  void shouldReturnForbiddemWhenNotOwnerPublishingDraftPublication(){
+    var identifier = setupDraftPublication();
+
+    requestShouldReturnForbidden(Method.POST, UIB_CONTRIBUTOR, publicationPath(identifier));
+  }
+
 }
