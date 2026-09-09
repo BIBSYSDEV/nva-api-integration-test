@@ -101,6 +101,24 @@ class IdentifierAuthorizationTest extends IntegrationTestBase {
     assertThat(problem.getString(DETAIL_FIELD)).contains(UIS_IDENTIFIER_NAME);
   }
 
+  /** The symmetry holds on update too, so neither endpoint privileges one customer. */
+  @Test
+  @DisplayName("Update approval with the other client's own identifier name")
+  @Description(useJavaDoc = true)
+  void shouldForbidUibClientFromUpdatingWithTheUisIdentifierName() {
+    var problem =
+        givenAuthenticatedJsonRequestAsClient(UIB_CLIENT_SECRET)
+            .body(updatePayload(UIS_IDENTIFIER_NAME, uniqueValue()))
+            .when()
+            .put(APPROVAL_PATH, UUID.randomUUID())
+            .then()
+            .statusCode(HTTP_FORBIDDEN)
+            .extract()
+            .jsonPath();
+
+    assertThat(problem.getString(DETAIL_FIELD)).contains(UIS_IDENTIFIER_NAME);
+  }
+
   /** A client writing its own name is accepted, which is what makes the rejections meaningful. */
   @Test
   @DisplayName("Update approval with the client's own identifier name")
