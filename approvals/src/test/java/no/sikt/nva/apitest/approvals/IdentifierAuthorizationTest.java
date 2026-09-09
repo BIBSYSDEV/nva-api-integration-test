@@ -88,12 +88,17 @@ class IdentifierAuthorizationTest extends IntegrationTestBase {
   @DisplayName("Create approval with the other client's own identifier name")
   @Description(useJavaDoc = true)
   void shouldForbidUibClientFromUsingTheUisIdentifierName() {
-    givenAuthenticatedJsonRequestAsClient(UIB_CLIENT_SECRET)
-        .body(approvalPayload(UIS_IDENTIFIER_NAME, uniqueValue()))
-        .when()
-        .post(BASE_PATH)
-        .then()
-        .statusCode(HTTP_FORBIDDEN);
+    var problem =
+        givenAuthenticatedJsonRequestAsClient(UIB_CLIENT_SECRET)
+            .body(approvalPayload(UIS_IDENTIFIER_NAME, uniqueValue()))
+            .when()
+            .post(BASE_PATH)
+            .then()
+            .statusCode(HTTP_FORBIDDEN)
+            .extract()
+            .jsonPath();
+
+    assertThat(problem.getString(DETAIL_FIELD)).contains(UIS_IDENTIFIER_NAME);
   }
 
   /** A client writing its own name is accepted, which is what makes the rejections meaningful. */
