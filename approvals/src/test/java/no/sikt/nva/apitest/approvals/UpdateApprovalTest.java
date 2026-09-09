@@ -9,6 +9,7 @@ import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static no.sikt.nva.apitest.approvals.ApprovalClients.UIB_CLIENT_SECRET;
 import static no.sikt.nva.apitest.approvals.ApprovalClients.UIB_IDENTIFIER_NAME;
 import static no.sikt.nva.apitest.approvals.ApprovalPaths.APPROVAL_PATH;
+import static no.sikt.nva.apitest.approvals.ApprovalPaths.BASE_PATH;
 import static no.sikt.nva.apitest.approvals.Approvals.IDENTIFIERS_FIELD;
 import static no.sikt.nva.apitest.approvals.Approvals.LOCATION_HEADER;
 import static no.sikt.nva.apitest.approvals.Approvals.approvalPayload;
@@ -95,17 +96,12 @@ class UpdateApprovalTest extends IntegrationTestBase {
   void shouldStopResolvingTheReplacedIdentifier() {
     var originalValue = uniqueValue();
     var approvalIdentifier = createApprovalWith(originalValue);
+    awaitIdentifierResolves(originalValue);
 
     var replacementValue = uniqueValue();
     updateApproval(approvalIdentifier, replacementValue).then().statusCode(HTTP_ACCEPTED);
-    awaitIdentifier(approvalIdentifier, replacementValue);
 
-    givenUnauthenticatedJsonRequest()
-        .queryParam(NAME_PARAMETER, UIB_IDENTIFIER_NAME)
-        .queryParam(VALUE_PARAMETER, originalValue)
-        .get(ApprovalPaths.BASE_PATH)
-        .then()
-        .statusCode(HTTP_NOT_FOUND);
+    awaitIdentifierStopsResolving(originalValue);
   }
 
   /** An identifier belongs to one approval, so it cannot be moved to another by updating it. */
@@ -114,8 +110,8 @@ class UpdateApprovalTest extends IntegrationTestBase {
   @Description(useJavaDoc = true)
   void shouldReturnConflictWhenIdentifierBelongsToAnotherApproval() {
     var takenValue = uniqueValue();
-    var otherApproval = createApprovalWith(takenValue);
-    awaitIdentifier(otherApproval, takenValue);
+    createApprovalWith(takenValue);
+    awaitIdentifierResolves(takenValue);
 
     var approvalIdentifier = createApprovalWith(uniqueValue());
 
@@ -212,6 +208,32 @@ class UpdateApprovalTest extends IntegrationTestBase {
                         .getList(IDENTIFIERS_FIELD, Map.class)
                         .contains(identifier(UIB_IDENTIFIER_NAME, identifierValue)))
         .jsonPath();
+  }
+
+  /**
+   * The conflict check and the identifier lookup both read the identifier row by its own key, which
+   * the approval lookup does not touch: waiting for the approval to reflect a write says nothing
+   * about whether the identifier row has caught up.
+   */
+  private static void awaitIdentifierResolves(String identifierValue) {
+    pollUntil(
+        VISIBLE_TIMEOUT,
+        () -> fetchByIdentifier(identifierValue),
+        response -> response.statusCode() == HTTP_OK);
+  }
+
+  private static void awaitIdentifierStopsResolving(String identifierValue) {
+    pollUntil(
+        VISIBLE_TIMEOUT,
+        () -> fetchByIdentifier(identifierValue),
+        response -> response.statusCode() == HTTP_NOT_FOUND);
+  }
+
+  private static Response fetchByIdentifier(String identifierValue) {
+    return givenUnauthenticatedJsonRequest()
+        .queryParam(NAME_PARAMETER, UIB_IDENTIFIER_NAME)
+        .queryParam(VALUE_PARAMETER, identifierValue)
+        .get(BASE_PATH);
   }
 
   private static JsonPath fetchJson(String approvalIdentifier) {
