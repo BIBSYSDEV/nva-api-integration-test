@@ -1,5 +1,6 @@
 package no.sikt.nva.apitest.base;
 
+import io.restassured.RestAssured;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Stream;
@@ -31,6 +32,18 @@ public record User(String name, String userId, String cristinId, Collection<Stri
         .filter(aff -> aff.equals(affiliation.getValue()))
         .findFirst()
         .get();
+  }
+
+  public String lastName() {
+    return List.of(name.split(" ")).getLast();
+  }
+
+  public String firstName() {
+    return name.replace(lastName(), "").trim();
+  }
+
+  public String cristinUri() {
+    return "%s/cristin/person/%s".formatted(RestAssured.baseURI, cristinId.split("@")[0]);
   }
 
   public static final class Builder {

@@ -1,6 +1,7 @@
 package no.sikt.nva.apitest.base;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Year;
 import java.time.ZoneId;
 import java.time.format.TextStyle;
@@ -27,5 +28,9 @@ public final class CurrentTimeConstants {
 
   public static Year getCurrentYear() {
     return Year.now(DEFAULT_TIME_ZONE);
+  }
+
+  public static LocalDateTime currentDateTime() {
+    return LocalDateTime.now(DEFAULT_TIME_ZONE);
   }
 }
