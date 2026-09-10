@@ -1,10 +1,9 @@
 package no.sikt.nva.apitest.project;
 
+import static java.net.HttpURLConnection.HTTP_CREATED;
 import static no.sikt.nva.apitest.base.Affiliation.UIB;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
 
-import io.restassured.RestAssured;
-import io.restassured.config.LogConfig;
 import io.restassured.path.json.JsonPath;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -29,20 +28,13 @@ public class ProjectFactory {
     var payload =
         createProjectPayload(projectTitle, UIB, List.of(ProjectContributor.asProjectManager(user)));
 
-    var logConfig = LogConfig.logConfig().blacklistHeaders(List.of("Authorization"));
-    RestAssured.config = RestAssured.config().logConfig(logConfig);
-
     JsonPath jsonPath =
         givenAuthenticatedJsonRequestAsUser(user)
             .body(payload)
-            .log()
-            .all()
             .when()
             .post(PROJECT_PATH)
             .then()
-            .log()
-            .all()
-            .statusCode(201)
+            .statusCode(HTTP_CREATED)
             .extract()
             .jsonPath();
     return new Project(jsonPath.getString("id"));
