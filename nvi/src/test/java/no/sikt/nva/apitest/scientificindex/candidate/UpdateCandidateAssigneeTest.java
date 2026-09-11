@@ -1,5 +1,7 @@
 package no.sikt.nva.apitest.scientificindex.candidate;
 
+import static io.restassured.http.Method.POST;
+import static io.restassured.http.Method.PUT;
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
@@ -8,7 +10,6 @@ import static no.sikt.nva.apitest.base.Affiliation.UIB;
 import static no.sikt.nva.apitest.base.Affiliation.UIS;
 import static no.sikt.nva.apitest.base.Polling.pollUntil;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedRequestAsUser;
-import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_NVI_CURATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIS_CREATOR;
@@ -16,7 +17,6 @@ import static no.sikt.nva.apitest.base.UserFixtures.UIS_NVI_CURATOR;
 import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATE_ASSIGNEE_PATH;
 
 import io.qameta.allure.Description;
-import io.restassured.http.Method;
 import io.restassured.response.Response;
 import java.util.List;
 import java.util.Map;
@@ -178,14 +178,7 @@ class UpdateCandidateAssigneeTest extends ScientificIndexTestBase {
     var candidate = createCandidate(UIS_NVI_CURATOR, List.of(Contributor.asCreator(UIS_CREATOR)));
     var candidateIdentifier = candidate.candidateIdentifier();
 
-    var payload = createPayload(UIS_NVI_CURATOR);
-
-    givenUnauthenticatedJsonRequest()
-        .body(payload)
-        .when()
-        .put(CANDIDATE_ASSIGNEE_PATH, candidateIdentifier)
-        .then()
-        .statusCode(HTTP_UNAUTHORIZED);
+    requestShouldReturnUnauthorized(PUT, CANDIDATE_ASSIGNEE_PATH, candidateIdentifier);
   }
 
   /** Assigning a curator while not a nvi-curator returns {@code 403 Forbidden} */
@@ -199,8 +192,7 @@ class UpdateCandidateAssigneeTest extends ScientificIndexTestBase {
     var candidate = createCandidate(UIB_NVI_CURATOR, List.of(Contributor.asCreator(UIB_CREATOR)));
     var candidateIdentifier = candidate.candidateIdentifier();
 
-    // var payload = createPayload(user);
-    requestShouldReturnForbidden(Method.POST, user, CANDIDATE_ASSIGNEE_PATH, candidateIdentifier);
+    requestShouldReturnForbidden(POST, user, CANDIDATE_ASSIGNEE_PATH, candidateIdentifier);
   }
 
   private Map<String, String> createPayload(User user) {

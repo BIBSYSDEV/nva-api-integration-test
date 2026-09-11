@@ -1,8 +1,10 @@
 package no.sikt.nva.apitest.publication.identifier.fileupload;
 
+import static io.restassured.http.Method.POST;
+import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
+import static java.net.HttpURLConnection.HTTP_OK;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_DATE;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequest;
-import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
 import static no.sikt.nva.apitest.publication.PublicationFields.IDENTIFIER_FIELD;
 import static no.sikt.nva.apitest.publication.PublicationPaths.fileUploadCompletePath;
@@ -47,7 +49,7 @@ class CompleteApiTest extends FileUploadTestBase {
             .when()
             .post(fileUploadCompletePath(identifier))
             .then()
-            .statusCode(200)
+            .statusCode(HTTP_OK)
             .extract()
             .jsonPath();
 
@@ -77,18 +79,9 @@ class CompleteApiTest extends FileUploadTestBase {
   @Description(useJavaDoc = true)
   void shouldReturnUnauthorizedWhenCompleteWithoutAuthorization() {
     var identifier = setupDraftPublication();
-    var createResponse = createFileUpload(identifier);
+    createFileUpload(identifier);
 
-    var uploadId = createResponse.jsonPath().getString(UPLOAD_ID);
-    var key = createResponse.jsonPath().getString(KEY);
-    var eTag = prepareAndUpload(identifier, uploadId, key);
-
-    givenUnauthenticatedJsonRequest()
-        .body(completePayload(uploadId, key, eTag))
-        .when()
-        .post(fileUploadCompletePath(identifier))
-        .then()
-        .statusCode(401);
+    requestShouldReturnUnauthorized(POST, fileUploadCompletePath(identifier));
   }
 
   /**
@@ -111,6 +104,6 @@ class CompleteApiTest extends FileUploadTestBase {
         .when()
         .post(fileUploadCompletePath(identifier))
         .then()
-        .statusCode(400);
+        .statusCode(HTTP_BAD_REQUEST);
   }
 }

@@ -2,6 +2,7 @@ package no.sikt.nva.apitest.search.resources.bibtex;
 
 import static io.restassured.RestAssured.baseURI;
 import static io.restassured.RestAssured.given;
+import static java.net.HttpURLConnection.HTTP_OK;
 import static no.sikt.Category.ACADEMIC_ARTICLE;
 import static no.sikt.Category.ACADEMIC_CHAPTER;
 import static no.sikt.Category.ACADEMIC_MONOGRAPH;
@@ -107,7 +108,7 @@ class BibTexTest extends SearchTestBase {
         .when()
         .get()
         .then()
-        .statusCode(200)
+        .statusCode(HTTP_OK)
         .contentType(TEXT_X_BIBTEX)
         .extract()
         .asString();
@@ -178,7 +179,7 @@ class BibTexTest extends SearchTestBase {
         .when()
         .get()
         .then()
-        .statusCode(200)
+        .statusCode(HTTP_OK)
         .contentType(TEXT_X_BIBTEX)
         .extract()
         .asString();

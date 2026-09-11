@@ -1,13 +1,13 @@
 package no.sikt.nva.apitest.publication;
 
-import static io.restassured.RestAssured.given;
+import static io.restassured.http.Method.POST;
+import static java.net.HttpURLConnection.HTTP_CREATED;
 import static no.sikt.nva.apitest.base.Affiliation.UIB;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_DATE;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedRequest;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
 import static no.sikt.nva.apitest.publication.PublicationFields.IDENTIFIER_FIELD;
 import static no.sikt.nva.apitest.publication.PublicationPaths.createPublicationPath;
-import static org.assertj.core.api.Assertions.assertThat;
 
 import io.qameta.allure.Description;
 import io.restassured.RestAssured;
@@ -49,7 +49,7 @@ class CreateApiTest extends PublicationTestBase {
             .when()
             .post(createPublicationPath())
             .then()
-            .statusCode(201)
+            .statusCode(HTTP_CREATED)
             .extract()
             .jsonPath();
 
@@ -71,16 +71,6 @@ class CreateApiTest extends PublicationTestBase {
   @DisplayName("Unauthenticated user tries to create publication")
   @Description(useJavaDoc = true)
   void shouldReturnUnauthorizedWhenCreateWithUnauthenticatedUser() {
-    var response =
-        given()
-            .accept(ContentType.JSON)
-            .when()
-            .post(createPublicationPath())
-            .then()
-            .statusCode(401)
-            .extract()
-            .jsonPath();
-
-    assertThat(response.getString("message")).isEqualTo("Unauthorized");
+    requestShouldReturnUnauthorized(POST, createPublicationPath());
   }
 }

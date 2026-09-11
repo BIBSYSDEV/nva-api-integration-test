@@ -1,8 +1,8 @@
 package no.sikt.nva.apitest.scientificindex.reports;
 
+import static io.restassured.http.Method.GET;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
-import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static no.sikt.nva.apitest.base.Affiliation.KRISTIANIA;
 import static no.sikt.nva.apitest.base.Affiliation.OSLO_MET;
 import static no.sikt.nva.apitest.base.Affiliation.UIB;
@@ -11,12 +11,10 @@ import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_YEAR;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.getCurrentYear;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedRequestAsUser;
-import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
 import static no.sikt.nva.apitest.base.UserFixtures.UIS_NVI_CURATOR;
 import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.INSTITUTION_REPORTS_PATH;
 
 import io.qameta.allure.Description;
-import io.restassured.http.Method;
 import java.util.List;
 import no.sikt.nva.apitest.base.Affiliation;
 import no.sikt.nva.apitest.base.User;
@@ -84,11 +82,7 @@ class FetchAllInstitutionsReportTest extends ScientificIndexTestBase {
   @DisplayName("Fetch report for all institutions when unauthenticated return Unauthorized")
   @Description(useJavaDoc = true)
   void shouldReturnUnauthorizedWhenNotAuthenticated() {
-    givenUnauthenticatedJsonRequest()
-        .when()
-        .get(INSTITUTION_REPORTS_PATH, CURRENT_YEAR)
-        .then()
-        .statusCode(HTTP_UNAUTHORIZED);
+    requestShouldReturnUnauthorized(GET, INSTITUTION_REPORTS_PATH, CURRENT_YEAR);
   }
 
   /**
@@ -99,7 +93,7 @@ class FetchAllInstitutionsReportTest extends ScientificIndexTestBase {
   @DisplayName("Fetch report for all institutions when non Nvi-curator returns Forbidden")
   @Description(useJavaDoc = true)
   void shouldReturnForbiddenWhenNonNviCurator(User user) {
-    requestShouldReturnForbidden(Method.GET, user, INSTITUTION_REPORTS_PATH, CURRENT_YEAR);
+    requestShouldReturnForbidden(GET, user, INSTITUTION_REPORTS_PATH, CURRENT_YEAR);
   }
 
   /**

@@ -1,6 +1,7 @@
 package no.sikt.nva.apitest.search.resources.bibtex;
 
 import static io.restassured.RestAssured.given;
+import static java.net.HttpURLConnection.HTTP_OK;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static no.sikt.Category.ACADEMIC_ARTICLE;
 import static no.sikt.nva.apitest.base.Polling.pollUntil;
@@ -83,7 +84,7 @@ class BibTexVolumeTest extends SearchTestBase {
         .when()
         .get("/search/resources")
         .then()
-        .statusCode(200)
+        .statusCode(HTTP_OK)
         .contentType(TEXT_X_BIBTEX)
         .extract()
         .response();

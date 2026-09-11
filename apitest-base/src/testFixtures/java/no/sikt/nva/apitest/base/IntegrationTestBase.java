@@ -2,7 +2,9 @@ package no.sikt.nva.apitest.base;
 
 import static java.net.HttpURLConnection.HTTP_CONFLICT;
 import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
+import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedRequestAsUser;
+import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
 
 import io.qameta.allure.restassured.AllureRestAssured;
 import io.restassured.RestAssured;
@@ -87,5 +89,14 @@ public abstract class IntegrationTestBase {
         .request(method, path, params)
         .then()
         .statusCode(HTTP_FORBIDDEN);
+  }
+
+  protected static void requestShouldReturnUnauthorized(
+      Method method, String path, Object... params) {
+    givenUnauthenticatedJsonRequest()
+        .when()
+        .request(method, path, params)
+        .then()
+        .statusCode(HTTP_UNAUTHORIZED);
   }
 }

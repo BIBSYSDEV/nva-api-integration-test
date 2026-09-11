@@ -1,23 +1,19 @@
 package no.sikt.nva.apitest.publication.identifier;
 
+import static io.restassured.http.Method.DELETE;
 import static java.net.HttpURLConnection.HTTP_ACCEPTED;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
-import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
-import java.util.UUID;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-
-import io.qameta.allure.Description;
-import static io.restassured.http.Method.DELETE;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedRequestAsUser;
-import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CONTRIBUTOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
 import static no.sikt.nva.apitest.publication.PublicationPaths.publicationPath;
+
+import io.qameta.allure.Description;
+import java.util.UUID;
 import no.sikt.nva.apitest.publication.PublicationTestBase;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 @DisplayName("DELETE /publication/{identifier}")
 class DeleteApiTest extends PublicationTestBase {
@@ -59,16 +55,7 @@ class DeleteApiTest extends PublicationTestBase {
   void shouldReturnUnauthorizedWhenDeletingWithoutAuthentication() {
     var identifier = setupDraftPublication();
 
-    var response =
-        givenUnauthenticatedJsonRequest()
-            .when()
-            .delete(publicationPath(identifier))
-            .then()
-            .statusCode(HTTP_UNAUTHORIZED)
-            .extract()
-            .jsonPath();
-
-    assertThat(response.getString("message")).isEqualTo("Unauthorized");
+    requestShouldReturnUnauthorized(DELETE, publicationPath(identifier));
   }
 
   /** A non authorized user calling delete should return status {@code 403 Forbidden}. */
@@ -76,7 +63,7 @@ class DeleteApiTest extends PublicationTestBase {
   @DisplayName("Non authorized user tries to delete publication")
   @Disabled("FIXME: Returns 401, see NP-51618")
   @Description(useJavaDoc = true)
-  void shouldReturnForbiddemWhenNotOwnerDeletingDraftPublication(){
+  void shouldReturnForbiddemWhenNotOwnerDeletingDraftPublication() {
     var identifier = setupDraftPublication();
 
     requestShouldReturnForbidden(DELETE, UIB_CONTRIBUTOR, publicationPath(identifier));
