@@ -1,10 +1,15 @@
 package no.sikt.nva.apitest.publication.identifier;
 
+import static io.restassured.http.Method.POST;
+import static java.net.HttpURLConnection.HTTP_ACCEPTED;
+import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static no.sikt.Role.CREATOR;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequest;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedRequest;
+import static no.sikt.nva.apitest.base.UserFixtures.UIB_CONTRIBUTOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
 import static no.sikt.nva.apitest.publication.PublicationFields.IDENTIFIER_FIELD;
+import static no.sikt.nva.apitest.publication.PublicationPaths.publicationPath;
 import static no.sikt.nva.apitest.publication.PublicationPaths.publishPublicationPath;
 
 import io.qameta.allure.Description;
@@ -63,7 +68,7 @@ class PublishApiTest extends PublicationTestBase {
         .when()
         .post(publishPublicationPath(identifier))
         .then()
-        .statusCode(202);
+        .statusCode(HTTP_ACCEPTED);
   }
 
   /** Publishing an incomplete publication should return status {@code 400 Bad Request}. */
@@ -78,7 +83,7 @@ class PublishApiTest extends PublicationTestBase {
             .when()
             .post(publishPublicationPath(identifier))
             .then()
-            .statusCode(400)
+            .statusCode(HTTP_BAD_REQUEST)
             .extract()
             .jsonPath();
 
@@ -100,11 +105,22 @@ class PublishApiTest extends PublicationTestBase {
             .when()
             .post(publishPublicationPath(identifier))
             .then()
-            .statusCode(400)
+            .statusCode(HTTP_BAD_REQUEST)
             .extract()
             .jsonPath();
 
     softly.assertThat(response.getString("title")).isEqualTo("Bad Request");
     softly.assertThat(response.getString("detail")).isEqualTo("Resource is not publishable!");
+  }
+
+  /** A non authorized user calling publish should return status {@code 403 Forbidden}. */
+  @Test
+  @DisplayName("Non authorized user tries to publish publication")
+  // @Disabled("FIXME: Returns 401, see NP-51618")
+  @Description(useJavaDoc = true)
+  void shouldReturnForbiddemWhenNotOwnerPublishingDraftPublication() {
+    var identifier = setupDraftPublication();
+
+    requestShouldReturnForbidden(POST, UIB_CONTRIBUTOR, publicationPath(identifier));
   }
 }

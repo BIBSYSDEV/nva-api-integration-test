@@ -1,13 +1,11 @@
 package no.sikt.nva.apitest.scientificindex.candidate;
 
-import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
+import static io.restassured.http.Method.GET;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
-import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static java.util.UUID.randomUUID;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_YEAR;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
-import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_NVI_CURATOR;
 import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATE_BY_PUBLICATION_PATH;
 import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATE_PATH;
@@ -90,10 +88,8 @@ class FetchCandidateTest extends ScientificIndexTestBase {
   @DisplayName("Fetch candidate unauthenticated")
   @Description(useJavaDoc = true)
   void shouldReturnUnauthorizedWhenFetchingCandidateUnauthenticated() {
-    givenUnauthenticatedJsonRequest()
-        .get(CANDIDATE_BY_PUBLICATION_PATH, candidate.publicationIdentifier())
-        .then()
-        .statusCode(HTTP_UNAUTHORIZED);
+    requestShouldReturnUnauthorized(
+        GET, CANDIDATE_BY_PUBLICATION_PATH, candidate.publicationIdentifier());
   }
 
   /** Fetching a candidate as a non-NVI user returns status {@code 403 Forbidden}. */
@@ -103,10 +99,7 @@ class FetchCandidateTest extends ScientificIndexTestBase {
   @DisplayName("Fetch candidate unauthorized")
   @Description(useJavaDoc = true)
   void shouldReturnUnauthorizedWhenFetchingCandidateWithoutAccess(User user) {
-    givenAuthenticatedJsonRequestAsUser(user)
-        .get(CANDIDATE_PATH, candidate.candidateIdentifier())
-        .then()
-        .statusCode(HTTP_FORBIDDEN);
+    requestShouldReturnForbidden(GET, user, CANDIDATE_PATH, candidate.candidateIdentifier());
   }
 
   /** Fetching a candidate that doesn't exist returns status {@code 404 Not Found}. */
