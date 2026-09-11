@@ -1,12 +1,15 @@
 package no.sikt.nva.apitest.approvals;
 
 import static java.net.HttpURLConnection.HTTP_ACCEPTED;
+import static java.net.HttpURLConnection.HTTP_OK;
 import static no.sikt.nva.apitest.approvals.ApprovalPaths.APPROVAL_PATH;
 import static no.sikt.nva.apitest.approvals.ApprovalPaths.BASE_PATH;
+import static no.sikt.nva.apitest.base.Polling.pollUntil;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsClient;
 
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -25,7 +28,8 @@ public final class Approvals {
   public static final String LOCATION_HEADER = "Location";
 
   private static final String APPROVAL_ID_PARAMETER = "approvalId";
-
+  private static final Duration READABLE_TIMEOUT = Duration.ofSeconds(30);
+  private static final String JSON_MEDIA_TYPE = "application/json";
   private static final String NAME_FIELD = "name";
   private static final String VALUE_FIELD = "value";
   private static final String IDENTIFIER_TYPE = "Identifier";
@@ -64,16 +68,29 @@ public final class Approvals {
    * Creates an approval as test setup rather than as the thing under test: the conflict tests need
    * an approval to collide with, and the update tests need one to change. Returns its location, so
    * a caller can address the approval it just created.
+   *
+   * <p>Waits until the approval can be read back before returning. An approval is looked up through
+   * a secondary index, which is eventually consistent, so acting on one the moment it was created
+   * can be answered as if it did not exist. Doing it here means no caller has to know which lookup
+   * the endpoint it is about to call reads through.
    */
   public static String createApproval(String clientSecret, Map<String, Object> payload) {
-    return givenAuthenticatedJsonRequestAsClient(clientSecret)
-        .body(payload)
-        .when()
-        .post(BASE_PATH)
-        .then()
-        .statusCode(HTTP_ACCEPTED)
-        .extract()
-        .header(LOCATION_HEADER);
+    var location =
+        givenAuthenticatedJsonRequestAsClient(clientSecret)
+            .body(payload)
+            .when()
+            .post(BASE_PATH)
+            .then()
+            .statusCode(HTTP_ACCEPTED)
+            .extract()
+            .header(LOCATION_HEADER);
+
+    var approvalIdentifier = location.substring(location.lastIndexOf('/') + 1);
+    pollUntil(
+        READABLE_TIMEOUT,
+        () -> fetchApproval(approvalIdentifier, JSON_MEDIA_TYPE),
+        response -> response.statusCode() == HTTP_OK);
+    return location;
   }
 
   /**
