@@ -1,30 +1,29 @@
 package no.sikt.nva.apitest.project;
 
 import static java.net.HttpURLConnection.HTTP_CREATED;
-import static no.sikt.nva.apitest.base.Affiliation.UIB;
-import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
-
-import io.restassured.path.json.JsonPath;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Collectors;
+
+import io.restassured.path.json.JsonPath;
 import no.sikt.nva.apitest.base.Affiliation;
+import static no.sikt.nva.apitest.base.Affiliation.UIB;
 import no.sikt.nva.apitest.base.CurrentTimeConstants;
+import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
 import no.sikt.nva.apitest.base.User;
 
 public class ProjectFactory {
 
-  public static final String PROJECT_PATH = "/cristin/project";
+  public static final String BASE_PROJECT_PATH = "/cristin/project";
+  public static final String PROJECT_PATH = BASE_PROJECT_PATH + "/{identifier}";
   public static final ZoneId DEFAULT_TIME_ZONE = ZoneId.of("Europe/Oslo");
 
   private static final String TYPE = "type";
 
-  public Project createProject(User user) {
+  public Project createProject(User user, String projectTitle) {
 
-    var projectTitle = "Cristin API test project " + UUID.randomUUID();
     var payload =
         createProjectPayload(projectTitle, UIB, List.of(ProjectContributor.asProjectManager(user)));
 
@@ -32,12 +31,12 @@ public class ProjectFactory {
         givenAuthenticatedJsonRequestAsUser(user)
             .body(payload)
             .when()
-            .post(PROJECT_PATH)
+            .post(BASE_PROJECT_PATH)
             .then()
             .statusCode(HTTP_CREATED)
             .extract()
             .jsonPath();
-    return new Project(jsonPath.getString("id"));
+    return new Project(List.of(jsonPath.getString("id").split("/")).getLast());
   }
 
   public static Map<String, Object> createProjectPayload(
