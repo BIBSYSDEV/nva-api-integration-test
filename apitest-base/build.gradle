@@ -24,6 +24,7 @@ dependencies {
     runtimeOnly(nvaCatalog.jackson.core)
     runtimeOnly(nvaCatalog.jackson.databind)
     testFixturesApi(libs.rest.assured.core)
+    testFixturesApi(nvaCatalog.junit.jupiter.params)
     testFixturesImplementation(libs.allure.rest.assured)
     testFixturesImplementation(libs.awaitility.core)
     testFixturesImplementation(nvaCatalog.junit.jupiter.api)
@@ -34,4 +35,6 @@ dependencies {
     testFixturesRuntimeOnly(nvaCatalog.junit.platform.launcher)
     testFixturesRuntimeOnly(nvaCatalog.log4j.core)
     testFixturesRuntimeOnly(nvaCatalog.log4j.slf4j.impl)
+    testImplementation(nvaCatalog.junit.jupiter.api)
+    testImplementation(nvaCatalog.junit.jupiter.params)
 }
