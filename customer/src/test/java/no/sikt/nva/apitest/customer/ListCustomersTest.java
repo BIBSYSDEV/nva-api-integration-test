@@ -14,9 +14,11 @@ import static no.sikt.nva.apitest.customer.RightsRetentionStrategyAssertions.ass
 import static no.sikt.nva.apitest.customer.RightsRetentionStrategyAssertions.assertWithoutDeprecatedId;
 
 import io.qameta.allure.Description;
+import io.restassured.path.json.JsonPath;
 import no.sikt.nva.apitest.base.IntegrationTestBase;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,6 +26,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 @ExtendWith(SoftAssertionsExtension.class)
 @DisplayName("GET " + BASE_PATH)
 class ListCustomersTest extends IntegrationTestBase {
+
+  private static JsonPath customerList;
+
+  @BeforeAll
+  static void fetchCustomerList() {
+    customerList = listCustomers();
+  }
 
   /**
    * Every customer carries its current RRS with a type from the file vocabulary. RRS switched off
@@ -33,7 +42,7 @@ class ListCustomersTest extends IntegrationTestBase {
   @DisplayName("List customers with rights retention strategy type")
   @Description(useJavaDoc = true)
   void shouldIncludeRightsRetentionStrategyTypeForEveryCustomer(SoftAssertions softly) {
-    var customers = customersIn(listCustomers());
+    var customers = customersIn(customerList);
 
     softly.assertThat(customers).isNotEmpty();
     customers.forEach(
@@ -50,7 +59,7 @@ class ListCustomersTest extends IntegrationTestBase {
   @DisplayName("List customers without deprecated id in rights retention strategy")
   @Description(useJavaDoc = true)
   void shouldNotIncludeDeprecatedIdInRightsRetentionStrategy(SoftAssertions softly) {
-    var customers = customersIn(listCustomers());
+    var customers = customersIn(customerList);
 
     softly.assertThat(customers).isNotEmpty();
     customers.forEach(
@@ -67,7 +76,7 @@ class ListCustomersTest extends IntegrationTestBase {
   @DisplayName("List customer with rights retention strategy enabled")
   @Description(useJavaDoc = true)
   void shouldIncludePolicyUriWhenRightsRetentionStrategyIsConfigured(SoftAssertions softly) {
-    var unit = customerIn(listCustomers(), UNIT);
+    var unit = customerIn(customerList, UNIT);
     var rightsRetentionStrategy = rightsRetentionStrategyOf(unit);
 
     assertEnabled(softly, rightsRetentionStrategy, displayNameOf(unit));
@@ -79,7 +88,7 @@ class ListCustomersTest extends IntegrationTestBase {
   @DisplayName("List customer with rights retention strategy disabled")
   @Description(useJavaDoc = true)
   void shouldReturnNullRightsRetentionStrategyWhenNotConfigured(SoftAssertions softly) {
-    var uib = customerIn(listCustomers(), UIB);
+    var uib = customerIn(customerList, UIB);
 
     assertDisabled(softly, rightsRetentionStrategyOf(uib), displayNameOf(uib));
   }

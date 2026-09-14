@@ -1,9 +1,5 @@
 package no.sikt.nva.apitest.customer;
 
-import static no.sikt.nva.apitest.customer.CustomerRequests.DEPRECATED_ID_FIELD;
-import static no.sikt.nva.apitest.customer.CustomerRequests.POLICY_URI_FIELD;
-import static no.sikt.nva.apitest.customer.CustomerRequests.TYPE_FIELD;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
@@ -15,6 +11,14 @@ import org.assertj.core.api.SoftAssertions;
  * customer expose the same object, so both endpoint tests assert through these helpers.
  */
 public final class RightsRetentionStrategyAssertions {
+
+  private static final String TYPE_FIELD = "type";
+  private static final String POLICY_URI_FIELD = "policyUri";
+
+  /**
+   * Deprecated alias of policyUri, kept in the authenticated representation while clients migrate.
+   */
+  private static final String DEPRECATED_ID_FIELD = "id";
 
   private static final String NULL_RIGHTS_RETENTION_STRATEGY = "NullRightsRetentionStrategy";
   private static final String RIGHTS_RETENTION_STRATEGY = "RightsRetentionStrategy";

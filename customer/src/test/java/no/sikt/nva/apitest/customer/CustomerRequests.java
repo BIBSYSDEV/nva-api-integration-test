@@ -16,18 +16,10 @@ import java.util.NoSuchElementException;
 import no.sikt.nva.apitest.base.Affiliation;
 import no.sikt.nva.apitest.base.User;
 
-/** Request helpers and JSON field names for the customer API. */
+/** Request helpers for the customer API. */
 public final class CustomerRequests {
 
-  static final String RIGHTS_RETENTION_STRATEGY_FIELD = "rightsRetentionStrategy";
-  static final String TYPE_FIELD = "type";
-  static final String POLICY_URI_FIELD = "policyUri";
-
-  /**
-   * Deprecated alias of policyUri, kept in the authenticated representation while clients migrate.
-   */
-  static final String DEPRECATED_ID_FIELD = "id";
-
+  private static final String RIGHTS_RETENTION_STRATEGY_FIELD = "rightsRetentionStrategy";
   private static final String CUSTOMERS_FIELD = "customers";
   private static final String CUSTOMER_ID_FIELD = "id";
   private static final String CRISTIN_ID_FIELD = "cristinId";
