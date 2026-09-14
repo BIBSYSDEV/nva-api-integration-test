@@ -1,12 +1,11 @@
 package no.sikt.nva.apitest.project;
 
+import static io.restassured.http.Method.POST;
 import static java.net.HttpURLConnection.HTTP_CREATED;
-import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static no.sikt.nva.apitest.base.Affiliation.UIB;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_DATE;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.getCurrentDate;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
-import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
 import static no.sikt.nva.apitest.project.ProjectFactory.PROJECT_PATH;
 
@@ -56,11 +55,7 @@ class CreateProjectTest extends ProjectTestBase {
   @DisplayName("Create new project")
   @Description(useJavaDoc = true)
   void shouldRetunUnauthorizedWhenUnauthenticated() {
-    givenUnauthenticatedJsonRequest()
-        .when()
-        .post(PROJECT_PATH)
-        .then()
-        .statusCode(HTTP_UNAUTHORIZED);
+    requestShouldReturnUnauthorized(POST, PROJECT_PATH);
   }
 
   private void assertProjectResponse(

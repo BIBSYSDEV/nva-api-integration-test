@@ -1,6 +1,7 @@
 package no.sikt.nva.apitest.publication.textextraction;
 
 import static io.restassured.RestAssured.given;
+import static java.net.HttpURLConnection.HTTP_OK;
 import static no.sikt.nva.apitest.base.Polling.pollUntil;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Named.named;
@@ -123,7 +124,7 @@ class TextExtractionTest extends FileUploadTestBase {
         .body(content)
         .put(presignedUrl)
         .then()
-        .statusCode(200)
+        .statusCode(HTTP_OK)
         .extract()
         .header(ETAG_HEADER);
   }

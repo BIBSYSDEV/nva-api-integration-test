@@ -1,6 +1,7 @@
 package no.sikt.nva.apitest.publication.identifier.fileupload;
 
 import static io.restassured.RestAssured.given;
+import static java.net.HttpURLConnection.HTTP_OK;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequest;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
 import static no.sikt.nva.apitest.publication.PublicationPaths.fileUploadCompletePath;
@@ -83,7 +84,7 @@ public class FileUploadTestBase extends PublicationTestBase {
         .when()
         .post(fileUploadCompletePath(identifier))
         .then()
-        .statusCode(200)
+        .statusCode(HTTP_OK)
         .extract()
         .response();
   }
@@ -97,7 +98,7 @@ public class FileUploadTestBase extends PublicationTestBase {
         .when()
         .put(uploadUrl)
         .then()
-        .statusCode(200)
+        .statusCode(HTTP_OK)
         .extract()
         .response();
   }
@@ -110,7 +111,7 @@ public class FileUploadTestBase extends PublicationTestBase {
             .when()
             .post(fileUploadPreparePath(identifier))
             .then()
-            .statusCode(200)
+            .statusCode(HTTP_OK)
             .extract()
             .response()
             .jsonPath()
@@ -142,7 +143,7 @@ public class FileUploadTestBase extends PublicationTestBase {
         .when()
         .post(fileUploadCreatePath(identifier))
         .then()
-        .statusCode(200)
+        .statusCode(HTTP_OK)
         .extract()
         .response();
   }

@@ -1,6 +1,7 @@
 package no.sikt.nva.apitest.kanalregister.operational;
 
 import static io.restassured.RestAssured.given;
+import static java.net.HttpURLConnection.HTTP_OK;
 
 import io.qameta.allure.Description;
 import no.sikt.nva.apitest.kanalregister.ChannelRegistryTestBase;
@@ -30,7 +31,7 @@ class OperationalEndpointsTest extends ChannelRegistryTestBase {
         given()
             .get(environment.getApiHost() + "/checkdatabaseconnection")
             .then()
-            .statusCode(200)
+            .statusCode(HTTP_OK)
             .extract()
             .body()
             .asString();
@@ -47,7 +48,7 @@ class OperationalEndpointsTest extends ChannelRegistryTestBase {
         given()
             .get(environment.getApiHost() + "/")
             .then()
-            .statusCode(200)
+            .statusCode(HTTP_OK)
             .extract()
             .body()
             .asString();

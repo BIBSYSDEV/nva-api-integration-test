@@ -1,5 +1,6 @@
 package no.sikt.nva.apitest.publication.identifier.fileupload;
 
+import static java.net.HttpURLConnection.HTTP_OK;
 import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -26,7 +27,7 @@ class PresignedUrlApiTest extends FileUploadTestBase {
             .when()
             .put(uploadUrl)
             .then()
-            .statusCode(200)
+            .statusCode(HTTP_OK)
             .extract()
             .header("ETag");
 
