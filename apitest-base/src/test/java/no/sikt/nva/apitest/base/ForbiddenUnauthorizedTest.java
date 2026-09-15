@@ -33,27 +33,76 @@ class ForbiddenUnauthorizedTest extends IntegrationTestBase {
   static Stream<Arguments> endpoints() {
     return Stream.of(
       
-      argumentSet("POST /publication/{publicationIdentifier}/publish", POST, "/publication/{publicationIdentifier}/publish", UIB_CREATOR, PRIMARY_ID),
-      argumentSet("POST /publication/{publicationIdentifier}/file-upload/listparts", POST, "/publication/{publicationIdentifier}/file-upload/listparts", UIB_CREATOR, PRIMARY_ID),
-      argumentSet("POST /publication/{publicationIdentifier}/doi", POST, "/publication/{publicationIdentifier}/doi", UIB_CREATOR, PRIMARY_ID),
-      argumentSet("POST /publication/{publicationIdentifier}/file-upload/complete", POST, "/publication/{publicationIdentifier}/file-upload/complete", UIB_CREATOR, PRIMARY_ID),
-      argumentSet("POST /publication/{publicationIdentifier}/file/{fileIdentifier}", POST, "POST /publication/{publicationIdentifier}/file/{fileIdentifier}", UIB_CREATOR, PRIMARY_ID, SECONDARY_ID),
-      argumentSet("DELETE /publication/{publicationIdentifier}/file/{fileIdentifier}", DELETE, "/publication/{publicationIdentifier}/file/{fileIdentifier}", UIB_CREATOR, PRIMARY_ID, SECONDARY_ID),
-      argumentSet("POST /publication/{publicationIdentifier}/ticket", POST, "/publication/{publicationIdentifier}/ticket", UIB_CREATOR, PRIMARY_ID),
-      argumentSet("GET /publication/{publicationIdentifier}/log", GET, "/publication/{publicationIdentifier}/log", UIB_CREATOR, PRIMARY_ID),
-      argumentSet("GET /publication/{publicationIdentifier}/tickets", GET, "/publication/{publicationIdentifier}/tickets", UIB_CREATOR, PRIMARY_ID),
-      argumentSet("POST /publication/{publicationIdentifier}/ticket/{ticketIdentifier}/message", POST, "/publication/{publicationIdentifier}/ticket/{ticketIdentifier}/message", UIB_CREATOR, PRIMARY_ID, SECONDARY_ID),
-      argumentSet("POST /publication/", POST, "/publication/", UIB_CREATOR),
-      argumentSet("POST /publication/{publicationIdentifier}/file-upload/create", POST, "/publication/{publicationIdentifier}/file-upload/create", UIB_CREATOR, PRIMARY_ID),
-      argumentSet("PUT /publication/{publicationIdentifier}", PUT, "/publication/{publicationIdentifier}", UIB_CREATOR, PRIMARY_ID),
-      argumentSet("DELETE /publication/{publicationIdentifier}", DELETE, "/publication/{publicationIdentifier}", UIB_CREATOR, PRIMARY_ID),
-      argumentSet("POST /publication/{publicationIdentifier}/file-upload/prepare", POST, "/publication/{publicationIdentifier}/file-upload/prepare", UIB_CREATOR, PRIMARY_ID),
-      argumentSet("DELETE /publication/{publicationIdentifier}/ticket/{ticketIdentifier}/message/{messageIdentifier}", DELETE, "/publication/{publicationIdentifier}/ticket/{ticketIdentifier}/message/{messageIdentifier}", UIB_CREATOR, PRIMARY_ID, SECONDARY_ID, TERTIARY_ID),
-      argumentSet("GET /publication/by-owner", GET, "/publication/by-owner", UIB_CREATOR),
-      argumentSet("POST /publication/{publicationIdentifier}/file-upload/abort", POST, "/publication/{publicationIdentifier}/file-upload/abort", UIB_CREATOR, PRIMARY_ID),
-      argumentSet("GET /publication/{publicationIdentifier}/ticket/{ticketIdentifier}", GET, "/publication/{publicationIdentifier}/ticket/{ticketIdentifier}", UIB_CREATOR, PRIMARY_ID, SECONDARY_ID),
-      argumentSet("PUT /publication/{publicationIdentifier}/ticket/{ticketIdentifier}", PUT, "/publication/{publicationIdentifier}/ticket/{ticketIdentifier}", UIB_CREATOR, PRIMARY_ID, SECONDARY_ID),
-      argumentSet("DELETE /publication/{publicationIdentifier}/ticket/{ticketIdentifier}", DELETE, "/publication/{publicationIdentifier}/ticket/{ticketIdentifier}", UIB_CREATOR, PRIMARY_ID, SECONDARY_ID)
+      
+      
+      
+      
+      
+      
+      
+      argumentSet("POST /orcid/", POST, "/orcid/", UIB_CREATOR)
+      
+      
+      
+      // argumentSet("POST /scientific-index/candidate/{candidateIdentifier}/note", POST, "/scientific-index/candidate/{candidateIdentifier}/note", UIB_CREATOR, PRIMARY_ID),
+      // argumentSet("GET /scientific-index/reports", GET, "/scientific-index/reports", UIB_CREATOR),
+      // argumentSet("GET /scientific-index/reports/{period}/institutions/{institution}", GET, "/scientific-index/reports/{period}/institutions/{institution}", UIB_CREATOR, PRIMARY_ID, SECONDARY_ID),
+      // argumentSet("GET /scientific-index/candidate/{candidateIdentifier}", GET, "/scientific-index/candidate/{candidateIdentifier}", UIB_CREATOR, PRIMARY_ID),
+      // argumentSet("GET /scientific-index/institution-report/{year}", GET, "/scientific-index/institution-report/{year}", UIB_CREATOR, PRIMARY_ID),
+      // argumentSet("GET /scientific-index/candidate/{candidateIdentifier}", GET, "GET /scientific-index/candidate/{candidateIdentifier}", UIB_CREATOR, PRIMARY_ID),
+      // argumentSet("PUT /scientific-index/candidate/{candidateIdentifier}/assignee", PUT, "/scientific-index/candidate/{candidateIdentifier}/assignee", UIB_CREATOR, PRIMARY_ID),
+      // argumentSet("GET /scientific-index/institution-approval-report/{year}", GET, "/scientific-index/institution-approval-report/{year}", UIB_CREATOR, PRIMARY_ID),
+      // argumentSet("GET /scientific-index/reports/{period}", GET, "/scientific-index/reports/{period}", UIB_CREATOR, PRIMARY_ID),
+      // argumentSet("GET /scientific-index/reports/{period}/institutions", GET, "/scientific-index/reports/{period}/institutions", UIB_CREATOR, PRIMARY_ID),
+      // argumentSet("GET /scientific-index/period", GET, "/scientific-index/period", UIB_CREATOR),
+      // argumentSet("PUT /scientific-index/period", PUT, "/scientific-index/period", UIB_CREATOR),
+      // argumentSet("POST /scientific-index/period", POST, "/scientific-index/period", UIB_CREATOR),
+      // argumentSet("GET /scientific-index/candidate", GET, "/scientific-index/candidate", UIB_CREATOR),
+      // argumentSet("PUT /scientific-index/candidate/{candidateIdentifier}/status", PUT, "/scientific-index/candidate/{candidateIdentifier}/status", UIB_CREATOR, PRIMARY_ID),
+      // argumentSet("DELETE /scientific-index/candidate/{candidateIdentifier}/note/{noteIdentifier}", DELETE, "/scientific-index/candidate/{candidateIdentifier}/note/{noteIdentifier}", UIB_CREATOR, PRIMARY_ID, SECONDARY_ID)
+
+      // argumentSet("POST /users-roles/impersonation/stop", POST, "/users-roles/impersonation/stop", UIB_CREATOR),
+      // argumentSet("PUT /users-roles/users/mine/accepted-terms", PUT, "/users-roles/users/mine/accepted-terms", UIB_CREATOR),
+      // argumentSet("POST /users-roles/users", POST, "/users-roles/users", UIB_CREATOR),
+      // argumentSet("POST /users-roles/login", POST, "/users-roles/login", UIB_CREATOR),
+      // argumentSet("GET /users-roles/roles/{role}", GET, "/users-roles/roles/{role}", UIB_CREATOR, PRIMARY_ID),
+      // argumentSet("GET /users-roles/external-clients/{clientId}", GET, "/users-roles/external-clients/{clientId}", UIB_CREATOR, PRIMARY_ID),
+      // argumentSet("POST /users-roles/impersonation", POST, "/users-roles/impersonation", UIB_CREATOR),
+      // argumentSet("GET /users-roles/institutions/users", GET, "/users-roles/institutions/users", UIB_CREATOR),
+      // argumentSet("GET /users-roles/users/{username}", GET, "/users-roles/users/{username}", UIB_CREATOR, PRIMARY_ID),
+      // argumentSet("PUT /users-roles/users/{username}", PUT, "/users-roles/users/{username}", UIB_CREATOR, PRIMARY_ID),
+      // argumentSet("GET /users-roles/external-clients", GET, "/users-roles/external-clients", UIB_CREATOR),
+      // argumentSet("POST /users-roles/external-clients", POST, "/users-roles/external-clients", UIB_CREATOR)
+
+      // argumentSet("POST /publication-channels-v2/series", POST, "/publication-channels-v2/series", UIB_CREATOR),
+      // argumentSet("PUT /publication-channels-v2/publisher/{identifier}", PUT, "/publication-channels-v2/publisher/{identifier}", UIB_CREATOR, PRIMARY_ID),
+      // argumentSet("POST /publication-channels-v2/journal", POST, "/publication-channels-v2/journal", UIB_CREATOR),
+      // argumentSet("PUT /publication-channels-v2/serial-publication/{identifier}", PUT, "/publication-channels-v2/serial-publication/{identifier}", UIB_CREATOR, PRIMARY_ID),
+      // argumentSet("POST /publication-channels-v2/serial-publication", POST, "/publication-channels-v2/serial-publication", UIB_CREATOR),
+      // argumentSet("POST /publication-channels-v2/publisher", POST, "/publication-channels-v2/publisher", UIB_CREATOR),
+      // argumentSet("DELETE /publication-channels-v2/channel/{identifier}", DELETE, "/publication-channels-v2/channel/{identifier}", UIB_CREATOR, PRIMARY_ID)
+
+      // argumentSet("POST /publication/{publicationIdentifier}/publish", POST, "/publication/{publicationIdentifier}/publish", UIB_CREATOR, PRIMARY_ID),
+      // argumentSet("POST /publication/{publicationIdentifier}/file-upload/listparts", POST, "/publication/{publicationIdentifier}/file-upload/listparts", UIB_CREATOR, PRIMARY_ID),
+      // argumentSet("POST /publication/{publicationIdentifier}/doi", POST, "/publication/{publicationIdentifier}/doi", UIB_CREATOR, PRIMARY_ID),
+      // argumentSet("POST /publication/{publicationIdentifier}/file-upload/complete", POST, "/publication/{publicationIdentifier}/file-upload/complete", UIB_CREATOR, PRIMARY_ID),
+      // argumentSet("POST /publication/{publicationIdentifier}/file/{fileIdentifier}", POST, "POST /publication/{publicationIdentifier}/file/{fileIdentifier}", UIB_CREATOR, PRIMARY_ID, SECONDARY_ID),
+      // argumentSet("DELETE /publication/{publicationIdentifier}/file/{fileIdentifier}", DELETE, "/publication/{publicationIdentifier}/file/{fileIdentifier}", UIB_CREATOR, PRIMARY_ID, SECONDARY_ID),
+      // argumentSet("POST /publication/{publicationIdentifier}/ticket", POST, "/publication/{publicationIdentifier}/ticket", UIB_CREATOR, PRIMARY_ID),
+      // argumentSet("GET /publication/{publicationIdentifier}/log", GET, "/publication/{publicationIdentifier}/log", UIB_CREATOR, PRIMARY_ID),
+      // argumentSet("GET /publication/{publicationIdentifier}/tickets", GET, "/publication/{publicationIdentifier}/tickets", UIB_CREATOR, PRIMARY_ID),
+      // argumentSet("POST /publication/{publicationIdentifier}/ticket/{ticketIdentifier}/message", POST, "/publication/{publicationIdentifier}/ticket/{ticketIdentifier}/message", UIB_CREATOR, PRIMARY_ID, SECONDARY_ID),
+      // argumentSet("POST /publication/", POST, "/publication/", UIB_CREATOR),
+      // argumentSet("POST /publication/{publicationIdentifier}/file-upload/create", POST, "/publication/{publicationIdentifier}/file-upload/create", UIB_CREATOR, PRIMARY_ID),
+      // argumentSet("PUT /publication/{publicationIdentifier}", PUT, "/publication/{publicationIdentifier}", UIB_CREATOR, PRIMARY_ID),
+      // argumentSet("DELETE /publication/{publicationIdentifier}", DELETE, "/publication/{publicationIdentifier}", UIB_CREATOR, PRIMARY_ID),
+      // argumentSet("POST /publication/{publicationIdentifier}/file-upload/prepare", POST, "/publication/{publicationIdentifier}/file-upload/prepare", UIB_CREATOR, PRIMARY_ID),
+      // argumentSet("DELETE /publication/{publicationIdentifier}/ticket/{ticketIdentifier}/message/{messageIdentifier}", DELETE, "/publication/{publicationIdentifier}/ticket/{ticketIdentifier}/message/{messageIdentifier}", UIB_CREATOR, PRIMARY_ID, SECONDARY_ID, TERTIARY_ID),
+      // argumentSet("GET /publication/by-owner", GET, "/publication/by-owner", UIB_CREATOR),
+      // argumentSet("POST /publication/{publicationIdentifier}/file-upload/abort", POST, "/publication/{publicationIdentifier}/file-upload/abort", UIB_CREATOR, PRIMARY_ID),
+      // argumentSet("GET /publication/{publicationIdentifier}/ticket/{ticketIdentifier}", GET, "/publication/{publicationIdentifier}/ticket/{ticketIdentifier}", UIB_CREATOR, PRIMARY_ID, SECONDARY_ID),
+      // argumentSet("PUT /publication/{publicationIdentifier}/ticket/{ticketIdentifier}", PUT, "/publication/{publicationIdentifier}/ticket/{ticketIdentifier}", UIB_CREATOR, PRIMARY_ID, SECONDARY_ID),
+      // argumentSet("DELETE /publication/{publicationIdentifier}/ticket/{ticketIdentifier}", DELETE, "/publication/{publicationIdentifier}/ticket/{ticketIdentifier}", UIB_CREATOR, PRIMARY_ID, SECONDARY_ID)
 
       // argumentSet("GET /search/customer/import-candidates", GET, "/search/customer/import-candidates", UIB_CREATOR),
       // argumentSet("GET /search/customer/resources", GET, "/search/customer/resources", UIB_CREATOR),
