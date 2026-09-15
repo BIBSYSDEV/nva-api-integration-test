@@ -1,24 +1,26 @@
 package no.sikt.nva.apitest.project;
 
-import static io.restassured.http.Method.POST;
 import static java.net.HttpURLConnection.HTTP_CREATED;
+import java.util.List;
+import java.util.UUID;
+
+import org.assertj.core.api.SoftAssertions;
+import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
+import io.qameta.allure.Description;
+import io.restassured.RestAssured;
+import static io.restassured.http.Method.POST;
+import io.restassured.path.json.JsonPath;
 import static no.sikt.nva.apitest.base.Affiliation.UIB;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_DATE;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.getCurrentDate;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
 import static no.sikt.nva.apitest.project.ProjectFactory.BASE_PROJECT_PATH;
-
-import io.qameta.allure.Description;
-import io.restassured.RestAssured;
-import io.restassured.path.json.JsonPath;
-import java.util.List;
-import java.util.UUID;
-import org.assertj.core.api.SoftAssertions;
-import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import static no.sikt.nva.apitest.project.ProjectFactory.PROJECT_PATH;
 
 @ExtendWith(SoftAssertionsExtension.class)
 class CreateProjectTest extends ProjectTestBase {
