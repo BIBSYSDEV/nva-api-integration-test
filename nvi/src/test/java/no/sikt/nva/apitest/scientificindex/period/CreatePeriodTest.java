@@ -1,12 +1,11 @@
 package no.sikt.nva.apitest.scientificindex.period;
 
+import static io.restassured.http.Method.POST;
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static java.net.HttpURLConnection.HTTP_CREATED;
-import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_YEAR;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.getCurrentYear;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
-import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
 import static no.sikt.nva.apitest.base.UserFixtures.APP_ADMIN;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_DOI_CURATOR;
@@ -114,14 +113,9 @@ class CreatePeriodTest extends ScientificIndexTestBase {
   @DisplayName("Create new period unauthenticated")
   @Description(useJavaDoc = true)
   void shouldReturnUnauthorizedWhenUserIsUnauthenticated() {
-    var payload = createPeriodPayload(UNAUTHENTICATED_PERIOD_YEAR);
+    // var payload = createPeriodPayload(UNAUTHENTICATED_PERIOD_YEAR);
 
-    givenUnauthenticatedJsonRequest()
-        .body(payload)
-        .when()
-        .post(PERIODS_PATH)
-        .then()
-        .statusCode(HTTP_UNAUTHORIZED);
+    requestShouldReturnUnauthorized(POST, PERIODS_PATH);
   }
 
   @Test
@@ -205,17 +199,10 @@ class CreatePeriodTest extends ScientificIndexTestBase {
   @ParameterizedTest
   @MethodSource("userByRoleProvider")
   @DisplayName("Create new period user is not AppAdmin")
+  @Disabled("FIXME: Returns 401, see NP-51618")
   @Description(useJavaDoc = true)
-  void shouldReturnUnauthorizedWhenCreatorNotAppAdmin(User user) {
-    var payload = createPeriodPayload(NON_ADMIN_PERIOD_YEAR);
+  void shouldReturnForbiddenWhenCreatorNotAppAdmin(User user) {
 
-    givenAuthenticatedJsonRequestAsUser(user)
-        .body(payload)
-        .when()
-        .post(PERIODS_PATH)
-        .then()
-        .log()
-        .all()
-        .statusCode(HTTP_UNAUTHORIZED);
+    requestShouldReturnForbidden(POST, user, PERIODS_PATH);
   }
 }

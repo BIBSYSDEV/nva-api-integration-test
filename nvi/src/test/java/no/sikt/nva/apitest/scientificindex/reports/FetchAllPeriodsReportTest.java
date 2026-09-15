@@ -1,10 +1,8 @@
 package no.sikt.nva.apitest.scientificindex.reports;
 
-import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
+import static io.restassured.http.Method.GET;
 import static java.net.HttpURLConnection.HTTP_OK;
-import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedRequestAsUser;
-import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
 import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.REPORTS_PATH;
 
 import io.qameta.allure.Description;
@@ -64,8 +62,7 @@ class FetchAllPeriodsReportTest extends ScientificIndexTestBase {
   @DisplayName("Fetch periods report when unauthenticated should return Unauthorized")
   @Description(useJavaDoc = true)
   void shouldReturnUnauthorizedWhenNotAunthenticated() {
-
-    givenUnauthenticatedJsonRequest().when().get(REPORTS_PATH).then().statusCode(HTTP_UNAUTHORIZED);
+    requestShouldReturnUnauthorized(GET, REPORTS_PATH);
   }
 
   /** Trying to fetch periods report while not Nvi-curator returns status {@code 403 Forbidden} */
@@ -75,10 +72,6 @@ class FetchAllPeriodsReportTest extends ScientificIndexTestBase {
   @Description(useJavaDoc = true)
   void shouldReturnForbiddenWhenNotNviCurator(User user) {
 
-    givenAuthenticatedRequestAsUser(user)
-        .when()
-        .get(REPORTS_PATH)
-        .then()
-        .statusCode(HTTP_FORBIDDEN);
+    requestShouldReturnForbidden(GET, user, REPORTS_PATH);
   }
 }

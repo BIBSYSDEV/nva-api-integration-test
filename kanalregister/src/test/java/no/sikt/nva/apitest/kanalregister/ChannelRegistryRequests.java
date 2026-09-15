@@ -1,6 +1,7 @@
 package no.sikt.nva.apitest.kanalregister;
 
 import static io.restassured.RestAssured.given;
+import static java.net.HttpURLConnection.HTTP_OK;
 
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
@@ -41,7 +42,7 @@ public final class ChannelRegistryRequests {
         .queryParam("pagecount", SEARCH_PAGE_SIZE)
         .get("%s/%s/channels".formatted(environment.getApiHost(), resource))
         .then()
-        .statusCode(200)
+        .statusCode(HTTP_OK)
         .extract()
         .response();
   }
@@ -56,7 +57,7 @@ public final class ChannelRegistryRequests {
         .accept(ContentType.JSON)
         .get(absoluteUrl)
         .then()
-        .statusCode(200)
+        .statusCode(HTTP_OK)
         .extract()
         .response();
   }

@@ -1,10 +1,16 @@
 package no.sikt.nva.apitest.base;
 
+import static java.net.HttpURLConnection.HTTP_CONFLICT;
+import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
+import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
+import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedRequestAsUser;
+import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
+
 import io.qameta.allure.restassured.AllureRestAssured;
 import io.restassured.RestAssured;
 import io.restassured.config.LogConfig;
+import io.restassured.http.Method;
 import io.restassured.response.Response;
-import java.net.HttpURLConnection;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 import org.junit.jupiter.api.BeforeAll;
@@ -72,6 +78,25 @@ public abstract class IntegrationTestBase {
   }
 
   protected static boolean isNotConflict(Response response) {
-    return response.statusCode() != HttpURLConnection.HTTP_CONFLICT;
+    return response.statusCode() != HTTP_CONFLICT;
+  }
+
+  protected static void requestShouldReturnForbidden(
+      Method method, User user, String path, Object... params) {
+
+    givenAuthenticatedRequestAsUser(user)
+        .when()
+        .request(method, path, params)
+        .then()
+        .statusCode(HTTP_FORBIDDEN);
+  }
+
+  protected static void requestShouldReturnUnauthorized(
+      Method method, String path, Object... params) {
+    givenUnauthenticatedJsonRequest()
+        .when()
+        .request(method, path, params)
+        .then()
+        .statusCode(HTTP_UNAUTHORIZED);
   }
 }

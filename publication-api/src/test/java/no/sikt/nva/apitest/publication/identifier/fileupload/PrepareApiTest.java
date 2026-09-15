@@ -1,7 +1,9 @@
 package no.sikt.nva.apitest.publication.identifier.fileupload;
 
+import static io.restassured.http.Method.POST;
+import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
+import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequest;
-import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
 import static no.sikt.nva.apitest.publication.PublicationPaths.fileUploadPreparePath;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -36,20 +38,8 @@ class PrepareApiTest extends FileUploadTestBase {
   @Description(useJavaDoc = true)
   void shouldReturnUnauthorizedWhenPrepareWithoutAuthorization() {
     var identifier = setupDraftPublication();
-    var createResponse = createFileUpload(identifier);
 
-    var uploadId = createResponse.jsonPath().getString(UPLOAD_ID);
-    var key = createResponse.jsonPath().getString(KEY);
-
-    var preparePayload =
-        Map.of(NUMBER, "1", UPLOAD_ID, uploadId, KEY, key, BODY, getFileAsString());
-
-    givenUnauthenticatedJsonRequest()
-        .body(preparePayload)
-        .when()
-        .post(fileUploadPreparePath(identifier))
-        .then()
-        .statusCode(401);
+    requestShouldReturnUnauthorized(POST, fileUploadPreparePath(identifier));
   }
 
   /**
@@ -70,7 +60,7 @@ class PrepareApiTest extends FileUploadTestBase {
         .when()
         .post(fileUploadPreparePath(identifier))
         .then()
-        .statusCode(404);
+        .statusCode(HTTP_NOT_FOUND);
   }
 
   /**
@@ -91,7 +81,7 @@ class PrepareApiTest extends FileUploadTestBase {
         .when()
         .post(fileUploadPreparePath(identifier))
         .then()
-        .statusCode(400);
+        .statusCode(HTTP_BAD_REQUEST);
   }
 
   /** Calling file-upload/prepare wrong uploadId should return status {@code 400 Bad Request}. */
@@ -112,7 +102,7 @@ class PrepareApiTest extends FileUploadTestBase {
         .when()
         .post(fileUploadPreparePath(identifier))
         .then()
-        .statusCode(400);
+        .statusCode(HTTP_BAD_REQUEST);
   }
 
   /** Calling file-upload/prepare missing uploadId should return status {@code 400 Bad Request}. */
@@ -132,7 +122,7 @@ class PrepareApiTest extends FileUploadTestBase {
         .when()
         .post(fileUploadPreparePath(identifier))
         .then()
-        .statusCode(400);
+        .statusCode(HTTP_BAD_REQUEST);
   }
 
   /** Calling file-upload/prepare wrong key should return status {@code 400 Bad Request}. */
@@ -153,7 +143,7 @@ class PrepareApiTest extends FileUploadTestBase {
         .when()
         .post(fileUploadPreparePath(identifier))
         .then()
-        .statusCode(400);
+        .statusCode(HTTP_BAD_REQUEST);
   }
 
   /** Calling file-upload/prepare missing key should return status {@code 400 Bad Request}. */
@@ -171,6 +161,6 @@ class PrepareApiTest extends FileUploadTestBase {
         .when()
         .post(fileUploadPreparePath(identifier))
         .then()
-        .statusCode(400);
+        .statusCode(HTTP_BAD_REQUEST);
   }
 }

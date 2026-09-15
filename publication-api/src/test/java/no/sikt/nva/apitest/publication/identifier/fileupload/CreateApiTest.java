@@ -1,7 +1,9 @@
 package no.sikt.nva.apitest.publication.identifier.fileupload;
 
+import static io.restassured.http.Method.POST;
+import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
+import static java.net.HttpURLConnection.HTTP_OK;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequest;
-import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
 import static no.sikt.nva.apitest.publication.PublicationPaths.fileUploadCreatePath;
 
 import io.qameta.allure.Description;
@@ -32,7 +34,7 @@ class CreateApiTest extends FileUploadTestBase {
             .when()
             .post(fileUploadCreatePath(identifier))
             .then()
-            .statusCode(200)
+            .statusCode(HTTP_OK)
             .extract()
             .jsonPath();
 
@@ -49,12 +51,7 @@ class CreateApiTest extends FileUploadTestBase {
   void shouldReturnUnauthorizedWhenCreateWithoutAuthorization() {
     var identifier = setupDraftPublication();
 
-    givenUnauthenticatedJsonRequest()
-        .body(CREATE_PAYLOAD)
-        .when()
-        .post(fileUploadCreatePath(identifier))
-        .then()
-        .statusCode(401);
+    requestShouldReturnUnauthorized(POST, fileUploadCreatePath(identifier));
   }
 
   /**
@@ -72,6 +69,6 @@ class CreateApiTest extends FileUploadTestBase {
         .when()
         .post(fileUploadCreatePath(identifier))
         .then()
-        .statusCode(404);
+        .statusCode(HTTP_NOT_FOUND);
   }
 }

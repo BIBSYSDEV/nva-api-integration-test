@@ -1,13 +1,11 @@
 package no.sikt.nva.apitest.scientificindex.reports;
 
-import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
+import static io.restassured.http.Method.GET;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
-import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_YEAR;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.getCurrentYear;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedRequestAsUser;
-import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
 import static no.sikt.nva.apitest.base.UserFixtures.UIS_NVI_CURATOR;
 import static no.sikt.nva.apitest.scientificindex.NviReports.Periods.THIS_PERIOD;
 import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.PERIOD_REPORT_PATH;
@@ -57,12 +55,7 @@ class FetchPeriodReportTest extends ScientificIndexTestBase {
   @DisplayName("Fetch report when not authenticated returns Unauthorized")
   @Description(useJavaDoc = true)
   void shouldReturnUnauthorizedWhenFetchingReportWhenUnauthenticated() {
-
-    givenUnauthenticatedJsonRequest()
-        .when()
-        .get(PERIOD_REPORT_PATH, THIS_PERIOD.getYear())
-        .then()
-        .statusCode(HTTP_UNAUTHORIZED);
+    requestShouldReturnUnauthorized(GET, PERIOD_REPORT_PATH, THIS_PERIOD.getYear());
   }
 
   /** Fetch report when user doesn't have the role Nvi-curator returns {@code 403 Forbidden} */
@@ -71,8 +64,7 @@ class FetchPeriodReportTest extends ScientificIndexTestBase {
   @DisplayName("Fetch institution report when not Nvi-curator returns Forbidden")
   @Description(useJavaDoc = true)
   void shouldReturnForbiddenWhenNonNvicuratorFetchPeriodReport(User user, SoftAssertions softly) {
-
-    fetchPeriodReport(user, CURRENT_YEAR, HTTP_FORBIDDEN);
+    requestShouldReturnForbidden(GET, user, PERIOD_REPORT_PATH, CURRENT_YEAR);
   }
 
   private ValidatableResponse fetchPeriodReport(User user, String year, int expectedResponseCode) {

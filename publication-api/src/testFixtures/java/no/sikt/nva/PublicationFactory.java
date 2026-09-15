@@ -1,6 +1,9 @@
 package no.sikt.nva;
 
 import static io.restassured.RestAssured.baseURI;
+import static java.net.HttpURLConnection.HTTP_ACCEPTED;
+import static java.net.HttpURLConnection.HTTP_CREATED;
+import static java.net.HttpURLConnection.HTTP_OK;
 import static no.sikt.Category.ACADEMIC_CHAPTER;
 import static no.sikt.Category.BOOK_ANTHOLOGY;
 import static no.sikt.Role.CREATOR;
@@ -63,7 +66,7 @@ public class PublicationFactory {
     return givenAuthenticatedJsonRequest(accessToken)
         .post(PublicationPaths.createPublicationPath())
         .then()
-        .statusCode(201)
+        .statusCode(HTTP_CREATED)
         .extract()
         .response();
   }
@@ -77,7 +80,7 @@ public class PublicationFactory {
         .body(payload)
         .put(publicationPath(payload.get(IDENTIFIER_FIELD).toString()))
         .then()
-        .statusCode(200)
+        .statusCode(HTTP_OK)
         .extract()
         .response();
   }
@@ -349,7 +352,7 @@ public class PublicationFactory {
     givenAuthenticatedJsonRequest(curatorAccessToken)
         .post(publishPublicationPath(identifier))
         .then()
-        .statusCode(202);
+        .statusCode(HTTP_ACCEPTED);
   }
 
   public List<Map<String, Object>> createContributors(List<Contributor> contributors) {

@@ -1,12 +1,10 @@
 package no.sikt.nva.apitest.scientificindex.candidate;
 
-import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
+import static io.restassured.http.Method.GET;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
-import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static java.util.UUID.randomUUID;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
-import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_NVI_CURATOR;
 import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATE_BY_PUBLICATION_PATH;
 
@@ -63,10 +61,8 @@ class FetchCandidateByPublicationTest extends ScientificIndexTestBase {
   @DisplayName("Fetch candidate for publication unauthenticated")
   @Description(useJavaDoc = true)
   void shouldReturnUnauthorizedWhenFetchingCandidateUnauthenticated() {
-    givenUnauthenticatedJsonRequest()
-        .get(CANDIDATE_BY_PUBLICATION_PATH, candidate.publicationIdentifier())
-        .then()
-        .statusCode(HTTP_UNAUTHORIZED);
+    requestShouldReturnUnauthorized(
+        GET, CANDIDATE_BY_PUBLICATION_PATH, candidate.publicationIdentifier());
   }
 
   /** Fetching a candidate as a non-NVI user returns status {@code 403 Forbidden}. */
@@ -76,10 +72,8 @@ class FetchCandidateByPublicationTest extends ScientificIndexTestBase {
   @DisplayName("Fetch candidate for publication unauthorized")
   @Description(useJavaDoc = true)
   void shouldReturnUnauthorizedWhenFetchingCandidateWithoutAccess(User user) {
-    givenAuthenticatedJsonRequestAsUser(user)
-        .get(CANDIDATE_BY_PUBLICATION_PATH, candidate.publicationIdentifier())
-        .then()
-        .statusCode(HTTP_FORBIDDEN);
+    requestShouldReturnForbidden(
+        GET, user, CANDIDATE_BY_PUBLICATION_PATH, candidate.publicationIdentifier());
   }
 
   /** Fetching a candidate for a non-candidate publication returns status {@code 404 Not Found}. */
