@@ -48,17 +48,12 @@ class GetProjectTest extends ProjectTestBase {
   @Description(useJavaDoc = true)
   void shouldReturnNotFoundWhenFetchingNonExistingProject() {
 
-    var logConfig = LogConfig.logConfig().blacklistHeaders(List.of("Authorization"));
-    RestAssured.config = RestAssured.config().logConfig(logConfig);
-
-    var projectIdentifier = 123_456;
+    var projectIdentifier = "12345678";
 
     givenUnauthenticatedJsonRequest()
         .when()
         .get(PROJECT_PATH, projectIdentifier)
         .then()
-        .log()
-        .all()
         .statusCode(HTTP_NOT_FOUND);
   }
 }
