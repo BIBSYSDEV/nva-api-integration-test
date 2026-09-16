@@ -1,12 +1,12 @@
 package no.sikt.nva.apitest.project;
 
+import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
-import static no.sikt.nva.apitest.project.ProjectFactory.BASE_PROJECT_PATH;
+import static no.sikt.nva.apitest.project.ProjectFactory.PROJECT_PATH;
 
 import io.qameta.allure.Description;
-import io.restassured.RestAssured;
 import java.util.UUID;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
@@ -17,66 +17,40 @@ import org.junit.jupiter.api.extension.ExtendWith;
 @ExtendWith(SoftAssertionsExtension.class)
 class GetProjectTest extends ProjectTestBase {
 
-  /** Get projects returns list of projects and status {@code 200 Ok} */
+  /** Get project by identifier returns project metadata and status {@code 200 Ok} */
   @Test
-  @DisplayName("Get project")
+  @DisplayName("Fetch project")
   @Description(useJavaDoc = true)
-  void shouldReturnListOfProjects(SoftAssertions softly) {
+  void shouldGetProject(SoftAssertions softly) {
 
-    var projectTitle = "Cristin API test project " + UUID.randomUUID().toString();
-    PROJECT_FACTORY.createProject(UIB_CREATOR, projectTitle);
+    var projectTitle = "Cristin API test project " + UUID.randomUUID();
+    var projectIdentifier =
+        PROJECT_FACTORY.createProject(UIB_CREATOR, projectTitle).projectIdentifier();
 
     var jsonPath =
         givenUnauthenticatedJsonRequest()
             .when()
-            .queryParam("query", "API")
-            .get(BASE_PROJECT_PATH)
+            .get(PROJECT_PATH, projectIdentifier)
             .then()
             .statusCode(HTTP_OK)
             .extract()
             .jsonPath();
 
-    softly.assertThat(jsonPath.getString("id")).isNotEmpty();
-    softly.assertThat(jsonPath.getInt("size")).isGreaterThan(0);
-    softly.assertThat(jsonPath.getString("searchString")).contains("title=API");
-    softly.assertThat(jsonPath.getInt("firstRecord")).isEqualTo(1);
-    softly.assertThat(jsonPath.getString("previousResults")).isNull();
-    softly.assertThat(jsonPath.getList("hits")).hasSizeGreaterThan(0);
-    softly.assertThat(jsonPath.getString("hits[0].type")).isEqualTo("Project");
+    softly.assertThat(jsonPath.getString("title")).isEqualTo(projectTitle);
   }
 
-  /** Get next page returns next results and status {@code 200 Ok} */
+  /** Get non-existing project status {@code 404 Not Found} */
   @Test
-  @DisplayName("Get project")
+  @DisplayName("Fetch non existing project returns Not Found")
   @Description(useJavaDoc = true)
-  void shouldReturnNextPageOfProjects(SoftAssertions softly) {
-    var projectTitle = "Cristin API test project " + UUID.randomUUID().toString();
-    PROJECT_FACTORY.createProject(UIB_CREATOR, projectTitle);
+  void shouldReturnNotFoundWhenFetchingNonExistingProject() {
 
-    var firstPageJsonPath =
-        givenUnauthenticatedJsonRequest()
-            .when()
-            .queryParam("query", "API")
-            .get(BASE_PROJECT_PATH)
-            .then()
-            .statusCode(HTTP_OK)
-            .extract()
-            .jsonPath();
+    var projectIdentifier = 1_234_567_890;
 
-    var nextPageQuery = firstPageJsonPath.getString("nextResults").replace(RestAssured.baseURI, "");
-
-    var nextPageJsonPath =
-        givenUnauthenticatedJsonRequest()
-            .when()
-            .get(nextPageQuery)
-            .then()
-            .statusCode(HTTP_OK)
-            .extract()
-            .jsonPath();
-
-    softly.assertThat(nextPageJsonPath.getInt("firstRecord")).isEqualTo(6);
-    softly
-        .assertThat(nextPageJsonPath.getString("previousResults"))
-        .contains("page=1&title=API&results=5");
+    givenUnauthenticatedJsonRequest()
+        .when()
+        .get(PROJECT_PATH, projectIdentifier)
+        .then()
+        .statusCode(HTTP_NOT_FOUND);
   }
 }
