@@ -7,6 +7,9 @@ import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
 import static no.sikt.nva.apitest.project.ProjectFactory.PROJECT_PATH;
 
 import io.qameta.allure.Description;
+import io.restassured.RestAssured;
+import io.restassured.config.LogConfig;
+import java.util.List;
 import java.util.UUID;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
@@ -45,12 +48,17 @@ class GetProjectTest extends ProjectTestBase {
   @Description(useJavaDoc = true)
   void shouldReturnNotFoundWhenFetchingNonExistingProject() {
 
-    var projectIdentifier = 1_234_567_890;
+    var logConfig = LogConfig.logConfig().blacklistHeaders(List.of("Authorization"));
+    RestAssured.config = RestAssured.config().logConfig(logConfig);
+
+    var projectIdentifier = 123_456;
 
     givenUnauthenticatedJsonRequest()
         .when()
         .get(PROJECT_PATH, projectIdentifier)
         .then()
+        .log()
+        .all()
         .statusCode(HTTP_NOT_FOUND);
   }
 }
