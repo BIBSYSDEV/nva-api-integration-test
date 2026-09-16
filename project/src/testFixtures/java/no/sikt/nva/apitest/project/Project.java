@@ -1,3 +1,5 @@
 package no.sikt.nva.apitest.project;
 
-public record Project(String projectIdentifier) {}
+import java.util.Map;
+
+public record Project(String projectIdentifier, Map<String, Object> payload) {}

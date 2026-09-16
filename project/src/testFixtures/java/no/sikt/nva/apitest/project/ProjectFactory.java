@@ -1,17 +1,17 @@
 package no.sikt.nva.apitest.project;
 
 import static java.net.HttpURLConnection.HTTP_CREATED;
-import static no.sikt.nva.apitest.base.Affiliation.UIB;
-import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
-
-import io.restassured.path.json.JsonPath;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import io.restassured.path.json.JsonPath;
 import no.sikt.nva.apitest.base.Affiliation;
+import static no.sikt.nva.apitest.base.Affiliation.UIB;
 import no.sikt.nva.apitest.base.CurrentTimeConstants;
+import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
 import no.sikt.nva.apitest.base.User;
 
 public class ProjectFactory {
@@ -36,7 +36,7 @@ public class ProjectFactory {
             .statusCode(HTTP_CREATED)
             .extract()
             .jsonPath();
-    return new Project(List.of(jsonPath.getString("id").split("/")).getLast());
+    return new Project(List.of(jsonPath.getString("id").split("/")).getLast(), jsonPath.getMap(""));
   }
 
   public static Map<String, Object> createProjectPayload(
