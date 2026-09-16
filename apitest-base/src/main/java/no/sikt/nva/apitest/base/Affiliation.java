@@ -5,7 +5,8 @@ public enum Affiliation {
   KRISTIANIA("1615.0.0.0"),
   OSLO_MET("215.0.0.0"),
   UIS("217.0.0.0"),
-  SIKT("20754.0.0.0");
+  SIKT("20754.0.0.0"),
+  UNIT("20202.0.0.0");
 
   private final String cristinId;
 
