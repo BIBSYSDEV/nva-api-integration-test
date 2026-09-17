@@ -1,28 +1,27 @@
 package no.sikt.nva.apitest.project;
 
+import static io.restassured.http.Method.PATCH;
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static java.net.HttpURLConnection.HTTP_OK;
+import static no.sikt.nva.apitest.base.Affiliation.UIB;
+import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedRequestAsUser;
+import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
+import static no.sikt.nva.apitest.base.UserFixtures.UIB_CONTRIBUTOR;
+import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
+import static no.sikt.nva.apitest.project.ProjectFactory.PROJECT_PATH;
+
+import io.qameta.allure.Description;
+import io.restassured.path.json.JsonPath;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
+import no.sikt.nva.apitest.base.User;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-
-import io.qameta.allure.Description;
-import static io.restassured.http.Method.PATCH;
-import io.restassured.path.json.JsonPath;
-import static no.sikt.nva.apitest.base.Affiliation.UIB;
-import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedRequestAsUser;
-import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
-import no.sikt.nva.apitest.base.User;
-import static no.sikt.nva.apitest.base.UserFixtures.UIB_CONTRIBUTOR;
-import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
-import static no.sikt.nva.apitest.project.ProjectFactory.PROJECT_PATH;
 
 @ExtendWith(SoftAssertionsExtension.class)
 class UpdateProjectTest extends ProjectTestBase {
@@ -102,30 +101,30 @@ class UpdateProjectTest extends ProjectTestBase {
     project.payload().put("contributors", contributors);
 
     givenAuthenticatedRequestAsUser(UIB_CREATOR)
-    .body(project.payload())
-    .when()
-    .patch(PROJECT_PATH, project.projectIdentifier())
-    .then()
-    .statusCode(HTTP_NO_CONTENT);
+        .body(project.payload())
+        .when()
+        .patch(PROJECT_PATH, project.projectIdentifier())
+        .then()
+        .statusCode(HTTP_NO_CONTENT);
 
     var jsonPathGet = getProject(project.projectIdentifier());
     String identifier = List.of(jsonPathGet.getString("id").split("/")).getLast();
 
     var contributor = jsonPathGet.getList("contributors").getLast();
-    var identity = (Map<String, String>) ((Map<String, Object>)contributor).get("identity");
+    var identity = (Map<String, String>) ((Map<String, Object>) contributor).get("identity");
     softly.assertThat(identity.get("id")).isEqualTo(UIB_CONTRIBUTOR.cristinUri());
 
     var payload = jsonPathGet.getMap("");
     String updatedTitle = "Updated API test project" + UUID.randomUUID();
     payload.put("title", updatedTitle);
     givenAuthenticatedRequestAsUser(UIB_CONTRIBUTOR)
-    .body(payload)
-    .when()
-    .patch(PROJECT_PATH, identifier)
-    .then()
-    .statusCode(HTTP_NO_CONTENT)
-    .extract()
-    .jsonPath();
+        .body(payload)
+        .when()
+        .patch(PROJECT_PATH, identifier)
+        .then()
+        .statusCode(HTTP_NO_CONTENT)
+        .extract()
+        .jsonPath();
 
     var jsonPath = getProject(identifier);
 
@@ -133,21 +132,16 @@ class UpdateProjectTest extends ProjectTestBase {
   }
 
   private List<Map<String, Object>> createProjectManagerPayload(User projectManager) {
-    var projectManagerPayload = Map.of(
-      "identity", Map.of(
-        "type", "Person",
-        "id", projectManager.cristinUri()
-      ),
-      "roles", List.of(
+    var projectManagerPayload =
         Map.of(
-          "type", "ProjectManager",
-          "affiliation", Map.of(
-            "type", "Organization",
-            "id", UIB.getValue()
-          )
-        )
-      )
-    );
+            "identity", Map.of("type", "Person", "id", projectManager.cristinUri()),
+            "roles",
+                List.of(
+                    Map.of(
+                        "type",
+                        "ProjectManager",
+                        "affiliation",
+                        Map.of("type", "Organization", "id", UIB.getValue()))));
 
     var updatedContributors = List.of(projectManagerPayload);
     return updatedContributors;
