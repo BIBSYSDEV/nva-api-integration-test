@@ -7,9 +7,6 @@ import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
 import static no.sikt.nva.apitest.project.ProjectFactory.PROJECT_PATH;
 
 import io.qameta.allure.Description;
-import io.restassured.RestAssured;
-import io.restassured.config.LogConfig;
-import java.util.List;
 import java.util.UUID;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
