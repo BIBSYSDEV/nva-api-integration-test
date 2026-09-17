@@ -19,7 +19,7 @@ class SearchProjectTest extends ProjectTestBase {
 
   /** Serach for projects returns list of projects and status {@code 200 Ok} */
   @Test
-  @DisplayName("Get project")
+  @DisplayName("List projects")
   @Description(useJavaDoc = true)
   void shouldReturnListOfProjects(SoftAssertions softly) {
 
