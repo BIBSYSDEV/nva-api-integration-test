@@ -1,18 +1,19 @@
 package no.sikt.nva.apitest.project;
 
 import static java.net.HttpURLConnection.HTTP_OK;
-import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
-import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
-import static no.sikt.nva.apitest.project.ProjectFactory.BASE_PROJECT_PATH;
-
-import io.qameta.allure.Description;
-import io.restassured.RestAssured;
 import java.util.UUID;
+
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+
+import io.qameta.allure.Description;
+import io.restassured.RestAssured;
+import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
+import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
+import static no.sikt.nva.apitest.project.ProjectFactory.BASE_PROJECT_PATH;
 
 @ExtendWith(SoftAssertionsExtension.class)
 class SearchProjectTest extends ProjectTestBase {
@@ -30,6 +31,7 @@ class SearchProjectTest extends ProjectTestBase {
         givenUnauthenticatedJsonRequest()
             .when()
             .queryParam("query", "API")
+            .queryParam("results", "5")
             .get(BASE_PROJECT_PATH)
             .then()
             .statusCode(HTTP_OK)
@@ -57,6 +59,7 @@ class SearchProjectTest extends ProjectTestBase {
         givenUnauthenticatedJsonRequest()
             .when()
             .queryParam("query", "API")
+            .queryParam("results", "5")
             .get(BASE_PROJECT_PATH)
             .then()
             .statusCode(HTTP_OK)

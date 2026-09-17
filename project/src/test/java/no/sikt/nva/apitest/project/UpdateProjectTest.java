@@ -2,6 +2,7 @@ package no.sikt.nva.apitest.project;
 
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedRequestAsUser;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
+import static no.sikt.nva.apitest.project.ProjectFactory.PROJECT_PATH;
 
 import io.qameta.allure.Description;
 import java.util.UUID;
@@ -29,7 +30,7 @@ class UpdateProjectTest extends ProjectTestBase {
     givenAuthenticatedRequestAsUser(UIB_CREATOR)
         .body(payload)
         .when()
-        .patch("/cristin/project/{identifier}", identifier)
+        .patch(PROJECT_PATH, identifier)
         .then()
         .statusCode(204)
         .extract()
@@ -38,7 +39,7 @@ class UpdateProjectTest extends ProjectTestBase {
     var jsonPathGet =
         givenAuthenticatedRequestAsUser(UIB_CREATOR)
             .when()
-            .get("/cristin/project/{identifier}", identifier)
+            .get(PROJECT_PATH, identifier)
             .then()
             .statusCode(200)
             .extract()
