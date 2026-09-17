@@ -47,7 +47,7 @@ class SearchProjectTest extends ProjectTestBase {
 
   /** Get next page returns next results and status {@code 200 Ok} */
   @Test
-  @DisplayName("Get project")
+  @DisplayName("List projects with pagination")
   @Description(useJavaDoc = true)
   void shouldReturnNextPageOfProjects(SoftAssertions softly) {
     var projectTitle = "Cristin API test project " + UUID.randomUUID().toString();
