@@ -17,7 +17,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 @ExtendWith(SoftAssertionsExtension.class)
 class SearchProjectTest extends ProjectTestBase {
 
-  /** Serach for projects returns list of projects and status {@code 200 Ok} */
+  /** Search for projects returns list of projects and status {@code 200 Ok} */
   @Test
   @DisplayName("List projects")
   @Description(useJavaDoc = true)
