@@ -7,7 +7,7 @@ import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_DATE;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.getCurrentDate;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
-import static no.sikt.nva.apitest.project.ProjectFactory.PROJECT_PATH;
+import static no.sikt.nva.apitest.project.ProjectFactory.BASE_PROJECT_PATH;
 
 import io.qameta.allure.Description;
 import io.restassured.RestAssured;
@@ -41,7 +41,7 @@ class CreateProjectTest extends ProjectTestBase {
         givenAuthenticatedJsonRequestAsUser(UIB_CREATOR)
             .body(payload)
             .when()
-            .post(PROJECT_PATH)
+            .post(BASE_PROJECT_PATH)
             .then()
             .statusCode(HTTP_CREATED)
             .extract()
@@ -55,7 +55,7 @@ class CreateProjectTest extends ProjectTestBase {
   @DisplayName("Create new project")
   @Description(useJavaDoc = true)
   void shouldRetunUnauthorizedWhenUnauthenticated() {
-    requestShouldReturnUnauthorized(POST, PROJECT_PATH);
+    requestShouldReturnUnauthorized(POST, BASE_PROJECT_PATH);
   }
 
   private void assertProjectResponse(
