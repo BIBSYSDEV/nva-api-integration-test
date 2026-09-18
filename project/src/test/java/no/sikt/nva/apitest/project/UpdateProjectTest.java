@@ -90,7 +90,7 @@ class UpdateProjectTest extends ProjectTestBase {
   @Test
   @DisplayName("Unauthenticated request returns Unauthorized when updating project")
   @Description(useJavaDoc = true)
-  void shouldReturnUnauthorizedWhenNotAuthenticatet(SoftAssertions softly) {
+  void shouldReturnUnauthorizedWhenNotAuthenticated() {
     requestShouldReturnUnauthorized(PATCH, PROJECT_PATH, testProjectIdentifier);
   }
 
