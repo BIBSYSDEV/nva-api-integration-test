@@ -141,7 +141,7 @@ class UpdateProjectTest extends ProjectTestBase {
     var payload = jsonPathGet.getMap("");
     var updatedTitle = "Updated API test project" + UUID.randomUUID();
     payload.put(TITLE, updatedTitle);
-    givenAuthenticatedRequestAsUser(UIB_CONTRIBUTOR)
+    givenAuthenticatedRequestAsUser(projectManager)
         .body(payload)
         .when()
         .patch(PROJECT_PATH, identifier)
