@@ -47,6 +47,7 @@ class UpdateProjectTest extends ProjectTestBase {
     testProjectIdentifier = project.projectIdentifier();
   }
 
+  /** Update project when owner returns {@code 204 No Content} */
   @Test
   @DisplayName("Update project")
   @Description(useJavaDoc = true)
@@ -85,6 +86,7 @@ class UpdateProjectTest extends ProjectTestBase {
         .jsonPath();
   }
 
+  /** Update project when unauthorized returns {@code 401 Unauthorized} */
   @Test
   @DisplayName("Unauthorized user returns Unauthorized when updating project")
   @Description(useJavaDoc = true)
@@ -92,12 +94,13 @@ class UpdateProjectTest extends ProjectTestBase {
     requestShouldReturnUnauthorized(PATCH, PROJECT_PATH, testProjectIdentifier);
   }
 
+  /** Update project when not owner or project manager returns {@403 Forbidden} */
   @ParameterizedTest
   @MethodSource("userByRoleProvider")
   @DisplayName("Update returns Forbidden when user is not owner or project manager")
   @Description(useJavaDoc = true)
-  void shouldReturnForbiddenWhenNotOwnerOrProjectManager() {
-    requestShouldReturnForbidden(PATCH, UIB_CONTRIBUTOR, PROJECT_PATH, testProjectIdentifier);
+  void shouldReturnForbiddenWhenNotOwnerOrProjectManager(User user) {
+    requestShouldReturnForbidden(PATCH, user, PROJECT_PATH, testProjectIdentifier);
   }
 
   private static Stream<Arguments> userByRoleProvider() {
@@ -110,6 +113,7 @@ class UpdateProjectTest extends ProjectTestBase {
         argumentSet("Editor", UIB_EDITOR));
   }
 
+  /** Update project when not owner but project manager returns {@code 204 No Content} */
   @Test
   @DisplayName("Update project when project manager")
   @Description(useJavaDoc = true)
