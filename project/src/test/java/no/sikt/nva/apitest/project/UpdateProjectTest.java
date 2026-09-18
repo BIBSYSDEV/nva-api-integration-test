@@ -86,9 +86,9 @@ class UpdateProjectTest extends ProjectTestBase {
         .jsonPath();
   }
 
-  /** Update project when unauthorized returns {@code 401 Unauthorized} */
+  /** Update project when unauthenticated returns {@code 401 Unauthorized} */
   @Test
-  @DisplayName("Unauthorized user returns Unauthorized when updating project")
+  @DisplayName("Unauthenticated request returns Unauthorized when updating project")
   @Description(useJavaDoc = true)
   void shouldReturnUnauthorizedWhenNotAuthenticatet(SoftAssertions softly) {
     requestShouldReturnUnauthorized(PATCH, PROJECT_PATH, testProjectIdentifier);
