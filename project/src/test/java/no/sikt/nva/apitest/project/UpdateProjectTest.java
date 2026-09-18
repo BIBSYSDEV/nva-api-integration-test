@@ -94,7 +94,7 @@ class UpdateProjectTest extends ProjectTestBase {
     requestShouldReturnUnauthorized(PATCH, PROJECT_PATH, testProjectIdentifier);
   }
 
-  /** Update project when not owner or project manager returns {@403 Forbidden} */
+  /** Update project when not owner or project manager returns {@code 403 Forbidden} */
   @ParameterizedTest
   @MethodSource("userByRoleProvider")
   @DisplayName("Update returns Forbidden when user is not owner or project manager")
