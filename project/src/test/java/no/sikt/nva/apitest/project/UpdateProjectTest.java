@@ -136,7 +136,7 @@ class UpdateProjectTest extends ProjectTestBase {
 
     var contributor = jsonPathGet.getList("contributors").getLast();
     var identity = (Map<String, String>) ((Map<String, Object>) contributor).get("identity");
-    softly.assertThat(identity.get("id")).isEqualTo(UIB_CONTRIBUTOR.cristinUri());
+    softly.assertThat(identity.get("id")).isEqualTo(projectManager.cristinUri());
 
     var payload = jsonPathGet.getMap("");
     String updatedTitle = "Updated API test project" + UUID.randomUUID();
