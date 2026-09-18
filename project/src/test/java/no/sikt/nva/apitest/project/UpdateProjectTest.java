@@ -139,7 +139,7 @@ class UpdateProjectTest extends ProjectTestBase {
     softly.assertThat(identity.get("id")).isEqualTo(projectManager.cristinUri());
 
     var payload = jsonPathGet.getMap("");
-    String updatedTitle = "Updated API test project" + UUID.randomUUID();
+    var updatedTitle = "Updated API test project" + UUID.randomUUID();
     payload.put(TITLE, updatedTitle);
     givenAuthenticatedRequestAsUser(UIB_CONTRIBUTOR)
         .body(payload)
