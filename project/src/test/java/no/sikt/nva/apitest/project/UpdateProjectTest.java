@@ -1,30 +1,11 @@
 package no.sikt.nva.apitest.project;
 
+import static io.restassured.http.Method.PATCH;
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static java.net.HttpURLConnection.HTTP_OK;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.stream.Stream;
-
-import org.assertj.core.api.SoftAssertions;
-import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import static org.junit.jupiter.params.provider.Arguments.argumentSet;
-import org.junit.jupiter.params.provider.MethodSource;
-
-import io.qameta.allure.Description;
-import static io.restassured.http.Method.PATCH;
-import io.restassured.path.json.JsonPath;
 import static no.sikt.nva.apitest.base.Affiliation.UIB;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedRequestAsUser;
 import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
-import no.sikt.nva.apitest.base.User;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CONTRIBUTOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_DOI_CURATOR;
@@ -33,6 +14,24 @@ import static no.sikt.nva.apitest.base.UserFixtures.UIB_NVI_CURATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_PUBLISHING_CURATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_SUPPORT_CURATOR;
 import static no.sikt.nva.apitest.project.ProjectFactory.PROJECT_PATH;
+import static org.junit.jupiter.params.provider.Arguments.argumentSet;
+
+import io.qameta.allure.Description;
+import io.restassured.path.json.JsonPath;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Stream;
+import no.sikt.nva.apitest.base.User;
+import org.assertj.core.api.SoftAssertions;
+import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 @ExtendWith(SoftAssertionsExtension.class)
 class UpdateProjectTest extends ProjectTestBase {
@@ -62,7 +61,7 @@ class UpdateProjectTest extends ProjectTestBase {
     var identifier = project.projectIdentifier();
     var payload = project.payload();
     var updatedTitle = "Updated API test project " + UUID.randomUUID();
-    payload.put(TITLE, projectTitle);
+    payload.put(TITLE, updatedTitle);
 
     givenAuthenticatedRequestAsUser(UIB_CREATOR)
         .body(payload)
