@@ -62,7 +62,7 @@ class UpdateProjectTest extends ProjectTestBase {
     var identifier = project.projectIdentifier();
     var payload = project.payload();
     var updatedTitle = "Updated API test project " + UUID.randomUUID();
-    payload.put(TITLE, projectTitle);
+    payload.put(TITLE, updatedTitle);
 
     givenAuthenticatedRequestAsUser(UIB_CREATOR)
         .body(payload)
