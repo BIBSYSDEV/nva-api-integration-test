@@ -191,8 +191,7 @@ public final class CognitoLogin {
         String.format(
             "client_id=%s&response_type=code&scope=%s&redirect_uri=%s",
             CLIENT_ID,
-            "aws.cognito.signin.user.admin email https://api.nva.unit.no/scopes/frontend openid"
-                + " phone profile",
+            "email https://api.nva.unit.no/scopes/frontend openid phone profile",
             REDIRECT_URI);
     return baseUrl + "?" + queryString;
   }
