@@ -91,7 +91,7 @@ class UpdateApiTest extends FileUploadTestBase {
     @Test
     @DisplayName("Unrelated user cannot update a publication")
     @Description(useJavaDoc = true)
-    @Disabled("FIXME: See NP-51870")
+    @Disabled("FIXME: Unrelated user should get 403, but gets 401. See NP-51870.")
     void shouldReturnForbiddenWhenUnrelatedUserUpdates() {
       var draft = PUBLICATION_FACTORY.createDraftPublication(UIB_CREATOR).jsonPath();
 
@@ -137,7 +137,7 @@ class UpdateApiTest extends FileUploadTestBase {
     @Test
     @DisplayName("Unrelated user cannot unpublish a publication")
     @Description(useJavaDoc = true)
-    @Disabled("FIXME: See NP-51870")
+    @Disabled("FIXME: Unrelated user should get 403, but gets 401. See NP-51870.")
     void shouldReturnForbiddenWhenUnrelatedUserUnpublishes() {
       var publicationIdentifier = setupPublishedPublication(List.of(UIB_CREATOR));
 
@@ -180,7 +180,7 @@ class UpdateApiTest extends FileUploadTestBase {
     @Test
     @DisplayName("Owner who is not an editor cannot republish")
     @Description(useJavaDoc = true)
-    @Disabled("FIXME: See NP-51870")
+    @Disabled("FIXME: Non-editor should get 403, but gets 401. See NP-51870.")
     void shouldReturnForbiddenWhenNonEditorRepublishes() {
       var publicationIdentifier = setupUnpublishedPublication(List.of(UIB_CREATOR));
 
@@ -347,7 +347,7 @@ class UpdateApiTest extends FileUploadTestBase {
     @Test
     @DisplayName("Owner who is not an editor cannot delete")
     @Description(useJavaDoc = true)
-    @Disabled("FIXME: See NP-51870")
+    @Disabled("FIXME: Non-editor should get 403, but gets 401. See NP-51870.")
     void shouldReturnForbiddenWhenNonEditorDeletes() {
       var publicationIdentifier = setupUnpublishedPublication(List.of(UIB_CREATOR));
 
