@@ -2,7 +2,7 @@ package no.sikt.nva.apitest.publication.identifier.fileupload;
 
 import static io.restassured.RestAssured.given;
 import static java.net.HttpURLConnection.HTTP_OK;
-import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequest;
+import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
 import static no.sikt.nva.apitest.publication.PublicationPaths.fileUploadCompletePath;
 import static no.sikt.nva.apitest.publication.PublicationPaths.fileUploadCreatePath;
@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 import no.sikt.nva.PublicationFactory;
 import no.sikt.nva.apitest.base.CognitoLogin;
+import no.sikt.nva.apitest.base.User;
 import no.sikt.nva.apitest.publication.PublicationTestBase;
 import org.junit.jupiter.api.BeforeAll;
 
@@ -67,6 +68,11 @@ public class FileUploadTestBase extends PublicationTestBase {
   }
 
   public Response completeUpload(String identifier, String uploadId, String key, String eTag) {
+    return completeUploadAsUser(UIB_CREATOR, identifier, uploadId, key, eTag);
+  }
+
+  public Response completeUploadAsUser(
+      User user, String identifier, String uploadId, String key, String eTag) {
     Map<String, Object> parts = Map.of("etag", eTag, "partNumber", "1");
     Map<String, Object> completePayload =
         Map.of(
@@ -79,7 +85,7 @@ public class FileUploadTestBase extends PublicationTestBase {
             PARTS,
             new Object[] {parts});
 
-    return givenAuthenticatedJsonRequest(creatorAccessToken)
+    return givenAuthenticatedJsonRequestAsUser(user)
         .body(completePayload)
         .when()
         .post(fileUploadCompletePath(identifier))
@@ -104,9 +110,13 @@ public class FileUploadTestBase extends PublicationTestBase {
   }
 
   public String prepareFileUpload(String identifier, String uploadId, String key) {
+    return prepareFileUploadAsUser(UIB_CREATOR, identifier, uploadId, key);
+  }
+
+  public String prepareFileUploadAsUser(User user, String identifier, String uploadId, String key) {
     var preparePayload = Map.of(NUMBER, "1", UPLOAD_ID, uploadId, KEY, key, BODY, fileAsString);
     var url =
-        givenAuthenticatedJsonRequest(creatorAccessToken)
+        givenAuthenticatedJsonRequestAsUser(user)
             .body(preparePayload)
             .when()
             .post(fileUploadPreparePath(identifier))
@@ -130,15 +140,23 @@ public class FileUploadTestBase extends PublicationTestBase {
   }
 
   public String prepareAndUpload(String identifier, String uploadId, String key) {
+    return prepareAndUploadAsUser(UIB_CREATOR, identifier, uploadId, key);
+  }
 
-    var url = prepareFileUpload(identifier, uploadId, key);
+  public String prepareAndUploadAsUser(User user, String identifier, String uploadId, String key) {
+
+    var url = prepareFileUploadAsUser(user, identifier, uploadId, key);
 
     return uploadToPresignedUrl(url).headers().getValue("ETag");
   }
 
   public final Response createFileUpload(String identifier) {
+    return createFileUploadAsUser(UIB_CREATOR, identifier);
+  }
 
-    return givenAuthenticatedJsonRequest(creatorAccessToken)
+  public final Response createFileUploadAsUser(User user, String identifier) {
+
+    return givenAuthenticatedJsonRequestAsUser(user)
         .body(CREATE_PAYLOAD)
         .when()
         .post(fileUploadCreatePath(identifier))
