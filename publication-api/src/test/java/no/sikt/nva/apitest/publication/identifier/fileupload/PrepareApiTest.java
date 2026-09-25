@@ -91,11 +91,9 @@ class PrepareApiTest extends FileUploadTestBase {
   @Description(useJavaDoc = true)
   void shouldReturnBadRequestWhenPrepareFileWithWrongUploadId() {
     var identifier = setupDraftPublication();
-    var createResponse = createFileUpload(identifier);
-    var key = createResponse.jsonPath().getString(KEY);
-    var uploadId = UPLOAD_ID;
+    var key = createFileUpload(identifier).key();
     var preparePayload =
-        Map.of(NUMBER, "1", UPLOAD_ID, uploadId, KEY, key, BODY, getFileAsString());
+        Map.of(NUMBER, "1", UPLOAD_ID, UPLOAD_ID, KEY, key, BODY, getFileAsString());
 
     givenAuthenticatedJsonRequest(getCreatorAccessToken())
         .body(preparePayload)
@@ -112,8 +110,7 @@ class PrepareApiTest extends FileUploadTestBase {
   @Description(useJavaDoc = true)
   void shouldReturnBadRequestWhenPrepareFileWithMissingUploadId() {
     var identifier = setupDraftPublication();
-    var createResponse = createFileUpload(identifier);
-    var key = createResponse.jsonPath().getString(KEY);
+    var key = createFileUpload(identifier).key();
 
     var preparePayload = Map.of(NUMBER, "1", KEY, key, BODY, getFileAsString());
 
@@ -132,11 +129,9 @@ class PrepareApiTest extends FileUploadTestBase {
   @Description(useJavaDoc = true)
   void shouldReturnBadRequestWhenPrepareFileWithWrongKey() {
     var identifier = setupDraftPublication();
-    var createResponse = createFileUpload(identifier);
-    var uploadId = createResponse.jsonPath().getString(UPLOAD_ID);
-    var key = KEY;
+    var uploadId = createFileUpload(identifier).uploadId();
     var preparePayload =
-        Map.of(NUMBER, "1", UPLOAD_ID, uploadId, KEY, key, BODY, getFileAsString());
+        Map.of(NUMBER, "1", UPLOAD_ID, uploadId, KEY, KEY, BODY, getFileAsString());
 
     givenAuthenticatedJsonRequest(getCreatorAccessToken())
         .body(preparePayload)
@@ -152,8 +147,7 @@ class PrepareApiTest extends FileUploadTestBase {
   @Description(useJavaDoc = true)
   void shouldReturnBadRequestWhenPrepareFileWithMissingKey() {
     var identifier = setupDraftPublication();
-    var createResponse = createFileUpload(identifier);
-    var uploadId = createResponse.jsonPath().getString(UPLOAD_ID);
+    var uploadId = createFileUpload(identifier).uploadId();
     var preparePayload = Map.of(NUMBER, "1", UPLOAD_ID, uploadId, BODY, getFileAsString());
 
     givenAuthenticatedJsonRequest(getCreatorAccessToken())
