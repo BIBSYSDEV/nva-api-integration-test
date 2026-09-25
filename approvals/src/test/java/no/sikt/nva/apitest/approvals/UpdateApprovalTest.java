@@ -133,7 +133,9 @@ class UpdateApprovalTest extends IntegrationTestBase {
         .containsExactly(entry(UIB_IDENTIFIER_NAME, takenValue));
   }
 
+  /** An approval can only be changed by a client of the customer that owns it. */
   @Test
+  @DisplayName("Update approval owned by another customer")
   @Description(useJavaDoc = true)
   void shouldReturnForbiddenWhenApprovalBelongsToAnotherCustomer() {
     var approvalIdentifier = createApprovalWith(uniqueValue());
@@ -166,7 +168,9 @@ class UpdateApprovalTest extends IntegrationTestBase {
         .statusCode(HTTP_BAD_REQUEST);
   }
 
+  /** An update replaces the source of an approval, so it must always provide one. */
   @Test
+  @DisplayName("Update approval without source")
   @Description(useJavaDoc = true)
   void shouldReturnBadRequestWhenUpdatingApprovalAndSourceIsMissingInRequestBody() {
     var approvalIdentifier = createApprovalWith(uniqueValue());
