@@ -207,7 +207,6 @@ class UpdateApiTest extends PublicationTestBase {
      */
     @Test
     @DisplayName("File uploaded while unpublished is covered by an approval ticket")
-    @Disabled
     @Description(useJavaDoc = true)
     void shouldCoverFileUploadedWhileUnpublishedByApprovalTicket(SoftAssertions softly) {
       var publicationIdentifier = setupUnpublishedPublication(List.of(UIB_CREATOR));
@@ -226,7 +225,6 @@ class UpdateApiTest extends PublicationTestBase {
      */
     @Test
     @DisplayName("Files from the same institution share a single approval ticket")
-    @Disabled
     @Description(useJavaDoc = true)
     void shouldCoverFilesFromSameInstitutionByOneApprovalTicket(SoftAssertions softly) {
       var publicationIdentifier = setupUnpublishedPublication(List.of(UIB_CREATOR));
@@ -245,7 +243,6 @@ class UpdateApiTest extends PublicationTestBase {
      */
     @Test
     @DisplayName("Each uploading institution gets its own approval ticket")
-    @Disabled
     @Description(useJavaDoc = true)
     void shouldCreateOneApprovalTicketPerUploadingInstitution(SoftAssertions softly) {
       var publicationIdentifier =
@@ -269,7 +266,6 @@ class UpdateApiTest extends PublicationTestBase {
      */
     @Test
     @DisplayName("Republishing without newly uploaded files creates no approval ticket")
-    @Disabled
     @Description(useJavaDoc = true)
     void shouldNotCreateApprovalTicketWhenRepublishingWithoutNewFiles() {
       var publicationIdentifier = setupUnpublishedPublication(List.of(UIB_CREATOR));
