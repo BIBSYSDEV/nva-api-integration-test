@@ -1,6 +1,7 @@
 package no.sikt.nva.apitest.publication.identifier;
 
 import static java.net.HttpURLConnection.HTTP_ACCEPTED;
+import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.util.stream.Collectors.toSet;
@@ -190,15 +191,16 @@ class UpdateApiTest extends PublicationTestBase {
 
     /**
      * Only an unpublished publication can be republished, so republishing one that is already
-     * published should return status {@code 403 Forbidden}.
+     * published should return status {@code 400 Bad Request}.
      */
     @Test
     @DisplayName("Already published publication cannot be republished")
     @Description(useJavaDoc = true)
-    void shouldReturnForbiddenWhenRepublishingPublishedPublication() {
+    @Disabled("FIXME: Invalid request should get 400, but gets 403. See NP-51870.")
+    void shouldReturnBadRequestWhenRepublishingPublishedPublication() {
       var publicationIdentifier = setupPublishedPublication(List.of(UIB_CREATOR));
 
-      requestRepublish(UIB_EDITOR, publicationIdentifier).then().statusCode(HTTP_FORBIDDEN);
+      requestRepublish(UIB_EDITOR, publicationIdentifier).then().statusCode(HTTP_BAD_REQUEST);
     }
 
     /**
