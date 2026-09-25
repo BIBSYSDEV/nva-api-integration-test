@@ -13,8 +13,6 @@ import static org.junit.jupiter.params.provider.Arguments.argumentSet;
 
 import io.qameta.allure.Description;
 import io.restassured.path.json.JsonPath;
-import java.util.List;
-import java.util.Map;
 import java.util.stream.Stream;
 import no.sikt.nva.apitest.base.User;
 import org.assertj.core.api.SoftAssertions;
@@ -36,27 +34,18 @@ class CompleteApiTest extends FileUploadTestBase {
   private static final String RRS_CONFIGURED_TYPE = "rightsRetentionStrategy.configuredType";
   private static final String UPLOADED_BY = "uploadDetails.uploadedBy";
 
-  private Map<String, Object> completePayload(String uploadId, String key, String eTag) {
-    var parts = Map.of("etag", eTag, "partNumber", "1");
-    return Map.of(
-        UPLOAD_ID, uploadId, KEY, key, TYPE, "InternalCompleteUpload", PARTS, List.of(parts));
-  }
-
   /** Calling file-upload/complete should return file metadata and status {@code 200 OK}. */
   @Test
   @DisplayName("file-upload/complete returns file metadata")
   @Description(useJavaDoc = true)
   void shouldReturnFileMetaDataWhenCompleteUpload(SoftAssertions softly) {
     var identifier = setupDraftPublication();
-    var createResponse = createFileUpload(identifier);
-
-    var uploadId = createResponse.jsonPath().getString(UPLOAD_ID);
-    var key = createResponse.jsonPath().getString(KEY);
-    var eTag = prepareAndUpload(identifier, uploadId, key);
+    var upload = createFileUpload(identifier);
+    var eTag = prepareAndUpload(upload);
 
     var response =
         givenAuthenticatedJsonRequest(getCreatorAccessToken())
-            .body(completePayload(uploadId, key, eTag))
+            .body(completePayload(upload, eTag))
             .when()
             .post(fileUploadCompletePath(identifier))
             .then()
@@ -107,11 +96,9 @@ class CompleteApiTest extends FileUploadTestBase {
   private JsonPath uploadFileAs(User uploader) {
     var identifier =
         PUBLICATION_FACTORY.createDraftPublication(uploader).jsonPath().getString(IDENTIFIER_FIELD);
-    var createResponse = createFileUpload(identifier, uploader).jsonPath();
-    var uploadId = createResponse.getString(UPLOAD_ID);
-    var key = createResponse.getString(KEY);
-    var eTag = prepareAndUpload(identifier, uploadId, key, uploader);
-    return completeUpload(identifier, uploadId, key, eTag, uploader).jsonPath();
+    var upload = createFileUpload(identifier, uploader);
+    var eTag = prepareAndUpload(upload, uploader);
+    return completeUpload(upload, eTag, uploader).jsonPath();
   }
 
   /**
@@ -137,14 +124,11 @@ class CompleteApiTest extends FileUploadTestBase {
   @Description(useJavaDoc = true)
   void shouldReturnUnauthorizedWhenCompleteWithMissingETag() {
     var identifier = setupDraftPublication();
-    var createResponse = createFileUpload(identifier);
-
-    var uploadId = createResponse.jsonPath().getString(UPLOAD_ID);
-    var key = createResponse.jsonPath().getString(KEY);
-    prepareAndUpload(identifier, uploadId, key);
+    var upload = createFileUpload(identifier);
+    prepareAndUpload(upload);
 
     givenAuthenticatedJsonRequest(getCreatorAccessToken())
-        .body(completePayload(uploadId, key, ""))
+        .body(completePayload(upload, ""))
         .when()
         .post(fileUploadCompletePath(identifier))
         .then()

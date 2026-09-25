@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import no.sikt.nva.PublicationFactory;
 import no.sikt.nva.apitest.base.CognitoLogin;
@@ -71,33 +72,32 @@ public class FileUploadTestBase extends PublicationTestBase {
     creatorAccessToken = CognitoLogin.login(UIB_CREATOR.userId()).get("accessToken");
   }
 
-  public Response completeUpload(String identifier, String uploadId, String key, String eTag) {
-    return completeUpload(identifier, uploadId, key, eTag, creatorAccessToken);
+  protected static Map<String, Object> completePayload(FileUpload upload, String eTag) {
+    var part = Map.of("etag", eTag, "partNumber", "1");
+    return Map.of(
+        UPLOAD_ID,
+        upload.uploadId(),
+        KEY,
+        upload.key(),
+        TYPE,
+        "InternalCompleteUpload",
+        PARTS,
+        List.of(part));
   }
 
-  public Response completeUpload(
-      String identifier, String uploadId, String key, String eTag, User uploader) {
-    return completeUpload(identifier, uploadId, key, eTag, accessTokenFor(uploader));
+  public Response completeUpload(FileUpload upload, String eTag) {
+    return completeUpload(upload, eTag, creatorAccessToken);
   }
 
-  private Response completeUpload(
-      String identifier, String uploadId, String key, String eTag, String accessToken) {
-    Map<String, Object> parts = Map.of("etag", eTag, "partNumber", "1");
-    Map<String, Object> completePayload =
-        Map.of(
-            UPLOAD_ID,
-            uploadId,
-            KEY,
-            key,
-            TYPE,
-            "InternalCompleteUpload",
-            PARTS,
-            new Object[] {parts});
+  public Response completeUpload(FileUpload upload, String eTag, User uploader) {
+    return completeUpload(upload, eTag, accessTokenFor(uploader));
+  }
 
+  private Response completeUpload(FileUpload upload, String eTag, String accessToken) {
     return givenAuthenticatedJsonRequest(accessToken)
-        .body(completePayload)
+        .body(completePayload(upload, eTag))
         .when()
-        .post(fileUploadCompletePath(identifier))
+        .post(fileUploadCompletePath(upload.publicationIdentifier()))
         .then()
         .statusCode(HTTP_OK)
         .extract()
@@ -118,18 +118,18 @@ public class FileUploadTestBase extends PublicationTestBase {
         .response();
   }
 
-  public String prepareFileUpload(String identifier, String uploadId, String key) {
-    return prepareFileUpload(identifier, uploadId, key, creatorAccessToken);
+  public String prepareFileUpload(FileUpload upload) {
+    return prepareFileUpload(upload, creatorAccessToken);
   }
 
-  private String prepareFileUpload(
-      String identifier, String uploadId, String key, String accessToken) {
-    var preparePayload = Map.of(NUMBER, "1", UPLOAD_ID, uploadId, KEY, key, BODY, fileAsString);
+  private String prepareFileUpload(FileUpload upload, String accessToken) {
+    var preparePayload =
+        Map.of(NUMBER, "1", UPLOAD_ID, upload.uploadId(), KEY, upload.key(), BODY, fileAsString);
     var url =
         givenAuthenticatedJsonRequest(accessToken)
             .body(preparePayload)
             .when()
-            .post(fileUploadPreparePath(identifier))
+            .post(fileUploadPreparePath(upload.publicationIdentifier()))
             .then()
             .statusCode(HTTP_OK)
             .extract()
@@ -141,44 +141,40 @@ public class FileUploadTestBase extends PublicationTestBase {
   }
 
   public String createAndPrepareFileUpload(String identifier) {
-
-    var createResponse = createFileUpload(identifier);
-    var uploadId = createResponse.jsonPath().getString(UPLOAD_ID);
-    var key = createResponse.jsonPath().getString(KEY);
-
-    return prepareFileUpload(identifier, uploadId, key);
+    return prepareFileUpload(createFileUpload(identifier));
   }
 
-  public String prepareAndUpload(String identifier, String uploadId, String key) {
-    return prepareAndUpload(identifier, uploadId, key, creatorAccessToken);
+  public String prepareAndUpload(FileUpload upload) {
+    return prepareAndUpload(upload, creatorAccessToken);
   }
 
-  public String prepareAndUpload(String identifier, String uploadId, String key, User uploader) {
-    return prepareAndUpload(identifier, uploadId, key, accessTokenFor(uploader));
+  public String prepareAndUpload(FileUpload upload, User uploader) {
+    return prepareAndUpload(upload, accessTokenFor(uploader));
   }
 
-  private String prepareAndUpload(
-      String identifier, String uploadId, String key, String accessToken) {
-    var url = prepareFileUpload(identifier, uploadId, key, accessToken);
+  private String prepareAndUpload(FileUpload upload, String accessToken) {
+    var url = prepareFileUpload(upload, accessToken);
     return uploadToPresignedUrl(url).headers().getValue("ETag");
   }
 
-  public final Response createFileUpload(String identifier) {
+  public final FileUpload createFileUpload(String identifier) {
     return createFileUpload(identifier, creatorAccessToken);
   }
 
-  public final Response createFileUpload(String identifier, User uploader) {
+  public final FileUpload createFileUpload(String identifier, User uploader) {
     return createFileUpload(identifier, accessTokenFor(uploader));
   }
 
-  private Response createFileUpload(String identifier, String accessToken) {
-    return givenAuthenticatedJsonRequest(accessToken)
-        .body(CREATE_PAYLOAD)
-        .when()
-        .post(fileUploadCreatePath(identifier))
-        .then()
-        .statusCode(HTTP_OK)
-        .extract()
-        .response();
+  private FileUpload createFileUpload(String identifier, String accessToken) {
+    var response =
+        givenAuthenticatedJsonRequest(accessToken)
+            .body(CREATE_PAYLOAD)
+            .when()
+            .post(fileUploadCreatePath(identifier))
+            .then()
+            .statusCode(HTTP_OK)
+            .extract()
+            .jsonPath();
+    return new FileUpload(identifier, response.getString(UPLOAD_ID), response.getString(KEY));
   }
 }

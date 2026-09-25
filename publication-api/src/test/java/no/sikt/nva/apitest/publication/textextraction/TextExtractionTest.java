@@ -105,13 +105,11 @@ class TextExtractionTest extends FileUploadTestBase {
   }
 
   private String uploadFile(String publicationIdentifier, byte[] content) {
-    var createResponse = createFileUpload(publicationIdentifier);
-    var uploadId = createResponse.jsonPath().getString(UPLOAD_ID);
-    var fileKey = createResponse.jsonPath().getString(KEY);
-    var presignedUrl = prepareFileUpload(publicationIdentifier, uploadId, fileKey);
+    var upload = createFileUpload(publicationIdentifier);
+    var presignedUrl = prepareFileUpload(upload);
     var eTag = uploadBytesToPresignedUrl(presignedUrl, content);
-    completeUpload(publicationIdentifier, uploadId, fileKey, eTag);
-    return fileKey;
+    completeUpload(upload, eTag);
+    return upload.key();
   }
 
   /**
