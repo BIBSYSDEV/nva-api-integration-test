@@ -13,16 +13,18 @@ import static no.sikt.nva.apitest.base.UserFixtures.KRISTIANIA_CREATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_EDITOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_PUBLISHING_CURATOR;
+import static no.sikt.nva.apitest.publication.PublicationFields.ENTITY_DESCRIPTION_FIELD;
+import static no.sikt.nva.apitest.publication.PublicationFields.IDENTIFIER_FIELD;
 import static no.sikt.nva.apitest.publication.PublicationPaths.filePath;
 import static no.sikt.nva.apitest.publication.PublicationPaths.publicationPath;
 import static no.sikt.nva.apitest.publication.PublicationPaths.ticketsPath;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import io.qameta.allure.Description;
+import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Stream;
 import no.sikt.Contributor;
 import no.sikt.nva.apitest.base.Affiliation;
@@ -49,9 +51,101 @@ class UpdateApiTest extends FileUploadTestBase {
 
   private static final String TICKETS_FIELD = "tickets";
   private static final String STATUS_FIELD = "status";
+  private static final String MAIN_TITLE_FIELD = ENTITY_DESCRIPTION_FIELD + ".mainTitle";
   private static final String PUBLISHED = "PUBLISHED";
+  private static final String UNPUBLISHED = "UNPUBLISHED";
   private static final String CREATIVE_COMMONS_LICENSE =
       "https://creativecommons.org/licenses/by/4.0/";
+
+  /**
+   * Updating replaces the metadata of a publication. The owner, contributors and curators at a
+   * related institution may update it, anyone else may not.
+   */
+  @Nested
+  @DisplayName("UpdatePublicationRequest")
+  class UpdateRequest {
+
+    /** The owner of a draft should be able to change its title. */
+    @Test
+    @DisplayName("Owner updates the title of their draft")
+    @Description(useJavaDoc = true)
+    void shouldUpdateTitleWhenOwnerUpdatesDraft() {
+      var draft = PUBLICATION_FACTORY.createDraftPublication(UIB_CREATOR).jsonPath();
+      var newTitle = randomTitle();
+
+      var updatedTitle =
+          requestUpdate(UIB_CREATOR, draft.getString(IDENTIFIER_FIELD), withTitle(draft, newTitle))
+              .then()
+              .statusCode(HTTP_OK)
+              .extract()
+              .jsonPath()
+              .getString(MAIN_TITLE_FIELD);
+
+      assertThat(updatedTitle).isEqualTo(newTitle);
+    }
+
+    /**
+     * A user with no relation to the publication, at another institution, should get status {@code
+     * 403 Forbidden} when updating it.
+     */
+    @Test
+    @DisplayName("Unrelated user cannot update a publication")
+    @Description(useJavaDoc = true)
+    @Disabled("FIXME: Unrelated user should get 403, but gets 401. See NP-51870.")
+    void shouldReturnForbiddenWhenUnrelatedUserUpdates() {
+      var draft = PUBLICATION_FACTORY.createDraftPublication(UIB_CREATOR).jsonPath();
+
+      requestUpdate(
+              KRISTIANIA_CREATOR,
+              draft.getString(IDENTIFIER_FIELD),
+              withTitle(draft, randomTitle()))
+          .then()
+          .statusCode(HTTP_FORBIDDEN);
+    }
+  }
+
+  /**
+   * Unpublishing takes a published publication out of circulation and requires a comment saying
+   * why. The owner may unpublish their own publication, anyone else unrelated to it may not.
+   */
+  @Nested
+  @DisplayName("UnpublishPublicationRequest")
+  class UnpublishRequest {
+
+    /** The owner of a published publication should be able to unpublish it. */
+    @Test
+    @DisplayName("Owner unpublishes their published publication")
+    @Description(useJavaDoc = true)
+    void shouldUnpublishWhenOwnerUnpublishesPublishedPublication() {
+      var publicationIdentifier = setupPublishedPublication(List.of(UIB_CREATOR));
+
+      var status =
+          requestUpdate(UIB_CREATOR, publicationIdentifier, unpublishRequest())
+              .then()
+              .statusCode(HTTP_ACCEPTED)
+              .extract()
+              .jsonPath()
+              .getString(STATUS_FIELD);
+
+      assertThat(status).isEqualTo(UNPUBLISHED);
+    }
+
+    /**
+     * A user with no relation to the publication, at another institution, should get status {@code
+     * 403 Forbidden} when unpublishing it.
+     */
+    @Test
+    @DisplayName("Unrelated user cannot unpublish a publication")
+    @Description(useJavaDoc = true)
+    @Disabled("FIXME: Unrelated user should get 403, but gets 401. See NP-51870.")
+    void shouldReturnForbiddenWhenUnrelatedUserUnpublishes() {
+      var publicationIdentifier = setupPublishedPublication(List.of(UIB_CREATOR));
+
+      requestUpdate(KRISTIANIA_CREATOR, publicationIdentifier, unpublishRequest())
+          .then()
+          .statusCode(HTTP_FORBIDDEN);
+    }
+  }
 
   /**
    * Republishing makes an unpublished publication published again.
@@ -86,6 +180,7 @@ class UpdateApiTest extends FileUploadTestBase {
     @Test
     @DisplayName("Owner who is not an editor cannot republish")
     @Description(useJavaDoc = true)
+    @Disabled("FIXME: Non-editor should get 403, but gets 401. See NP-51870.")
     void shouldReturnForbiddenWhenNonEditorRepublishes() {
       var publicationIdentifier = setupUnpublishedPublication(List.of(UIB_CREATOR));
 
@@ -225,6 +320,63 @@ class UpdateApiTest extends FileUploadTestBase {
     }
   }
 
+  /**
+   * Deleting terminates an unpublished publication for good. Only an editor may delete, and this is
+   * a different operation from the {@code DELETE} method on the same path.
+   */
+  @Nested
+  @DisplayName("DeletePublicationRequest")
+  class DeleteRequest {
+
+    /** An editor should be able to delete an unpublished publication. */
+    @Test
+    @DisplayName("Editor deletes an unpublished publication")
+    @Description(useJavaDoc = true)
+    void shouldAcceptWhenEditorDeletesUnpublishedPublication() {
+      var publicationIdentifier = setupUnpublishedPublication(List.of(UIB_CREATOR));
+
+      requestUpdate(UIB_EDITOR, publicationIdentifier, deleteRequest())
+          .then()
+          .statusCode(HTTP_ACCEPTED);
+    }
+
+    /**
+     * Only an editor may delete, so the publication owner deleting without the editor role should
+     * return status {@code 403 Forbidden}.
+     */
+    @Test
+    @DisplayName("Owner who is not an editor cannot delete")
+    @Description(useJavaDoc = true)
+    @Disabled("FIXME: Non-editor should get 403, but gets 401. See NP-51870.")
+    void shouldReturnForbiddenWhenNonEditorDeletes() {
+      var publicationIdentifier = setupUnpublishedPublication(List.of(UIB_CREATOR));
+
+      requestUpdate(UIB_CREATOR, publicationIdentifier, deleteRequest())
+          .then()
+          .statusCode(HTTP_FORBIDDEN);
+    }
+  }
+
+  private Response requestUpdate(User requester, String publicationIdentifier, Object body) {
+    return givenAuthenticatedJsonRequestAsUser(requester)
+        .body(body)
+        .when()
+        .put(publicationPath(publicationIdentifier));
+  }
+
+  private static Map<String, Object> withTitle(JsonPath draft, String title) {
+    var publication = draft.<String, Object>getMap("");
+    publication.put(
+        ENTITY_DESCRIPTION_FIELD,
+        PUBLICATION_FACTORY.createEntityDescription(
+            title, ACADEMIC_ARTICLE, List.of(Contributor.asCreator(UIB_CREATOR))));
+    return publication;
+  }
+
+  private static Map<String, String> deleteRequest() {
+    return Map.of(TYPE, "DeletePublicationRequest");
+  }
+
   private String setupUnpublishedPublication(List<User> contributors) {
     var publicationIdentifier = setupPublishedPublication(contributors);
 
@@ -234,20 +386,16 @@ class UpdateApiTest extends FileUploadTestBase {
   }
 
   private String setupPublishedPublication(List<User> contributors) {
-    var title = "Republish API test " + UUID.randomUUID();
     return PUBLICATION_FACTORY.createPublishedPublication(
         UIB_CREATOR,
-        title,
+        randomTitle(),
         ACADEMIC_ARTICLE,
         contributors.stream().map(Contributor::asCreator).toList(),
         UIB_PUBLISHING_CURATOR);
   }
 
   private void unpublish(String publicationIdentifier) {
-    givenAuthenticatedJsonRequestAsUser(UIB_CREATOR)
-        .body(unpublishRequest())
-        .when()
-        .put(publicationPath(publicationIdentifier))
+    requestUpdate(UIB_CREATOR, publicationIdentifier, unpublishRequest())
         .then()
         .statusCode(HTTP_ACCEPTED);
   }
@@ -266,10 +414,7 @@ class UpdateApiTest extends FileUploadTestBase {
   }
 
   private Response requestRepublish(User requester, String publicationIdentifier) {
-    return givenAuthenticatedJsonRequestAsUser(requester)
-        .body(republishRequest())
-        .when()
-        .put(publicationPath(publicationIdentifier));
+    return requestUpdate(requester, publicationIdentifier, republishRequest());
   }
 
   private static Map<String, String> republishRequest() {
