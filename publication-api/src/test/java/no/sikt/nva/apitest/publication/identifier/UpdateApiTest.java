@@ -15,9 +15,11 @@ import static no.sikt.nva.apitest.base.UserFixtures.UIB_EDITOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_PUBLISHING_CURATOR;
 import static no.sikt.nva.apitest.publication.PublicationFields.ENTITY_DESCRIPTION_FIELD;
 import static no.sikt.nva.apitest.publication.PublicationFields.IDENTIFIER_FIELD;
+import static no.sikt.nva.apitest.publication.PublicationFields.TYPE;
 import static no.sikt.nva.apitest.publication.PublicationPaths.filePath;
 import static no.sikt.nva.apitest.publication.PublicationPaths.publicationPath;
 import static no.sikt.nva.apitest.publication.PublicationPaths.ticketsPath;
+import static no.sikt.nva.apitest.publication.file.FileUploadFlow.uploadExampleFile;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import io.qameta.allure.Description;
@@ -29,9 +31,8 @@ import java.util.stream.Stream;
 import no.sikt.Contributor;
 import no.sikt.nva.apitest.base.Affiliation;
 import no.sikt.nva.apitest.base.User;
+import no.sikt.nva.apitest.publication.PublicationTestBase;
 import no.sikt.nva.apitest.publication.file.PendingOpenFile;
-import no.sikt.nva.apitest.publication.file.UploadedFile;
-import no.sikt.nva.apitest.publication.identifier.fileupload.FileUploadTestBase;
 import no.sikt.nva.apitest.publication.ticket.Ticket;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
@@ -47,7 +48,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
  */
 @ExtendWith(SoftAssertionsExtension.class)
 @DisplayName("PUT /publication/{identifier}")
-class UpdateApiTest extends FileUploadTestBase {
+class UpdateApiTest extends PublicationTestBase {
 
   private static final String TICKETS_FIELD = "tickets";
   private static final String STATUS_FIELD = "status";
@@ -439,19 +440,9 @@ class UpdateApiTest extends FileUploadTestBase {
    */
   private void uploadFilesForApproval(String publicationIdentifier, User uploader, int fileCount) {
     range(0, fileCount)
-        .mapToObj(ignored -> uploadFile(publicationIdentifier, uploader))
+        .mapToObj(ignored -> uploadExampleFile(uploader, publicationIdentifier))
         .map(uploadedFile -> uploadedFile.awaitingApprovalUnder(CREATIVE_COMMONS_LICENSE))
         .forEach(pendingFile -> updateFile(publicationIdentifier, uploader, pendingFile));
-  }
-
-  private UploadedFile uploadFile(String publicationIdentifier, User uploader) {
-    var createResponse = createFileUploadAsUser(uploader, publicationIdentifier);
-    var uploadId = createResponse.jsonPath().getString(UPLOAD_ID);
-    var key = createResponse.jsonPath().getString(KEY);
-    var eTag = prepareAndUploadAsUser(uploader, publicationIdentifier, uploadId, key);
-
-    return completeUploadAsUser(uploader, publicationIdentifier, uploadId, key, eTag)
-        .as(UploadedFile.class);
   }
 
   private void updateFile(String publicationIdentifier, User uploader, PendingOpenFile file) {
