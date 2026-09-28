@@ -34,7 +34,9 @@ import no.sikt.nva.apitest.base.Affiliation;
 import no.sikt.nva.apitest.base.User;
 import no.sikt.nva.apitest.publication.PublicationTestBase;
 import no.sikt.nva.apitest.publication.file.PendingOpenFile;
+import no.sikt.nva.apitest.publication.file.UploadedFile;
 import no.sikt.nva.apitest.publication.ticket.Ticket;
+import no.sikt.nva.apitest.publication.ticket.Ticket.TicketFile;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.Disabled;
@@ -220,12 +222,12 @@ class UpdateApiTest extends PublicationTestBase {
     @Description(useJavaDoc = true)
     void shouldCoverFileUploadedWhileUnpublishedByApprovalTicket(SoftAssertions softly) {
       var publicationIdentifier = setupUnpublishedPublication(List.of(UIB_CREATOR));
-      uploadFilesForApproval(publicationIdentifier, UIB_CREATOR, 1);
+      var uibFiles = uploadFilesForApproval(publicationIdentifier, UIB_CREATOR, 1);
 
       republish(publicationIdentifier);
 
       var ticketsAtUib = fileApprovalTicketsVisibleTo(UIB_CREATOR, publicationIdentifier);
-      assertInstitutionHasPendingApprovalTicketCovering(softly, UIB, ticketsAtUib, 1);
+      assertInstitutionHasPendingApprovalTicketCovering(softly, UIB, ticketsAtUib, uibFiles);
       assertPublicationHasFileApprovalTickets(softly, 1, ticketsAtUib);
     }
 
@@ -238,12 +240,12 @@ class UpdateApiTest extends PublicationTestBase {
     @Description(useJavaDoc = true)
     void shouldCoverFilesFromSameInstitutionByOneApprovalTicket(SoftAssertions softly) {
       var publicationIdentifier = setupUnpublishedPublication(List.of(UIB_CREATOR));
-      uploadFilesForApproval(publicationIdentifier, UIB_CREATOR, 2);
+      var uibFiles = uploadFilesForApproval(publicationIdentifier, UIB_CREATOR, 2);
 
       republish(publicationIdentifier);
 
       var ticketsAtUib = fileApprovalTicketsVisibleTo(UIB_CREATOR, publicationIdentifier);
-      assertInstitutionHasPendingApprovalTicketCovering(softly, UIB, ticketsAtUib, 2);
+      assertInstitutionHasPendingApprovalTicketCovering(softly, UIB, ticketsAtUib, uibFiles);
       assertPublicationHasFileApprovalTickets(softly, 1, ticketsAtUib);
     }
 
@@ -259,14 +261,14 @@ class UpdateApiTest extends PublicationTestBase {
         SoftAssertions softly) {
       var publicationIdentifier =
           setupUnpublishedPublication(List.of(UIB_CREATOR, KRISTIANIA_CREATOR));
-      uploadFilesForApproval(publicationIdentifier, KRISTIANIA_CREATOR, 1);
+      var kristianiaFiles = uploadFilesForApproval(publicationIdentifier, KRISTIANIA_CREATOR, 1);
 
       republish(publicationIdentifier);
 
       var ticketsAtKristiania =
           fileApprovalTicketsVisibleTo(KRISTIANIA_CREATOR, publicationIdentifier);
       assertInstitutionHasCompletedApprovalTicketApproving(
-          softly, KRISTIANIA, ticketsAtKristiania, 1);
+          softly, KRISTIANIA, ticketsAtKristiania, kristianiaFiles);
       assertPublicationHasFileApprovalTickets(softly, 1, ticketsAtKristiania);
     }
 
@@ -281,17 +283,17 @@ class UpdateApiTest extends PublicationTestBase {
     void shouldCreateOneApprovalTicketPerUploadingInstitution(SoftAssertions softly) {
       var publicationIdentifier =
           setupUnpublishedPublication(List.of(UIB_CREATOR, KRISTIANIA_CREATOR));
-      uploadFilesForApproval(publicationIdentifier, UIB_CREATOR, 1);
-      uploadFilesForApproval(publicationIdentifier, KRISTIANIA_CREATOR, 2);
+      var uibFiles = uploadFilesForApproval(publicationIdentifier, UIB_CREATOR, 1);
+      var kristianiaFiles = uploadFilesForApproval(publicationIdentifier, KRISTIANIA_CREATOR, 2);
 
       republish(publicationIdentifier);
 
       var ticketsAtUib = fileApprovalTicketsVisibleTo(UIB_CREATOR, publicationIdentifier);
       var ticketsAtKristiania =
           fileApprovalTicketsVisibleTo(KRISTIANIA_CREATOR, publicationIdentifier);
-      assertInstitutionHasPendingApprovalTicketCovering(softly, UIB, ticketsAtUib, 1);
+      assertInstitutionHasPendingApprovalTicketCovering(softly, UIB, ticketsAtUib, uibFiles);
       assertInstitutionHasCompletedApprovalTicketApproving(
-          softly, KRISTIANIA, ticketsAtKristiania, 2);
+          softly, KRISTIANIA, ticketsAtKristiania, kristianiaFiles);
       assertPublicationHasFileApprovalTickets(softly, 2, ticketsAtUib, ticketsAtKristiania);
     }
 
@@ -320,7 +322,7 @@ class UpdateApiTest extends PublicationTestBase {
         SoftAssertions softly,
         Affiliation institution,
         List<Ticket> ticketsVisibleAtInstitution,
-        int fileCount) {
+        List<UploadedFile> uploadedFiles) {
       var ticketsOwnedByInstitution = ticketsOwnedBy(institution, ticketsVisibleAtInstitution);
 
       softly
@@ -333,7 +335,10 @@ class UpdateApiTest extends PublicationTestBase {
           .allSatisfy(
               ticket -> {
                 assertThat(ticket.status()).as("ticket status").isEqualTo(TICKET_NEW);
-                assertThat(ticket.filesForApproval()).as("files for approval").hasSize(fileCount);
+                assertThat(ticket.filesForApproval())
+                    .as("files for approval")
+                    .extracting(TicketFile::identifier)
+                    .containsExactlyInAnyOrderElementsOf(identifiersOf(uploadedFiles));
               });
     }
 
@@ -341,7 +346,7 @@ class UpdateApiTest extends PublicationTestBase {
         SoftAssertions softly,
         Affiliation institution,
         List<Ticket> ticketsVisibleAtInstitution,
-        int fileCount) {
+        List<UploadedFile> uploadedFiles) {
       var ticketsOwnedByInstitution = ticketsOwnedBy(institution, ticketsVisibleAtInstitution);
 
       softly
@@ -354,13 +359,20 @@ class UpdateApiTest extends PublicationTestBase {
           .allSatisfy(
               ticket -> {
                 assertThat(ticket.status()).as("ticket status").isEqualTo(TICKET_COMPLETED);
-                assertThat(ticket.approvedFiles()).as("approved files").hasSize(fileCount);
+                assertThat(ticket.approvedFiles())
+                    .as("approved files")
+                    .extracting(TicketFile::identifier)
+                    .containsExactlyInAnyOrderElementsOf(identifiersOf(uploadedFiles));
                 assertThat(ticket.filesForApproval()).as("files for approval").isEmpty();
               });
     }
 
     private static List<Ticket> ticketsOwnedBy(Affiliation institution, List<Ticket> tickets) {
       return tickets.stream().filter(ticket -> ticket.isOwnedBy(institution.getValue())).toList();
+    }
+
+    private static List<String> identifiersOf(List<UploadedFile> uploadedFiles) {
+      return uploadedFiles.stream().map(UploadedFile::identifier).toList();
     }
 
     /**
@@ -500,11 +512,16 @@ class UpdateApiTest extends PublicationTestBase {
    * what the registration form does once the uploader has given a file its metadata. A file that
    * stays uploaded is not awaiting anyone's approval.
    */
-  private void uploadFilesForApproval(String publicationIdentifier, User uploader, int fileCount) {
-    range(0, fileCount)
-        .mapToObj(ignored -> uploadExampleFile(uploader, publicationIdentifier))
+  private List<UploadedFile> uploadFilesForApproval(
+      String publicationIdentifier, User uploader, int fileCount) {
+    var uploadedFiles =
+        range(0, fileCount)
+            .mapToObj(ignored -> uploadExampleFile(uploader, publicationIdentifier))
+            .toList();
+    uploadedFiles.stream()
         .map(uploadedFile -> uploadedFile.awaitingApprovalUnder(CREATIVE_COMMONS_LICENSE))
         .forEach(pendingFile -> updateFile(publicationIdentifier, uploader, pendingFile));
+    return uploadedFiles;
   }
 
   private void updateFile(String publicationIdentifier, User uploader, PendingOpenFile file) {
