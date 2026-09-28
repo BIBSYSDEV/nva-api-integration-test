@@ -3,6 +3,10 @@ package no.sikt.nva.apitest.publication.textextraction;
 import static io.restassured.RestAssured.given;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static no.sikt.nva.apitest.base.Polling.pollUntil;
+import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
+import static no.sikt.nva.apitest.publication.file.FileUploadFlow.completeUpload;
+import static no.sikt.nva.apitest.publication.file.FileUploadFlow.createFileUpload;
+import static no.sikt.nva.apitest.publication.file.FileUploadFlow.prepareFileUpload;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Named.named;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
@@ -18,7 +22,8 @@ import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.stream.Stream;
 import no.sikt.nva.apitest.base.S3Storage;
-import no.sikt.nva.apitest.publication.identifier.fileupload.FileUploadTestBase;
+import no.sikt.nva.apitest.publication.PublicationTestBase;
+import no.sikt.nva.apitest.publication.file.FileUploadFlow;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -38,7 +43,7 @@ import org.junit.jupiter.params.provider.MethodSource;
  * role has s3:PutObject on the seed bucket and s3:GetObject on the text storage bucket.
  */
 @DisplayName("Text extraction pipeline (S3)")
-class TextExtractionTest extends FileUploadTestBase {
+class TextExtractionTest extends PublicationTestBase {
 
   /**
    * The bucket names mirror the defaults of the TextExtractionSeedBucketName and
@@ -105,18 +110,16 @@ class TextExtractionTest extends FileUploadTestBase {
   }
 
   private String uploadFile(String publicationIdentifier, byte[] content) {
-    var createResponse = createFileUpload(publicationIdentifier);
-    var uploadId = createResponse.jsonPath().getString(UPLOAD_ID);
-    var fileKey = createResponse.jsonPath().getString(KEY);
-    var presignedUrl = prepareFileUpload(publicationIdentifier, uploadId, fileKey);
+    var upload = createFileUpload(UIB_CREATOR, publicationIdentifier);
+    var presignedUrl = prepareFileUpload(UIB_CREATOR, publicationIdentifier, upload);
     var eTag = uploadBytesToPresignedUrl(presignedUrl, content);
-    completeUpload(publicationIdentifier, uploadId, fileKey, eTag);
-    return fileKey;
+    completeUpload(UIB_CREATOR, publicationIdentifier, upload, eTag);
+    return upload.key();
   }
 
   /**
-   * Uploads the content bytes verbatim, unlike the inherited upload helper which wraps the content
-   * in a JSON envelope, so that the extractor sees the actual file bytes.
+   * Uploads the content bytes verbatim, unlike {@link FileUploadFlow#uploadToPresignedUrl} which
+   * wraps the content in a JSON envelope, so that the extractor sees the actual file bytes.
    */
   private String uploadBytesToPresignedUrl(String presignedUrl, byte[] content) {
     return given()
