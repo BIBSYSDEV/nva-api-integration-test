@@ -29,7 +29,7 @@ class FetchContextTest extends IntegrationTestBase {
    */
   @Test
   @DisplayName("Get JSON-LD context")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnJsonLdContext(SoftAssertions softly) {
     var context =
         givenUnauthenticatedJsonRequest()
@@ -50,7 +50,7 @@ class FetchContextTest extends IntegrationTestBase {
   /** JSON-LD clients ask for the context as {@code application/ld+json} rather than plain JSON. */
   @Test
   @DisplayName("Get JSON-LD context as application/ld+json")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnJsonLdContextAsJsonLdMediaType() {
     given()
         .accept(JSON_LD_MEDIA_TYPE)

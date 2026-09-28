@@ -33,7 +33,7 @@ class PublisherUpdateTest extends ManualUpdateTestBase {
    */
   @Test
   @DisplayName("Replaces a confirmed publisher id on the publications that have one")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReplacePublisherIdOnPublicationsThatHaveOne(SoftAssertions softly) {
     var report =
         run(

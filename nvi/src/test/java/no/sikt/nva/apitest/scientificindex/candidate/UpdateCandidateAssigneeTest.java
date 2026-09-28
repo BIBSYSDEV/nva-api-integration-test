@@ -47,7 +47,7 @@ class UpdateCandidateAssigneeTest extends ScientificIndexTestBase {
    */
   @Test
   @DisplayName("Assign curator to candidate")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldAssignCuratorToCandidate(SoftAssertions softly) {
 
     var candidate = createCandidate(UIS_NVI_CURATOR, List.of(Contributor.asCreator(UIS_CREATOR)));
@@ -68,7 +68,7 @@ class UpdateCandidateAssigneeTest extends ScientificIndexTestBase {
   @Test
   @DisplayName("Assign another curator to candidate")
   @Disabled("FIXME: Returns 401, see NP-51618")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnForbiddenWhenAssigningCuratorFromAnotherInstitutionToCandidate(
       SoftAssertions softly) {
 
@@ -97,7 +97,7 @@ class UpdateCandidateAssigneeTest extends ScientificIndexTestBase {
   @DisplayName(
       "Assign curator to candidate created at other institution with contributor from own"
           + " institution")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldAssignCuratorToCandidateWithContributorFromOwnInstitution(SoftAssertions softly) {
 
     var candidate =
@@ -133,7 +133,7 @@ class UpdateCandidateAssigneeTest extends ScientificIndexTestBase {
   /** Trying to assign a curator to a non-existing candidate returns status {@code 404 Not Found} */
   @Test
   @DisplayName("Trying to assign a curator to a non-existing candidate")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnNotFoundWhenTryingToAssignCuratorToNonExistingCandidate() {
 
     var candidateIdentifier = UUID.randomUUID().toString();
@@ -151,7 +151,7 @@ class UpdateCandidateAssigneeTest extends ScientificIndexTestBase {
   /** Calling the service with no body returns status {@code 400 Bad Request} */
   @Test
   @DisplayName("Calling with no body should return 400 Bad Request")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnBadRequestWhenCallingWIthNoBody(SoftAssertions softly) {
 
     var candidate = createCandidate(UIS_NVI_CURATOR, List.of(Contributor.asCreator(UIS_CREATOR)));
@@ -172,7 +172,7 @@ class UpdateCandidateAssigneeTest extends ScientificIndexTestBase {
   /** Assigning a curator to a candidate with no authentication returns {@code 401 Unauthorized} */
   @Test
   @DisplayName("Assigning a curator with no authentication should return 401 Unauthorized")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnUnauthorizedWhenNotAuthenticated() {
 
     var candidate = createCandidate(UIS_NVI_CURATOR, List.of(Contributor.asCreator(UIS_CREATOR)));
@@ -186,7 +186,7 @@ class UpdateCandidateAssigneeTest extends ScientificIndexTestBase {
   @Disabled("FIXME: Returns 401, see NP-51618")
   @MethodSource("usersWithoutNviAccess")
   @DisplayName("Non Nvi-curator should return 403 Forbidden")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnForbiddenWhenNonNviCurator(User user) {
 
     var candidate = createCandidate(UIB_NVI_CURATOR, List.of(Contributor.asCreator(UIB_CREATOR)));

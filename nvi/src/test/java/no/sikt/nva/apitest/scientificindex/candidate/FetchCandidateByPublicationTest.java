@@ -42,7 +42,7 @@ class FetchCandidateByPublicationTest extends ScientificIndexTestBase {
   @ParameterizedTest
   @MethodSource("usersWithNviReadAccess")
   @DisplayName("Fetch candidate for publication as NVI user")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnCandidateWhenFetchingByPublicationIdentifier(User user, SoftAssertions softly) {
     var response =
         givenAuthenticatedJsonRequestAsUser(user)
@@ -59,7 +59,7 @@ class FetchCandidateByPublicationTest extends ScientificIndexTestBase {
   /** Fetching a candidate without authentication returns status {@code 401 Unauthorized}. */
   @Test
   @DisplayName("Fetch candidate for publication unauthenticated")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnUnauthorizedWhenFetchingCandidateUnauthenticated() {
     requestShouldReturnUnauthorized(
         GET, CANDIDATE_BY_PUBLICATION_PATH, candidate.publicationIdentifier());
@@ -70,7 +70,7 @@ class FetchCandidateByPublicationTest extends ScientificIndexTestBase {
   @Disabled("FIXME: Returns 401, but should be 403. See NP-51618.")
   @MethodSource("usersWithoutNviAccess")
   @DisplayName("Fetch candidate for publication unauthorized")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnUnauthorizedWhenFetchingCandidateWithoutAccess(User user) {
     requestShouldReturnForbidden(
         GET, user, CANDIDATE_BY_PUBLICATION_PATH, candidate.publicationIdentifier());
@@ -79,7 +79,7 @@ class FetchCandidateByPublicationTest extends ScientificIndexTestBase {
   /** Fetching a candidate for a non-candidate publication returns status {@code 404 Not Found}. */
   @Test
   @DisplayName("Fetch candidate for publication that is not a candidate")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnNotFoundWhenPublicationIsNotCandidate() {
     var publicationIdentifier =
         PUBLICATION_FACTORY.createPublishedPublication(Category.CONFERENCE_REPORT, title());

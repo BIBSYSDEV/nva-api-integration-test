@@ -27,7 +27,7 @@ class FindPublisherByPidAndYearTest extends ChannelRegistryTestBase {
   /** A lookup returns the level for the requested year, like search does. */
   @Test
   @DisplayName("Lookup returns level for the requested year")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnLevelForRequestedYear(SoftAssertions softly) {
     assertLevelForYear(softly, GYLDENDAL_LOOKUP.jsonPathForEnvironment(environment), GYLDENDAL);
   }
@@ -35,7 +35,7 @@ class FindPublisherByPidAndYearTest extends ChannelRegistryTestBase {
   /** A lookup exposes levelDisplay, without which X-channels cannot be distinguished. */
   @Test
   @DisplayName("Lookup exposes levelDisplay alongside level")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldExposeLevelDisplay(SoftAssertions softly) {
     assertLevelDisplayMatchesLevel(
         softly, GYLDENDAL_LOOKUP.jsonPathForEnvironment(environment), GYLDENDAL);
@@ -44,7 +44,7 @@ class FindPublisherByPidAndYearTest extends ChannelRegistryTestBase {
   /** A lookup's levelHistories includes the requested year. */
   @Test
   @DisplayName("Level history includes the requested year")
-  @Description(useJavaDoc = true)
+  @Description
   @Issue("NP-51482")
   @Disabled("Fails in all environments and the correct behavior is unclear, see NP-51482")
   void shouldIncludeRequestedYearInLevelHistory(SoftAssertions softly) {
@@ -55,7 +55,7 @@ class FindPublisherByPidAndYearTest extends ChannelRegistryTestBase {
   /** The response body matches the shared channel JSON Schema. */
   @Test
   @DisplayName("Response matches the channel contract")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldMatchChannelContract(SoftAssertions softly) {
     assertMatchesChannelSchema(softly, GYLDENDAL_LOOKUP.bodyForEnvironment(environment));
   }

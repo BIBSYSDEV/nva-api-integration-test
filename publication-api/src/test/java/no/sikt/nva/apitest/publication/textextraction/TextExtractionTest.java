@@ -69,7 +69,7 @@ class TextExtractionTest extends PublicationTestBase {
   @ParameterizedTest(name = "{0}")
   @MethodSource("seedableFiles")
   @DisplayName("Seeding a file key by CSV stores the extracted file text")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldStoreExtractedTextWhenFileKeyIsSeededByCsv(
       byte[] fileContent, String expectedSentence) {
     var publicationIdentifier = setupDraftPublication();

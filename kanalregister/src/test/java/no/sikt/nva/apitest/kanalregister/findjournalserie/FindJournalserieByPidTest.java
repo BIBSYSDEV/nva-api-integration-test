@@ -23,7 +23,7 @@ class FindJournalserieByPidTest extends ChannelRegistryTestBase {
   /** A lookup without year returns the current year's level or null. */
   @Test
   @DisplayName("Lookup without year does not return the highest-year level")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldNotReturnHighestYearLevel(SoftAssertions softly) {
     assertLevelIsForCurrentYearOrAbsent(softly, ACP_LOOKUP.jsonPathForEnvironment(environment));
   }
@@ -31,7 +31,7 @@ class FindJournalserieByPidTest extends ChannelRegistryTestBase {
   /** The response body matches the shared channel JSON Schema. */
   @Test
   @DisplayName("Response matches the channel contract")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldMatchChannelContract(SoftAssertions softly) {
     assertMatchesChannelSchema(softly, ACP_LOOKUP.bodyForEnvironment(environment));
   }

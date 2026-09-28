@@ -22,7 +22,7 @@ class ListPeriodsTest extends ScientificIndexTestBase {
   @Test
   @Disabled("Bug: Requires MANAGE_NVI access right (See NP-51333)")
   @DisplayName("List periods")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnPeriodsWhenUserIsAuthenticated() {
     var response =
         givenAuthenticatedJsonRequestAsUser(UIB_CONTRIBUTOR)
@@ -38,7 +38,7 @@ class ListPeriodsTest extends ScientificIndexTestBase {
   /** Listing periods without authentication returns status {@code 401 Unauthorized}. */
   @Test
   @DisplayName("List periods unauthenticated")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnUnauthorizedWhenUnauthenticated() {
     requestShouldReturnUnauthorized(GET, PERIODS_PATH);
   }

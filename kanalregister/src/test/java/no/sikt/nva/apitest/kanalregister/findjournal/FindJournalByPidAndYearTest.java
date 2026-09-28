@@ -27,7 +27,7 @@ class FindJournalByPidAndYearTest extends ChannelRegistryTestBase {
   /** A lookup returns the level for the requested year, like search does. */
   @Test
   @DisplayName("Lookup returns level for the requested year")
-  @Description(useJavaDoc = true)
+  @Description
   @Issue("NP-51485")
   void shouldReturnLevelForRequestedYear(SoftAssertions softly) {
     assertLevelForYear(softly, ACP_LOOKUP.jsonPathForEnvironment(environment), ACP);
@@ -36,7 +36,7 @@ class FindJournalByPidAndYearTest extends ChannelRegistryTestBase {
   /** A lookup exposes levelDisplay, without which X-channels cannot be distinguished. */
   @Test
   @DisplayName("Lookup exposes levelDisplay alongside level")
-  @Description(useJavaDoc = true)
+  @Description
   @Issue("NP-51483")
   @Disabled("Fails in all environments and the correct behavior is unclear, see NP-51483")
   void shouldExposeLevelDisplay(SoftAssertions softly) {
@@ -46,7 +46,7 @@ class FindJournalByPidAndYearTest extends ChannelRegistryTestBase {
   /** A lookup's levelHistories includes the requested year. */
   @Test
   @DisplayName("Level history includes the requested year")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldIncludeRequestedYearInLevelHistory(SoftAssertions softly) {
     assertLevelHistoryIncludesYear(softly, ACP_LOOKUP.jsonPathForEnvironment(environment), ACP);
   }
@@ -54,7 +54,7 @@ class FindJournalByPidAndYearTest extends ChannelRegistryTestBase {
   /** The response body matches the shared channel JSON Schema. */
   @Test
   @DisplayName("Response matches the channel contract")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldMatchChannelContract(SoftAssertions softly) {
     assertMatchesChannelSchema(softly, ACP_LOOKUP.bodyForEnvironment(environment));
   }

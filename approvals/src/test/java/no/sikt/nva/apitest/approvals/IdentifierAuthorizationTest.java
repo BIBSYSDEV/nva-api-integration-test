@@ -32,7 +32,7 @@ class IdentifierAuthorizationTest extends IntegrationTestBase {
    */
   @Test
   @DisplayName("Create approval with another customer's identifier name")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldForbidCreatingWithAnotherCustomersIdentifierName() {
     var problem =
         givenAuthenticatedJsonRequestAsClient(UIS_CLIENT_SECRET)
@@ -54,7 +54,7 @@ class IdentifierAuthorizationTest extends IntegrationTestBase {
    */
   @Test
   @DisplayName("Update approval with another customer's identifier name")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldForbidUpdatingWithAnotherCustomersIdentifierName() {
     var problem =
         givenAuthenticatedJsonRequestAsClient(UIS_CLIENT_SECRET)
@@ -75,7 +75,7 @@ class IdentifierAuthorizationTest extends IntegrationTestBase {
    */
   @Test
   @DisplayName("Create approval with the client's own identifier name")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldAllowCreatingWithOwnIdentifierName() {
     var location =
         createApproval(UIS_CLIENT_SECRET, approvalPayload(UIS_IDENTIFIER_NAME, uniqueValue()));
@@ -86,7 +86,7 @@ class IdentifierAuthorizationTest extends IntegrationTestBase {
   /** Each client is confined to its own names, so the rule is not one customer being privileged. */
   @Test
   @DisplayName("Create approval with the other client's own identifier name")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldForbidUibClientFromUsingTheUisIdentifierName() {
     var problem =
         givenAuthenticatedJsonRequestAsClient(UIB_CLIENT_SECRET)
@@ -104,7 +104,7 @@ class IdentifierAuthorizationTest extends IntegrationTestBase {
   /** The symmetry holds on update too, so neither endpoint privileges one customer. */
   @Test
   @DisplayName("Update approval with the other client's own identifier name")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldForbidUibClientFromUpdatingWithTheUisIdentifierName() {
     var problem =
         givenAuthenticatedJsonRequestAsClient(UIB_CLIENT_SECRET)
@@ -122,7 +122,7 @@ class IdentifierAuthorizationTest extends IntegrationTestBase {
   /** A client writing its own name is accepted, which is what makes the rejections meaningful. */
   @Test
   @DisplayName("Update approval with the client's own identifier name")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldAllowUpdatingWithOwnIdentifierName() {
     var location =
         createApproval(UIS_CLIENT_SECRET, approvalPayload(UIS_IDENTIFIER_NAME, uniqueValue()));

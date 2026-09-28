@@ -15,7 +15,7 @@ class OperationalEndpointsTest extends ChannelRegistryTestBase {
   /** GET /health responds with a success status. */
   @Test
   @DisplayName("Health endpoint responds successfully")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldRespondSuccessfullyOnHealthEndpoint(SoftAssertions softly) {
     var statusCode = given().get(environment.getApiHost() + "/health").statusCode();
 
@@ -25,7 +25,7 @@ class OperationalEndpointsTest extends ChannelRegistryTestBase {
   /** GET /checkdatabaseconnection returns status {@code 200 OK} and confirms the connection. */
   @Test
   @DisplayName("Database connection check responds")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldConfirmDatabaseConnection(SoftAssertions softly) {
     var body =
         given()
@@ -42,7 +42,7 @@ class OperationalEndpointsTest extends ChannelRegistryTestBase {
   /** GET / returns status {@code 200 OK} and identifies the service. */
   @Test
   @DisplayName("API root responds with service information")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldRespondWithServiceInformationOnApiRoot(SoftAssertions softly) {
     var body =
         given()

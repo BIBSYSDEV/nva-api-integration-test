@@ -26,7 +26,7 @@ class PrepareApiTest extends PublicationTestBase {
   /** Calling file-upload/prepare should return presigned URL and status {@code 200 OK}. */
   @Test
   @DisplayName("file-upload/prepare returns presigned URL")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnUploadUrlWhenPrepareFile() {
     var identifier = setupDraftPublication();
 
@@ -41,7 +41,7 @@ class PrepareApiTest extends PublicationTestBase {
    */
   @Test
   @DisplayName("file-upload/prepare with no authorization")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnUnauthorizedWhenPrepareWithoutAuthorization() {
     var identifier = setupDraftPublication();
 
@@ -55,7 +55,7 @@ class PrepareApiTest extends PublicationTestBase {
   @Test
   @Disabled // TODO: Fix bug NP-51209
   @DisplayName("file-upload/prepare with non-existing identifier")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnNotFoundWhenPrepareWithWrongIdentifier() {
     var identifier = UUID.randomUUID().toString();
     var unknownUpload = new MultipartUpload("dummyUploadId", "dummyKey");
@@ -72,7 +72,7 @@ class PrepareApiTest extends PublicationTestBase {
   @Test
   @Disabled // TODO: Fix bug NP-51209
   @DisplayName("file-upload/prepare without file-upload/create")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnBadRequestWhenPrepareFileWithoutCreate() {
     var identifier = setupDraftPublication();
     var uploadNeverCreated = new MultipartUpload("dummyUploadId", "dummyKey");
@@ -86,7 +86,7 @@ class PrepareApiTest extends PublicationTestBase {
   @Test
   @Disabled // TODO: Fix bug NP-51209
   @DisplayName("file-upload/prepare with wrong uploadId")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnBadRequestWhenPrepareFileWithWrongUploadId() {
     var identifier = setupDraftPublication();
     var upload = createFileUpload(UIB_CREATOR, identifier);
@@ -101,7 +101,7 @@ class PrepareApiTest extends PublicationTestBase {
   @Test
   @Disabled // TODO: Fix bug NP-51209
   @DisplayName("file-upload/prepare with missing uploadId")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnBadRequestWhenPrepareFileWithMissingUploadId() {
     var identifier = setupDraftPublication();
     var upload = createFileUpload(UIB_CREATOR, identifier);
@@ -116,7 +116,7 @@ class PrepareApiTest extends PublicationTestBase {
   @Test
   @Disabled // TODO: Fix bug NP-51209
   @DisplayName("file-upload/prepare with wrong key")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnBadRequestWhenPrepareFileWithWrongKey() {
     var identifier = setupDraftPublication();
     var upload = createFileUpload(UIB_CREATOR, identifier);
@@ -130,7 +130,7 @@ class PrepareApiTest extends PublicationTestBase {
   /** Calling file-upload/prepare missing key should return status {@code 400 Bad Request}. */
   @Test
   @DisplayName("file-upload/prepare with missing key")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnBadRequestWhenPrepareFileWithMissingKey() {
     var identifier = setupDraftPublication();
     var upload = createFileUpload(UIB_CREATOR, identifier);

@@ -20,7 +20,7 @@ class FetchContextTest extends ScientificIndexTestBase {
    */
   @Test
   @DisplayName("Get JSON-LD context")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnJsonLdContext(SoftAssertions softly) {
     var response =
         givenUnauthenticatedJsonRequest()

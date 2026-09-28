@@ -43,7 +43,7 @@ class FetchCandidateTest extends ScientificIndexTestBase {
   /** Publishing an eligible academic article creates a candidate with a new approval. */
   @Test
   @DisplayName("Published academic article becomes NVI candidate")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldCreateCandidateWhenAcademicArticleIsPublished(SoftAssertions softly) {
     var response =
         CANDIDATE_FACTORY
@@ -69,7 +69,7 @@ class FetchCandidateTest extends ScientificIndexTestBase {
   @ParameterizedTest
   @MethodSource("usersWithNviReadAccess")
   @DisplayName("Fetch candidate as NVI user")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnCandidateWhenFetchingByCandidateIdentifier(User user, SoftAssertions softly) {
     var response =
         givenAuthenticatedJsonRequestAsUser(user)
@@ -86,7 +86,7 @@ class FetchCandidateTest extends ScientificIndexTestBase {
   /** Fetching a candidate without authentication returns status {@code 401 Unauthorized}. */
   @Test
   @DisplayName("Fetch candidate unauthenticated")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnUnauthorizedWhenFetchingCandidateUnauthenticated() {
     requestShouldReturnUnauthorized(
         GET, CANDIDATE_BY_PUBLICATION_PATH, candidate.publicationIdentifier());
@@ -97,7 +97,7 @@ class FetchCandidateTest extends ScientificIndexTestBase {
   @Disabled("FIXME: Returns 401, but should be 403. See NP-51618.")
   @MethodSource("usersWithoutNviAccess")
   @DisplayName("Fetch candidate unauthorized")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnUnauthorizedWhenFetchingCandidateWithoutAccess(User user) {
     requestShouldReturnForbidden(GET, user, CANDIDATE_PATH, candidate.candidateIdentifier());
   }
@@ -105,7 +105,7 @@ class FetchCandidateTest extends ScientificIndexTestBase {
   /** Fetching a candidate that doesn't exist returns status {@code 404 Not Found}. */
   @Test
   @DisplayName("Fetch candidate that doesn't exist")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnNotFoundWhenCandidateDoesNotExist() {
     givenAuthenticatedJsonRequestAsUser(UIB_NVI_CURATOR)
         .get(CANDIDATE_PATH, randomUUID().toString())

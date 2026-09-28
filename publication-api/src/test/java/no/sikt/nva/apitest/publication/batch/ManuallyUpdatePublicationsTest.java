@@ -67,7 +67,7 @@ class ManuallyUpdatePublicationsTest extends PublicationTestBase {
    */
   @Test
   @DisplayName("Dry run reports the planned changes without persisting them")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReportPlannedChangesWithoutPersistingThemWhenDryRunIsRequested(SoftAssertions softly) {
     var report = run(affiliationUpdate().withLimit(LIMIT_ABOVE_ALL_HITS).withPageSize(PAGE_SIZE));
 
@@ -95,7 +95,7 @@ class ManuallyUpdatePublicationsTest extends PublicationTestBase {
    */
   @Test
   @DisplayName("Pagination is followed until every matching resource is changed")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldFollowPaginationUntilEveryMatchingResourceIsChanged(SoftAssertions softly) {
     var report = run(affiliationUpdate().withLimit(LIMIT_ABOVE_ALL_HITS).withPageSize(PAGE_SIZE));
 
@@ -119,7 +119,7 @@ class ManuallyUpdatePublicationsTest extends PublicationTestBase {
    */
   @Test
   @DisplayName("The limit stops the run midway through the page series")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldStopMidwayThroughPageSeriesWhenLimitIsReached(SoftAssertions softly) {
     var report = run(affiliationUpdate().withLimit(LIMIT_MID_SERIES).withPageSize(PAGE_SIZE));
 
@@ -139,7 +139,7 @@ class ManuallyUpdatePublicationsTest extends PublicationTestBase {
    */
   @Test
   @DisplayName("A request without a limit changes no more than the default")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldChangeNoMoreThanTheDefaultLimitWhenNoLimitIsRequested(SoftAssertions softly) {
     var report = run(affiliationUpdate());
 
@@ -156,7 +156,7 @@ class ManuallyUpdatePublicationsTest extends PublicationTestBase {
    */
   @Test
   @DisplayName("Pages are never larger than the limit")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldNotRequestPagesLargerThanTheLimit(SoftAssertions softly) {
     var report = run(affiliationUpdate().withLimit(LIMIT_BELOW_PAGE_SIZE).withPageSize(PAGE_SIZE));
 
@@ -172,7 +172,7 @@ class ManuallyUpdatePublicationsTest extends PublicationTestBase {
    */
   @Test
   @DisplayName("The size search parameter acts as the limit")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldTreatSizeSearchParamAsLimit(SoftAssertions softly) {
     var report =
         run(affiliationUpdate().withSearchParams(searchParamsWithSize(LIMIT_AS_SIZE_PARAM)));
@@ -188,7 +188,7 @@ class ManuallyUpdatePublicationsTest extends PublicationTestBase {
    */
   @Test
   @DisplayName("Every page is fetched and nothing is changed when no resource matches")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldFetchEveryPageWithoutChangingAnythingWhenNoResourceMatchesOldValue(
       SoftAssertions softly) {
     var report =

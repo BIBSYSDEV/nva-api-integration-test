@@ -28,7 +28,7 @@ class CreateProjectTest extends ProjectTestBase {
   /** Create project returns project metadata and {@code 201 Created} */
   @Test
   @DisplayName("Create new project")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldCreateProject(SoftAssertions softly) {
 
     var projectTitle = "Cristin API test project " + UUID.randomUUID();
@@ -53,7 +53,7 @@ class CreateProjectTest extends ProjectTestBase {
   /** Create project when unauthenticated returns {@code 401 Unauthorized} */
   @Test
   @DisplayName("Create new project")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldRetunUnauthorizedWhenUnauthenticated() {
     requestShouldReturnUnauthorized(POST, BASE_PROJECT_PATH);
   }

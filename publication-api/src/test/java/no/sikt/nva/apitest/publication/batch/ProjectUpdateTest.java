@@ -25,7 +25,7 @@ class ProjectUpdateTest extends ManualUpdateTestBase {
    */
   @Test
   @DisplayName("Replaces a project with another")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReplaceProjectWithAnother(SoftAssertions softly) {
     var report =
         run(
