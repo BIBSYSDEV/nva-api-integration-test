@@ -180,7 +180,6 @@ class UpdateApiTest extends FileUploadTestBase {
     @Test
     @DisplayName("Owner who is not an editor cannot republish")
     @Description(useJavaDoc = true)
-    @Disabled("FIXME: Non-editor should get 403, but gets 401. See NP-51870.")
     void shouldReturnForbiddenWhenNonEditorRepublishes() {
       var publicationIdentifier = setupUnpublishedPublication(List.of(UIB_CREATOR));
 
