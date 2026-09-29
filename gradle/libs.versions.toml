@@ -2,6 +2,7 @@
 rest-assured = "6.0.1"
 allure = "2.35.4"
 awaitility = "4.3.0"
+aspectj = "1.9.25.1"
 
 [libraries]
 rest-assured-bom = { module = "io.rest-assured:rest-assured-bom", version.ref = "rest-assured" }
@@ -17,3 +18,5 @@ allure-model = { module = "io.qameta.allure:allure-model" }
 allure-junit5 = { module = "io.qameta.allure:allure-junit5" }
 
 awaitility-core = { group = "org.awaitility", name = "awaitility", version.ref = "awaitility" }
+
+aspectj-weaver = { module = "org.aspectj:aspectjweaver", version.ref = "aspectj" }

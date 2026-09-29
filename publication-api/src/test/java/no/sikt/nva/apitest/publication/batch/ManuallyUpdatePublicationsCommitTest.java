@@ -5,16 +5,15 @@ import static no.sikt.nva.apitest.base.Affiliation.UIB;
 import static no.sikt.nva.apitest.publication.batch.IndexedPublications.contributorAffiliationOf;
 import static no.sikt.nva.apitest.publication.batch.ManuallyUpdatePublications.CONTRIBUTOR_AFFILIATION;
 import static no.sikt.nva.apitest.publication.batch.ManuallyUpdatePublications.run;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import io.qameta.allure.Description;
+import io.qameta.allure.Step;
 import java.util.List;
 import no.sikt.nva.apitest.publication.PublicationTestBase;
-import org.assertj.core.api.SoftAssertions;
-import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
  * The one case where ManuallyUpdatePublicationsHandler writes: a run with dry run turned off. It
@@ -26,7 +25,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
  * of what the limit has to do when a run actually writes: change up to the limit, and leave the
  * rest alone.
  */
-@ExtendWith(SoftAssertionsExtension.class)
 @DisplayName("Manually update publications, persisted (lambda)")
 class ManuallyUpdatePublicationsCommitTest extends PublicationTestBase {
 
@@ -39,7 +37,7 @@ class ManuallyUpdatePublicationsCommitTest extends PublicationTestBase {
   @BeforeAll
   static void createSearchablePublications() {
     titleToken = IndexedPublications.randomTitleToken();
-    identifiers = IndexedPublications.createSearchable(PUBLICATIONS_IN_SET, titleToken);
+    identifiers = givenSearchablePublicationsAffiliatedWithUib(PUBLICATIONS_IN_SET, titleToken);
   }
 
   /**
@@ -48,27 +46,53 @@ class ManuallyUpdatePublicationsCommitTest extends PublicationTestBase {
    */
   @Test
   @DisplayName("Turning off dry run persists the changes up to the limit")
-  @Description
-  void shouldPersistChangesUpToTheLimitWhenDryRunIsTurnedOff(SoftAssertions softly) {
-    var report =
-        run(
-            ManualUpdateRequest.dryRunOf(
-                    CONTRIBUTOR_AFFILIATION,
-                    UIB.getValue(),
-                    SIKT.getValue(),
-                    IndexedPublications.searchParamsFor(titleToken))
-                .withDryRun(false)
-                .withLimit(LIMIT));
+  @Description(useJavaDoc = true)
+  void shouldPersistChangesUpToTheLimitWhenDryRunIsTurnedOff() {
+    var report = whenAffiliationIsChangedFromUibToSiktWithDryRunOff(LIMIT, titleToken);
 
-    softly.assertThat(report.dryRun()).isFalse();
-    softly.assertThat(report.resourcesChanged()).isEqualTo(LIMIT);
-    softly.assertThat(report.limitReached()).isTrue();
-
+    thenReportShowsPersistedRunThatStoppedAtLimit(report);
     var changedIdentifier = report.changedIdentifiers().getFirst();
-    softly.assertThat(contributorAffiliationOf(changedIdentifier)).isEqualTo(SIKT.getValue());
-    softly
-        .assertThat(contributorAffiliationOf(untouchedIdentifier(changedIdentifier)))
-        .isEqualTo(UIB.getValue());
+    andChangedPublicationHasSiktAffiliation(changedIdentifier);
+    andPublicationBeyondLimitStillHasUibAffiliation(untouchedIdentifier(changedIdentifier));
+  }
+
+  @Step("Given {count} searchable publications with a contributor affiliated with UiB")
+  private static List<String> givenSearchablePublicationsAffiliatedWithUib(
+      int count, String titleToken) {
+    return IndexedPublications.createSearchable(count, titleToken);
+  }
+
+  @Step("When the affiliation is changed from UiB to Sikt with dry run off and a limit of {limit}")
+  private static ManualUpdateReport whenAffiliationIsChangedFromUibToSiktWithDryRunOff(
+      int limit, String titleToken) {
+    return run(
+        ManualUpdateRequest.dryRunOf(
+                CONTRIBUTOR_AFFILIATION,
+                UIB.getValue(),
+                SIKT.getValue(),
+                IndexedPublications.searchParamsFor(titleToken))
+            .withDryRun(false)
+            .withLimit(limit));
+  }
+
+  @Step("Then the report shows a persisted run that stopped at the limit")
+  private static void thenReportShowsPersistedRunThatStoppedAtLimit(ManualUpdateReport report) {
+    assertThat(report)
+        .extracting(
+            ManualUpdateReport::dryRun,
+            ManualUpdateReport::resourcesChanged,
+            ManualUpdateReport::limitReached)
+        .containsExactly(false, LIMIT, true);
+  }
+
+  @Step("And the changed publication has the Sikt affiliation")
+  private static void andChangedPublicationHasSiktAffiliation(String changedIdentifier) {
+    assertThat(contributorAffiliationOf(changedIdentifier)).isEqualTo(SIKT.getValue());
+  }
+
+  @Step("And the publication beyond the limit still has the UiB affiliation")
+  private static void andPublicationBeyondLimitStillHasUibAffiliation(String untouchedIdentifier) {
+    assertThat(contributorAffiliationOf(untouchedIdentifier)).isEqualTo(UIB.getValue());
   }
 
   private static String untouchedIdentifier(String changedIdentifier) {
