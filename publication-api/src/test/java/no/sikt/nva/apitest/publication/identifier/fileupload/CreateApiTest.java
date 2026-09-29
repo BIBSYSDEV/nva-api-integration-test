@@ -25,7 +25,7 @@ class CreateApiTest extends PublicationTestBase {
   /** Calling file-upload/create should return uploadId and key with status {@code 200 OK}. */
   @Test
   @DisplayName("file-upload/create returns uploadId and key")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnUploadIdAndKeyWhenCreatingFileUpload(SoftAssertions softly) {
     var identifier = setupDraftPublication();
 
@@ -48,7 +48,7 @@ class CreateApiTest extends PublicationTestBase {
    */
   @Test
   @DisplayName("file-upload/create with no authorization")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnUnauthorizedWhenCreateWithoutAuthorization() {
     var identifier = setupDraftPublication();
 
@@ -61,7 +61,7 @@ class CreateApiTest extends PublicationTestBase {
    */
   @Test
   @DisplayName("file-upload/create with non-existing identifier")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnNotFoundWhenCreateWithNonExistingIdentifier() {
     var identifier = UUID.randomUUID().toString();
 

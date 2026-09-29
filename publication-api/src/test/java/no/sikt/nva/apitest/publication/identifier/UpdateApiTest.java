@@ -69,7 +69,7 @@ class UpdateApiTest extends PublicationTestBase {
     /** The owner of a draft should be able to change its title. */
     @Test
     @DisplayName("Owner updates the title of their draft")
-    @Description(useJavaDoc = true)
+    @Description
     void shouldUpdateTitleWhenOwnerUpdatesDraft() {
       var draft = PUBLICATION_FACTORY.createDraftPublication(UIB_CREATOR).jsonPath();
       var newTitle = randomTitle();
@@ -91,7 +91,7 @@ class UpdateApiTest extends PublicationTestBase {
      */
     @Test
     @DisplayName("Unrelated user cannot update a publication")
-    @Description(useJavaDoc = true)
+    @Description
     @Disabled("FIXME: Unrelated user should get 403, but gets 401. See NP-51870.")
     void shouldReturnForbiddenWhenUnrelatedUserUpdates() {
       var draft = PUBLICATION_FACTORY.createDraftPublication(UIB_CREATOR).jsonPath();
@@ -116,7 +116,7 @@ class UpdateApiTest extends PublicationTestBase {
     /** The owner of a published publication should be able to unpublish it. */
     @Test
     @DisplayName("Owner unpublishes their published publication")
-    @Description(useJavaDoc = true)
+    @Description
     void shouldUnpublishWhenOwnerUnpublishesPublishedPublication() {
       var publicationIdentifier = setupPublishedPublication(List.of(UIB_CREATOR));
 
@@ -137,7 +137,7 @@ class UpdateApiTest extends PublicationTestBase {
      */
     @Test
     @DisplayName("Unrelated user cannot unpublish a publication")
-    @Description(useJavaDoc = true)
+    @Description
     @Disabled("FIXME: Unrelated user should get 403, but gets 401. See NP-51870.")
     void shouldReturnForbiddenWhenUnrelatedUserUnpublishes() {
       var publicationIdentifier = setupPublishedPublication(List.of(UIB_CREATOR));
@@ -165,7 +165,7 @@ class UpdateApiTest extends PublicationTestBase {
     /** An editor republishing an unpublished publication should make it published again. */
     @Test
     @DisplayName("Editor republishes an unpublished publication")
-    @Description(useJavaDoc = true)
+    @Description
     void shouldPublishAgainWhenEditorRepublishesUnpublishedPublication() {
       var publicationIdentifier = setupUnpublishedPublication(List.of(UIB_CREATOR));
 
@@ -180,7 +180,7 @@ class UpdateApiTest extends PublicationTestBase {
      */
     @Test
     @DisplayName("Owner who is not an editor cannot republish")
-    @Description(useJavaDoc = true)
+    @Description
     void shouldReturnForbiddenWhenNonEditorRepublishes() {
       var publicationIdentifier = setupUnpublishedPublication(List.of(UIB_CREATOR));
 
@@ -193,7 +193,7 @@ class UpdateApiTest extends PublicationTestBase {
      */
     @Test
     @DisplayName("Already published publication cannot be republished")
-    @Description(useJavaDoc = true)
+    @Description
     void shouldReturnForbiddenWhenRepublishingPublishedPublication() {
       var publicationIdentifier = setupPublishedPublication(List.of(UIB_CREATOR));
 
@@ -207,7 +207,7 @@ class UpdateApiTest extends PublicationTestBase {
     @Test
     @DisplayName("File uploaded while unpublished is covered by an approval ticket")
     @Disabled
-    @Description(useJavaDoc = true)
+    @Description
     void shouldCoverFileUploadedWhileUnpublishedByApprovalTicket(SoftAssertions softly) {
       var publicationIdentifier = setupUnpublishedPublication(List.of(UIB_CREATOR));
       uploadFilesForApproval(publicationIdentifier, UIB_CREATOR, 1);
@@ -226,7 +226,7 @@ class UpdateApiTest extends PublicationTestBase {
     @Test
     @DisplayName("Files from the same institution share a single approval ticket")
     @Disabled
-    @Description(useJavaDoc = true)
+    @Description
     void shouldCoverFilesFromSameInstitutionByOneApprovalTicket(SoftAssertions softly) {
       var publicationIdentifier = setupUnpublishedPublication(List.of(UIB_CREATOR));
       uploadFilesForApproval(publicationIdentifier, UIB_CREATOR, 2);
@@ -245,7 +245,7 @@ class UpdateApiTest extends PublicationTestBase {
     @Test
     @DisplayName("Each uploading institution gets its own approval ticket")
     @Disabled
-    @Description(useJavaDoc = true)
+    @Description
     void shouldCreateOneApprovalTicketPerUploadingInstitution(SoftAssertions softly) {
       var publicationIdentifier =
           setupUnpublishedPublication(List.of(UIB_CREATOR, KRISTIANIA_CREATOR));
@@ -269,7 +269,7 @@ class UpdateApiTest extends PublicationTestBase {
     @Test
     @DisplayName("Republishing without newly uploaded files creates no approval ticket")
     @Disabled
-    @Description(useJavaDoc = true)
+    @Description
     void shouldNotCreateApprovalTicketWhenRepublishingWithoutNewFiles() {
       var publicationIdentifier = setupUnpublishedPublication(List.of(UIB_CREATOR));
 
@@ -331,7 +331,7 @@ class UpdateApiTest extends PublicationTestBase {
     /** An editor should be able to delete an unpublished publication. */
     @Test
     @DisplayName("Editor deletes an unpublished publication")
-    @Description(useJavaDoc = true)
+    @Description
     void shouldAcceptWhenEditorDeletesUnpublishedPublication() {
       var publicationIdentifier = setupUnpublishedPublication(List.of(UIB_CREATOR));
 
@@ -346,7 +346,7 @@ class UpdateApiTest extends PublicationTestBase {
      */
     @Test
     @DisplayName("Owner who is not an editor cannot delete")
-    @Description(useJavaDoc = true)
+    @Description
     @Disabled("FIXME: Non-editor should get 403, but gets 401. See NP-51870.")
     void shouldReturnForbiddenWhenNonEditorDeletes() {
       var publicationIdentifier = setupUnpublishedPublication(List.of(UIB_CREATOR));

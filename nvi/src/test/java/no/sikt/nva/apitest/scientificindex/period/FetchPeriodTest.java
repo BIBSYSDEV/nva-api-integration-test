@@ -23,7 +23,7 @@ class FetchPeriodTest extends ScientificIndexTestBase {
   /** Fetching the current-year period returns it (open-period prerequisite). */
   @Test
   @DisplayName("Fetch period for current year")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnPeriodWhenFetchingExistingPeriod(SoftAssertions softly) {
     var response =
         givenUnauthenticatedJsonRequest()
@@ -42,7 +42,7 @@ class FetchPeriodTest extends ScientificIndexTestBase {
   /** Fetching a period that doesn't exist returns status {@code 404 Not Found}. */
   @Test
   @DisplayName("Fetch nonexistent period")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnNotFoundWhenPeriodDoesNotExist() {
     givenUnauthenticatedJsonRequest()
         .get(PERIOD_PATH, NONEXISTENT_PERIOD_YEAR)

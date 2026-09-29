@@ -40,7 +40,7 @@ class UnconfirmedPublisherUpdateTest extends ManualUpdateTestBase {
    */
   @Test
   @DisplayName("Turns an unconfirmed publisher name into a confirmed channel")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldTurnUnconfirmedPublisherNameIntoConfirmedChannel(SoftAssertions softly) {
     var report =
         run(

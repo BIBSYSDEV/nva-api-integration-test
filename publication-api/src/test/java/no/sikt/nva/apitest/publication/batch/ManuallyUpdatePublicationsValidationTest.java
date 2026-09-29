@@ -51,7 +51,7 @@ class ManuallyUpdatePublicationsValidationTest extends PublicationTestBase {
   @ParameterizedTest(name = "{0}")
   @MethodSource("invalidRequests")
   @DisplayName("An invalid request is rejected")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldRejectInvalidRequest(ManualUpdateRequest request, String expectedMessage) {
     var invocation = invoke(request);
 

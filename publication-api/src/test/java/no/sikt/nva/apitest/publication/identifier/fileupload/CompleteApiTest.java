@@ -44,7 +44,7 @@ class CompleteApiTest extends PublicationTestBase {
   /** Calling file-upload/complete should return file metadata and status {@code 200 OK}. */
   @Test
   @DisplayName("file-upload/complete returns file metadata")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnFileMetaDataWhenCompleteUpload(SoftAssertions softly) {
     var identifier = setupDraftPublication();
     var upload = createFileUpload(UIB_CREATOR, identifier);
@@ -76,7 +76,7 @@ class CompleteApiTest extends PublicationTestBase {
   @ParameterizedTest
   @MethodSource("uploaders")
   @DisplayName("file-upload/complete stamps the file with the customer's rights retention strategy")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldStampUploadedFileWithCustomersCurrentRightsRetentionStrategy(
       User uploader, String customerRrsType, String fileRrsType, SoftAssertions softly) {
     var file = uploadFileAs(uploader);
@@ -114,7 +114,7 @@ class CompleteApiTest extends PublicationTestBase {
    */
   @Test
   @DisplayName("file-upload/complete with no authorization")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnUnauthorizedWhenCompleteWithoutAuthorization() {
     var identifier = setupDraftPublication();
     createFileUpload(UIB_CREATOR, identifier);
@@ -128,7 +128,7 @@ class CompleteApiTest extends PublicationTestBase {
   @Test
   @Disabled // TODO: Fix bug NP-51214
   @DisplayName("file-upload/complete with missing ETag")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnUnauthorizedWhenCompleteWithMissingETag() {
     var identifier = setupDraftPublication();
     var upload = createFileUpload(UIB_CREATOR, identifier);

@@ -77,7 +77,7 @@ class FetchReportStatusByPublicationTest extends ScientificIndexTestBase {
    */
   @Test
   @DisplayName("Fetch report status for non-existent publication")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnReportStatusWhenPublicationDoesNotExist(SoftAssertions softly) {
     var expected = ReportStatus.NOT_CANDIDATE;
     var publicationIdentifier = randomUUID().toString();
@@ -93,7 +93,7 @@ class FetchReportStatusByPublicationTest extends ScientificIndexTestBase {
   /** Fetching the report status of a new candidate publication returns PENDING_REVIEW. */
   @Test
   @DisplayName("Fetch report status for new candidate")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnReportStatusForNewCandidate(SoftAssertions softly) {
     var contributors = List.of(Contributor.asCreator(UIB_CREATOR));
     var candidate =
@@ -108,7 +108,7 @@ class FetchReportStatusByPublicationTest extends ScientificIndexTestBase {
   /** Fetching the report status of an approved candidate publication returns APPROVED. */
   @Test
   @DisplayName("Fetch report status for approved candidate")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnReportStatusForApprovedCandidate(SoftAssertions softly) {
     var contributors = List.of(Contributor.asCreator(UIB_CREATOR));
     var candidate =
@@ -124,7 +124,7 @@ class FetchReportStatusByPublicationTest extends ScientificIndexTestBase {
   /** Fetching the report status of a rejected candidate publication returns REJECTED. */
   @Test
   @DisplayName("Fetch report status for rejected candidate")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnReportStatusForRejectedCandidate(SoftAssertions softly) {
     var contributors = List.of(Contributor.asCreator(UIB_CREATOR));
     var candidate =
@@ -140,7 +140,7 @@ class FetchReportStatusByPublicationTest extends ScientificIndexTestBase {
   /** Fetching the report status of a disputed candidate publication returns UNDER_REVIEW. */
   @Test
   @DisplayName("Fetch report status for disputed candidate")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnReportStatusForDisputedCandidate(SoftAssertions softly) {
     var contributors =
         List.of(Contributor.asCreator(UIB_CREATOR), Contributor.asCreator(UIS_CREATOR));

@@ -68,7 +68,7 @@ class FetchApprovalByQueryTest extends IntegrationTestBase {
   /** A handle is the identifier the outside world quotes, so it resolves to its approval. */
   @Test
   @DisplayName("Get approval by handle")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnApprovalByHandle() {
     var approval =
         givenUnauthenticatedJsonRequest()
@@ -85,7 +85,7 @@ class FetchApprovalByQueryTest extends IntegrationTestBase {
   /** A source system knows its own identifier, and looks the approval up by name and value. */
   @Test
   @DisplayName("Get approval by named identifier")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnApprovalByNamedIdentifier() {
     var approval =
         givenUnauthenticatedJsonRequest()
@@ -122,7 +122,7 @@ class FetchApprovalByQueryTest extends IntegrationTestBase {
   @ParameterizedTest
   @MethodSource("incompleteQueries")
   @DisplayName("Get approval with an incomplete query")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnBadRequestWhenQueryIsIncomplete(Map<String, String> queryParameters) {
     givenUnauthenticatedJsonRequest()
         .queryParams(queryParameters)
@@ -134,7 +134,7 @@ class FetchApprovalByQueryTest extends IntegrationTestBase {
   /** Addressing an approval two ways at once is ambiguous, so it is refused outright. */
   @Test
   @DisplayName("Get approval by both path and query")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnBadRequestWhenAddressedBothWays() {
     givenUnauthenticatedJsonRequest()
         .queryParam(NAME_PARAMETER, UIB_IDENTIFIER_NAME)
@@ -147,7 +147,7 @@ class FetchApprovalByQueryTest extends IntegrationTestBase {
   /** A well formed handle that was never minted here belongs to no approval. */
   @Test
   @DisplayName("Get approval by unknown handle")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnNotFoundForUnknownHandle() {
     givenUnauthenticatedJsonRequest()
         .queryParam(HANDLE_PARAMETER, UNKNOWN_HANDLE)
@@ -159,7 +159,7 @@ class FetchApprovalByQueryTest extends IntegrationTestBase {
   /** An identifier name that is in use, paired with a value that is not, finds nothing. */
   @Test
   @DisplayName("Get approval by unknown named identifier")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnNotFoundForUnknownNamedIdentifier() {
     givenUnauthenticatedJsonRequest()
         .queryParam(NAME_PARAMETER, UIB_IDENTIFIER_NAME)

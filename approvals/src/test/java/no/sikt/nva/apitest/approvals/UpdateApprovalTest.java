@@ -58,7 +58,7 @@ class UpdateApprovalTest extends IntegrationTestBase {
    */
   @Test
   @DisplayName("Update approval identifiers")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReplaceIdentifiers(SoftAssertions softly) {
     var originalValue = uniqueValue();
     var approvalIdentifier = createApprovalWith(originalValue);
@@ -92,7 +92,7 @@ class UpdateApprovalTest extends IntegrationTestBase {
   /** The identifier the approval no longer carries stops resolving to it. */
   @Test
   @DisplayName("Update approval releases the replaced identifier")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldStopResolvingTheReplacedIdentifier() {
     var originalValue = uniqueValue();
     var approvalIdentifier = createApprovalWith(originalValue);
@@ -107,7 +107,7 @@ class UpdateApprovalTest extends IntegrationTestBase {
   /** An identifier belongs to one approval, so it cannot be moved to another by updating it. */
   @Test
   @DisplayName("Update approval with an identifier owned by another approval")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnConflictWhenIdentifierBelongsToAnotherApproval() {
     var takenValue = uniqueValue();
     createApprovalWith(takenValue);
@@ -129,7 +129,7 @@ class UpdateApprovalTest extends IntegrationTestBase {
   /** An approval must carry at least one identifier, so an update cannot empty it. */
   @Test
   @DisplayName("Update approval with no identifiers")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnBadRequestWhenIdentifiersAreEmpty() {
     var approvalIdentifier = createApprovalWith(uniqueValue());
 
@@ -144,7 +144,7 @@ class UpdateApprovalTest extends IntegrationTestBase {
   /** An approval identifier that is not a uuid is rejected before anything is looked up. */
   @Test
   @DisplayName("Update approval with malformed identifier")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnBadRequestWhenIdentifierIsMalformed() {
     givenAuthenticatedJsonRequestAsClient(UIB_CLIENT_SECRET)
         .body(updatePayload(UIB_IDENTIFIER_NAME, uniqueValue()))
@@ -157,7 +157,7 @@ class UpdateApprovalTest extends IntegrationTestBase {
   /** Updating an approval that does not exist is a not found rather than a server error. */
   @Test
   @DisplayName("Update approval that does not exist")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnNotFoundWhenApprovalDoesNotExist() {
     givenAuthenticatedJsonRequestAsClient(UIB_CLIENT_SECRET)
         .body(updatePayload(UIB_IDENTIFIER_NAME, uniqueValue()))
@@ -170,7 +170,7 @@ class UpdateApprovalTest extends IntegrationTestBase {
   /** Changing an approval is reserved for clients holding the approval-upsert scope. */
   @Test
   @DisplayName("Update approval unauthenticated")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnUnauthorizedWhenRequestIsUnauthenticated() {
     givenUnauthenticatedJsonRequest()
         .body(updatePayload(UIB_IDENTIFIER_NAME, uniqueValue()))

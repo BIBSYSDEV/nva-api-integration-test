@@ -50,7 +50,7 @@ class UpdateProjectTest extends ProjectTestBase {
   /** Update project when owner returns {@code 204 No Content} */
   @Test
   @DisplayName("Update project")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnUpdatedProject(SoftAssertions softly) {
 
     var projectTitle = "Cristin API test project " + UUID.randomUUID();
@@ -90,7 +90,7 @@ class UpdateProjectTest extends ProjectTestBase {
   /** Update project when unauthenticated returns {@code 401 Unauthorized} */
   @Test
   @DisplayName("Unauthenticated request returns Unauthorized when updating project")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnUnauthorizedWhenNotAuthenticated() {
     requestShouldReturnUnauthorized(PATCH, PROJECT_PATH, testProjectIdentifier);
   }
@@ -99,7 +99,7 @@ class UpdateProjectTest extends ProjectTestBase {
   @ParameterizedTest
   @MethodSource("userByRoleProvider")
   @DisplayName("Update returns Forbidden when user is not owner or project manager")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnForbiddenWhenNotOwnerOrProjectManager(User user) {
     requestShouldReturnForbidden(PATCH, user, PROJECT_PATH, testProjectIdentifier);
   }
@@ -117,7 +117,7 @@ class UpdateProjectTest extends ProjectTestBase {
   /** Update project when not owner but project manager returns {@code 204 No Content} */
   @Test
   @DisplayName("Update project when project manager")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldUpdateProjectWhenProjectManager(SoftAssertions softly) {
     var projectTitle = "API test project " + UUID.randomUUID();
     var project = PROJECT_FACTORY.createProject(UIB_CREATOR, projectTitle);

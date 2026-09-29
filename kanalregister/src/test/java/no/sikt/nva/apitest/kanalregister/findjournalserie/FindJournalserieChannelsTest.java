@@ -29,7 +29,7 @@ class FindJournalserieChannelsTest extends ChannelRegistryTestBase {
   /** A name search returns hits with the level for the requested year. */
   @Test
   @DisplayName("Search by name returns level for the requested year")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnLevelForRequestedYearWhenSearchingByName(SoftAssertions softly) {
     var hit = ACP_SEARCH.jsonPathForEnvironment(environment).setRootPath(hitByPid(ACP.pid()));
 
@@ -39,7 +39,7 @@ class FindJournalserieChannelsTest extends ChannelRegistryTestBase {
   /** An ISSN search resolves to exactly one channel. */
   @Test
   @DisplayName("ISSN search resolves to exactly one channel")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldResolveIssnSearchToSingleChannel(SoftAssertions softly) {
     var response = searchChannels(environment, RESOURCE, "issn", ACP_EISSN, ACP.year()).jsonPath();
 
@@ -55,7 +55,7 @@ class FindJournalserieChannelsTest extends ChannelRegistryTestBase {
   /** A search hit for an X-channel has the counting level and the X mark separately. */
   @Test
   @DisplayName("X-channels carry counting level and X mark separately")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldExposeCountingLevelAndXMarkSeparately(SoftAssertions softly) {
     assumeTrue(
         environment.hasXChannelLevelData(),
@@ -72,7 +72,7 @@ class FindJournalserieChannelsTest extends ChannelRegistryTestBase {
   /** The response body matches the shared search response JSON Schema. */
   @Test
   @DisplayName("Response matches the search contract")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldMatchSearchContract(SoftAssertions softly) {
     assertMatchesSearchResponseSchema(softly, ACP_SEARCH.bodyForEnvironment(environment));
   }

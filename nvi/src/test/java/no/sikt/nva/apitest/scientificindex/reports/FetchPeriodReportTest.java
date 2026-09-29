@@ -30,7 +30,7 @@ class FetchPeriodReportTest extends ScientificIndexTestBase {
   /** Fetch report for single period */
   @Test
   @DisplayName("Fetch report for single period")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldFetchReportForSinglePeriod(SoftAssertions softly) {
     var period = THIS_PERIOD;
     var jsonPath =
@@ -42,7 +42,7 @@ class FetchPeriodReportTest extends ScientificIndexTestBase {
   /** Fetch report for non-existing period returns {@code 404 Not Found} */
   @Test
   @DisplayName("Fetch report for non-existing period returns Not Found")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnNotFoundWhenFetchingReportForNonExistingPeriod() {
 
     var nonExistingPeriod = getCurrentYear().plusYears(15).toString();
@@ -53,7 +53,7 @@ class FetchPeriodReportTest extends ScientificIndexTestBase {
   /** Fetch report when not authenticated returns {@code 401 Unauthorized} */
   @Test
   @DisplayName("Fetch report when not authenticated returns Unauthorized")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnUnauthorizedWhenFetchingReportWhenUnauthenticated() {
     requestShouldReturnUnauthorized(GET, PERIOD_REPORT_PATH, THIS_PERIOD.getYear());
   }
@@ -62,7 +62,7 @@ class FetchPeriodReportTest extends ScientificIndexTestBase {
   @ParameterizedTest
   @MethodSource("usersWithoutNviReportAccess")
   @DisplayName("Fetch institution report when not Nvi-curator returns Forbidden")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnForbiddenWhenNonNvicuratorFetchPeriodReport(User user, SoftAssertions softly) {
     requestShouldReturnForbidden(GET, user, PERIOD_REPORT_PATH, CURRENT_YEAR);
   }
