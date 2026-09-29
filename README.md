@@ -67,6 +67,17 @@ The CI pipeline running automated tests uses the same configuration and maintain
 Each run downloads `allure-history.jsonl` from the report bucket, updates it, and then re-uploads it so that history is carried across executions.
 Dated single-file reports are also archived under `reports/` in the bucket.
 
+### Test naming
+
+The Allure report takes its names from `@DisplayName`:
+
+- **On the class:** used as the suite name, which groups the tests. Name it after the endpoint under test, e.g. `@DisplayName("PUT " + APPROVAL_PATH)`. Without it, the report shows the full class name.
+- **On the test method:** used as the test name. Without it, the report shows the method name, e.g. `shouldReturnNotFound...()`.
+
+The test's Javadoc is shown as its description when the method is annotated with `@Description(useJavaDoc = true)`.
+
+Give every test class and test method a `@DisplayName`.
+
 ## License
 
 This project is licensed under the MIT License. See the LICENSE file for details.
