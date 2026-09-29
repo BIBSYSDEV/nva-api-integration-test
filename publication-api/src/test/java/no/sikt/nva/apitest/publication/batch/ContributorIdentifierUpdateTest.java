@@ -31,7 +31,7 @@ class ContributorIdentifierUpdateTest extends ManualUpdateTestBase {
    */
   @Test
   @DisplayName("Replaces a contributor identifier with another")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReplaceContributorIdentifierWithAnother(SoftAssertions softly) {
     var report =
         run(

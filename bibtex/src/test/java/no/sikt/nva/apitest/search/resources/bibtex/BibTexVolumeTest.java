@@ -96,7 +96,7 @@ class BibTexVolumeTest extends SearchTestBase {
    */
   @Test
   @DisplayName("Publication in BibTex format has correct headers")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnAllPublicationsInBibTexFormat(SoftAssertions softly) {
 
     var response =
@@ -119,7 +119,7 @@ class BibTexVolumeTest extends SearchTestBase {
    */
   @Test
   @DisplayName("A search that returns hits less than 'size'")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldNotReturnLinkHeaderWhenSearchReturnNumberOfHitsLessThanSize() {
 
     var response = getResponse(VOLUME_UUID, Integer.toString(NUMBER_OF_TEST_PUBLICATIONS * 2));
@@ -130,7 +130,7 @@ class BibTexVolumeTest extends SearchTestBase {
   /** A search that returns no hits should return an empty body, size=0 and no 'Link' header. */
   @Test
   @DisplayName("A search that returns no hits")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnEmptyBodyWhenSearchReturnsNoHits(SoftAssertions softly) {
 
     var response = getResponse(UUID.randomUUID().toString(), "10");

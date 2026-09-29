@@ -21,7 +21,7 @@ class DeleteApiTest extends PublicationTestBase {
   /** A Creator calling delete on own publication should return status {@code 202 Accepted}. */
   @Test
   @DisplayName("Delete draft publication")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldDeleteDraftWhenRequestedByOwner() {
     var identifier = setupDraftPublication();
 
@@ -38,7 +38,7 @@ class DeleteApiTest extends PublicationTestBase {
    */
   @Test
   @DisplayName("Deleting non-existing draft publication")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnNotFoundWhenDeletingUnknownIdentifier() {
 
     givenAuthenticatedRequestAsUser(UIB_CREATOR)
@@ -51,7 +51,7 @@ class DeleteApiTest extends PublicationTestBase {
   /** A non authenticated call to delete should return status {@code 401 Unauthorized}. */
   @Test
   @DisplayName("Non authorized user tries to delete publication")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnUnauthorizedWhenDeletingWithoutAuthentication() {
     var identifier = setupDraftPublication();
 
@@ -62,7 +62,7 @@ class DeleteApiTest extends PublicationTestBase {
   @Test
   @DisplayName("Non authorized user tries to delete publication")
   @Disabled("FIXME: Returns 401, see NP-51618")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnForbiddemWhenNotOwnerDeletingDraftPublication() {
     var identifier = setupDraftPublication();
 

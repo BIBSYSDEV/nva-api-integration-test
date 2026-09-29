@@ -47,7 +47,7 @@ class PublishApiTest extends PublicationTestBase {
       value = Category.class,
       names = {"ACADEMIC_ARTICLE", "ACADEMIC_MONOGRAPH"})
   @DisplayName("Curator publish draft publication")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldPublishDraftWhenRequestedByCurator(Category category) {
 
     var createResponse = PUBLICATION_FACTORY.createDraftPublication(UIB_CREATOR);
@@ -74,7 +74,7 @@ class PublishApiTest extends PublicationTestBase {
   /** Publishing an incomplete publication should return status {@code 400 Bad Request}. */
   @Test
   @DisplayName("Publish incomplete publication")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldRejectPublishWhenMetadataIsIncomplete(SoftAssertions softly) {
     var identifier = setupDraftPublication();
 
@@ -94,7 +94,7 @@ class PublishApiTest extends PublicationTestBase {
   /** A non-curator user publishing a publication should return status {@code 401 Unauthorized}. */
   @Test
   @DisplayName("Non-curator publish publication")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldRejectPublishWhenUserIsNotCurator(SoftAssertions softly) {
     var creatorAccessToken = CognitoLogin.login(UIB_CREATOR.userId()).get("accessToken");
 
@@ -117,7 +117,7 @@ class PublishApiTest extends PublicationTestBase {
   @Test
   @DisplayName("Non authorized user tries to publish publication")
   // @Disabled("FIXME: Returns 401, see NP-51618")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnForbiddemWhenNotOwnerPublishingDraftPublication() {
     var identifier = setupDraftPublication();
 

@@ -78,7 +78,7 @@ class BibTexTest extends SearchTestBase {
   @ParameterizedTest
   @MethodSource("publicationsInBibTexFormatProvider")
   @DisplayName("Search with content type 'text/x-bibtex' produces BibTeX export")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnPublicationsInBibTexFormat(
       Category category, BibTexExpectation expectation, SoftAssertions softly) {
 
@@ -147,7 +147,7 @@ class BibTexTest extends SearchTestBase {
   @ParameterizedTest
   @MethodSource("publicationsInBibTexFormatProvider")
   @DisplayName("Search with content type 'text/x-bibtex' produces BibTeX export for customer")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnPublicationsInBibTexFormatForCustomer(
       Category category, BibTexExpectation expectation, SoftAssertions softly) {
 
@@ -207,7 +207,7 @@ class BibTexTest extends SearchTestBase {
    */
   @Test
   @DisplayName("Search for multiple publications, return text/x-bibtex format")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnListOfPublicationsInBibTexFormat(SoftAssertions softly) {
 
     var commonUuid = UUID.randomUUID().toString();
@@ -243,7 +243,7 @@ class BibTexTest extends SearchTestBase {
    */
   @Test
   @DisplayName("Use onlineIssn when both onlineIssn and printIssn exists")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnOnlineIssnWhenBothOnlineIssnAndPrintIssnIsPresent() {
 
     final var onlineIssn = "1520-4898";
@@ -277,7 +277,7 @@ class BibTexTest extends SearchTestBase {
   /** A publication with multiple authors should present a list of authors separated with 'and'. */
   @Test
   @DisplayName("Authors are joined with 'and'")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldPresentMultipleAuthorsSeparatedWithAnd(SoftAssertions softly) {
     var titleUuid = UUID.randomUUID().toString();
     var title = "BibTex Integration test publication multiple authors " + titleUuid;
@@ -314,7 +314,7 @@ class BibTexTest extends SearchTestBase {
   /** A publication with multiple keywords should present a list of keywords separated with ','. */
   @Test
   @DisplayName("Keywords are joined with ','")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldPresentMultipleKeywordsSeparatedWithComma(SoftAssertions softly) {
     var titleUuid = UUID.randomUUID().toString();
     var title = "BibTex Integration test publication multiple keywords " + titleUuid;

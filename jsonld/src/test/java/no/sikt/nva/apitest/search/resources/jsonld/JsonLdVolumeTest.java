@@ -77,7 +77,7 @@ class JsonLdVolumeTest extends JsonLdTestBase {
    */
   @Test
   @DisplayName("Paginated JSON-LD response has profile and pagination headers")
-  @Description(useJavaDoc = true)
+  @Description
   @Timeout(value = 5, unit = MINUTES)
   void shouldReturnProfileAndPaginationHeadersForPaginatedJsonLd(SoftAssertions softly) {
 
@@ -101,7 +101,7 @@ class JsonLdVolumeTest extends JsonLdTestBase {
    */
   @Test
   @DisplayName("Single-page JSON-LD response has profile link but no pagination links")
-  @Description(useJavaDoc = true)
+  @Description
   @Timeout(value = 5, unit = MINUTES)
   void shouldReturnProfileLinkWithoutPaginationWhenSinglePage(SoftAssertions softly) {
 
@@ -120,7 +120,7 @@ class JsonLdVolumeTest extends JsonLdTestBase {
    */
   @Test
   @DisplayName("Empty JSON-LD result is an empty ItemList carrying the profile link")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnEmptyItemListWhenSearchReturnsNoHits(SoftAssertions softly) {
 
     var response = getResponse(UUID.randomUUID().toString(), PAGE_SIZE);

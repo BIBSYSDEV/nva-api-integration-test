@@ -20,7 +20,7 @@ class SearchProjectTest extends ProjectTestBase {
   /** Search for projects returns list of projects and status {@code 200 Ok} */
   @Test
   @DisplayName("List projects")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnListOfProjects(SoftAssertions softly) {
 
     var projectTitle = "Cristin API test project " + UUID.randomUUID().toString();
@@ -49,7 +49,7 @@ class SearchProjectTest extends ProjectTestBase {
   /** Get next page returns next results and status {@code 200 Ok} */
   @Test
   @DisplayName("List projects with pagination")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnNextPageOfProjects(SoftAssertions softly) {
     var projectTitle = "Cristin API test project " + UUID.randomUUID().toString();
     PROJECT_FACTORY.createProject(UIB_CREATOR, projectTitle);

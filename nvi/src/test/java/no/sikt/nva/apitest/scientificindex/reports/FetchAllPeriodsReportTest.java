@@ -26,7 +26,7 @@ class FetchAllPeriodsReportTest extends ScientificIndexTestBase {
   /** Fetching periods report as Nvi-curator returns the report with status {@code 200 Ok} */
   @Test
   @DisplayName("Fetch periods report")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldFetchPeriodsReport(SoftAssertions softly) {
 
     var response =
@@ -60,7 +60,7 @@ class FetchAllPeriodsReportTest extends ScientificIndexTestBase {
    */
   @Test
   @DisplayName("Fetch periods report when unauthenticated should return Unauthorized")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnUnauthorizedWhenNotAunthenticated() {
     requestShouldReturnUnauthorized(GET, REPORTS_PATH);
   }
@@ -69,7 +69,7 @@ class FetchAllPeriodsReportTest extends ScientificIndexTestBase {
   @ParameterizedTest
   @MethodSource("usersWithoutNviReportAccess")
   @DisplayName("Fetch periods report when non-nvi-curator should return Forbidden")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnForbiddenWhenNotNviCurator(User user) {
 
     requestShouldReturnForbidden(GET, user, REPORTS_PATH);

@@ -161,6 +161,15 @@ public final class UserFixtures {
           .withAffiliations(Affiliation.UIS)
           .build();
 
+  /** Creator at UNIT, the e2e customer that keeps rights retention strategy switched on. */
+  public static final User UNIT_CREATOR =
+      User.builder()
+          .withName("Author RRS TestUser")
+          .withUserId("test-user-author-rrs@test.no")
+          .withCristinId("1862262@20202.0.0.0")
+          .withAffiliations(Affiliation.UNIT)
+          .build();
+
   public static final User APP_ADMIN =
       User.builder()
           .withName("Create testdata TestUser")

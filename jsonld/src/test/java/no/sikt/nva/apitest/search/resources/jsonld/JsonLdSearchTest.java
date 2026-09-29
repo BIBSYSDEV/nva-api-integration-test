@@ -165,7 +165,7 @@ class JsonLdSearchTest extends JsonLdTestBase {
     @ParameterizedTest
     @MethodSource("publicationsInJsonLdFormatProvider")
     @DisplayName("Search with content type 'application/ld+json' produces schema.org JSON-LD")
-    @Description(useJavaDoc = true)
+    @Description
     void shouldReturnPublicationsInJsonLdFormat(
         Category category, SchemaOrgExpectation expectation, SoftAssertions softly) {
 
@@ -194,7 +194,7 @@ class JsonLdSearchTest extends JsonLdTestBase {
     @ParameterizedTest
     @MethodSource("publicationsInJsonLdFormatProvider")
     @DisplayName("Search with content type 'application/ld+json' produces JSON-LD for customer")
-    @Description(useJavaDoc = true)
+    @Description
     void shouldReturnPublicationsInJsonLdFormatForCustomer(
         Category category, SchemaOrgExpectation expectation, SoftAssertions softly) {
 
@@ -220,7 +220,7 @@ class JsonLdSearchTest extends JsonLdTestBase {
     @ParameterizedTest
     @MethodSource("acceptHeaderVariantsProvider")
     @DisplayName("All schema.org Accept-header variants return JSON-LD")
-    @Description(useJavaDoc = true)
+    @Description
     void shouldReturnSchemaOrgForAllAcceptHeaderVariants(
         String acceptHeader, SoftAssertions softly) {
 
@@ -244,7 +244,7 @@ class JsonLdSearchTest extends JsonLdTestBase {
     @ParameterizedTest
     @MethodSource("acceptHeaderVariantsProvider")
     @DisplayName("All schema.org Accept-header variants return JSON-LD for customer")
-    @Description(useJavaDoc = true)
+    @Description
     void shouldReturnSchemaOrgForAllAcceptHeaderVariantsForCustomer(
         String acceptHeader, SoftAssertions softly) {
 
@@ -269,7 +269,7 @@ class JsonLdSearchTest extends JsonLdTestBase {
    */
   @Test
   @DisplayName("Search for multiple publications returns a schema.org ItemList")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnItemListWithMultiplePublications(SoftAssertions softly) {
 
     var commonUuid = UUID.randomUUID().toString();
@@ -301,7 +301,7 @@ class JsonLdSearchTest extends JsonLdTestBase {
    */
   @Test
   @DisplayName("Article journal is exposed as a Periodical with its ISSN")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldExposeOnlineIssnOnPeriodicalForArticle() {
 
     var titleUuid = UUID.randomUUID().toString();
@@ -317,7 +317,7 @@ class JsonLdSearchTest extends JsonLdTestBase {
   /** A monograph is a schema.org Book carrying its ISBN and a publisher Organization. */
   @Test
   @DisplayName("Monograph exposes ISBN and publisher")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldExposeIsbnAndPublisherForMonograph(SoftAssertions softly) {
 
     var titleUuid = UUID.randomUUID().toString();
@@ -348,7 +348,7 @@ class JsonLdSearchTest extends JsonLdTestBase {
   /** A chapter in an anthology is a schema.org Chapter whose isPartOf is the containing Book. */
   @Test
   @DisplayName("Chapter exposes its book through isPartOf")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldExposeBookThroughIsPartOfForChapter(SoftAssertions softly) {
 
     var titleUuid = UUID.randomUUID().toString();
@@ -383,7 +383,7 @@ class JsonLdSearchTest extends JsonLdTestBase {
   /** Publication tags are exposed as a single comma-separated schema.org keywords string. */
   @Test
   @DisplayName("Keywords are joined with ', '")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldJoinMultipleKeywordsWithComma() {
 
     var titleUuid = UUID.randomUUID().toString();
@@ -413,7 +413,7 @@ class JsonLdSearchTest extends JsonLdTestBase {
   /** A publication with several creators exposes each as a schema.org author. */
   @Test
   @DisplayName("Multiple authors are exposed as a list")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldExposeMultipleAuthors(SoftAssertions softly) {
 
     var titleUuid = UUID.randomUUID().toString();

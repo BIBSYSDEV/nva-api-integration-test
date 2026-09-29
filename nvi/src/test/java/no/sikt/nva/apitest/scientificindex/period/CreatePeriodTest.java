@@ -90,7 +90,7 @@ class CreatePeriodTest extends ScientificIndexTestBase {
 
   @Test
   @DisplayName("Create new period")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnNewPeriodWhenUserIsAuthenticated(SoftAssertions softly) {
     var payload = createPeriodPayload(NEW_PERIOD_YEAR);
 
@@ -111,7 +111,7 @@ class CreatePeriodTest extends ScientificIndexTestBase {
 
   @Test
   @DisplayName("Create new period unauthenticated")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnUnauthorizedWhenUserIsUnauthenticated() {
     // var payload = createPeriodPayload(UNAUTHENTICATED_PERIOD_YEAR);
 
@@ -120,7 +120,7 @@ class CreatePeriodTest extends ScientificIndexTestBase {
 
   @Test
   @DisplayName("Create new period already exists")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnErrorWhenTryingToCreateExistingPeriod(SoftAssertions softly) {
     var payload = createPeriodPayload(CURRENT_YEAR);
 
@@ -141,7 +141,7 @@ class CreatePeriodTest extends ScientificIndexTestBase {
 
   @Test
   @DisplayName("Create new period wrong date format")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnErrorWhenWrongDateFormat(SoftAssertions softly) {
     var payload = createPeriodPayload(INVALID_DATE_PERIOD_YEAR);
     var modifiedPayload = new HashMap<>(payload);
@@ -166,7 +166,7 @@ class CreatePeriodTest extends ScientificIndexTestBase {
   @Test
   @DisplayName("Create new period overlapping already existing period")
   @Disabled("Not implemented")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnErrorWhenTryingToCreateOverlappingPeriod() {
 
     var yearMinusTwo = pastYear(2);
@@ -200,7 +200,7 @@ class CreatePeriodTest extends ScientificIndexTestBase {
   @MethodSource("userByRoleProvider")
   @DisplayName("Create new period user is not AppAdmin")
   @Disabled("FIXME: Returns 401, see NP-51618")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnForbiddenWhenCreatorNotAppAdmin(User user) {
 
     requestShouldReturnForbidden(POST, user, PERIODS_PATH);

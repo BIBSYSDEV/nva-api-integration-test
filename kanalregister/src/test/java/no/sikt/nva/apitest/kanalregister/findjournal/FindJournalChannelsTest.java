@@ -24,7 +24,7 @@ class FindJournalChannelsTest extends ChannelRegistryTestBase {
   /** A name search returns hits with the level for the requested year. */
   @Test
   @DisplayName("Search by name returns level for the requested year")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnLevelForRequestedYearWhenSearchingByName(SoftAssertions softly) {
     var hit = ACP_SEARCH.jsonPathForEnvironment(environment).setRootPath(hitByPid(ACP.pid()));
 
@@ -34,7 +34,7 @@ class FindJournalChannelsTest extends ChannelRegistryTestBase {
   /** The response body matches the shared search response JSON Schema. */
   @Test
   @DisplayName("Response matches the search contract")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldMatchSearchContract(SoftAssertions softly) {
     assertMatchesSearchResponseSchema(softly, ACP_SEARCH.bodyForEnvironment(environment));
   }

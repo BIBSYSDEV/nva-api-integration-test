@@ -19,6 +19,14 @@ public final class PublicationPaths {
     return publicationPath(identifier) + "/publish";
   }
 
+  public static String ticketsPath(String identifier) {
+    return publicationPath(identifier) + "/tickets";
+  }
+
+  public static String filePath(String identifier, String fileIdentifier) {
+    return publicationPath(identifier) + "/file/" + fileIdentifier;
+  }
+
   public static String fileUploadCreatePath(String identifier) {
     return publicationPath(identifier) + FILE_UPLOAD + "/create";
   }

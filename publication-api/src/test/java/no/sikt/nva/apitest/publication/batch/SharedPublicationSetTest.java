@@ -26,7 +26,7 @@ class SharedPublicationSetTest extends PublicationTestBase {
    */
   @Test
   @DisplayName("Every created publication reached the search index")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldIndexEveryCreatedPublication() {
     var set = SharedPublicationSet.get();
 

@@ -40,7 +40,7 @@ class ListCustomersTest extends IntegrationTestBase {
    */
   @Test
   @DisplayName("List customers with rights retention strategy type")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldIncludeRightsRetentionStrategyTypeForEveryCustomer(SoftAssertions softly) {
     var customers = customersIn(customerList);
 
@@ -57,7 +57,7 @@ class ListCustomersTest extends IntegrationTestBase {
    */
   @Test
   @DisplayName("List customers without deprecated id in rights retention strategy")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldNotIncludeDeprecatedIdInRightsRetentionStrategy(SoftAssertions softly) {
     var customers = customersIn(customerList);
 
@@ -74,7 +74,7 @@ class ListCustomersTest extends IntegrationTestBase {
    */
   @Test
   @DisplayName("List customer with rights retention strategy enabled")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldIncludePolicyUriWhenRightsRetentionStrategyIsConfigured(SoftAssertions softly) {
     var unit = customerIn(customerList, UNIT);
     var rightsRetentionStrategy = rightsRetentionStrategyOf(unit);
@@ -86,7 +86,7 @@ class ListCustomersTest extends IntegrationTestBase {
   /** UiB has RRS switched off, which the publication-api file upload tests also rely on. */
   @Test
   @DisplayName("List customer with rights retention strategy disabled")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnNullRightsRetentionStrategyWhenNotConfigured(SoftAssertions softly) {
     var uib = customerIn(customerList, UIB);
 

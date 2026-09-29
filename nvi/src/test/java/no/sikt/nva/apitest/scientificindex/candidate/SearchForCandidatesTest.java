@@ -45,7 +45,7 @@ class SearchForCandidatesTest extends ScientificIndexTestBase {
   /** A new candidate is returned by search with creator, approval and points. */
   @Test
   @DisplayName("Candidate is indexed and searchable with its NVI data")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldIndexCandidateForSearchWhenPublicationBecomesCandidate(SoftAssertions softly) {
     var json =
         indexedCandidateResponse
@@ -68,7 +68,7 @@ class SearchForCandidatesTest extends ScientificIndexTestBase {
   /** Searching by the creator name from the original publication returns the candidate. */
   @Test
   @DisplayName("Search by contributor name")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldFindCandidateWhenSearchingByContributorName() {
     var response = searchScopedToCandidate("query", candidate.creatorNames().getFirst());
 
@@ -78,7 +78,7 @@ class SearchForCandidatesTest extends ScientificIndexTestBase {
   /** Filtering by the publication title returns the candidate. */
   @Test
   @DisplayName("Filter by publication title")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldFindCandidateWhenFilteringByTitle() {
     var response = search("title", candidate.title());
 
@@ -88,7 +88,7 @@ class SearchForCandidatesTest extends ScientificIndexTestBase {
   /** Filtering by the creator's top-level organization returns the candidate. */
   @Test
   @DisplayName("Filter by organization")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldFindCandidateWhenFilteringByOrganization() {
     var response = searchScopedToCandidate("affiliations", topLevelOrganizationIdentifier());
 
@@ -98,7 +98,7 @@ class SearchForCandidatesTest extends ScientificIndexTestBase {
   /** Searching by a term that matches nothing does not return the candidate. */
   @Test
   @DisplayName("Search with non-matching term")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldNotFindCandidateWhenSearchingByNonMatchingTerm() {
     var response = search("query", "no-match-" + UUID.randomUUID());
 
@@ -110,7 +110,7 @@ class SearchForCandidatesTest extends ScientificIndexTestBase {
    */
   @Test
   @DisplayName("Search candidates unauthenticated")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnUnauthorizedWhenSearchingUnauthenticated() {
     givenUnauthenticatedJsonRequest()
         .queryParam("query", candidate.title())
