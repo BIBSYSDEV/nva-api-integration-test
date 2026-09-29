@@ -220,8 +220,6 @@ class UpdateApiTest extends PublicationTestBase {
     @Test
     @DisplayName("File uploaded while unpublished is covered by an approval ticket")
     @Description
-    @Disabled
-    @Description
     void shouldCoverFileUploadedWhileUnpublishedByApprovalTicket(SoftAssertions softly) {
       var publicationIdentifier = setupUnpublishedPublication(List.of(UIB_CREATOR));
       var uibFiles = uploadFilesForApproval(publicationIdentifier, UIB_CREATOR, 1);
@@ -252,13 +250,13 @@ class UpdateApiTest extends PublicationTestBase {
     }
 
     /**
-     * A file uploaded while the publication is unpublished, at an institution where registrators
-     * publish files as well, should be approved in a completed ticket at that institution once the
-     * publication is republished, rather than left waiting for approval.
+     * At some institutions, registrators can publish files without curator approval. A file such an
+     * institution uploads while the publication is unpublished should be approved once the
+     * publication is republished. Its ticket should be completed, not left waiting for approval.
      */
     @Test
     @DisplayName("File uploaded while unpublished is approved when its institution publishes files")
-    @Description(useJavaDoc = true)
+    @Description
     void shouldApproveFileUploadedWhileUnpublishedWhenInstitutionPublishesFiles(
         SoftAssertions softly) {
       var publicationIdentifier =
