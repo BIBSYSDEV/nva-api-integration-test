@@ -6,11 +6,17 @@ import static java.net.HttpURLConnection.HTTP_OK;
 import static java.util.UUID.randomUUID;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_YEAR;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
+import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_NVI_CURATOR;
+import static no.sikt.nva.apitest.base.UserFixtures.UIB_PUBLISHING_CURATOR;
 import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATE_BY_PUBLICATION_PATH;
 import static no.sikt.nva.apitest.scientificindex.ScientificIndexPaths.CANDIDATE_PATH;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import io.qameta.allure.Description;
+import java.util.List;
+import no.sikt.Contributor;
+import no.sikt.Role;
 import no.sikt.nva.apitest.base.Affiliation;
 import no.sikt.nva.apitest.base.User;
 import no.sikt.nva.apitest.scientificindex.NviCandidate;
@@ -63,6 +69,34 @@ class FetchCandidateTest extends ScientificIndexTestBase {
         .isEqualTo(Affiliation.UIB.getValue());
     softly.assertThat(response.getString("approvals[0].status")).isEqualTo("New");
     softly.assertThat(response.getDouble("totalPoints")).isPositive();
+  }
+
+  /**
+   * Only creators earn NVI points, so when the same person is both a creator at UiB and an editor
+   * at Sikt, the candidate should only have an approval for UiB.
+   */
+  @Test
+  @DisplayName("Same person as creator and non-creator gives approval only for creator affiliation")
+  @Description
+  void shouldOnlyIncludeCreatorAffiliationWhenSamePersonHasAnotherRoleAtOtherInstitution() {
+    var creatorAtUib = Contributor.asCreator(UIB_CREATOR);
+    var sameUserAtSikt = UIB_CREATOR.copy().withAffiliations(Affiliation.SIKT).build();
+    var editorAtSikt = new Contributor(sameUserAtSikt, Role.EDITOR);
+    var candidateWithDuplicatePerson =
+        CANDIDATE_FACTORY.createCandidate(
+            title(), UIB_PUBLISHING_CURATOR, List.of(creatorAtUib, editorAtSikt));
+
+    var response =
+        CANDIDATE_FACTORY
+            .fetchCandidateByPublicationIdentifier(
+                UIB_NVI_CURATOR, candidateWithDuplicatePerson.publicationIdentifier())
+            .then()
+            .statusCode(HTTP_OK)
+            .extract()
+            .jsonPath();
+
+    assertThat(response.getList("approvals.institutionId", String.class))
+        .containsExactly(Affiliation.UIB.getValue());
   }
 
   /** Fetching a candidate by its identifier returns it with status {@code 200 OK}. */
