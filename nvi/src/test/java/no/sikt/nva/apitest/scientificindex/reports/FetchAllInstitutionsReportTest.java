@@ -44,7 +44,7 @@ class FetchAllInstitutionsReportTest extends ScientificIndexTestBase {
    */
   @Test
   @DisplayName("Fetch report for all institutions")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnReportFromAllInstitutionsForCurrentYear(SoftAssertions softly) {
     var response =
         givenAuthenticatedRequestAsUser(UIS_NVI_CURATOR)
@@ -80,7 +80,7 @@ class FetchAllInstitutionsReportTest extends ScientificIndexTestBase {
    */
   @Test
   @DisplayName("Fetch report for all institutions when unauthenticated return Unauthorized")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnUnauthorizedWhenNotAuthenticated() {
     requestShouldReturnUnauthorized(GET, INSTITUTION_REPORTS_PATH, CURRENT_YEAR);
   }
@@ -91,7 +91,7 @@ class FetchAllInstitutionsReportTest extends ScientificIndexTestBase {
   @ParameterizedTest
   @MethodSource("usersWithoutNviReportAccess")
   @DisplayName("Fetch report for all institutions when non Nvi-curator returns Forbidden")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnForbiddenWhenNonNviCurator(User user) {
     requestShouldReturnForbidden(GET, user, INSTITUTION_REPORTS_PATH, CURRENT_YEAR);
   }
@@ -102,7 +102,7 @@ class FetchAllInstitutionsReportTest extends ScientificIndexTestBase {
    */
   @Test
   @DisplayName("Fetch report for all institutions for a non-existing period return Not Found")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnNotFoundForNonExistingPeriod() {
     var nonExistingPeriod = getCurrentYear().plusYears(50).toString();
     givenAuthenticatedJsonRequestAsUser(UIS_NVI_CURATOR)

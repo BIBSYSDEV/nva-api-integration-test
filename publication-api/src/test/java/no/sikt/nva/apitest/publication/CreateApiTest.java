@@ -41,7 +41,7 @@ class CreateApiTest extends PublicationTestBase {
    */
   @Test
   @DisplayName("Creator create draft publication")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldCreateDraftPublicationOwnedByCreator(SoftAssertions softly) {
     var response =
         givenAuthenticatedRequest(creatorAccessToken)
@@ -69,7 +69,7 @@ class CreateApiTest extends PublicationTestBase {
   /** An unauthenticated user calling create should return status {@code 401 Unauthorized}. */
   @Test
   @DisplayName("Unauthenticated user tries to create publication")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnUnauthorizedWhenCreateWithUnauthenticatedUser() {
     requestShouldReturnUnauthorized(POST, createPublicationPath());
   }

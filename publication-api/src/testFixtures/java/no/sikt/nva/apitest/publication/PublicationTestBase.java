@@ -1,5 +1,7 @@
 package no.sikt.nva.apitest.publication;
 
+import static java.util.UUID.randomUUID;
+
 import no.sikt.nva.PublicationFactory;
 import no.sikt.nva.PublicationTicketFactory;
 import no.sikt.nva.apitest.base.IntegrationTestBase;
@@ -16,5 +18,9 @@ public class PublicationTestBase extends IntegrationTestBase {
         .createDraftPublication(UserFixtures.UIB_CREATOR)
         .jsonPath()
         .getString(IDENTIFIER_FIELD);
+  }
+
+  public static String randomTitle() {
+    return "Test publication - %s".formatted(randomUUID());
   }
 }

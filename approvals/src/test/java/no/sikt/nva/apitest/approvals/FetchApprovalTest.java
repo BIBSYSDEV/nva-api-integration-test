@@ -70,7 +70,7 @@ class FetchApprovalTest extends IntegrationTestBase {
   /** The approval is served as JSON, identifying itself by the URI it was fetched from. */
   @Test
   @DisplayName("Get approval as json")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnApprovalAsJson(SoftAssertions softly) {
     var approval =
         fetchApproval(JSON_MEDIA_TYPE)
@@ -91,7 +91,7 @@ class FetchApprovalTest extends IntegrationTestBase {
   /** JSON-LD clients get the same document, pointing at the context that defines its terms. */
   @Test
   @DisplayName("Get approval as json-ld")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnApprovalAsJsonLd(SoftAssertions softly) {
     var approval =
         fetchApproval(JSON_LD_MEDIA_TYPE)
@@ -112,7 +112,7 @@ class FetchApprovalTest extends IntegrationTestBase {
    */
   @Test
   @DisplayName("Get approval as html")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnApprovalAsHtml(SoftAssertions softly) {
     var page =
         fetchApproval(HTML_MEDIA_TYPE)
@@ -133,7 +133,7 @@ class FetchApprovalTest extends IntegrationTestBase {
    */
   @Test
   @DisplayName("Get approval accepting any media type")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnPageWhenClientAcceptsAnyMediaType(SoftAssertions softly) {
     var page =
         fetchApproval(ANY_MEDIA_TYPE)
@@ -150,7 +150,7 @@ class FetchApprovalTest extends IntegrationTestBase {
   /** An approval identifier that is well formed but unknown is not found. */
   @Test
   @DisplayName("Get approval that does not exist")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnNotFoundWhenApprovalDoesNotExist() {
     givenUnauthenticatedJsonRequest()
         .get(APPROVAL_PATH, UUID.randomUUID())
@@ -161,7 +161,7 @@ class FetchApprovalTest extends IntegrationTestBase {
   /** An approval identifier that is not a uuid is rejected before anything is looked up. */
   @Test
   @DisplayName("Get approval with malformed identifier")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnBadRequestWhenIdentifierIsMalformed() {
     givenUnauthenticatedJsonRequest()
         .get(APPROVAL_PATH, INVALID_IDENTIFIER)

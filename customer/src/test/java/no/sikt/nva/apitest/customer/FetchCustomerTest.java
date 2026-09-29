@@ -41,7 +41,7 @@ class FetchCustomerTest extends IntegrationTestBase {
   /** Unlike the list, the full customer representation requires a login. */
   @Test
   @DisplayName("Fetch customer unauthenticated")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnUnauthorizedWhenUnauthenticated() {
     givenUnauthenticatedJsonRequest()
         .get(CUSTOMER_PATH, uibIdentifier)
@@ -56,7 +56,7 @@ class FetchCustomerTest extends IntegrationTestBase {
    */
   @Test
   @DisplayName("Fetch customer with rights retention strategy enabled")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnPolicyUriAndDeprecatedIdWhenRightsRetentionStrategyIsConfigured(
       SoftAssertions softly) {
     var customer = fetchCustomer(UIB_CREATOR, unitIdentifier);
@@ -73,7 +73,7 @@ class FetchCustomerTest extends IntegrationTestBase {
    */
   @Test
   @DisplayName("Fetch customer with rights retention strategy disabled")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnNullRightsRetentionStrategyWithoutPolicyUriWhenNotConfigured(
       SoftAssertions softly) {
     var customer = fetchCustomer(UIB_CREATOR, uibIdentifier);

@@ -52,7 +52,7 @@ class UpdateCandidateApprovalStatusTest extends ScientificIndexTestBase {
   /** Approving a candidate as an NVI curator returns status {@code 200 OK}. */
   @Test
   @DisplayName("Approve candidate as NVI curator")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldApproveCandidateWhenRequestedByNviCurator(SoftAssertions softly) {
     var candidate = createCandidate();
 
@@ -71,7 +71,7 @@ class UpdateCandidateApprovalStatusTest extends ScientificIndexTestBase {
   @ParameterizedTest
   @MethodSource("curatorProvider")
   @DisplayName("Approve candidate as NVI curator at a given institution")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldApproveCandidateWhenRequestedBySomeNviCurator(
       User curator, User creator, SoftAssertions softly) {
     var contributors = List.of(Contributor.asCreator(creator));
@@ -100,7 +100,7 @@ class UpdateCandidateApprovalStatusTest extends ScientificIndexTestBase {
   /** Rejecting a candidate with a reason returns status {@code 200 OK}. */
   @Test
   @DisplayName("Reject candidate with reason")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldRejectCandidateWhenReasonIsProvided(SoftAssertions softly) {
     var candidate = createCandidate();
 
@@ -119,7 +119,7 @@ class UpdateCandidateApprovalStatusTest extends ScientificIndexTestBase {
   /** Rejecting a candidate without a reason returns status {@code 400 Bad Request}. */
   @Test
   @DisplayName("Reject candidate without reason")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnBadRequestWhenRejectingWithoutReason() {
     var candidate = createCandidate();
 
@@ -129,7 +129,7 @@ class UpdateCandidateApprovalStatusTest extends ScientificIndexTestBase {
   /** Reverting an approved candidate to Pending stays Pending, not New. */
   @Test
   @DisplayName("Reset approved candidate to pending")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldResetApprovalWhenApprovedCandidateIsSetToPending(SoftAssertions softly) {
     var candidate = createCandidate();
 
@@ -150,7 +150,7 @@ class UpdateCandidateApprovalStatusTest extends ScientificIndexTestBase {
   /** Updating approval without MANAGE_NVI_CANDIDATES returns status {@code 401 Unauthorized}. */
   @Test
   @DisplayName("Approve candidate without MANAGE_NVI_CANDIDATES access right")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnUnauthorizedWhenUserLacksManageNviCandidates() {
     var candidate = createCandidate();
 

@@ -56,7 +56,7 @@ class CreateApprovalTest extends IntegrationTestBase {
    */
   @Test
   @DisplayName("Create approval")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldAcceptApprovalAndExposeItAtLocation(SoftAssertions softly) {
     var identifierValue = uniqueValue();
     var payload = approvalPayload(UIB_IDENTIFIER_NAME, identifierValue);
@@ -115,7 +115,7 @@ class CreateApprovalTest extends IntegrationTestBase {
   @ParameterizedTest
   @MethodSource("incompletePayloads")
   @DisplayName("Create approval with incomplete payload")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnBadRequestWhenPayloadIsIncomplete(Map<String, Object> payload) {
     givenAuthenticatedJsonRequestAsClient(UIB_CLIENT_SECRET)
         .body(payload)
@@ -128,7 +128,7 @@ class CreateApprovalTest extends IntegrationTestBase {
   /** Writing an approval is reserved for clients holding the approval-upsert scope. */
   @Test
   @DisplayName("Create approval unauthenticated")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnUnauthorizedWhenRequestIsUnauthenticated() {
     givenUnauthenticatedJsonRequest()
         .body(approvalPayload(UIB_IDENTIFIER_NAME))

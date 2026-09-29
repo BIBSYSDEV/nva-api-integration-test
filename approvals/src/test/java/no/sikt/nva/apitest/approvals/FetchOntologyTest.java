@@ -27,7 +27,7 @@ class FetchOntologyTest extends IntegrationTestBase {
    */
   @Test
   @DisplayName("Get RDF ontology")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnTurtleOntology(SoftAssertions softly) {
     var ontology =
         given()

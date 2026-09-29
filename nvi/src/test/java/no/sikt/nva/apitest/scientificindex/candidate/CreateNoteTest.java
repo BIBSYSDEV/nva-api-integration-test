@@ -36,7 +36,7 @@ class CreateNoteTest extends ScientificIndexTestBase {
   /** Creating a note on a NVI candidate returns {@code 200 OK} with the note in the response */
   @Test
   @DisplayName("Create note on NVI candidate")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldCreateNote(SoftAssertions softly) {
     var candidate = createCandidate();
     var candidateIdentifier = candidate.candidateIdentifier();
@@ -58,7 +58,7 @@ class CreateNoteTest extends ScientificIndexTestBase {
    */
   @Test
   @DisplayName("Create note on NVI candidate when not NVI-curator for owner")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnUnauthorizedWhenCreatingNoteOnCandidateNotOwned() {
     var candidate = createCandidate();
     var candidateIdentifier = candidate.candidateIdentifier();
@@ -72,7 +72,7 @@ class CreateNoteTest extends ScientificIndexTestBase {
   /** Trying to create a note on a non-existing candidate returns {@code 404 Not Found} */
   @Test
   @DisplayName("Create note on non-existing NVI candidate")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnNotFoundWhenCreatingNoteOnNonExistingCandidate() {
     var candidateIdentifier = randomUUID().toString();
     var payload = createNoteRequest();
@@ -85,7 +85,7 @@ class CreateNoteTest extends ScientificIndexTestBase {
   /** Creating a note with no candidateNote returns {@code 400 Bad Request} */
   @Test
   @DisplayName("Create empty note")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnInvalidRequestBodyWhenCreatingEmptyNote(SoftAssertions softly) {
     var candidate = createCandidate();
     var candidateIdentifier = candidate.candidateIdentifier();
@@ -105,7 +105,7 @@ class CreateNoteTest extends ScientificIndexTestBase {
   /** Creating a note with wrong candidateNote returns {@code 400 Bad Request} */
   @Test
   @DisplayName("Create note with wrong candidateNote")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnBadRequestWhenCreatingNoteWithWrongPayload(SoftAssertions softly) {
     var candidate = createCandidate();
     var candidateIdentifier = candidate.candidateIdentifier();

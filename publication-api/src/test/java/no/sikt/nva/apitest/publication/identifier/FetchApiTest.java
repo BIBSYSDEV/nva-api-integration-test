@@ -44,7 +44,7 @@ class FetchApiTest extends PublicationTestBase {
    */
   @Test
   @DisplayName("Fetch publication by identifier")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnDraftPublicationWhenFetchedByIdentifier(SoftAssertions softly) {
     var identifier = setupDraftPublication();
 
@@ -74,7 +74,7 @@ class FetchApiTest extends PublicationTestBase {
   /** Fetch non-existing publication should return status {@code 404 Not Found}. */
   @Test
   @DisplayName("Fetch non-existing publication")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnNotFoundWhenFetchingUnknownIdentifier(SoftAssertions softly) {
     var randomIdentifier = UUID.randomUUID().toString();
 
@@ -97,7 +97,7 @@ class FetchApiTest extends PublicationTestBase {
   @Test
   @DisplayName("Non authorized user tries to fetch publication")
   @Disabled("FIXME: Returns 401, see NP-51618")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnForbiddemWhenNotOwnerFetchingDraftPublication() {
     var identifier = setupDraftPublication();
 
