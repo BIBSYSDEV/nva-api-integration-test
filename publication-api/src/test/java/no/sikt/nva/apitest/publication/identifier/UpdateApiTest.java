@@ -163,11 +163,13 @@ class UpdateApiTest extends PublicationTestBase {
    * institution it was created for, so the number of tickets on the publication is counted as the
    * distinct tickets seen by the institutions taking part in the scenario.
    *
-   * <p>What the ticket looks like depends on the publishing workflow of the uploader's institution.
-   * Where registrators publish metadata only, the files wait in a pending ticket for a curator to
-   * approve them. Where registrators publish files as well, the ticket is completed straight away
+   * <p>What the ticket looks like depends on the {@code publicationWorkflow} of the uploader's
+   * customer. Under {@code RegistratorPublishesMetadataOnly}, a registrator's files need curator
+   * approval, so they wait in a pending ticket. Under {@code RegistratorPublishesMetadataAndFiles},
+   * registrators publish files without curator approval, so the ticket is completed straight away
    * and the files are approved. These tests rely on the e2e customer configuration: UiB is the only
-   * test customer that publishes metadata only, and Kristiania publishes files as well.
+   * test customer with {@code RegistratorPublishesMetadataOnly}, and Kristiania has {@code
+   * RegistratorPublishesMetadataAndFiles}.
    */
   @Nested
   @DisplayName("RepublishPublicationRequest")
@@ -213,12 +215,13 @@ class UpdateApiTest extends PublicationTestBase {
     }
 
     /**
-     * A file uploaded while the publication is unpublished, at an institution where registrators
-     * publish metadata only, should await approval in a pending ticket at that institution once the
-     * publication is republished.
+     * Under the {@code RegistratorPublishesMetadataOnly} workflow, a registrator's files need
+     * curator approval. A file a registrator at UiB uploads while the publication is unpublished
+     * should therefore wait for a curator in a pending ticket at UiB once the publication is
+     * republished.
      */
     @Test
-    @DisplayName("File uploaded while unpublished is covered by an approval ticket")
+    @DisplayName("Unpublished upload needs curator approval under RegistratorPublishesMetadataOnly")
     @Description
     void shouldCoverFileUploadedWhileUnpublishedByApprovalTicket(SoftAssertions softly) {
       var publicationIdentifier = setupUnpublishedPublication(List.of(UIB_CREATOR));
@@ -250,14 +253,15 @@ class UpdateApiTest extends PublicationTestBase {
     }
 
     /**
-     * At some institutions, registrators can publish files without curator approval. A file such an
-     * institution uploads while the publication is unpublished should be approved once the
-     * publication is republished. Its ticket should be completed, not left waiting for approval.
+     * Under the {@code RegistratorPublishesMetadataAndFiles} workflow, registrators publish files
+     * without curator approval. A file a registrator at Kristiania uploads while the publication is
+     * unpublished should therefore be approved automatically once the publication is republished.
+     * Its ticket should be completed, not left waiting for a curator.
      */
     @Test
-    @DisplayName("File uploaded while unpublished is approved when its institution publishes files")
+    @DisplayName("Unpublished upload is auto-approved under RegistratorPublishesMetadataAndFiles")
     @Description
-    void shouldApproveFileUploadedWhileUnpublishedWhenInstitutionPublishesFiles(
+    void shouldApproveFileAutomaticallyUnderRegistratorPublishesMetadataAndFiles(
         SoftAssertions softly) {
       var publicationIdentifier =
           setupUnpublishedPublication(List.of(UIB_CREATOR, KRISTIANIA_CREATOR));
