@@ -24,7 +24,7 @@ class FetchDeprecatedInstitutionReportTest extends ScientificIndexTestBase {
   /** Fetch deprecated institution report for a single institution */
   @Test
   @DisplayName("Fetch deprecated institution report")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnDeprecatedInstitutionReport(SoftAssertions softly) {
 
     var jsonPath =

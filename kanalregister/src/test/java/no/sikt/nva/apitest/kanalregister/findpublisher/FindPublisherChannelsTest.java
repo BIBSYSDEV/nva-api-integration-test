@@ -36,7 +36,7 @@ class FindPublisherChannelsTest extends ChannelRegistryTestBase {
   /** A name search returns hits with the level for the requested year. */
   @Test
   @DisplayName("Search by name returns level for the requested year")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnLevelForRequestedYearWhenSearchingByName(SoftAssertions softly) {
     assertLevelForYear(softly, gyldendalUndervisningHit(environment), GYLDENDAL_UNDERVISNING);
   }
@@ -44,7 +44,7 @@ class FindPublisherChannelsTest extends ChannelRegistryTestBase {
   /** Fields without a value are JSON null, never the literal string "null". */
   @Test
   @DisplayName("Missing values are JSON null, not the string \"null\"")
-  @Description(useJavaDoc = true)
+  @Description
   @Issue("NP-51484")
   @Disabled("Fails in all environments and the correct behavior is unclear, see NP-51484")
   void shouldRepresentMissingDecisionTextsAsNull(SoftAssertions softly) {
@@ -54,7 +54,7 @@ class FindPublisherChannelsTest extends ChannelRegistryTestBase {
   /** The response body matches the shared search response JSON Schema. */
   @Test
   @DisplayName("Response matches the search contract")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldMatchSearchContract(SoftAssertions softly) {
     assertMatchesSearchResponseSchema(
         softly, GYLDENDAL_UNDERVISNING_SEARCH.bodyForEnvironment(environment));

@@ -20,7 +20,7 @@ class GetProjectTest extends ProjectTestBase {
   /** Get project by identifier returns project metadata and status {@code 200 Ok} */
   @Test
   @DisplayName("Fetch project")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldGetProject(SoftAssertions softly) {
 
     var projectTitle = "Cristin API test project " + UUID.randomUUID();
@@ -42,7 +42,7 @@ class GetProjectTest extends ProjectTestBase {
   /** Get non-existing project status {@code 404 Not Found} */
   @Test
   @DisplayName("Fetch non existing project returns Not Found")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnNotFoundWhenFetchingNonExistingProject() {
 
     var projectIdentifier = "12345678";

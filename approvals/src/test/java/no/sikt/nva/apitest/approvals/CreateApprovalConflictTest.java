@@ -48,7 +48,7 @@ class CreateApprovalConflictTest extends IntegrationTestBase {
    */
   @Test
   @DisplayName("Create approval reusing an identifier")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnConflictWhenIdentifierIsAlreadyTaken(SoftAssertions softly) {
     var takenValue = uniqueValue();
     createApproval(UIB_CLIENT_SECRET, approvalPayload(UIB_IDENTIFIER_NAME, takenValue));
@@ -68,7 +68,7 @@ class CreateApprovalConflictTest extends IntegrationTestBase {
    */
   @Test
   @DisplayName("Create approval where one of several identifiers is taken")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReportOnlyTheIdentifierThatWasTaken(SoftAssertions softly) {
     var takenValue = uniqueValue();
     var freeValue = uniqueValue();

@@ -30,7 +30,7 @@ class FetchInstitutionReportTest extends ScientificIndexTestBase {
   /** Fetch institution report for a single institution */
   @Test
   @DisplayName("Fetch institution report")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnInstitutionReport(SoftAssertions softly) {
 
     var jsonPath =
@@ -49,7 +49,7 @@ class FetchInstitutionReportTest extends ScientificIndexTestBase {
   @ParameterizedTest
   @MethodSource("usersWithoutNviReportAccess")
   @DisplayName("Fetch institution report when not Nvi-curator returns Forbidden")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnForbiddenWhenNonNviCuratorFetchInstitutionReport(
       User user, SoftAssertions softly) {
 
@@ -60,7 +60,7 @@ class FetchInstitutionReportTest extends ScientificIndexTestBase {
   /** Fetch institution report for non-existing institution return {@code 404 Not Found} */
   @Test
   @DisplayName("Fetch institution report for non-existing institution returns Not Found")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnNotFoundWhenFetchingReportForNonExistingInstitution() {
 
     givenAuthenticatedRequestAsUser(UIS_NVI_CURATOR)
@@ -75,7 +75,7 @@ class FetchInstitutionReportTest extends ScientificIndexTestBase {
   /** Fetch institution report for non-existing period return {@code 404 Not Found} */
   @Test
   @DisplayName("Fetch institution report for non-existing period returns Not Found")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnNotFoundWhenFetchingReportForNonExistingPeriod() {
 
     var nonExistingPeriod = getCurrentYear().plusYears(10).toString();

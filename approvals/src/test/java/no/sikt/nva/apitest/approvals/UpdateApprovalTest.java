@@ -3,19 +3,24 @@ package no.sikt.nva.apitest.approvals;
 import static java.net.HttpURLConnection.HTTP_ACCEPTED;
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static java.net.HttpURLConnection.HTTP_CONFLICT;
+import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static no.sikt.nva.apitest.approvals.ApprovalClients.UIB_CLIENT_SECRET;
 import static no.sikt.nva.apitest.approvals.ApprovalClients.UIB_IDENTIFIER_NAME;
+import static no.sikt.nva.apitest.approvals.ApprovalClients.UIS_CLIENT_SECRET;
+import static no.sikt.nva.apitest.approvals.ApprovalClients.UIS_IDENTIFIER_NAME;
 import static no.sikt.nva.apitest.approvals.ApprovalPaths.APPROVAL_PATH;
 import static no.sikt.nva.apitest.approvals.ApprovalPaths.BASE_PATH;
 import static no.sikt.nva.apitest.approvals.Approvals.IDENTIFIERS_FIELD;
 import static no.sikt.nva.apitest.approvals.Approvals.LOCATION_HEADER;
+import static no.sikt.nva.apitest.approvals.Approvals.SOURCE_FIELD;
 import static no.sikt.nva.apitest.approvals.Approvals.approvalPayload;
 import static no.sikt.nva.apitest.approvals.Approvals.createApproval;
 import static no.sikt.nva.apitest.approvals.Approvals.fetchApproval;
 import static no.sikt.nva.apitest.approvals.Approvals.identifier;
+import static no.sikt.nva.apitest.approvals.Approvals.uniqueSource;
 import static no.sikt.nva.apitest.approvals.Approvals.uniqueValue;
 import static no.sikt.nva.apitest.approvals.Approvals.updatePayload;
 import static no.sikt.nva.apitest.base.Polling.pollUntil;
@@ -45,29 +50,33 @@ class UpdateApprovalTest extends IntegrationTestBase {
   private static final String JSON_MEDIA_TYPE = "application/json";
   private static final String CONFLICTING_KEYS_FIELD = "conflictingKeys";
   private static final String HANDLE_FIELD = "handle";
-  private static final String SOURCE_FIELD = "source";
+  private static final String DETAIL_FIELD = "detail";
+  private static final String SOURCE_MANDATORY_MESSAGE = "Source is mandatory for approval update";
+  private static final String CUSTOMER_MISMATCH_MESSAGE =
+      "Customer id does not match requested approval customer id";
   private static final String NAME_PARAMETER = "name";
   private static final String VALUE_PARAMETER = "value";
   private static final String INVALID_IDENTIFIER = "not-a-uuid";
   private static final Duration VISIBLE_TIMEOUT = Duration.ofSeconds(30);
 
   /**
-   * An update replaces the identifiers of an approval rather than adding to them, and leaves the
-   * handle and source alone: the handle has already been published to the outside world, so it must
-   * survive a change of identifiers.
+   * An update replaces the identifiers and the source of an approval rather than adding to them,
+   * and leaves the handle alone: the handle has already been published to the outside world, so it
+   * must survive a change of identifiers and source.
    */
   @Test
-  @DisplayName("Update approval identifiers")
-  @Description(useJavaDoc = true)
-  void shouldReplaceIdentifiers(SoftAssertions softly) {
+  @DisplayName("Update approval identifiers and source")
+  @Description
+  void shouldReplaceIdentifiersAndSource(SoftAssertions softly) {
     var originalValue = uniqueValue();
     var approvalIdentifier = createApprovalWith(originalValue);
     var beforeUpdate = fetchJson(approvalIdentifier);
 
     var replacementValue = uniqueValue();
+    var replacementSource = uniqueSource();
     var location =
         givenAuthenticatedJsonRequestAsClient(UIB_CLIENT_SECRET)
-            .body(updatePayload(UIB_IDENTIFIER_NAME, replacementValue))
+            .body(updatePayload(UIB_IDENTIFIER_NAME, replacementValue, replacementSource))
             .when()
             .put(APPROVAL_PATH, approvalIdentifier)
             .then()
@@ -84,15 +93,13 @@ class UpdateApprovalTest extends IntegrationTestBase {
     softly
         .assertThat(afterUpdate.getString(HANDLE_FIELD))
         .isEqualTo(beforeUpdate.getString(HANDLE_FIELD));
-    softly
-        .assertThat(afterUpdate.getString(SOURCE_FIELD))
-        .isEqualTo(beforeUpdate.getString(SOURCE_FIELD));
+    softly.assertThat(afterUpdate.getString(SOURCE_FIELD)).isEqualTo(replacementSource);
   }
 
   /** The identifier the approval no longer carries stops resolving to it. */
   @Test
   @DisplayName("Update approval releases the replaced identifier")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldStopResolvingTheReplacedIdentifier() {
     var originalValue = uniqueValue();
     var approvalIdentifier = createApprovalWith(originalValue);
@@ -107,7 +114,7 @@ class UpdateApprovalTest extends IntegrationTestBase {
   /** An identifier belongs to one approval, so it cannot be moved to another by updating it. */
   @Test
   @DisplayName("Update approval with an identifier owned by another approval")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnConflictWhenIdentifierBelongsToAnotherApproval() {
     var takenValue = uniqueValue();
     createApprovalWith(takenValue);
@@ -126,25 +133,66 @@ class UpdateApprovalTest extends IntegrationTestBase {
         .containsExactly(entry(UIB_IDENTIFIER_NAME, takenValue));
   }
 
+  /** An approval can only be changed by a client of the customer that owns it. */
+  @Test
+  @DisplayName("Update approval owned by another customer")
+  @Description(useJavaDoc = true)
+  void shouldReturnForbiddenWhenApprovalBelongsToAnotherCustomer() {
+    var approvalIdentifier = createApprovalWith(uniqueValue());
+
+    var problem =
+        givenAuthenticatedJsonRequestAsClient(UIS_CLIENT_SECRET)
+            .body(updatePayload(UIS_IDENTIFIER_NAME, uniqueValue()))
+            .when()
+            .put(APPROVAL_PATH, approvalIdentifier)
+            .then()
+            .statusCode(HTTP_FORBIDDEN)
+            .extract()
+            .jsonPath();
+
+    assertThat(problem.getString(DETAIL_FIELD)).isEqualTo(CUSTOMER_MISMATCH_MESSAGE);
+  }
+
   /** An approval must carry at least one identifier, so an update cannot empty it. */
   @Test
   @DisplayName("Update approval with no identifiers")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnBadRequestWhenIdentifiersAreEmpty() {
     var approvalIdentifier = createApprovalWith(uniqueValue());
 
     givenAuthenticatedJsonRequestAsClient(UIB_CLIENT_SECRET)
-        .body(Map.of(IDENTIFIERS_FIELD, List.of()))
+        .body(Map.of(IDENTIFIERS_FIELD, List.of(), SOURCE_FIELD, uniqueSource()))
         .when()
         .put(APPROVAL_PATH, approvalIdentifier)
         .then()
         .statusCode(HTTP_BAD_REQUEST);
   }
 
+  /** An update replaces the source of an approval, so it must always provide one. */
+  @Test
+  @DisplayName("Update approval without source")
+  @Description(useJavaDoc = true)
+  void shouldReturnBadRequestWhenUpdatingApprovalAndSourceIsMissingInRequestBody() {
+    var approvalIdentifier = createApprovalWith(uniqueValue());
+
+    var problem =
+        givenAuthenticatedJsonRequestAsClient(UIB_CLIENT_SECRET)
+            .body(
+                Map.of(IDENTIFIERS_FIELD, List.of(identifier(UIB_IDENTIFIER_NAME, uniqueValue()))))
+            .when()
+            .put(APPROVAL_PATH, approvalIdentifier)
+            .then()
+            .statusCode(HTTP_BAD_REQUEST)
+            .extract()
+            .jsonPath();
+
+    assertThat(problem.getString(DETAIL_FIELD)).isEqualTo(SOURCE_MANDATORY_MESSAGE);
+  }
+
   /** An approval identifier that is not a uuid is rejected before anything is looked up. */
   @Test
   @DisplayName("Update approval with malformed identifier")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnBadRequestWhenIdentifierIsMalformed() {
     givenAuthenticatedJsonRequestAsClient(UIB_CLIENT_SECRET)
         .body(updatePayload(UIB_IDENTIFIER_NAME, uniqueValue()))
@@ -157,7 +205,7 @@ class UpdateApprovalTest extends IntegrationTestBase {
   /** Updating an approval that does not exist is a not found rather than a server error. */
   @Test
   @DisplayName("Update approval that does not exist")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnNotFoundWhenApprovalDoesNotExist() {
     givenAuthenticatedJsonRequestAsClient(UIB_CLIENT_SECRET)
         .body(updatePayload(UIB_IDENTIFIER_NAME, uniqueValue()))
@@ -170,7 +218,7 @@ class UpdateApprovalTest extends IntegrationTestBase {
   /** Changing an approval is reserved for clients holding the approval-upsert scope. */
   @Test
   @DisplayName("Update approval unauthenticated")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnUnauthorizedWhenRequestIsUnauthenticated() {
     givenUnauthenticatedJsonRequest()
         .body(updatePayload(UIB_IDENTIFIER_NAME, uniqueValue()))

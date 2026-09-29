@@ -48,7 +48,7 @@ class ManuallyUpdatePublicationsCommitTest extends PublicationTestBase {
    */
   @Test
   @DisplayName("Turning off dry run persists the changes up to the limit")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldPersistChangesUpToTheLimitWhenDryRunIsTurnedOff(SoftAssertions softly) {
     var report =
         run(

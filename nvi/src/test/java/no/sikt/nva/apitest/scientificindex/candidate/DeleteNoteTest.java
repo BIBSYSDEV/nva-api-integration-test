@@ -36,7 +36,7 @@ class DeleteNoteTest extends ScientificIndexTestBase {
   /** Deleting a note on a NVI candidate returns {@code 200 Ok} */
   @Test
   @DisplayName("Delete note from candidate")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldDeleteNoteFromCandidate(SoftAssertions softly) {
 
     var candidateWithNote = createCandidateWithNote(OSLO_MET_NVI_CURATOR);
@@ -70,7 +70,7 @@ class DeleteNoteTest extends ScientificIndexTestBase {
   @Disabled("Fixme: See NP-51618")
   @MethodSource("usersWithoutNviAccess")
   @DisplayName("Delete note when not Nvi-curator returns Forbidden")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnForbiddenWhenNonNvicuratorDeletingNote(User user, SoftAssertions softly) {
 
     var candidateWithNote = createCandidateWithNote(UIB_NVI_CURATOR);
@@ -92,7 +92,7 @@ class DeleteNoteTest extends ScientificIndexTestBase {
   @Test
   @Disabled("Fixme: See NP-51618")
   @DisplayName("Delete note from candidate from other institution returns Forbidden")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnForbiddenWhenDeletingNoteFromOtherInstitution(SoftAssertions softly) {
 
     var candidateWithNote = createCandidateWithNote(OSLO_MET_NVI_CURATOR);
@@ -111,7 +111,7 @@ class DeleteNoteTest extends ScientificIndexTestBase {
   @Test
   @Disabled("FIXME: Returns 502, should return 404. See NP-51616")
   @DisplayName("Delete non-existing note from candidate returns not found")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldReturnNotFoundWhenDeletingNonExistingNote(SoftAssertions softly) {
 
     var candidate = createCandidate(OSLO_MET_NVI_CURATOR);

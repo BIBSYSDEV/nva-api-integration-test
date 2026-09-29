@@ -28,7 +28,7 @@ class ContributorAffiliationUpdateTest extends ManualUpdateTestBase {
    */
   @Test
   @DisplayName("Moves contributor affiliations to another organization")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldMoveContributorAffiliationsToAnotherOrganization(SoftAssertions softly) {
     var report =
         run(

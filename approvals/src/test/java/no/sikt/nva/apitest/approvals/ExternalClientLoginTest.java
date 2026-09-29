@@ -40,7 +40,7 @@ class ExternalClientLoginTest extends IntegrationTestBase {
   @ParameterizedTest
   @MethodSource("approvalClients")
   @DisplayName("Resolve customer for client")
-  @Description(useJavaDoc = true)
+  @Description
   void shouldResolveCustomerForSeededClient(String secretName, SoftAssertions softly) {
     var seededClient = ClientCredentialsLogin.client(secretName);
 
