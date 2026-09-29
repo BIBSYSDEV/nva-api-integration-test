@@ -1,6 +1,7 @@
 package no.sikt.nva.apitest.publication;
 
 import static java.util.UUID.randomUUID;
+import java.util.stream.Stream;
 
 import no.sikt.nva.PublicationFactory;
 import no.sikt.nva.PublicationTicketFactory;
@@ -11,7 +12,8 @@ import static no.sikt.nva.apitest.publication.PublicationFields.IDENTIFIER_FIELD
 public class PublicationTestBase extends IntegrationTestBase {
 
   public static final PublicationFactory PUBLICATION_FACTORY = new PublicationFactory();
-  public static final PublicationTicketFactory PUBLICATION_TICKET_FACTORY = new PublicationTicketFactory();
+  public static final PublicationTicketFactory PUBLICATION_TICKET_FACTORY =
+      new PublicationTicketFactory();
 
   protected static String setupDraftPublication() {
     return PUBLICATION_FACTORY
@@ -22,5 +24,9 @@ public class PublicationTestBase extends IntegrationTestBase {
 
   public static String randomTitle() {
     return "Test publication - %s".formatted(randomUUID());
+  }
+
+  protected static Stream<String> ticketTypes() {
+    return Stream.of("DoiRequest", "GeneralSupportCase", "PublishingRequest");
   }
 }

@@ -1,42 +1,59 @@
 package no.sikt.nva;
 
+import static java.net.HttpURLConnection.HTTP_ACCEPTED;
 import static java.net.HttpURLConnection.HTTP_CREATED;
 import static java.net.HttpURLConnection.HTTP_OK;
-import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import io.restassured.response.Response;
-import java.util.Map;
+import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
 import no.sikt.nva.apitest.base.User;
+import no.sikt.nva.apitest.publication.ticket.Ticket;
 
 public class PublicationTicketFactory {
 
-  private static final String BASE_TICKET_PATH = "/publications/{publicationIdentifier}/ticket";
-  private static final String TICKET_PATH = "/publications/{publicationIdentifier}/ticket/{ticketIdentifier}";
-  private static final String TICKETS_PATH = "/publications/{publicationIdentifier}/tickets";
+  public static final String BASE_TICKET_PATH = "/publication/{publicationIdentifier}/ticket";
+  public static final String TICKET_PATH =
+      "/publication/{publicationIdentifier}/ticket/{ticketIdentifier}";
+  public static final String TICKETS_PATH = "/publication/{publicationIdentifier}/tickets";
 
-  public Response createTicket(User user, String publicationIdentifier, TicketType ticketType) {
+  public void createTicket(User user, String publicationIdentifier, String ticketType, String... messages) {
+    createTicket(user, publicationIdentifier, ticketType, HTTP_CREATED, messages);
+  }
 
-    Map<String, Object> requestBody = Map.of("type", ticketType.getType());
+  public void createTicket(User user, String publicationIdentifier, String ticketType, int expectedResponseCode,  String... messages) {
 
-    return givenAuthenticatedJsonRequestAsUser(user)
+    var requestBody = Map.of("type", ticketType, "messages", createMessages(messages));
+
+    givenAuthenticatedJsonRequestAsUser(user)
         .body(requestBody)
         .when()
         .post(BASE_TICKET_PATH, publicationIdentifier)
         .then()
-        .statusCode(HTTP_CREATED)
-        .extract()
-        .response();
+        .statusCode(expectedResponseCode);
   }
 
-  public Response fetchTickets(User user, String publicationIdentifier) {
+  private List<Map<String, String>> createMessages(String... messages) {
+    return List.of(messages).stream()
+        .map(message -> Map.of("type", "Message", "text", message))
+        .collect(Collectors.toList());
+  }
 
-    return givenAuthenticatedJsonRequestAsUser(user)
+  public List<Ticket> fetchTickets(User user, String publicationIdentifier) {
+    return fetchTickets(user, publicationIdentifier, HTTP_OK);
+  }
+    public List<Ticket> fetchTickets(User user, String publicationIdentifier, int expectedResponseCode) {
+
+      return givenAuthenticatedJsonRequestAsUser(user)
         .when()
         .get(TICKETS_PATH, publicationIdentifier)
         .then()
-        .statusCode(HTTP_OK)
+        .statusCode(expectedResponseCode)
         .extract()
-        .response();
+        .jsonPath()
+        .getList("tickets", Ticket.class);
   }
 
   public Response fetchTicket(User user, String publicationIdentifier, String ticketIdentifier) {
@@ -51,34 +68,46 @@ public class PublicationTicketFactory {
   }
 
   public Response deleteTicket(User user, String publicationIdentifier, String ticketIdentifier) {
+    return deleteTicket(user, publicationIdentifier, ticketIdentifier, HTTP_OK);
+  }
+    public Response deleteTicket(User user, String publicationIdentifier, String ticketIdentifier, int expectedResponseCode) {
 
     return givenAuthenticatedJsonRequestAsUser(user)
         .when()
         .delete(TICKET_PATH, publicationIdentifier, ticketIdentifier)
         .then()
-        .statusCode(HTTP_OK)
+        .statusCode(expectedResponseCode)
         .extract()
         .response();
   }
 
-  public Response updateTicket(
-      User user, String publicationIdentifier, String ticketIdentifier, String status) {
+  public void updateTicket(
+    User user, String publicationIdentifier, String ticketIdentifier, String status, String... messages) {
+      updateTicket(user, publicationIdentifier, ticketIdentifier, status, HTTP_ACCEPTED, messages);
+    }
+  
+  public void updateTicket(
+        User user, String publicationIdentifier, String ticketIdentifier, String status, int expectedResponseCode, String... messages) {
+  
+    var requestBody =
+        Map.of("type", status, "viewStatus", "Read", "assignee", user.cristinId(), "messages", createMessages(messages));
 
-    Map<String, Object> requestBody = Map.of("type", status, "viewStatus", "Read", "assignee", user.cristinId());
-
-    return givenAuthenticatedJsonRequestAsUser(user)
+    givenAuthenticatedJsonRequestAsUser(user)
         .body(requestBody)
         .when()
         .put(TICKET_PATH, publicationIdentifier, ticketIdentifier)
         .then()
-        .statusCode(HTTP_OK)
-        .extract()
-        .response();
+        .statusCode(expectedResponseCode);
   }
 
   public Response addMessage(
-      User user, String publicationIdentifier, String ticketIdentifier, String message) {
+    User user, String publicationIdentifier, String ticketIdentifier, String message) {
+      return addMessage(user, publicationIdentifier, ticketIdentifier, message, HTTP_CREATED);
+    }
 
+  public Response addMessage(
+        User user, String publicationIdentifier, String ticketIdentifier, String message, int expectedResponseCode) {
+  
     Map<String, Object> requestBody = Map.of("message", message);
 
     return givenAuthenticatedJsonRequestAsUser(user)
@@ -86,14 +115,19 @@ public class PublicationTicketFactory {
         .when()
         .post(TICKET_PATH + "/message", publicationIdentifier, ticketIdentifier)
         .then()
-        .statusCode(HTTP_CREATED)
+        .statusCode(expectedResponseCode)
         .extract()
         .response();
   }
 
   public Response deleteMessage(
-      User user, String publicationIdentifier, String ticketIdentifier, String messageIdentifier) {
+    User user, String publicationIdentifier, String ticketIdentifier, String messageIdentifier) {
+      return deleteMessage(user, publicationIdentifier, ticketIdentifier, messageIdentifier, HTTP_OK);
+    }
 
+  public Response deleteMessage(
+    User user, String publicationIdentifier, String ticketIdentifier, String messageIdentifier, int expectedResponseCode) {
+  
     return givenAuthenticatedJsonRequestAsUser(user)
         .when()
         .delete(
@@ -102,7 +136,7 @@ public class PublicationTicketFactory {
             ticketIdentifier,
             messageIdentifier)
         .then()
-        .statusCode(HTTP_OK)
+        .statusCode(expectedResponseCode)
         .extract()
         .response();
   }

@@ -8,6 +8,7 @@ dependencies {
     testFixturesApi(project(':apitest-base'))
     testFixturesApi(testFixtures(project(':apitest-base')))
     testFixturesImplementation(libs.rest.assured.json.path)
+    testFixturesApi(nvaCatalog.junit.jupiter.params)
     testFixturesApi(nvaCatalog.jackson.annotations)
     testFixturesImplementation(nvaCatalog.jackson.core)
     testFixturesImplementation(nvaCatalog.jackson.databind)
