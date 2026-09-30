@@ -14,7 +14,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record Ticket(
-    String type, String identifier, String ownerAffiliation, List<TicketFile> filesForApproval, String status, String viewStatus, String assignee) {
+    String type, String identifier, String ownerAffiliation, List<TicketFile> filesForApproval, String status, String viewStatus, String assignee, List<String> viewedBy) {
 
   private static final Set<String> FILE_APPROVAL_TYPES =
       Set.of("PublishingRequest", "FilesApprovalThesis");
