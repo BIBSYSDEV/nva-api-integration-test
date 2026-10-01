@@ -47,9 +47,18 @@ public final class Approvals {
         SOURCE_FIELD, uniqueSource());
   }
 
-  /** An update replaces the identifiers of an existing approval, and carries nothing else. */
   public static Map<String, Object> updatePayload(String identifierName, String identifierValue) {
-    return Map.of(IDENTIFIERS_FIELD, List.of(identifier(identifierName, identifierValue)));
+    return updatePayload(identifierName, identifierValue, uniqueSource());
+  }
+
+  /** An update replaces both the identifiers and the source of an existing approval. */
+  public static Map<String, Object> updatePayload(
+      String identifierName, String identifierValue, String source) {
+    return Map.of(
+        IDENTIFIERS_FIELD,
+        List.of(identifier(identifierName, identifierValue)),
+        SOURCE_FIELD,
+        source);
   }
 
   public static Map<String, String> identifier(String name, String value) {
