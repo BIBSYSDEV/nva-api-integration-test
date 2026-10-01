@@ -31,11 +31,16 @@ public record Ticket(
       Set.of("PublishingRequest", "FilesApprovalThesis");
 
   /**
-   * Only a file approval ticket carries files for approval, and a ticket that carries none
-   * serializes without the field rather than with an empty array.
+   * Only a file approval ticket carries files, and a ticket that carries none serializes without
+   * the field rather than with an empty array.
    */
   public Ticket {
-    filesForApproval = isNull(filesForApproval) ? emptyList() : List.copyOf(filesForApproval);
+    filesForApproval = copyOrEmpty(filesForApproval);
+    approvedFiles = copyOrEmpty(approvedFiles);
+  }
+
+  private static List<TicketFile> copyOrEmpty(List<TicketFile> files) {
+    return isNull(files) ? emptyList() : List.copyOf(files);
   }
 
   public boolean isFileApproval() {

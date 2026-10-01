@@ -74,7 +74,7 @@ The Allure report takes its names from `@DisplayName`:
 - **On the class:** used as the suite name, which groups the tests. Name it after the endpoint under test, e.g. `@DisplayName("PUT " + APPROVAL_PATH)`. Without it, the report shows the full class name.
 - **On the test method:** used as the test name. Without it, the report shows the method name, e.g. `shouldReturnNotFound...()`.
 
-The test's Javadoc is shown as its description when the method is annotated with `@Description(useJavaDoc = true)`.
+The test's Javadoc is shown as its description when the method is annotated with `@Description`.
 
 Give every test class and test method a `@DisplayName`.
 
