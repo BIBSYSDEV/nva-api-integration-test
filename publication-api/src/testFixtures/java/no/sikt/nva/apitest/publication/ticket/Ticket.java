@@ -14,17 +14,27 @@ import java.util.Set;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record Ticket(
-    String type, String identifier, String ownerAffiliation, List<TicketFile> filesForApproval) {
+    String type,
+    String identifier,
+    String status,
+    String ownerAffiliation,
+    List<TicketFile> filesForApproval,
+    List<TicketFile> approvedFiles) {
 
   private static final Set<String> FILE_APPROVAL_TYPES =
       Set.of("PublishingRequest", "FilesApprovalThesis");
 
   /**
-   * Only a file approval ticket carries files for approval, and a ticket that carries none
-   * serializes without the field rather than with an empty array.
+   * Only a file approval ticket carries files, and a ticket that carries none serializes without
+   * the field rather than with an empty array.
    */
   public Ticket {
-    filesForApproval = isNull(filesForApproval) ? emptyList() : List.copyOf(filesForApproval);
+    filesForApproval = copyOrEmpty(filesForApproval);
+    approvedFiles = copyOrEmpty(approvedFiles);
+  }
+
+  private static List<TicketFile> copyOrEmpty(List<TicketFile> files) {
+    return isNull(files) ? emptyList() : List.copyOf(files);
   }
 
   public boolean isFileApproval() {

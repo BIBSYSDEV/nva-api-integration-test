@@ -1,6 +1,7 @@
 package no.sikt.nva.apitest.publication.identifier;
 
 import static java.net.HttpURLConnection.HTTP_ACCEPTED;
+import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.util.stream.Collectors.toSet;
@@ -33,7 +34,9 @@ import no.sikt.nva.apitest.base.Affiliation;
 import no.sikt.nva.apitest.base.User;
 import no.sikt.nva.apitest.publication.PublicationTestBase;
 import no.sikt.nva.apitest.publication.file.PendingOpenFile;
+import no.sikt.nva.apitest.publication.file.UploadedFile;
 import no.sikt.nva.apitest.publication.ticket.Ticket;
+import no.sikt.nva.apitest.publication.ticket.Ticket.TicketFile;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.Disabled;
@@ -55,6 +58,8 @@ class UpdateApiTest extends PublicationTestBase {
   private static final String MAIN_TITLE_FIELD = ENTITY_DESCRIPTION_FIELD + ".mainTitle";
   private static final String PUBLISHED = "PUBLISHED";
   private static final String UNPUBLISHED = "UNPUBLISHED";
+  private static final String TICKET_NEW = "New";
+  private static final String TICKET_COMPLETED = "Completed";
   private static final String CREATIVE_COMMONS_LICENSE =
       "https://creativecommons.org/licenses/by/4.0/";
 
@@ -157,6 +162,14 @@ class UpdateApiTest extends PublicationTestBase {
    * separately, one ticket per institution. A pending file approval ticket is readable only by the
    * institution it was created for, so the number of tickets on the publication is counted as the
    * distinct tickets seen by the institutions taking part in the scenario.
+   *
+   * <p>What the ticket looks like depends on the {@code publicationWorkflow} of the uploader's
+   * customer. Under {@code RegistratorPublishesMetadataOnly}, a registrator's files need curator
+   * approval, so they wait in a pending ticket. Under {@code RegistratorPublishesMetadataAndFiles},
+   * registrators publish files without curator approval, so the ticket is completed straight away
+   * and the files are approved. These tests rely on the e2e customer configuration: UiB is the only
+   * test customer with {@code RegistratorPublishesMetadataOnly}, and Kristiania has {@code
+   * RegistratorPublishesMetadataAndFiles}.
    */
   @Nested
   @DisplayName("RepublishPublicationRequest")
@@ -189,33 +202,35 @@ class UpdateApiTest extends PublicationTestBase {
 
     /**
      * Only an unpublished publication can be republished, so republishing one that is already
-     * published should return status {@code 403 Forbidden}.
+     * published should return status {@code 400 Bad Request}.
      */
     @Test
     @DisplayName("Already published publication cannot be republished")
     @Description
-    void shouldReturnForbiddenWhenRepublishingPublishedPublication() {
+    @Disabled("FIXME: Invalid request should get 400, but gets 403. See NP-51870.")
+    void shouldReturnBadRequestWhenRepublishingPublishedPublication() {
       var publicationIdentifier = setupPublishedPublication(List.of(UIB_CREATOR));
 
-      requestRepublish(UIB_EDITOR, publicationIdentifier).then().statusCode(HTTP_FORBIDDEN);
+      requestRepublish(UIB_EDITOR, publicationIdentifier).then().statusCode(HTTP_BAD_REQUEST);
     }
 
     /**
-     * A file uploaded while the publication is unpublished should be covered by a file approval
-     * ticket at the uploading institution once the publication is republished.
+     * Under the {@code RegistratorPublishesMetadataOnly} workflow, a registrator's files need
+     * curator approval. A file a registrator at UiB uploads while the publication is unpublished
+     * should therefore wait for a curator in a pending ticket at UiB once the publication is
+     * republished.
      */
     @Test
-    @DisplayName("File uploaded while unpublished is covered by an approval ticket")
-    @Disabled
+    @DisplayName("Unpublished upload needs curator approval under RegistratorPublishesMetadataOnly")
     @Description
     void shouldCoverFileUploadedWhileUnpublishedByApprovalTicket(SoftAssertions softly) {
       var publicationIdentifier = setupUnpublishedPublication(List.of(UIB_CREATOR));
-      uploadFilesForApproval(publicationIdentifier, UIB_CREATOR, 1);
+      var uibFiles = uploadFilesForApproval(publicationIdentifier, UIB_CREATOR, 1);
 
       republish(publicationIdentifier);
 
       var ticketsAtUib = fileApprovalTicketsVisibleTo(UIB_CREATOR, publicationIdentifier);
-      assertInstitutionHasFileApprovalTicketCovering(softly, UIB, ticketsAtUib, 1);
+      assertInstitutionHasPendingApprovalTicketCovering(softly, UIB, ticketsAtUib, uibFiles);
       assertPublicationHasFileApprovalTickets(softly, 1, ticketsAtUib);
     }
 
@@ -225,40 +240,64 @@ class UpdateApiTest extends PublicationTestBase {
      */
     @Test
     @DisplayName("Files from the same institution share a single approval ticket")
-    @Disabled
     @Description
     void shouldCoverFilesFromSameInstitutionByOneApprovalTicket(SoftAssertions softly) {
       var publicationIdentifier = setupUnpublishedPublication(List.of(UIB_CREATOR));
-      uploadFilesForApproval(publicationIdentifier, UIB_CREATOR, 2);
+      var uibFiles = uploadFilesForApproval(publicationIdentifier, UIB_CREATOR, 2);
 
       republish(publicationIdentifier);
 
       var ticketsAtUib = fileApprovalTicketsVisibleTo(UIB_CREATOR, publicationIdentifier);
-      assertInstitutionHasFileApprovalTicketCovering(softly, UIB, ticketsAtUib, 2);
+      assertInstitutionHasPendingApprovalTicketCovering(softly, UIB, ticketsAtUib, uibFiles);
       assertPublicationHasFileApprovalTickets(softly, 1, ticketsAtUib);
     }
 
     /**
+     * Under the {@code RegistratorPublishesMetadataAndFiles} workflow, registrators publish files
+     * without curator approval. A file a registrator at Kristiania uploads while the publication is
+     * unpublished should therefore be approved automatically once the publication is republished.
+     * Its ticket should be completed, not left waiting for a curator.
+     */
+    @Test
+    @DisplayName("Unpublished upload is auto-approved under RegistratorPublishesMetadataAndFiles")
+    @Description
+    void shouldApproveFileAutomaticallyUnderRegistratorPublishesMetadataAndFiles(
+        SoftAssertions softly) {
+      var publicationIdentifier =
+          setupUnpublishedPublication(List.of(UIB_CREATOR, KRISTIANIA_CREATOR));
+      var kristianiaFiles = uploadFilesForApproval(publicationIdentifier, KRISTIANIA_CREATOR, 1);
+
+      republish(publicationIdentifier);
+
+      var ticketsAtKristiania =
+          fileApprovalTicketsVisibleTo(KRISTIANIA_CREATOR, publicationIdentifier);
+      assertInstitutionHasCompletedApprovalTicketApproving(
+          softly, KRISTIANIA, ticketsAtKristiania, kristianiaFiles);
+      assertPublicationHasFileApprovalTickets(softly, 1, ticketsAtKristiania);
+    }
+
+    /**
      * Files uploaded by two institutions while the publication is unpublished should be covered by
-     * one file approval ticket per institution once the publication is republished.
+     * one file approval ticket per institution once the publication is republished, each following
+     * the publishing workflow of its own institution: pending at UiB, completed at Kristiania.
      */
     @Test
     @DisplayName("Each uploading institution gets its own approval ticket")
-    @Disabled
     @Description
     void shouldCreateOneApprovalTicketPerUploadingInstitution(SoftAssertions softly) {
       var publicationIdentifier =
           setupUnpublishedPublication(List.of(UIB_CREATOR, KRISTIANIA_CREATOR));
-      uploadFilesForApproval(publicationIdentifier, UIB_CREATOR, 1);
-      uploadFilesForApproval(publicationIdentifier, KRISTIANIA_CREATOR, 2);
+      var uibFiles = uploadFilesForApproval(publicationIdentifier, UIB_CREATOR, 1);
+      var kristianiaFiles = uploadFilesForApproval(publicationIdentifier, KRISTIANIA_CREATOR, 2);
 
       republish(publicationIdentifier);
 
       var ticketsAtUib = fileApprovalTicketsVisibleTo(UIB_CREATOR, publicationIdentifier);
       var ticketsAtKristiania =
           fileApprovalTicketsVisibleTo(KRISTIANIA_CREATOR, publicationIdentifier);
-      assertInstitutionHasFileApprovalTicketCovering(softly, UIB, ticketsAtUib, 1);
-      assertInstitutionHasFileApprovalTicketCovering(softly, KRISTIANIA, ticketsAtKristiania, 2);
+      assertInstitutionHasPendingApprovalTicketCovering(softly, UIB, ticketsAtUib, uibFiles);
+      assertInstitutionHasCompletedApprovalTicketApproving(
+          softly, KRISTIANIA, ticketsAtKristiania, kristianiaFiles);
       assertPublicationHasFileApprovalTickets(softly, 2, ticketsAtUib, ticketsAtKristiania);
     }
 
@@ -268,7 +307,6 @@ class UpdateApiTest extends PublicationTestBase {
      */
     @Test
     @DisplayName("Republishing without newly uploaded files creates no approval ticket")
-    @Disabled
     @Description
     void shouldNotCreateApprovalTicketWhenRepublishingWithoutNewFiles() {
       var publicationIdentifier = setupUnpublishedPublication(List.of(UIB_CREATOR));
@@ -280,15 +318,16 @@ class UpdateApiTest extends PublicationTestBase {
           .isEmpty();
     }
 
-    private static void assertInstitutionHasFileApprovalTicketCovering(
+    /**
+     * A ticket created on republish is not assigned to a curator yet, and an unassigned ticket that
+     * is still pending has the status {@code New}.
+     */
+    private static void assertInstitutionHasPendingApprovalTicketCovering(
         SoftAssertions softly,
         Affiliation institution,
         List<Ticket> ticketsVisibleAtInstitution,
-        int fileCount) {
-      var ticketsOwnedByInstitution =
-          ticketsVisibleAtInstitution.stream()
-              .filter(ticket -> ticket.isOwnedBy(institution.getValue()))
-              .toList();
+        List<UploadedFile> uploadedFiles) {
+      var ticketsOwnedByInstitution = ticketsOwnedBy(institution, ticketsVisibleAtInstitution);
 
       softly
           .assertThat(ticketsOwnedByInstitution)
@@ -296,8 +335,48 @@ class UpdateApiTest extends PublicationTestBase {
           .hasSize(1);
       softly
           .assertThat(ticketsOwnedByInstitution)
-          .as("files awaiting approval at institution %s", institution)
-          .allSatisfy(ticket -> assertThat(ticket.filesForApproval()).hasSize(fileCount));
+          .as("pending file approval ticket at institution %s", institution)
+          .allSatisfy(
+              ticket -> {
+                assertThat(ticket.status()).as("ticket status").isEqualTo(TICKET_NEW);
+                assertThat(ticket.filesForApproval())
+                    .as("files for approval")
+                    .extracting(TicketFile::identifier)
+                    .containsExactlyInAnyOrderElementsOf(identifiersOf(uploadedFiles));
+              });
+    }
+
+    private static void assertInstitutionHasCompletedApprovalTicketApproving(
+        SoftAssertions softly,
+        Affiliation institution,
+        List<Ticket> ticketsVisibleAtInstitution,
+        List<UploadedFile> uploadedFiles) {
+      var ticketsOwnedByInstitution = ticketsOwnedBy(institution, ticketsVisibleAtInstitution);
+
+      softly
+          .assertThat(ticketsOwnedByInstitution)
+          .as("file approval tickets owned by institution %s", institution)
+          .hasSize(1);
+      softly
+          .assertThat(ticketsOwnedByInstitution)
+          .as("completed file approval ticket at institution %s", institution)
+          .allSatisfy(
+              ticket -> {
+                assertThat(ticket.status()).as("ticket status").isEqualTo(TICKET_COMPLETED);
+                assertThat(ticket.approvedFiles())
+                    .as("approved files")
+                    .extracting(TicketFile::identifier)
+                    .containsExactlyInAnyOrderElementsOf(identifiersOf(uploadedFiles));
+                assertThat(ticket.filesForApproval()).as("files for approval").isEmpty();
+              });
+    }
+
+    private static List<Ticket> ticketsOwnedBy(Affiliation institution, List<Ticket> tickets) {
+      return tickets.stream().filter(ticket -> ticket.isOwnedBy(institution.getValue())).toList();
+    }
+
+    private static List<String> identifiersOf(List<UploadedFile> uploadedFiles) {
+      return uploadedFiles.stream().map(UploadedFile::identifier).toList();
     }
 
     /**
@@ -437,11 +516,16 @@ class UpdateApiTest extends PublicationTestBase {
    * what the registration form does once the uploader has given a file its metadata. A file that
    * stays uploaded is not awaiting anyone's approval.
    */
-  private void uploadFilesForApproval(String publicationIdentifier, User uploader, int fileCount) {
-    range(0, fileCount)
-        .mapToObj(ignored -> uploadExampleFile(uploader, publicationIdentifier))
+  private List<UploadedFile> uploadFilesForApproval(
+      String publicationIdentifier, User uploader, int fileCount) {
+    var uploadedFiles =
+        range(0, fileCount)
+            .mapToObj(ignored -> uploadExampleFile(uploader, publicationIdentifier))
+            .toList();
+    uploadedFiles.stream()
         .map(uploadedFile -> uploadedFile.awaitingApprovalUnder(CREATIVE_COMMONS_LICENSE))
         .forEach(pendingFile -> updateFile(publicationIdentifier, uploader, pendingFile));
+    return uploadedFiles;
   }
 
   private void updateFile(String publicationIdentifier, User uploader, PendingOpenFile file) {
