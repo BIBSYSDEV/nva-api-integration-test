@@ -87,7 +87,12 @@ class FetchTicketApiTest extends PublicationTestBase {
     requestShouldReturnUnauthorized(GET, TICKET_PATH, publicationIdentifier, ticketIdentifier);
   }
 
+  /**
+   * Trying to fetch a ticket when not owner returns {@code 403 Forbidden}
+   */
   @Test
+  @DisplayName("Fetch ticket when not owner returns Forbidden")
+  @Description
   void shouldReturnForbiddenWhenNotOwner() {
     var publicationIdentifier =
         PUBLICATION_FACTORY.createPublishedPublication(ACADEMIC_ARTICLE, randomTitle());

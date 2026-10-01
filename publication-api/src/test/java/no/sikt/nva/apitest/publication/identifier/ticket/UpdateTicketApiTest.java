@@ -1,6 +1,7 @@
 package no.sikt.nva.apitest.publication.identifier.ticket;
 
 import static io.restassured.http.Method.PUT;
+import static java.net.HttpURLConnection.HTTP_ACCEPTED;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static no.sikt.Category.ACADEMIC_ARTICLE;
 import static no.sikt.nva.PublicationTicketFactory.GENERAL_SUPPORT_CASE;
@@ -14,13 +15,21 @@ import java.util.UUID;
 import no.sikt.nva.apitest.publication.PublicationTestBase;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+
+import io.qameta.allure.Description;
 
 @ExtendWith(SoftAssertionsExtension.class)
 class UpdateTicketApiTest extends PublicationTestBase {
 
+    /**
+     * Update an existing ticket return {@code 202 Accepted}
+     */
   @Test
+  @DisplayName("Update existing ticket return Accepted")
+  @Description 
   void shouldUpdateTicket(SoftAssertions softly) {
 
     var publicationIdentifier =
@@ -32,7 +41,7 @@ class UpdateTicketApiTest extends PublicationTestBase {
 
     var requestBody = Map.of("assignee", UIB_SUPPORT_CURATOR.cristinId());
     PUBLICATION_TICKET_FACTORY.updateTicket(
-        UIB_SUPPORT_CURATOR, publicationIdentifier, ticketIdentifier, requestBody);
+        UIB_SUPPORT_CURATOR, publicationIdentifier, ticketIdentifier, requestBody, HTTP_ACCEPTED);
 
     var ticket =
         PUBLICATION_TICKET_FACTORY.fetchTicket(
@@ -42,7 +51,7 @@ class UpdateTicketApiTest extends PublicationTestBase {
 
     requestBody = Map.of("viewStatus", "Read");
     PUBLICATION_TICKET_FACTORY.updateTicket(
-        UIB_SUPPORT_CURATOR, publicationIdentifier, ticketIdentifier, requestBody);
+        UIB_SUPPORT_CURATOR, publicationIdentifier, ticketIdentifier, requestBody, HTTP_ACCEPTED);
 
     ticket =
         PUBLICATION_TICKET_FACTORY.fetchTicket(
@@ -51,7 +60,7 @@ class UpdateTicketApiTest extends PublicationTestBase {
 
     requestBody = Map.of("status", "Completed");
     PUBLICATION_TICKET_FACTORY.updateTicket(
-        UIB_SUPPORT_CURATOR, publicationIdentifier, ticketIdentifier, requestBody);
+        UIB_SUPPORT_CURATOR, publicationIdentifier, ticketIdentifier, requestBody, HTTP_ACCEPTED);
 
     ticket =
         PUBLICATION_TICKET_FACTORY.fetchTicket(
@@ -59,7 +68,12 @@ class UpdateTicketApiTest extends PublicationTestBase {
     softly.assertThat(ticket.status()).isEqualTo("Completed");
   }
 
+    /**
+     * Trying to update a non-existing ticket returns {@code 404 Not Found}
+     */
   @Test
+  @DisplayName("Update non-existing ticket returns Not Found")
+  @Description
   void shouldReturnNotFoundWhenNonExistingTicket() {
 
     var publicationIdentifier =
@@ -72,7 +86,12 @@ class UpdateTicketApiTest extends PublicationTestBase {
         UIB_SUPPORT_CURATOR, publicationIdentifier, ticketIdentifier, requestBody, HTTP_NOT_FOUND);
   }
 
+  /**
+   * Trying to update a ticket when not authenticated returns {@code 401 Unauthorized}
+   */
   @Test
+  @DisplayName("Update ticket when not authenticated returns Unauthorized")
+  @Description
   void shouldReturnUnauthorizedWhenNotAuthenticated() {
     var publicationIdentifier =
         PUBLICATION_FACTORY.createPublishedPublication(ACADEMIC_ARTICLE, randomTitle());
@@ -83,7 +102,12 @@ class UpdateTicketApiTest extends PublicationTestBase {
     requestShouldReturnUnauthorized(PUT, TICKET_PATH, publicationIdentifier, ticketIdentifier);
   }
 
+    /**
+     * Trying to update a ticket when not owner returns {@code 403 Forbidden}
+     */
   @Test
+  @DisplayName("Update ticket when not owner returns Forbidden")
+  @Description
   void shouldReturnForbiddenWhenNotOwner() {
     var publicationIdentifier =
         PUBLICATION_FACTORY.createPublishedPublication(ACADEMIC_ARTICLE, randomTitle());
