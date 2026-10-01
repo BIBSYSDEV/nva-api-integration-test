@@ -30,17 +30,17 @@ import static nva.commons.core.ioutils.IoUtils.stringFromResources;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.IntStream;
 import no.sikt.Category;
 import no.sikt.Contributor;
 import no.sikt.nva.apitest.base.CognitoLogin;
 import no.sikt.nva.apitest.base.User;
+import no.sikt.nva.apitest.publication.ContributorPayload;
 import no.sikt.nva.apitest.publication.PublicationPaths;
 
 public class PublicationFactory {
@@ -333,8 +333,7 @@ public class PublicationFactory {
 
     Map<String, Object> reference = createReference(category);
     entityDescription.put(REFERENCE, reference);
-    List<Map<String, Object>> contributors = createContributors(contributorList);
-    entityDescription.put(CONTRIBUTORS, contributors);
+    entityDescription.put(CONTRIBUTORS, createContributors(contributorList));
 
     return entityDescription;
   }
@@ -355,51 +354,9 @@ public class PublicationFactory {
         .statusCode(HTTP_ACCEPTED);
   }
 
-  public List<Map<String, Object>> createContributors(List<Contributor> contributors) {
-
-    List<Map<String, Object>> newContributors = new ArrayList<>();
-    final var sequence = new AtomicInteger(1);
-    var contributorJsonPath = loadMetadataResource("Contributor.json");
-    contributors.forEach(
-        contributor -> {
-          Map<String, Object> newContributor =
-              createContributor(sequence, contributorJsonPath, contributor);
-
-          newContributors.add(newContributor);
-        });
-
-    return newContributors;
-  }
-
-  private Map<String, Object> createContributor(
-      final AtomicInteger sequence, JsonPath contributorJsonPath, Contributor contributor) {
-    Map<String, Object> newContributor = new HashMap<>();
-    newContributor.putAll(contributorJsonPath.getMap(""));
-    ((Map<String, Object>) newContributor.get("role")).put(TYPE, contributor.role());
-    newContributor.put("sequence", String.valueOf(sequence.getAndIncrement()));
-    newContributor.put("identity", createIdentity(contributor.user()));
-
-    List<Map<String, Object>> affiliations = new ArrayList<>();
-    contributor
-        .user()
-        .affiliations()
-        .forEach(
-            userAffiliation -> {
-              Map<String, Object> affiliation = new HashMap<>();
-              affiliation.put(TYPE, "Organization");
-              affiliation.put("id", userAffiliation);
-              affiliations.add(affiliation);
-            });
-    newContributor.put("affiliations", affiliations);
-    return newContributor;
-  }
-
-  private Map<String, Object> createIdentity(User user) {
-    Map<String, Object> identity = new HashMap<>();
-    identity.put(TYPE, "Identity");
-    identity.put("id", baseURI + "/cristin/person/" + user.cristinId().split("@")[0]);
-    identity.put("verificationStatus", "Verified");
-    identity.put("name", user.name());
-    return identity;
+  public List<ContributorPayload> createContributors(List<Contributor> contributors) {
+    return IntStream.range(0, contributors.size())
+        .mapToObj(index -> ContributorPayload.from(contributors.get(index), index + 1))
+        .toList();
   }
 }
