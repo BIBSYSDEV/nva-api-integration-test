@@ -1,12 +1,11 @@
 package no.sikt.nva.apitest.publication.ticket;
 
 import static java.util.Collections.emptyList;
-import java.util.List;
 import static java.util.Objects.isNull;
-import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
+import java.util.List;
+import java.util.Set;
 import no.sikt.nva.apitest.base.Affiliation;
 
 /**
