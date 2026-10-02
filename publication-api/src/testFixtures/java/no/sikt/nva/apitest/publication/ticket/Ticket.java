@@ -6,6 +6,7 @@ import static java.util.Objects.isNull;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.List;
 import java.util.Set;
+import no.sikt.nva.apitest.base.Affiliation;
 
 /**
  * A ticket as the tickets endpoint returns it, covering the fields the API tests assert on. The
@@ -15,9 +16,15 @@ import java.util.Set;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record Ticket(
     String type,
-    String identifier,
     String status,
+    String identifier,
     String ownerAffiliation,
+    String publicationIdentifier,
+    List<Message> messages,
+    List<String> viewedBy,
+    String owner,
+    String viewStatus,
+    String assignee,
     List<TicketFile> filesForApproval,
     List<TicketFile> approvedFiles) {
 
@@ -39,6 +46,10 @@ public record Ticket(
 
   public boolean isFileApproval() {
     return FILE_APPROVAL_TYPES.contains(type);
+  }
+
+  public boolean isOwnedBy(Affiliation institution) {
+    return institution.getValue().equals(ownerAffiliation);
   }
 
   public boolean isOwnedBy(String institution) {
