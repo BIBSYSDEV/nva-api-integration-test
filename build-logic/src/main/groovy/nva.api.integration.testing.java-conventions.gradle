@@ -12,7 +12,16 @@ nva {
     }
 }
 
+configurations {
+    aspectjAgent {
+        canBeConsumed = false
+        canBeResolved = true
+        transitive = false
+    }
+}
+
 dependencies {
+    aspectjAgent(libs.aspectj.weaver)
     implementation(platform(nvaCatalog.aws.sdk2.bom))
     implementation(platform(libs.rest.assured.bom))
     testAnnotationProcessor(platform(libs.allure.bom))
@@ -21,12 +30,24 @@ dependencies {
     testImplementation(platform(libs.allure.bom))
 }
 
+// Keeps parameter names in the bytecode, so @Step names can refer to them as {parameterName}
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs.add('-parameters')
+}
+
 tasks.withType(Test).configureEach {
     if (project.hasProperty('awsProfile')) {
         systemProperty 'aws.profile', project.awsProfile
     }
     // Top level of the Allure report tree (groupBy in allurerc.yaml); modules override with a display name
     systemProperty 'allure.label.module', project.name
+
+    // Allure needs the AspectJ weaver attached to record methods annotated with @Step
+    jvmArgs "-javaagent:${configurations.aspectjAgent.singleFile}"
+
+    // Loads Allure's JUnit extension, which reports @BeforeAll/@BeforeEach methods and their steps
+    systemProperty 'junit.jupiter.extensions.autodetection.enabled', 'true'
+    systemProperty 'junit.jupiter.extensions.autodetection.include', 'io.qameta.allure.*'
 
     systemProperty 'log4j2.configurationFile', 'classpath:log4j2-test.xml'
     systemProperty 'junit.jupiter.execution.parallel.enabled', 'true'
