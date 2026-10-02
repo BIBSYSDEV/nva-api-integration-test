@@ -41,7 +41,7 @@ class FetchTicketApiTest extends PublicationTestBase {
             UIB_CREATOR, publicationIdentifier, ticketIdentifier, HTTP_OK);
 
     softly.assertThat(ticket.type()).isEqualTo(GENERAL_SUPPORT_CASE);
-    softly.assertThat(ticket.ownerAffiliation()).isEqualTo(UIB_CREATOR.extractAffiliation(UIB));
+    softly.assertThat(ticket.isOwnedBy(UIB)).isTrue();
   }
 
   /** Trying to fetch a non-existing ticket returns {@code 404 Not Found} */

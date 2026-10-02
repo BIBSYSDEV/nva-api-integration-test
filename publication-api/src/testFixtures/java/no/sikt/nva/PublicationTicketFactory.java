@@ -3,6 +3,7 @@ package no.sikt.nva;
 import static java.net.HttpURLConnection.HTTP_ACCEPTED;
 import static java.net.HttpURLConnection.HTTP_CREATED;
 import static java.net.HttpURLConnection.HTTP_OK;
+import static java.util.Objects.nonNull;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
 
 import io.restassured.response.Response;
@@ -139,7 +140,7 @@ public class PublicationTicketFactory {
       String message,
       int expectedResponseCode) {
 
-    Map<String, Object> requestBody = Map.of("message", message);
+    var requestBody = Map.of("message", message);
 
     return givenAuthenticatedJsonRequestAsUser(user)
         .body(requestBody)

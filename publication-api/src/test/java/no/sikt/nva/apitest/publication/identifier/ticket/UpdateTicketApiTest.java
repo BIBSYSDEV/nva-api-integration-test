@@ -47,6 +47,7 @@ class UpdateTicketApiTest extends PublicationTestBase {
             UIB_SUPPORT_CURATOR, publicationIdentifier, ticketIdentifier);
 
     softly.assertThat(ticket.status()).isEqualTo("Pending");
+    softly.assertThat(ticket.assignee()).isEqualTo(UIB_SUPPORT_CURATOR.cristinId());
 
     requestBody = Map.of("viewStatus", "Read");
     PUBLICATION_TICKET_FACTORY.updateTicket(
