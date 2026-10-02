@@ -36,7 +36,7 @@ public class PublicationTicketFactory {
 
     var requestBody = Map.of("type", ticketType, "messages", createMessages(messages));
 
-    var identifier =
+    var location =
         givenAuthenticatedJsonRequestAsUser(user)
             .body(requestBody)
             .when()
@@ -46,7 +46,7 @@ public class PublicationTicketFactory {
             .extract()
             .header("Location");
 
-    return List.of(identifier.split("/")).getLast();
+    return location != null ? List.of(location.split("/")).getLast() : "";
   }
 
   private List<Map<String, String>> createMessages(String... messages) {
