@@ -46,7 +46,7 @@ public class PublicationTicketFactory {
             .extract()
             .header("Location");
 
-    return location != null ? List.of(location.split("/")).getLast() : "";
+    return nonNull(location) ? List.of(location.split("/")).getLast() : "";
   }
 
   private List<Map<String, String>> createMessages(String... messages) {
