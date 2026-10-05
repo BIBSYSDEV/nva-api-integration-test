@@ -128,7 +128,7 @@ public class PublicationTicketFactory {
         .statusCode(expectedResponseCode);
   }
 
-  public Response addMessage(
+  public Response addMessageToTicket(
       User user, String publicationIdentifier, String ticketIdentifier, String message) {
     return addMessage(user, publicationIdentifier, ticketIdentifier, message, HTTP_CREATED);
   }
