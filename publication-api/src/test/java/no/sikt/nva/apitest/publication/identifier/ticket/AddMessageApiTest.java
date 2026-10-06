@@ -3,6 +3,7 @@ package no.sikt.nva.apitest.publication.identifier.ticket;
 import static io.restassured.http.Method.POST;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static no.sikt.Category.ACADEMIC_ARTICLE;
+import static no.sikt.nva.PublicationTicketFactory.GENERAL_SUPPORT_CASE;
 import static no.sikt.nva.PublicationTicketFactory.TICKET_PATH;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CONTRIBUTOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
@@ -11,6 +12,7 @@ import io.qameta.allure.Description;
 import java.util.Map;
 import java.util.UUID;
 import no.sikt.nva.apitest.publication.PublicationTestBase;
+import no.sikt.nva.apitest.publication.ticket.Message;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.Disabled;
@@ -31,7 +33,7 @@ class AddMessageApiTest extends PublicationTestBase {
         PUBLICATION_FACTORY.createPublishedPublication(ACADEMIC_ARTICLE, randomTitle());
     var ticketIdentifier =
         PUBLICATION_TICKET_FACTORY.createTicket(
-            UIB_CREATOR, publicationIdentifier, "GeneralSupportCase", "Initial message");
+            UIB_CREATOR, publicationIdentifier, GENERAL_SUPPORT_CASE, "Initial message");
 
     var messageText = "Follow-up message";
     PUBLICATION_TICKET_FACTORY.addMessageToTicket(
@@ -41,10 +43,7 @@ class AddMessageApiTest extends PublicationTestBase {
         PUBLICATION_TICKET_FACTORY.fetchTicket(
             UIB_CREATOR, publicationIdentifier, ticketIdentifier);
 
-    softly
-        .assertThat(
-            ticket.messages().stream().anyMatch(message -> message.text().equals(messageText)))
-        .isTrue();
+    softly.assertThat(ticket.messages()).extracting(Message::text).contains(messageText);
   }
 
   /** Trying to add a message to a non-existing ticket should return {@code 404 Not Found} */
@@ -69,9 +68,9 @@ class AddMessageApiTest extends PublicationTestBase {
         PUBLICATION_FACTORY.createPublishedPublication(ACADEMIC_ARTICLE, randomTitle());
     var ticketIdentifier =
         PUBLICATION_TICKET_FACTORY.createTicket(
-            UIB_CREATOR, publicationIdentifier, "GeneralSupportCase", "Initial message");
+            UIB_CREATOR, publicationIdentifier, GENERAL_SUPPORT_CASE, "Initial message");
 
-    Map<String, Object> payload = Map.of("text", "Followup message");
+    Map<String, Object> payload = Map.of("message", "Followup message");
 
     requestWithPayloadShouldReturnUnauthorized(
         POST, TICKET_PATH + "/message", payload, publicationIdentifier, ticketIdentifier);
@@ -86,11 +85,11 @@ class AddMessageApiTest extends PublicationTestBase {
         PUBLICATION_FACTORY.createPublishedPublication(ACADEMIC_ARTICLE, randomTitle());
     var ticketIdentifier =
         PUBLICATION_TICKET_FACTORY.createTicket(
-            UIB_CREATOR, publicationIdentifier, "GeneralSupportCase", "Initial message");
+            UIB_CREATOR, publicationIdentifier, GENERAL_SUPPORT_CASE, "Initial message");
 
-    Map<String, Object> payload = Map.of("text", "Followup message");
+    Map<String, Object> payload = Map.of("message", "Followup message");
 
-    requestWitPayloadShouldReturnForbidden(
+    requestWithPayloadShouldReturnForbidden(
         POST,
         UIB_CONTRIBUTOR,
         TICKET_PATH + "/message",

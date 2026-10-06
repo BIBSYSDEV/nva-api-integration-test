@@ -111,7 +111,7 @@ class UpdateTicketApiTest extends PublicationTestBase {
             UIB_CREATOR, publicationIdentifier, GENERAL_SUPPORT_CASE);
 
     Map<String, Object> payload = Map.of("assignee", UIB_SUPPORT_CURATOR.cristinId());
-    requestWitPayloadShouldReturnForbidden(
+    requestWithPayloadShouldReturnForbidden(
         PUT, UIB_CONTRIBUTOR, TICKET_PATH, payload, publicationIdentifier, ticketIdentifier);
   }
 }

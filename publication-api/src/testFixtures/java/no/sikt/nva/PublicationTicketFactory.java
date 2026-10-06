@@ -18,6 +18,8 @@ public class PublicationTicketFactory {
   public static final String BASE_TICKET_PATH = "/publication/{publicationIdentifier}/ticket";
   public static final String TICKET_PATH =
       "/publication/{publicationIdentifier}/ticket/{ticketIdentifier}";
+  public static final String TICKET_MESSAGE_PATH =
+      "/publication/{publicationIdentifier}/ticket/{ticketIdentifier}/message/{messageIdentifier}";
   public static final String TICKETS_PATH = "/publication/{publicationIdentifier}/tickets";
   public static final String GENERAL_SUPPORT_CASE = "GeneralSupportCase";
   public static final String DOI_REQUEST = "DoiRequest";
@@ -166,11 +168,7 @@ public class PublicationTicketFactory {
 
     return givenAuthenticatedJsonRequestAsUser(user)
         .when()
-        .delete(
-            TICKET_PATH + "/message/{messageIdentifier}",
-            publicationIdentifier,
-            ticketIdentifier,
-            messageIdentifier)
+        .delete(TICKET_MESSAGE_PATH, publicationIdentifier, ticketIdentifier, messageIdentifier)
         .then()
         .statusCode(expectedResponseCode)
         .extract()
