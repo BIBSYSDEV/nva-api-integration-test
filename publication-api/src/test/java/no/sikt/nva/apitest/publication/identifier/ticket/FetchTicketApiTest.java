@@ -72,7 +72,7 @@ class FetchTicketApiTest extends PublicationTestBase {
 
   /** Trying to fetch a ticket when not owner returns {@code 403 Forbidden} */
   @Test
-  @Disabled("FIXME: Returns 200 Ok, is this working as intended?")
+  @Disabled("FIXME: Returns 200 Ok, is this working as intended? See NP-52023")
   @DisplayName("Fetch ticket when not owner returns Forbidden")
   @Description
   void shouldReturnForbiddenWhenNotOwner() {

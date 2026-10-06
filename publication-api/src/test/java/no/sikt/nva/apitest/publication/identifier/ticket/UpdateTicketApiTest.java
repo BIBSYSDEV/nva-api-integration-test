@@ -70,7 +70,7 @@ class UpdateTicketApiTest extends PublicationTestBase {
 
   /** Trying to update a non-existing ticket returns {@code 404 Not Found} */
   @Test
-  @Disabled("FIXME: Returns 403, enable when bug is fixed")
+  @Disabled("FIXME: Returns 403, enable when bug is fixed. See NP-52023")
   @DisplayName("Update non-existing ticket returns Not Found")
   @Description
   void shouldReturnNotFoundWhenNonExistingTicket() {
@@ -101,7 +101,6 @@ class UpdateTicketApiTest extends PublicationTestBase {
 
   /** Trying to update a ticket when not owner returns {@code 403 Forbidden} */
   @Test
-  @Disabled("FIXME: Returns 500, enable when bug is fixed")
   @DisplayName("Update ticket when not owner returns Forbidden")
   @Description
   void shouldReturnForbiddenWhenNotOwner() {
@@ -110,7 +109,9 @@ class UpdateTicketApiTest extends PublicationTestBase {
     var ticketIdentifier =
         PUBLICATION_TICKET_FACTORY.createTicket(
             UIB_CREATOR, publicationIdentifier, GENERAL_SUPPORT_CASE);
-    requestShouldReturnForbidden(
-        PUT, UIB_CONTRIBUTOR, TICKET_PATH, publicationIdentifier, ticketIdentifier);
+
+    Map<String, Object> payload = Map.of("assignee", UIB_SUPPORT_CURATOR.cristinId());
+    requestWithPayloadShouldReturnForbidden(
+        PUT, UIB_CONTRIBUTOR, TICKET_PATH, payload, publicationIdentifier, ticketIdentifier);
   }
 }
