@@ -130,10 +130,10 @@ public class PublicationTicketFactory {
 
   public Response addMessageToTicket(
       User user, String publicationIdentifier, String ticketIdentifier, String message) {
-    return addMessage(user, publicationIdentifier, ticketIdentifier, message, HTTP_CREATED);
+    return addMessageToTicket(user, publicationIdentifier, ticketIdentifier, message, HTTP_CREATED);
   }
 
-  public Response addMessage(
+  public Response addMessageToTicket(
       User user,
       String publicationIdentifier,
       String ticketIdentifier,

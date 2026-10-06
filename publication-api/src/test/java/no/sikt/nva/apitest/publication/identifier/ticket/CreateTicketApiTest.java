@@ -73,7 +73,6 @@ class CreateTicketApiTest extends PublicationTestBase {
 
   /** Trying to create a ticket on a Publication when not owner returns {@code 403 Forbidden} */
   @Test
-  //   @Disabled("FIXME: Returns 500, enable when bug is fixed")
   @DisplayName("Trying to create a ticket when not owner returns Forbidden")
   @Description
   void shouldReturnForbiddenWhenNotOwnerOfPublication() {
