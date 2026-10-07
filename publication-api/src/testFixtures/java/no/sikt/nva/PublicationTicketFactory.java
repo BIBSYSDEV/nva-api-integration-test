@@ -9,7 +9,6 @@ import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsU
 import io.restassured.response.Response;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import no.sikt.nva.apitest.base.User;
 import no.sikt.nva.apitest.publication.ticket.Ticket;
 
@@ -24,6 +23,9 @@ public class PublicationTicketFactory {
   public static final String GENERAL_SUPPORT_CASE = "GeneralSupportCase";
   public static final String DOI_REQUEST = "DoiRequest";
   public static final String PUBLISHING_REQUEST = "PublishingRequest";
+
+  public static final String STATUS_ACTIVE = "Active";
+  public static final String STATUS_DELETED = "Deleted";
 
   public String createTicket(
       User user, String publicationIdentifier, String ticketType, String... messages) {
@@ -55,7 +57,7 @@ public class PublicationTicketFactory {
   private List<Map<String, String>> createMessages(String... messages) {
     return List.of(messages).stream()
         .map(message -> Map.of("type", "Message", "text", message))
-        .collect(Collectors.toList());
+        .toList();
   }
 
   public List<Ticket> fetchTickets(User user, String publicationIdentifier) {
