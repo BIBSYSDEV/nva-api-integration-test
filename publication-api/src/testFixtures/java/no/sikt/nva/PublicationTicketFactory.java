@@ -3,13 +3,12 @@ package no.sikt.nva;
 import static java.net.HttpURLConnection.HTTP_ACCEPTED;
 import static java.net.HttpURLConnection.HTTP_CREATED;
 import static java.net.HttpURLConnection.HTTP_OK;
-import static java.util.Objects.nonNull;
-import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
-
-import io.restassured.response.Response;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import static java.util.Objects.nonNull;
+
+import io.restassured.response.Response;
+import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
 import no.sikt.nva.apitest.base.User;
 import no.sikt.nva.apitest.publication.ticket.Ticket;
 
@@ -58,7 +57,7 @@ public class PublicationTicketFactory {
   private List<Map<String, String>> createMessages(String... messages) {
     return List.of(messages).stream()
         .map(message -> Map.of("type", "Message", "text", message))
-        .collect(Collectors.toList());
+        .toList();
   }
 
   public List<Ticket> fetchTickets(User user, String publicationIdentifier) {

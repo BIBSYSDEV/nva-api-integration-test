@@ -1,25 +1,25 @@
 package no.sikt.nva.apitest.publication.identifier.ticket;
 
-import static io.restassured.http.Method.DELETE;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
-import static no.sikt.Category.ACADEMIC_ARTICLE;
-import static no.sikt.nva.PublicationTicketFactory.GENERAL_SUPPORT_CASE;
-import static no.sikt.nva.PublicationTicketFactory.STATUS_DELETED;
-import static no.sikt.nva.PublicationTicketFactory.TICKET_MESSAGE_PATH;
-import static no.sikt.nva.apitest.base.UserFixtures.UIB_CONTRIBUTOR;
-import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
-
-import io.qameta.allure.Description;
 import java.util.UUID;
-import java.util.stream.Collectors;
-import no.sikt.nva.apitest.publication.PublicationTestBase;
+
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+
+import io.qameta.allure.Description;
+import static io.restassured.http.Method.DELETE;
+import static no.sikt.Category.ACADEMIC_ARTICLE;
+import static no.sikt.nva.PublicationTicketFactory.GENERAL_SUPPORT_CASE;
+import static no.sikt.nva.PublicationTicketFactory.STATUS_DELETED;
+import static no.sikt.nva.PublicationTicketFactory.TICKET_MESSAGE_PATH;
+import static no.sikt.nva.apitest.base.UserFixtures.UIB_CONTRIBUTOR;
+import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
+import no.sikt.nva.apitest.publication.PublicationTestBase;
 
 @ExtendWith(SoftAssertionsExtension.class)
 @DisplayName(
@@ -50,8 +50,7 @@ class DeleteMessageApiTest extends PublicationTestBase {
             UIB_CREATOR, publicationIdentifier, ticketIdentifier);
     var messageList =
         ticket.messages().stream()
-            .filter(message -> message.text().equals(messageText))
-            .collect(Collectors.toList());
+            .filter(message -> message.text().equals(messageText)).toList();
 
     softly.assertThat(messageList.size()).isEqualTo(1);
     var messageIdentifier = messageList.getFirst().identifier();
@@ -66,7 +65,7 @@ class DeleteMessageApiTest extends PublicationTestBase {
         .assertThat(
             updatedTicket.messages().stream()
                 .filter(message -> message.identifier().equals(messageIdentifier))
-                .collect(Collectors.toList())
+                .toList()
                 .getFirst()
                 .status())
         .isEqualTo(STATUS_DELETED);
@@ -74,7 +73,7 @@ class DeleteMessageApiTest extends PublicationTestBase {
     var updatedMessageList =
         updatedTicket.messages().stream()
             .filter(message -> message.identifier().equals(messageIdentifier))
-            .collect(Collectors.toList());
+            .toList();
     softly.assertThat(updatedMessageList.getFirst().text()).isNull();
   }
 
@@ -124,7 +123,7 @@ class DeleteMessageApiTest extends PublicationTestBase {
   @Disabled("FIXME: Returns 401. See NP-52023")
   @DisplayName("Trying to delete a message from a ticket when not owner return Forbidden")
   @Description
-  void shouldReturnForbiddenWhenNotowner() {
+  void shouldReturnForbiddenWhenNotOwner() {
     var publicationIdentifier =
         PUBLICATION_FACTORY.createPublishedPublication(ACADEMIC_ARTICLE, randomTitle());
 

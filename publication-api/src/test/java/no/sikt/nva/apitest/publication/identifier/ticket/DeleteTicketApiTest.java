@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(SoftAssertionsExtension.class)
-@DisplayName("Delete /publication/{publicationIdentifier}/ticket/{ticketIdentifier}")
+@DisplayName("DELETE /publication/{publicationIdentifier}/ticket/{ticketIdentifier}")
 class DeleteTicketApiTest extends PublicationTestBase {
 
   /** Delete ticket returns {@code 200 Ok} */
