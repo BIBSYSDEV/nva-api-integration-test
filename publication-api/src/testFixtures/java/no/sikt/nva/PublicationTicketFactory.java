@@ -25,6 +25,9 @@ public class PublicationTicketFactory {
   public static final String DOI_REQUEST = "DoiRequest";
   public static final String PUBLISHING_REQUEST = "PublishingRequest";
 
+  public static final String STATUS_ACTIVE = "Active";
+  public static final String STATUS_DELETED = "Deleted";
+
   public String createTicket(
       User user, String publicationIdentifier, String ticketType, String... messages) {
     return createTicket(user, publicationIdentifier, ticketType, HTTP_CREATED, messages);

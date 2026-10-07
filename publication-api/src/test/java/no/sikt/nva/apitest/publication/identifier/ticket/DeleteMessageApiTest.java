@@ -5,6 +5,7 @@ import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static no.sikt.Category.ACADEMIC_ARTICLE;
 import static no.sikt.nva.PublicationTicketFactory.GENERAL_SUPPORT_CASE;
+import static no.sikt.nva.PublicationTicketFactory.STATUS_DELETED;
 import static no.sikt.nva.PublicationTicketFactory.TICKET_MESSAGE_PATH;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CONTRIBUTOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
@@ -60,6 +61,16 @@ class DeleteMessageApiTest extends PublicationTestBase {
     var updatedTicket =
         PUBLICATION_TICKET_FACTORY.fetchTicket(
             UIB_CREATOR, publicationIdentifier, ticketIdentifier);
+
+    softly
+        .assertThat(
+            updatedTicket.messages().stream()
+                .filter(message -> message.identifier().equals(messageIdentifier))
+                .collect(Collectors.toList())
+                .getFirst()
+                .status())
+        .isEqualTo(STATUS_DELETED);
+
     var updatedMessageList =
         updatedTicket.messages().stream()
             .filter(message -> message.identifier().equals(messageIdentifier))
