@@ -1,6 +1,5 @@
 package no.sikt.nva.apitest.publication.identifier.ticket;
 
-import static java.net.HttpURLConnection.HTTP_CREATED;
 import java.util.Map;
 
 import org.assertj.core.api.SoftAssertions;
@@ -13,7 +12,6 @@ import io.qameta.allure.Description;
 import io.qameta.allure.Step;
 import static no.sikt.Category.ACADEMIC_ARTICLE;
 import static no.sikt.nva.PublicationTicketFactory.DOI_REQUEST;
-import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
 import no.sikt.nva.apitest.base.User;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_DOI_CURATOR;
@@ -29,7 +27,7 @@ class DoiRequestIntegrationTest extends PublicationTestBase {
   @DisplayName("A DOI-request is sent to DOI curator")
   @Description
   void shouldSendDoiRequestTicketToDoiCurator(SoftAssertions softly) {
-    var publicationIdentifier = createDraftPublications();
+    var publicationIdentifier = createPublishedPublication();
     var ticketIdentifier = reserveDoi(UIB_CREATOR, publicationIdentifier);
     var doiRequestTicket =
         findDoiApprovalTicket(
@@ -44,7 +42,7 @@ class DoiRequestIntegrationTest extends PublicationTestBase {
   @DisplayName("A DOI-curator is assigned to a DOI-request")
   @Description
   void shouldBeAssignedToADoiRequest(SoftAssertions softly) {
-    var publicationIdentifier = createDraftPublications();
+    var publicationIdentifier = createPublishedPublication();
     var ticketIdentifier = reserveDoi(UIB_CREATOR, publicationIdentifier);
 
     var doiRequestTicket =
@@ -57,22 +55,35 @@ class DoiRequestIntegrationTest extends PublicationTestBase {
   @DisplayName("A DOI-curator approves a DOI-request")
   @Description
   void shouldApproveDoiRequest(SoftAssertions softly) {
-    var publicationIdentifier = createDraftPublications();
+    var publicationIdentifier = createPublishedPublication();
     var ticketIdentifier = reserveDoi(UIB_CREATOR, publicationIdentifier);
 
     var ticket = approveDoiRequest(UIB_DOI_CURATOR, publicationIdentifier, ticketIdentifier);
     assertDoiRequestApproved(ticket, UIB_DOI_CURATOR, softly);
   }
 
+  /** DOI curator rejects DOI-request */
+  @Test
+  @DisplayName("A DOI-curator rejects a DOI-request")
+  @Description
+  void shouldRejectDoiRequest(SoftAssertions softly) {
+    var publicationIdentifier = createPublishedPublication();
+    var ticketIdentifier = reserveDoi(UIB_CREATOR, publicationIdentifier);
+
+    var ticket = rejectDoiRequest(UIB_DOI_CURATOR, publicationIdentifier, ticketIdentifier);
+    assertDoiRequestClosed(ticket, UIB_DOI_CURATOR, softly);
+  }
+
   @Step("Given a published publication")
-  private static String createDraftPublications() {
+  private static String createPublishedPublication() {
     return PUBLICATION_FACTORY.createPublishedPublication(ACADEMIC_ARTICLE, randomTitle());
   }
 
   @Step("When the Creator request a DOI for the publication")
   private static String reserveDoi(User user, String publicationIdentifier) {
 
-    return PUBLICATION_TICKET_FACTORY.createTicket(user, publicationIdentifier, DOI_REQUEST);
+    return PUBLICATION_TICKET_FACTORY.createTicket(
+        user, publicationIdentifier, DOI_REQUEST, "doirequest");
   }
 
   @Step("Then the DOI-curator find a ticket with for DOI approval from Creator")
@@ -90,6 +101,7 @@ class DoiRequestIntegrationTest extends PublicationTestBase {
   @Step("When the DOI curator reads a DOI-request")
   private static Ticket readAndAssignDoiRequest(
       User doiCurator, String publicationIdentifier, String ticketIdentifier) {
+
     var requestBody = Map.of("viewStatus", "Read");
     PUBLICATION_TICKET_FACTORY.updateTicket(
         doiCurator, publicationIdentifier, ticketIdentifier, requestBody);
@@ -105,7 +117,7 @@ class DoiRequestIntegrationTest extends PublicationTestBase {
   @Step("Then the DOI-curator is assigned to the DOI-request and the ticket is status 'Read'")
   private static void assertDoiRequestIsAssignedAndRead(
       Ticket ticket, User doiCurator, SoftAssertions softly) {
-    softly.assertThat(ticket.status()).isEqualTo("Read");
+    softly.assertThat(ticket.viewedBy()).contains(doiCurator.cristinId());
     softly.assertThat(ticket.assignee()).isEqualTo(doiCurator.cristinId());
   }
 
@@ -113,13 +125,11 @@ class DoiRequestIntegrationTest extends PublicationTestBase {
   private static Ticket approveDoiRequest(
       User doiCurator, String publicationIdentifier, String ticketIdentifier) {
 
-    draftDoi(doiCurator, publicationIdentifier);
-
     var requestBody = Map.of("assignee", doiCurator.cristinId());
     PUBLICATION_TICKET_FACTORY.updateTicket(
         doiCurator, publicationIdentifier, ticketIdentifier, requestBody);
 
-    requestBody = Map.of("status", "Approved");
+    requestBody = Map.of("status", "Completed");
     PUBLICATION_TICKET_FACTORY.updateTicket(
         doiCurator, publicationIdentifier, ticketIdentifier, requestBody);
 
@@ -130,29 +140,27 @@ class DoiRequestIntegrationTest extends PublicationTestBase {
   @Step("Then the DOI-request is approved")
   private static void assertDoiRequestApproved(
       Ticket ticket, User doiCurator, SoftAssertions softly) {
-    softly.assertThat(ticket.status()).isEqualTo("Approved");
+    softly.assertThat(ticket.status()).isEqualTo("Completed");
     softly.assertThat(ticket.assignee()).isEqualTo(doiCurator.cristinId());
   }
 
-  private static String draftDoi(User user, String publicationIdentifier) {
+  @Step("When the DOI-curator rejects a DOI request")
+  private static Ticket rejectDoiRequest(
+      User doiCurator, String publicationIdentifier, String ticketIdentifier) {
+    var requestBody = Map.of("status", "Rejected");
+    PUBLICATION_TICKET_FACTORY.updateTicket(
+        doiCurator, publicationIdentifier, ticketIdentifier, requestBody);
 
-    var doi = givenAuthenticatedJsonRequestAsUser(user) 
-      .body(Map.of("customer", user.affiliations().toArray()[0]))
-      .when()
-      .post("/doi-registrar/draft")
-      .then()
-      .statusCode(HTTP_CREATED)
-      .extract()
-      .jsonPath()
-      .getString("doi");
+    return PUBLICATION_TICKET_FACTORY.fetchTicket(
+        doiCurator, publicationIdentifier, ticketIdentifier);
+  }
 
-    givenAuthenticatedJsonRequestAsUser(user)
-    .body(Map.of("doi", doi, "customerId", user.affiliations().toArray()[0], "publicationId", publicationIdentifier))
-    .when()
-    .post("/doi-registrar/findable")
-    .then()
-    .statusCode(HTTP_CREATED);
+  @Step("Then the DOI-request is closed")
+  private static void assertDoiRequestClosed(
+      Ticket ticket, User doiCurator, SoftAssertions softly) {
 
-      return doi;
+    softly.assertThat(ticket.status()).isEqualTo("Closed");
+    softly.assertThat(ticket.assignee()).isEqualTo(doiCurator.cristinId());
+    softly.assertThat(ticket.finalizedBy()).isEqualTo(doiCurator.cristinId());
   }
 }
