@@ -22,9 +22,9 @@ import no.sikt.nva.apitest.publication.ticket.Ticket;
 @DisplayName("DOI request workflow")
 class DoiRequestIntegrationTest extends PublicationTestBase {
 
-  /** DOI curator receives a DOI-request ticket */
+  /** DOI-curator receives a DOI-request ticket */
   @Test
-  @DisplayName("A DOI-request is sent to DOI curator")
+  @DisplayName("A DOI-request is sent to DOI-curator")
   @Description
   void shouldSendDoiRequestTicketToDoiCurator(SoftAssertions softly) {
     var publicationIdentifier = createPublishedPublication();
@@ -37,7 +37,7 @@ class DoiRequestIntegrationTest extends PublicationTestBase {
     softly.assertThat(resultingTicket.type()).isEqualTo(DOI_REQUEST);
   }
 
-  /** DOI curator is assigned to a DOI-request */
+  /** DOI-curator is assigned to a DOI-request */
   @Test
   @DisplayName("A DOI-curator is assigned to a DOI-request")
   @Description
@@ -50,7 +50,7 @@ class DoiRequestIntegrationTest extends PublicationTestBase {
     assertDoiRequestIsAssignedAndRead(doiRequestTicket, UIB_DOI_CURATOR, softly);
   }
 
-  /** DOI curator approves DOI-request */
+  /** DOI-curator approves DOI-request */
   @Test
   @DisplayName("A DOI-curator approves a DOI-request")
   @Description
@@ -62,7 +62,7 @@ class DoiRequestIntegrationTest extends PublicationTestBase {
     assertDoiRequestApproved(ticket, UIB_DOI_CURATOR, softly);
   }
 
-  /** DOI curator rejects DOI-request */
+  /** DOI-curator rejects DOI-request */
   @Test
   @DisplayName("A DOI-curator rejects a DOI-request")
   @Description
@@ -79,14 +79,14 @@ class DoiRequestIntegrationTest extends PublicationTestBase {
     return PUBLICATION_FACTORY.createPublishedPublication(ACADEMIC_ARTICLE, randomTitle());
   }
 
-  @Step("When the Creator request a DOI for the publication")
+  @Step("When the Creator requests a DOI for the publication")
   private static String requestDoi(User user, String publicationIdentifier) {
 
     return PUBLICATION_TICKET_FACTORY.createTicket(
         user, publicationIdentifier, DOI_REQUEST, "doirequest");
   }
 
-  @Step("Then the DOI-curator find a ticket with for DOI approval from Creator")
+  @Step("Then the DOI-curator has a ticket to approve the DOI")
   private static Ticket findDoiApprovalTicket(
       User doiCurator, User creator, String publicationIdentifier, String ticketIdentifier) {
 
@@ -98,7 +98,7 @@ class DoiRequestIntegrationTest extends PublicationTestBase {
         .getFirst();
   }
 
-  @Step("When the DOI curator reads a DOI-request")
+  @Step("When the DOI-curator reads a DOI-request")
   private static Ticket readAndAssignDoiRequest(
       User doiCurator, String publicationIdentifier, String ticketIdentifier) {
 
@@ -121,7 +121,7 @@ class DoiRequestIntegrationTest extends PublicationTestBase {
     softly.assertThat(ticket.assignee()).isEqualTo(doiCurator.cristinId());
   }
 
-  @Step("When the DOI curator approves a DOI-request")
+  @Step("When the DOI-curator approves a DOI-request")
   private static Ticket approveDoiRequest(
       User doiCurator, String publicationIdentifier, String ticketIdentifier) {
 
