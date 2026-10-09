@@ -28,13 +28,13 @@ class DoiRequestIntegrationTest extends PublicationTestBase {
   @Description
   void shouldSendDoiRequestTicketToDoiCurator(SoftAssertions softly) {
     var publicationIdentifier = createPublishedPublication();
-    var ticketIdentifier = reserveDoi(UIB_CREATOR, publicationIdentifier);
-    var doiRequestTicket =
-        findDoiApprovalTicket(
-            UIB_DOI_CURATOR, UIB_CREATOR, publicationIdentifier, ticketIdentifier);
+    var ticketIdentifier = requestDoi(UIB_CREATOR, publicationIdentifier);
+    findDoiApprovalTicket(
+      UIB_DOI_CURATOR, UIB_CREATOR, publicationIdentifier, ticketIdentifier);
 
-    softly.assertThat(doiRequestTicket.identifier()).isEqualTo(ticketIdentifier);
-    softly.assertThat(doiRequestTicket.type()).isEqualTo(DOI_REQUEST);
+    var resultingTicket = PUBLICATION_TICKET_FACTORY.fetchTicket(UIB_DOI_CURATOR, publicationIdentifier, ticketIdentifier);
+    softly.assertThat(resultingTicket.identifier()).isEqualTo(ticketIdentifier);
+    softly.assertThat(resultingTicket.type()).isEqualTo(DOI_REQUEST);
   }
 
   /** DOI curator is assigned to a DOI-request */
@@ -43,7 +43,7 @@ class DoiRequestIntegrationTest extends PublicationTestBase {
   @Description
   void shouldBeAssignedToADoiRequest(SoftAssertions softly) {
     var publicationIdentifier = createPublishedPublication();
-    var ticketIdentifier = reserveDoi(UIB_CREATOR, publicationIdentifier);
+    var ticketIdentifier = requestDoi(UIB_CREATOR, publicationIdentifier);
 
     var doiRequestTicket =
         readAndAssignDoiRequest(UIB_DOI_CURATOR, publicationIdentifier, ticketIdentifier);
@@ -56,7 +56,7 @@ class DoiRequestIntegrationTest extends PublicationTestBase {
   @Description
   void shouldApproveDoiRequest(SoftAssertions softly) {
     var publicationIdentifier = createPublishedPublication();
-    var ticketIdentifier = reserveDoi(UIB_CREATOR, publicationIdentifier);
+    var ticketIdentifier = requestDoi(UIB_CREATOR, publicationIdentifier);
 
     var ticket = approveDoiRequest(UIB_DOI_CURATOR, publicationIdentifier, ticketIdentifier);
     assertDoiRequestApproved(ticket, UIB_DOI_CURATOR, softly);
@@ -68,7 +68,7 @@ class DoiRequestIntegrationTest extends PublicationTestBase {
   @Description
   void shouldRejectDoiRequest(SoftAssertions softly) {
     var publicationIdentifier = createPublishedPublication();
-    var ticketIdentifier = reserveDoi(UIB_CREATOR, publicationIdentifier);
+    var ticketIdentifier = requestDoi(UIB_CREATOR, publicationIdentifier);
 
     var ticket = rejectDoiRequest(UIB_DOI_CURATOR, publicationIdentifier, ticketIdentifier);
     assertDoiRequestClosed(ticket, UIB_DOI_CURATOR, softly);
@@ -80,7 +80,7 @@ class DoiRequestIntegrationTest extends PublicationTestBase {
   }
 
   @Step("When the Creator request a DOI for the publication")
-  private static String reserveDoi(User user, String publicationIdentifier) {
+  private static String requestDoi(User user, String publicationIdentifier) {
 
     return PUBLICATION_TICKET_FACTORY.createTicket(
         user, publicationIdentifier, DOI_REQUEST, "doirequest");
