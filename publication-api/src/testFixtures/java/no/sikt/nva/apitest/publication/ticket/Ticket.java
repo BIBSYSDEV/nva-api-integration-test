@@ -23,8 +23,8 @@ public record Ticket(
     List<Message> messages,
     List<String> viewedBy,
     String owner,
-    String viewStatus,
     String assignee,
+    String finalizedBy,
     List<TicketFile> filesForApproval,
     List<TicketFile> approvedFiles) {
 
