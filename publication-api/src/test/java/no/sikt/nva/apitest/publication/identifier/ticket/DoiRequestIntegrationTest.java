@@ -1,22 +1,21 @@
 package no.sikt.nva.apitest.publication.identifier.ticket;
 
-import java.util.Map;
+import static no.sikt.Category.ACADEMIC_ARTICLE;
+import static no.sikt.nva.PublicationTicketFactory.DOI_REQUEST;
+import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
+import static no.sikt.nva.apitest.base.UserFixtures.UIB_DOI_CURATOR;
 
+import io.qameta.allure.Description;
+import io.qameta.allure.Step;
+import java.util.Map;
+import no.sikt.nva.apitest.base.User;
+import no.sikt.nva.apitest.publication.PublicationTestBase;
+import no.sikt.nva.apitest.publication.ticket.Ticket;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-
-import io.qameta.allure.Description;
-import io.qameta.allure.Step;
-import static no.sikt.Category.ACADEMIC_ARTICLE;
-import static no.sikt.nva.PublicationTicketFactory.DOI_REQUEST;
-import no.sikt.nva.apitest.base.User;
-import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
-import static no.sikt.nva.apitest.base.UserFixtures.UIB_DOI_CURATOR;
-import no.sikt.nva.apitest.publication.PublicationTestBase;
-import no.sikt.nva.apitest.publication.ticket.Ticket;
 
 @ExtendWith(SoftAssertionsExtension.class)
 @DisplayName("DOI request workflow")
@@ -29,10 +28,11 @@ class DoiRequestIntegrationTest extends PublicationTestBase {
   void shouldSendDoiRequestTicketToDoiCurator(SoftAssertions softly) {
     var publicationIdentifier = createPublishedPublication();
     var ticketIdentifier = requestDoi(UIB_CREATOR, publicationIdentifier);
-    findDoiApprovalTicket(
-      UIB_DOI_CURATOR, UIB_CREATOR, publicationIdentifier, ticketIdentifier);
+    findDoiApprovalTicket(UIB_DOI_CURATOR, UIB_CREATOR, publicationIdentifier, ticketIdentifier);
 
-    var resultingTicket = PUBLICATION_TICKET_FACTORY.fetchTicket(UIB_DOI_CURATOR, publicationIdentifier, ticketIdentifier);
+    var resultingTicket =
+        PUBLICATION_TICKET_FACTORY.fetchTicket(
+            UIB_DOI_CURATOR, publicationIdentifier, ticketIdentifier);
     softly.assertThat(resultingTicket.identifier()).isEqualTo(ticketIdentifier);
     softly.assertThat(resultingTicket.type()).isEqualTo(DOI_REQUEST);
   }
