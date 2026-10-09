@@ -1,7 +1,5 @@
 package no.sikt.nva.apitest.publication.identifier.ticket;
 
-import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
@@ -127,7 +125,7 @@ class SupportRequestIntegrationTest extends PublicationTestBase {
   private static void assertUserReadsAnswerFromSupportCurator(User user, String publicationIdentifier, String ticketIdentifier, String curatorAnswer){
     var ticket =
         PUBLICATION_TICKET_FACTORY.fetchTicket(
-            user, publicationIdentifier, ticketIdentifier, HTTP_BAD_REQUEST);
+            user, publicationIdentifier, ticketIdentifier);
     assertThat(ticket.messages().stream().filter(message -> message.text().equals(curatorAnswer)).toList()).isNotEmpty();
   }
 }
