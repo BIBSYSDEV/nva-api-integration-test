@@ -3,12 +3,12 @@ package no.sikt.nva;
 import static java.net.HttpURLConnection.HTTP_ACCEPTED;
 import static java.net.HttpURLConnection.HTTP_CREATED;
 import static java.net.HttpURLConnection.HTTP_OK;
-import java.util.List;
-import java.util.Map;
 import static java.util.Objects.nonNull;
+import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
 
 import io.restassured.response.Response;
-import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
+import java.util.List;
+import java.util.Map;
 import no.sikt.nva.apitest.base.User;
 import no.sikt.nva.apitest.publication.ticket.Ticket;
 
