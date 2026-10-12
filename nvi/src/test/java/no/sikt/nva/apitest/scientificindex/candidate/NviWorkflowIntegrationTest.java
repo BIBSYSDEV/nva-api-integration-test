@@ -1,32 +1,34 @@
 package no.sikt.nva.apitest.scientificindex.candidate;
 
+import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
+import static no.sikt.nva.apitest.base.UserFixtures.UIB_NVI_CURATOR;
+import static no.sikt.nva.apitest.scientificindex.NviApprovals.APPROVED;
+import static no.sikt.nva.apitest.scientificindex.NviApprovals.updateApprovalStatus;
+import static no.sikt.nva.apitest.scientificindex.NviCandidateFactory.indexedPublicationIds;
 import static org.assertj.core.api.Assertions.assertThat;
-import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 import io.qameta.allure.Description;
 import io.qameta.allure.Step;
 import no.sikt.nva.apitest.base.User;
-import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
-import static no.sikt.nva.apitest.base.UserFixtures.UIB_NVI_CURATOR;
 import no.sikt.nva.apitest.publication.PublicationTestBase;
-import static no.sikt.nva.apitest.scientificindex.NviApprovals.APPROVED;
-import static no.sikt.nva.apitest.scientificindex.NviApprovals.updateApprovalStatus;
+import no.sikt.nva.apitest.scientificindex.Approval;
 import no.sikt.nva.apitest.scientificindex.NviCandidate;
 import no.sikt.nva.apitest.scientificindex.ScientificIndexTestBase;
+import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(SoftAssertionsExtension.class)
 @DisplayName("NVI-tickets workflow test")
 class NviWorkflowIntegrationTest extends ScientificIndexTestBase {
 
   /**
-   * A publication that qualifies as a NVI-canidate is listed among a NVI-curators NVI-candidates
+   * A publication that qualifies as a NVI-candidate is listed among a NVI-curators NVI-candidates
    */
   @Test
   @DisplayName(
-      "A publication that qualifies as a NVI-canidate is listed among a NVI-curators"
+      "A publication that qualifies as a NVI-candidate is listed among a NVI-curators"
           + " NVI-candidates")
   @Description
   void shouldBeANviCandidate() {
@@ -35,9 +37,9 @@ class NviWorkflowIntegrationTest extends ScientificIndexTestBase {
   }
 
   /** A NVI-curator approves a NVI-candidate */
-  @Test 
-  @DisplayName ("A NVI-curator approves a NVI-candidate")
-  @Description 
+  @Test
+  @DisplayName("A NVI-curator approves a NVI-candidate")
+  @Description
   void shouldApproveANviCandidate() {
     var candidate = createNviCandidate(UIB_CREATOR);
     approveNviCandidate(UIB_NVI_CURATOR, candidate);
@@ -53,7 +55,7 @@ class NviWorkflowIntegrationTest extends ScientificIndexTestBase {
   private static void assertPublicationIsListedAmongNviCandidates(
       User nviCurator, NviCandidate candidate) {
     var response = CANDIDATE_FACTORY.awaitCandidateInSearchIndex(nviCurator, candidate);
-    assertThat(response.jsonPath().getList("hits").size()).isEqualTo(1);
+    assertThat(indexedPublicationIds(response)).containsExactly(candidate.publicationId());
   }
 
   @Step("When a NVI-curator approves the candidate")
@@ -63,7 +65,13 @@ class NviWorkflowIntegrationTest extends ScientificIndexTestBase {
 
   @Step("Then the candidate get status approved")
   private static void assertCandidateIsApproved(User nviCurator, String publicationIdentifier) {
-    var response = CANDIDATE_FACTORY.fetchCandidateByPublicationIdentifier(nviCurator, publicationIdentifier);
-    assertThat(response.jsonPath().getString("globalApprovalStatus")).isEqualTo(APPROVED);
+    var response =
+        CANDIDATE_FACTORY.fetchCandidateByPublicationIdentifier(nviCurator, publicationIdentifier);
+    var approvals = response.jsonPath().getList("approvals", Approval.class);
+    assertThat(approvals)
+        .filteredOn(Approval::assignee, nviCurator.cristinId())
+        .singleElement()
+        .extracting(Approval::status)
+        .isEqualTo(APPROVED);
   }
 }
