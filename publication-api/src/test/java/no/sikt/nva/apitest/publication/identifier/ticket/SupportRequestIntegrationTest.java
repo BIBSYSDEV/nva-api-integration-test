@@ -143,7 +143,7 @@ class SupportRequestIntegrationTest extends PublicationTestBase {
     assertThat(ticket.messages()).extracting(Message::text).contains(curatorAnswer);
   }
 
-  @Step("When a Support-curator closes the support request")
+  @Step("When a Support-curator completes the support request")
   private static void supportCuratorCompletesSupportRequest(
       User supportCurator, String publicationIdentifier, String ticketIdentifier) {
     var curatorAnswer = "Complete support request";
