@@ -92,7 +92,7 @@ class SupportRequestIntegrationTest extends PublicationTestBase {
         user, publicationIdentifier, GENERAL_SUPPORT_CASE, supportMessage);
   }
 
-  @Step("Then a support-curator from the same instituion find a support ticket")
+  @Step("Then a support-curator from the same institution has a support ticket")
   private static void findSupportTicket(
       User supportCurator,
       String publicationIdentifier,
