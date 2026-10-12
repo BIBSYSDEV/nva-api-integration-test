@@ -56,7 +56,7 @@ class SupportRequestIntegrationTest extends PublicationTestBase {
   @DisplayName("Support-curator completes a support request")
   @Description
   @Test
-  void shouldCloseASupportRequest() {
+  void shouldCompleteASupportRequest() {
     var publicationIdentifier =
         PUBLICATION_FACTORY.createPublishedPublication(ACADEMIC_ARTICLE, randomTitle());
     var requestMessage = "Support request being completed";
