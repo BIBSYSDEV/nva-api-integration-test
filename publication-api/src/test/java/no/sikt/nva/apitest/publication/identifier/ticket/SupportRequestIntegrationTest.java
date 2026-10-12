@@ -5,19 +5,18 @@ import static no.sikt.nva.PublicationTicketFactory.GENERAL_SUPPORT_CASE;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_SUPPORT_CURATOR;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.InstanceOfAssertFactories.list;
 
 import io.qameta.allure.Description;
 import io.qameta.allure.Step;
 import java.util.Map;
 import no.sikt.nva.apitest.base.User;
 import no.sikt.nva.apitest.publication.PublicationTestBase;
-import org.assertj.core.api.SoftAssertions;
-import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
+import no.sikt.nva.apitest.publication.ticket.Message;
+import no.sikt.nva.apitest.publication.ticket.Ticket;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
-@ExtendWith(SoftAssertionsExtension.class)
 @DisplayName("Support request workflow")
 class SupportRequestIntegrationTest extends PublicationTestBase {
 
@@ -25,13 +24,11 @@ class SupportRequestIntegrationTest extends PublicationTestBase {
   @Test
   @DisplayName("A support request is sent to Support-curator")
   @Description
-  void shouldSendSupportRequestToSupportCurator(SoftAssertions softly) {
-    var publicationIdentifier =
-        PUBLICATION_FACTORY.createPublishedPublication(ACADEMIC_ARTICLE, randomTitle());
+  void shouldSendSupportRequestToSupportCurator() {
+    var publicationIdentifier = createPublishedPublication();
     var requestMessage = "Support request from creator";
     var ticketIdentifier = createSupportRequest(UIB_CREATOR, publicationIdentifier, requestMessage);
-    findSupportTicket(
-        UIB_SUPPORT_CURATOR, publicationIdentifier, ticketIdentifier, requestMessage, softly);
+    findSupportTicket(UIB_SUPPORT_CURATOR, publicationIdentifier, ticketIdentifier, requestMessage);
   }
 
   /** Support-curator answers a support request */
@@ -39,8 +36,7 @@ class SupportRequestIntegrationTest extends PublicationTestBase {
   @DisplayName("Support-curator answers a support request")
   @Description
   void shouldSendAnswerOnSupportRequest() {
-    var publicationIdentifier =
-        PUBLICATION_FACTORY.createPublishedPublication(ACADEMIC_ARTICLE, randomTitle());
+    var publicationIdentifier = createPublishedPublication();
     var requestMessage = "Support request from creator expecting answer";
     var ticketIdentifier = createSupportRequest(UIB_CREATOR, publicationIdentifier, requestMessage);
     var curatorAnswer = "Answer to support request";
@@ -53,12 +49,11 @@ class SupportRequestIntegrationTest extends PublicationTestBase {
   }
 
   /** Support-curator completes a support request */
+  @Test
   @DisplayName("Support-curator completes a support request")
   @Description
-  @Test
   void shouldCompleteASupportRequest() {
-    var publicationIdentifier =
-        PUBLICATION_FACTORY.createPublishedPublication(ACADEMIC_ARTICLE, randomTitle());
+    var publicationIdentifier = createPublishedPublication();
     var requestMessage = "Support request being completed";
     var ticketIdentifier = createSupportRequest(UIB_CREATOR, publicationIdentifier, requestMessage);
     supportCuratorCompletesSupportRequest(
@@ -67,21 +62,25 @@ class SupportRequestIntegrationTest extends PublicationTestBase {
   }
 
   /** User opens a completed support request */
+  @Test
   @DisplayName("User opens a completed support request")
   @Description
-  @Test
   void shouldOpenACompletedSupportRequest() {
-    var publicationIdentifier =
-        PUBLICATION_FACTORY.createPublishedPublication(ACADEMIC_ARTICLE, randomTitle());
+    var publicationIdentifier = createPublishedPublication();
     var requestMessage = "Support request being completed";
     var ticketIdentifier = createSupportRequest(UIB_CREATOR, publicationIdentifier, requestMessage);
     supportCuratorCompletesSupportRequest(
         UIB_SUPPORT_CURATOR, publicationIdentifier, ticketIdentifier);
     assertThatSupportRequestIsCompleted(UIB_CREATOR, publicationIdentifier, ticketIdentifier);
-    var userAnswer = "Open a closed support request message";
+    var userAnswer = "Message to re-open a completed support request";
     userAnswersResponseToSupportRequest(
         UIB_CREATOR, publicationIdentifier, ticketIdentifier, userAnswer);
     assertSupportRequestHasStatusPending(UIB_CREATOR, publicationIdentifier, ticketIdentifier);
+  }
+
+  @Step("Given a published publication")
+  private static String createPublishedPublication() {
+    return PUBLICATION_FACTORY.createPublishedPublication(ACADEMIC_ARTICLE, randomTitle());
   }
 
   @Step("Given a creator sends a support request for a publication")
@@ -97,22 +96,19 @@ class SupportRequestIntegrationTest extends PublicationTestBase {
       User supportCurator,
       String publicationIdentifier,
       String ticketIdentifier,
-      String supportMessage,
-      SoftAssertions softly) {
+      String supportMessage) {
 
     var tickets =
         PUBLICATION_TICKET_FACTORY.fetchTickets(supportCurator, publicationIdentifier).stream()
             .filter(ticket -> ticket.identifier().equals(ticketIdentifier))
             .toList();
 
-    softly.assertThat(tickets.size()).isEqualTo(1);
-    softly
-        .assertThat(
-            tickets.getFirst().messages().stream()
-                .filter(message -> message.text().equals(supportMessage))
-                .toList()
-                .isEmpty())
-        .isFalse();
+    assertThat(tickets)
+        .filteredOn(Ticket::identifier, ticketIdentifier)
+        .singleElement()
+        .extracting(Ticket::messages, list(Message.class))
+        .extracting(Message::text)
+        .contains(supportMessage);
   }
 
   @Step("When a support-curator answers the support request")
