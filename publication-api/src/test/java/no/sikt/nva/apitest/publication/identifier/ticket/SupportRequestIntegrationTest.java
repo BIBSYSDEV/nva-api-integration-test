@@ -41,7 +41,7 @@ class SupportRequestIntegrationTest extends PublicationTestBase {
   void shouldSendAnswerOnSupportRequest() {
     var publicationIdentifier =
         PUBLICATION_FACTORY.createPublishedPublication(ACADEMIC_ARTICLE, randomTitle());
-    var requestMessage = "Support request from creator expeting answer";
+    var requestMessage = "Support request from creator expecting answer";
     var ticketIdentifier = createSupportRequest(UIB_CREATOR, publicationIdentifier, requestMessage);
     var curatorAnswer = "Answer to support request";
     supportCuratorAnswersSupportRequest(
