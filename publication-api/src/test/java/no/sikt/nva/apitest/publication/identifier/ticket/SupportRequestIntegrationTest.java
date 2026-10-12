@@ -140,11 +140,7 @@ class SupportRequestIntegrationTest extends PublicationTestBase {
       User user, String publicationIdentifier, String ticketIdentifier, String curatorAnswer) {
     var ticket =
         PUBLICATION_TICKET_FACTORY.fetchTicket(user, publicationIdentifier, ticketIdentifier);
-    assertThat(
-            ticket.messages().stream()
-                .filter(message -> message.text().equals(curatorAnswer))
-                .toList())
-        .isNotEmpty();
+    assertThat(ticket.messages()).extracting(Message::text).contains(curatorAnswer);
   }
 
   @Step("When a Support-curator closes the support request")
