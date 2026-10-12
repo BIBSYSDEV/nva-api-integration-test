@@ -38,7 +38,7 @@ class SupportRequestIntegrationTest extends PublicationTestBase {
   @Test
   @DisplayName("Support-curator answers a support request")
   @Description
-  void shouldSendAnswerOnSupportRequest(SoftAssertions softly) {
+  void shouldSendAnswerOnSupportRequest() {
     var publicationIdentifier =
         PUBLICATION_FACTORY.createPublishedPublication(ACADEMIC_ARTICLE, randomTitle());
     var requestMessage = "Support request from creator expeting answer";
