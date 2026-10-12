@@ -121,6 +121,11 @@ public class PublicationFactory {
   }
 
   public String createPublishedPublication(
+      User user, String title, Category category, List<Contributor> contributorList) {
+    return createPublishedPublication(user, title, category, contributorList, user);
+  }
+
+  public String createPublishedPublication(
       User user, String title, Category category, List<Contributor> contributorList, User curator) {
     return createPublishedPublicationUsingTokens(
         CognitoLogin.loginUser(user).get(ACCESS_TOKEN),
