@@ -99,9 +99,7 @@ class SupportRequestIntegrationTest extends PublicationTestBase {
       String supportMessage) {
 
     var tickets =
-        PUBLICATION_TICKET_FACTORY.fetchTickets(supportCurator, publicationIdentifier).stream()
-            .filter(ticket -> ticket.identifier().equals(ticketIdentifier))
-            .toList();
+        PUBLICATION_TICKET_FACTORY.fetchTickets(supportCurator, publicationIdentifier);
 
     assertThat(tickets)
         .filteredOn(Ticket::identifier, ticketIdentifier)
