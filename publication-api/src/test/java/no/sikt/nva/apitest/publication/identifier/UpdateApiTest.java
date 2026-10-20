@@ -118,22 +118,22 @@ class UpdateApiTest extends PublicationTestBase {
   @DisplayName("UnpublishPublicationRequest")
   class UnpublishRequest {
 
-    /** The owner of a published publication should be able to unpublish it. */
+    /**
+     * The owner of a published publication should be able to unpublish it. The owner may still read
+     * the unpublished publication, so the status is verified through a fetch rather than from the
+     * unpublish response, which may lag behind the write.
+     */
     @Test
     @DisplayName("Owner unpublishes their published publication")
     @Description
     void shouldUnpublishWhenOwnerUnpublishesPublishedPublication() {
       var publicationIdentifier = setupPublishedPublication(List.of(UIB_CREATOR));
 
-      var status =
-          requestUpdate(UIB_CREATOR, publicationIdentifier, unpublishRequest())
-              .then()
-              .statusCode(HTTP_ACCEPTED)
-              .extract()
-              .jsonPath()
-              .getString(STATUS_FIELD);
+      requestUpdate(UIB_CREATOR, publicationIdentifier, unpublishRequest())
+          .then()
+          .statusCode(HTTP_ACCEPTED);
 
-      assertThat(status).isEqualTo(UNPUBLISHED);
+      assertThat(publicationStatus(publicationIdentifier)).isEqualTo(UNPUBLISHED);
     }
 
     /**
