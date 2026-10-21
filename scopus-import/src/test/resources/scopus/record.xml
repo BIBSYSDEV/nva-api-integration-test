@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  A minimal Scopus record, reduced from 2-s2.0-1542462534.xml in nva-publication-api's scopus-import
+  tests to the elements the converter reads. Placeholders are {{NAME}}, filled in by ScopusRecord.
+  Deliberately left out:
+  - xocs:doi, because the converter fetches files from Crossref by DOI and marks the candidate as
+    imported when a publication with the same DOI exists;
+  - the affiliation country, because the converter falls back to a Cristin search by country when
+    the AFID is not mapped, which would blur the "no customer" case;
+  - xocs:open-access, so the publication date comes from ait:date-sort. The year is before 2004,
+    so the converter does not look the journal up in the channel register.
+-->
+<xocs:doc xmlns:xocs="http://www.elsevier.com/xml/xocs/dtd"
+          xmlns:ce="http://www.elsevier.com/xml/ani/common"
+          xmlns:ait="http://www.elsevier.com/xml/ani/ait">
+  <xocs:meta>
+    <xocs:eid>{{EID}}</xocs:eid>
+    <xocs:srctype>j</xocs:srctype>
+  </xocs:meta>
+  <xocs:item>
+    <item>
+      <ait:process-info>
+        <ait:date-sort day="01" month="01" year="2000"/>
+      </ait:process-info>
+      <bibrecord>
+        <head>
+          <citation-info>
+            <citation-type code="ar"/>
+            <citation-language xml:lang="eng" language="English"/>
+          </citation-info>
+          <citation-title>
+            <titletext original="y" xml:lang="eng" language="English">{{TITLE}}</titletext>
+          </citation-title>
+          <author-group>
+{{AUTHORS}}
+            <affiliation afid="{{AFID}}">
+              <organization>{{AFFILIATION_NAME}}</organization>
+            </affiliation>
+          </author-group>
+          <source type="j">
+            <sourcetitle>NVA API test journal</sourcetitle>
+          </source>
+        </head>
+      </bibrecord>
+    </item>
+  </xocs:item>
+</xocs:doc>
