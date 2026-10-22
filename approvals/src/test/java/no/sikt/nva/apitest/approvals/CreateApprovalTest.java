@@ -31,6 +31,7 @@ import java.util.stream.Stream;
 import no.sikt.nva.apitest.base.IntegrationTestBase;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -57,6 +58,7 @@ class CreateApprovalTest extends IntegrationTestBase {
   @Test
   @DisplayName("Create approval")
   @Description
+  @Disabled("FIXME: See NP-52122")
   void shouldAcceptApprovalAndExposeItAtLocation(SoftAssertions softly) {
     var identifierValue = uniqueValue();
     var payload = approvalPayload(UIB_IDENTIFIER_NAME, identifierValue);

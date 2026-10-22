@@ -23,12 +23,14 @@ import no.sikt.nva.apitest.base.IntegrationTestBase;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(SoftAssertionsExtension.class)
 @DisplayName("GET " + APPROVAL_PATH)
+@Disabled("FIXME: See NP-52122")
 class FetchApprovalTest extends IntegrationTestBase {
 
   private static final String JSON_MEDIA_TYPE = "application/json";

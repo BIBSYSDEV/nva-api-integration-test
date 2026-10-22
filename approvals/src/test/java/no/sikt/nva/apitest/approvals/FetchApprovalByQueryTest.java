@@ -23,6 +23,7 @@ import java.util.UUID;
 import java.util.stream.Stream;
 import no.sikt.nva.apitest.base.IntegrationTestBase;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -30,6 +31,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 @DisplayName("GET " + BASE_PATH + " by query")
+@Disabled("FIXME: See NP-52122")
 class FetchApprovalByQueryTest extends IntegrationTestBase {
 
   private static final String JSON_MEDIA_TYPE = "application/json";

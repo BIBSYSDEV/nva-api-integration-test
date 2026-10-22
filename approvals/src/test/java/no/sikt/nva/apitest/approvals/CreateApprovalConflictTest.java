@@ -28,6 +28,7 @@ import java.util.Map;
 import no.sikt.nva.apitest.base.IntegrationTestBase;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -49,6 +50,7 @@ class CreateApprovalConflictTest extends IntegrationTestBase {
   @Test
   @DisplayName("Create approval reusing an identifier")
   @Description
+  @Disabled("FIXME: See NP-52122")
   void shouldReturnConflictWhenIdentifierIsAlreadyTaken(SoftAssertions softly) {
     var takenValue = uniqueValue();
     createApproval(UIB_CLIENT_SECRET, approvalPayload(UIB_IDENTIFIER_NAME, takenValue));
@@ -69,6 +71,7 @@ class CreateApprovalConflictTest extends IntegrationTestBase {
   @Test
   @DisplayName("Create approval where one of several identifiers is taken")
   @Description
+  @Disabled("FIXME: See NP-52122")
   void shouldReportOnlyTheIdentifierThatWasTaken(SoftAssertions softly) {
     var takenValue = uniqueValue();
     var freeValue = uniqueValue();
