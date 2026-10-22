@@ -10,7 +10,10 @@ import static no.sikt.Role.CREATOR;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_DAY;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_MONTH;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_YEAR;
+import static no.sikt.nva.apitest.base.Polling.pollUntil;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequest;
+import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
+import static no.sikt.nva.apitest.base.SettledCondition.settledWhen;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_PUBLISHING_CURATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_THESIS_CURATOR;
@@ -35,6 +38,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.Callable;
 import java.util.stream.IntStream;
 import no.sikt.Category;
 import no.sikt.Contributor;
@@ -52,6 +56,9 @@ public class PublicationFactory {
   private static final String ID_FIELD = "id";
   private static final String NAME_FIELD = "name";
   private static final String APPROVALS_FIELD = "approvals";
+  private static final String STATUS_FIELD = "status";
+  private static final String PUBLISHED = "PUBLISHED";
+  private static final String UNPUBLISHED = "UNPUBLISHED";
 
   private JsonPath loadMetadataResource(String filename) {
     var template = stringFromResources(Path.of("metadata", filename));
@@ -352,9 +359,49 @@ public class PublicationFactory {
         .post(publishPublicationPath(identifier))
         .then()
         .statusCode(HTTP_ACCEPTED);
+    awaitStatus(
+        () -> givenAuthenticatedJsonRequest(curatorAccessToken).get(publicationPath(identifier)),
+        PUBLISHED);
   }
 
-  public List<ContributorPayload> createContributors(List<Contributor> contributors) {
+  /** Unpublishes the publication as its owner and waits until the owner sees it unpublished. */
+  public void unpublish(User owner, String identifier) {
+    givenAuthenticatedJsonRequestAsUser(owner)
+        .body(unpublishRequest())
+        .put(publicationPath(identifier))
+        .then()
+        .statusCode(HTTP_ACCEPTED);
+    awaitStatus(owner, identifier, UNPUBLISHED);
+  }
+
+  public static Map<String, String> unpublishRequest() {
+    return Map.of(
+        TYPE, "UnpublishPublicationRequest", "comment", "Unpublished by an API integration test");
+  }
+
+  /**
+   * Polls until the reader sees the publication with the expected status. publication-api reads
+   * publications from an eventually consistent index, so a change is not necessarily visible right
+   * after the request that made it (NP-52125).
+   */
+  public void awaitStatus(User reader, String identifier, String expectedStatus) {
+    awaitStatus(
+        () -> givenAuthenticatedJsonRequestAsUser(reader).get(publicationPath(identifier)),
+        expectedStatus);
+  }
+
+  private static void awaitStatus(Callable<Response> fetchPublication, String expectedStatus) {
+    pollUntil(
+        fetchPublication, settledWhen(STATUS_FIELD, expectedStatus, PublicationFactory::statusOf));
+  }
+
+  private static String statusOf(Response response) {
+    return response.getStatusCode() == HTTP_OK
+        ? response.jsonPath().getString(STATUS_FIELD)
+        : "HTTP " + response.getStatusCode();
+  }
+
+  private List<ContributorPayload> createContributors(List<Contributor> contributors) {
     return IntStream.range(0, contributors.size())
         .mapToObj(index -> ContributorPayload.from(contributors.get(index), index + 1))
         .toList();
