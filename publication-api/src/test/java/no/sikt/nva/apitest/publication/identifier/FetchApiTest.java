@@ -2,32 +2,29 @@ package no.sikt.nva.apitest.publication.identifier;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.http.Method.GET;
-import static java.net.HttpURLConnection.HTTP_ACCEPTED;
 import static java.net.HttpURLConnection.HTTP_GONE;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
-import static no.sikt.Category.ACADEMIC_ARTICLE;
 import static no.sikt.nva.apitest.base.Affiliation.UIB;
+import static no.sikt.nva.apitest.base.Polling.pollUntil;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequest;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
 import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
+import static no.sikt.nva.apitest.base.SettledCondition.settledWhen;
 import static no.sikt.nva.apitest.base.UserFixtures.KRISTIANIA_CREATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CONTRIBUTOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
-import static no.sikt.nva.apitest.base.UserFixtures.UIB_PUBLISHING_CURATOR;
 import static no.sikt.nva.apitest.publication.PublicationFields.IDENTIFIER_FIELD;
 import static no.sikt.nva.apitest.publication.PublicationFields.RESOURCE_OWNER_FIELD;
-import static no.sikt.nva.apitest.publication.PublicationFields.TYPE;
 import static no.sikt.nva.apitest.publication.PublicationPaths.publicationPath;
 
 import io.qameta.allure.Description;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.path.json.JsonPath;
-import java.util.List;
-import java.util.Map;
+import io.restassured.response.Response;
 import java.util.UUID;
-import no.sikt.Contributor;
+import java.util.concurrent.Callable;
 import no.sikt.nva.apitest.base.CognitoLogin;
 import no.sikt.nva.apitest.publication.PublicationTestBase;
 import org.assertj.core.api.SoftAssertions;
@@ -130,13 +127,7 @@ class FetchApiTest extends PublicationTestBase {
     var identifier = setupUnpublishedPublication();
 
     var tombstone =
-        givenUnauthenticatedJsonRequest()
-            .when()
-            .get(publicationPath(identifier))
-            .then()
-            .statusCode(HTTP_GONE)
-            .extract()
-            .jsonPath();
+        awaitTombstone(() -> givenUnauthenticatedJsonRequest().get(publicationPath(identifier)));
 
     assertTombstoneFor(softly, tombstone, identifier);
   }
@@ -152,15 +143,21 @@ class FetchApiTest extends PublicationTestBase {
     var identifier = setupUnpublishedPublication();
 
     var tombstone =
-        givenAuthenticatedJsonRequestAsUser(KRISTIANIA_CREATOR)
-            .when()
-            .get(publicationPath(identifier))
-            .then()
-            .statusCode(HTTP_GONE)
-            .extract()
-            .jsonPath();
+        awaitTombstone(
+            () ->
+                givenAuthenticatedJsonRequestAsUser(KRISTIANIA_CREATOR)
+                    .get(publicationPath(identifier)));
 
     assertTombstoneFor(softly, tombstone, identifier);
+  }
+
+  /**
+   * Polls until the fetch returns the tombstone, since publication-api may still serve the
+   * published publication right after it was unpublished (NP-52125).
+   */
+  private static JsonPath awaitTombstone(Callable<Response> fetchRequest) {
+    return pollUntil(fetchRequest, settledWhen("status code", HTTP_GONE, Response::getStatusCode))
+        .jsonPath();
   }
 
   /**
@@ -181,29 +178,5 @@ class FetchApiTest extends PublicationTestBase {
         .assertThat(tombstone.getList(TOMBSTONE_RESOURCE_FIELD + ".associatedArtifacts"))
         .as("files are not part of the tombstone")
         .isEmpty();
-  }
-
-  private static String setupUnpublishedPublication() {
-    var identifier =
-        PUBLICATION_FACTORY.createPublishedPublication(
-            UIB_CREATOR,
-            randomTitle(),
-            ACADEMIC_ARTICLE,
-            List.of(Contributor.asCreator(UIB_CREATOR)),
-            UIB_PUBLISHING_CURATOR);
-
-    givenAuthenticatedJsonRequestAsUser(UIB_CREATOR)
-        .body(unpublishRequest())
-        .when()
-        .put(publicationPath(identifier))
-        .then()
-        .statusCode(HTTP_ACCEPTED);
-
-    return identifier;
-  }
-
-  private static Map<String, String> unpublishRequest() {
-    return Map.of(
-        TYPE, "UnpublishPublicationRequest", "comment", "Unpublished by the fetch API test");
   }
 }

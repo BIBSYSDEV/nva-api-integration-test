@@ -7,6 +7,7 @@ import static java.net.HttpURLConnection.HTTP_OK;
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.IntStream.range;
 import static no.sikt.Category.ACADEMIC_ARTICLE;
+import static no.sikt.nva.PublicationFactory.unpublishRequest;
 import static no.sikt.nva.apitest.base.Affiliation.KRISTIANIA;
 import static no.sikt.nva.apitest.base.Affiliation.UIB;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
@@ -120,20 +121,38 @@ class UpdateApiTest extends PublicationTestBase {
 
     /**
      * The owner of a published publication should be able to unpublish it. The owner may still read
-     * the unpublished publication, so the status is verified through a fetch rather than from the
-     * unpublish response, which may lag behind the write.
+     * the unpublished publication, so the test waits until a fetch shows it as unpublished.
      */
     @Test
     @DisplayName("Owner unpublishes their published publication")
     @Description
     void shouldUnpublishWhenOwnerUnpublishesPublishedPublication() {
-      var publicationIdentifier = setupPublishedPublication(List.of(UIB_CREATOR));
+      var publicationIdentifier = setupPublishedPublication();
 
       requestUpdate(UIB_CREATOR, publicationIdentifier, unpublishRequest())
           .then()
           .statusCode(HTTP_ACCEPTED);
 
-      assertThat(publicationStatus(publicationIdentifier)).isEqualTo(UNPUBLISHED);
+      PUBLICATION_FACTORY.awaitStatus(UIB_CREATOR, publicationIdentifier, UNPUBLISHED);
+    }
+
+    /** The response to a successful unpublish should show the publication as unpublished. */
+    @Test
+    @DisplayName("Unpublish response shows the publication as unpublished")
+    @Description
+    @Disabled("FIXME: Response may have stale data. See NP-52125.")
+    void shouldReturnUnpublishedStatusWhenOwnerUnpublishes() {
+      var publicationIdentifier = setupPublishedPublication();
+
+      var status =
+          requestUpdate(UIB_CREATOR, publicationIdentifier, unpublishRequest())
+              .then()
+              .statusCode(HTTP_ACCEPTED)
+              .extract()
+              .jsonPath()
+              .getString(STATUS_FIELD);
+
+      assertThat(status).isEqualTo(UNPUBLISHED);
     }
 
     /**
@@ -145,7 +164,7 @@ class UpdateApiTest extends PublicationTestBase {
     @Description
     @Disabled("FIXME: Unrelated user should get 403, but gets 401. See NP-51870.")
     void shouldReturnForbiddenWhenUnrelatedUserUnpublishes() {
-      var publicationIdentifier = setupPublishedPublication(List.of(UIB_CREATOR));
+      var publicationIdentifier = setupPublishedPublication();
 
       requestUpdate(KRISTIANIA_CREATOR, publicationIdentifier, unpublishRequest())
           .then()
@@ -180,11 +199,11 @@ class UpdateApiTest extends PublicationTestBase {
     @DisplayName("Editor republishes an unpublished publication")
     @Description
     void shouldPublishAgainWhenEditorRepublishesUnpublishedPublication() {
-      var publicationIdentifier = setupUnpublishedPublication(List.of(UIB_CREATOR));
+      var publicationIdentifier = setupUnpublishedPublication();
 
       republish(publicationIdentifier);
 
-      assertThat(publicationStatus(publicationIdentifier)).isEqualTo(PUBLISHED);
+      PUBLICATION_FACTORY.awaitStatus(UIB_CREATOR, publicationIdentifier, PUBLISHED);
     }
 
     /**
@@ -195,7 +214,7 @@ class UpdateApiTest extends PublicationTestBase {
     @DisplayName("Owner who is not an editor cannot republish")
     @Description
     void shouldReturnForbiddenWhenNonEditorRepublishes() {
-      var publicationIdentifier = setupUnpublishedPublication(List.of(UIB_CREATOR));
+      var publicationIdentifier = setupUnpublishedPublication();
 
       requestRepublish(UIB_CREATOR, publicationIdentifier).then().statusCode(HTTP_FORBIDDEN);
     }
@@ -209,7 +228,7 @@ class UpdateApiTest extends PublicationTestBase {
     @Description
     @Disabled("FIXME: Invalid request should get 400, but gets 403. See NP-51870.")
     void shouldReturnBadRequestWhenRepublishingPublishedPublication() {
-      var publicationIdentifier = setupPublishedPublication(List.of(UIB_CREATOR));
+      var publicationIdentifier = setupPublishedPublication();
 
       requestRepublish(UIB_EDITOR, publicationIdentifier).then().statusCode(HTTP_BAD_REQUEST);
     }
@@ -224,7 +243,7 @@ class UpdateApiTest extends PublicationTestBase {
     @DisplayName("Unpublished upload needs curator approval under RegistratorPublishesMetadataOnly")
     @Description
     void shouldCoverFileUploadedWhileUnpublishedByApprovalTicket(SoftAssertions softly) {
-      var publicationIdentifier = setupUnpublishedPublication(List.of(UIB_CREATOR));
+      var publicationIdentifier = setupUnpublishedPublication();
       var uibFiles = uploadFilesForApproval(publicationIdentifier, UIB_CREATOR, 1);
 
       republish(publicationIdentifier);
@@ -242,7 +261,7 @@ class UpdateApiTest extends PublicationTestBase {
     @DisplayName("Files from the same institution share a single approval ticket")
     @Description
     void shouldCoverFilesFromSameInstitutionByOneApprovalTicket(SoftAssertions softly) {
-      var publicationIdentifier = setupUnpublishedPublication(List.of(UIB_CREATOR));
+      var publicationIdentifier = setupUnpublishedPublication();
       var uibFiles = uploadFilesForApproval(publicationIdentifier, UIB_CREATOR, 2);
 
       republish(publicationIdentifier);
@@ -309,7 +328,7 @@ class UpdateApiTest extends PublicationTestBase {
     @DisplayName("Republishing without newly uploaded files creates no approval ticket")
     @Description
     void shouldNotCreateApprovalTicketWhenRepublishingWithoutNewFiles() {
-      var publicationIdentifier = setupUnpublishedPublication(List.of(UIB_CREATOR));
+      var publicationIdentifier = setupUnpublishedPublication();
 
       republish(publicationIdentifier);
 
@@ -412,7 +431,7 @@ class UpdateApiTest extends PublicationTestBase {
     @DisplayName("Editor deletes an unpublished publication")
     @Description
     void shouldAcceptWhenEditorDeletesUnpublishedPublication() {
-      var publicationIdentifier = setupUnpublishedPublication(List.of(UIB_CREATOR));
+      var publicationIdentifier = setupUnpublishedPublication();
 
       requestUpdate(UIB_EDITOR, publicationIdentifier, deleteRequest())
           .then()
@@ -428,7 +447,7 @@ class UpdateApiTest extends PublicationTestBase {
     @Description
     @Disabled("FIXME: Non-editor should get 403, but gets 401. See NP-51870.")
     void shouldReturnForbiddenWhenNonEditorDeletes() {
-      var publicationIdentifier = setupUnpublishedPublication(List.of(UIB_CREATOR));
+      var publicationIdentifier = setupUnpublishedPublication();
 
       requestUpdate(UIB_CREATOR, publicationIdentifier, deleteRequest())
           .then()
@@ -459,7 +478,7 @@ class UpdateApiTest extends PublicationTestBase {
   private String setupUnpublishedPublication(List<User> contributors) {
     var publicationIdentifier = setupPublishedPublication(contributors);
 
-    unpublish(publicationIdentifier);
+    PUBLICATION_FACTORY.unpublish(UIB_CREATOR, publicationIdentifier);
 
     return publicationIdentifier;
   }
@@ -473,20 +492,6 @@ class UpdateApiTest extends PublicationTestBase {
         UIB_PUBLISHING_CURATOR);
   }
 
-  private void unpublish(String publicationIdentifier) {
-    requestUpdate(UIB_CREATOR, publicationIdentifier, unpublishRequest())
-        .then()
-        .statusCode(HTTP_ACCEPTED);
-  }
-
-  private static Map<String, String> unpublishRequest() {
-    return Map.of(
-        TYPE,
-        "UnpublishPublicationRequest",
-        "comment",
-        "Unpublished by the file approval on republish API test");
-  }
-
   /** Only an editor may republish, so the republish request is sent by the editor at UiB. */
   private void republish(String publicationIdentifier) {
     requestRepublish(UIB_EDITOR, publicationIdentifier).then().statusCode(HTTP_OK);
@@ -498,17 +503,6 @@ class UpdateApiTest extends PublicationTestBase {
 
   private static Map<String, String> republishRequest() {
     return Map.of(TYPE, "RepublishPublicationRequest");
-  }
-
-  private String publicationStatus(String publicationIdentifier) {
-    return givenAuthenticatedJsonRequestAsUser(UIB_CREATOR)
-        .when()
-        .get(publicationPath(publicationIdentifier))
-        .then()
-        .statusCode(HTTP_OK)
-        .extract()
-        .jsonPath()
-        .getString(STATUS_FIELD);
   }
 
   /**
