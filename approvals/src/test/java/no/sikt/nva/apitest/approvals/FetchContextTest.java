@@ -3,23 +3,23 @@ package no.sikt.nva.apitest.approvals;
 import static io.restassured.RestAssured.given;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static no.sikt.nva.apitest.approvals.ApprovalPaths.CONTEXT_PATH;
+import static no.sikt.nva.apitest.approvals.ApprovalPaths.ONTOLOGY_PATH;
 import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
 
 import io.qameta.allure.Description;
+import io.restassured.RestAssured;
 import no.sikt.nva.apitest.base.IntegrationTestBase;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(SoftAssertionsExtension.class)
 @DisplayName("GET " + CONTEXT_PATH)
-@Disabled("FIXME: See NP-52122")
 class FetchContextTest extends IntegrationTestBase {
 
-  private static final String APPROVAL_VOCABULARY = "https://nva.unit.no/approval#";
+  private static final String VOCABULARY_FORMAT = "%s%s#";
   private static final String JSON_LD_MEDIA_TYPE = "application/ld+json";
   private static final String NODE_REFERENCE_TYPE = "@id";
   private static final String SET_CONTAINER = "@set";
@@ -27,7 +27,7 @@ class FetchContextTest extends IntegrationTestBase {
   /**
    * The context defines the terms an approval document is interpreted with, so a consumer that
    * resolves it expects the vocabulary, the identifier set and the two URI-valued terms to stay
-   * put.
+   * put. The vocabulary is the ontology served by the same environment, so it follows the host.
    */
   @Test
   @DisplayName("Get JSON-LD context")
@@ -41,7 +41,7 @@ class FetchContextTest extends IntegrationTestBase {
             .extract()
             .jsonPath();
 
-    softly.assertThat(context.getString("@context.@vocab")).isEqualTo(APPROVAL_VOCABULARY);
+    softly.assertThat(context.getString("@context.@vocab")).isEqualTo(approvalVocabulary());
     softly
         .assertThat(context.getString("@context.identifiers.@container"))
         .isEqualTo(SET_CONTAINER);
@@ -60,5 +60,9 @@ class FetchContextTest extends IntegrationTestBase {
         .then()
         .statusCode(HTTP_OK)
         .contentType(JSON_LD_MEDIA_TYPE);
+  }
+
+  private static String approvalVocabulary() {
+    return VOCABULARY_FORMAT.formatted(RestAssured.baseURI, ONTOLOGY_PATH);
   }
 }

@@ -13,6 +13,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import no.sikt.nva.apitest.base.Affiliation;
 
 /**
  * Payloads for the approval write endpoints. Identifier values are unique per call, because an
@@ -33,6 +34,7 @@ public final class Approvals {
   private static final String NAME_FIELD = "name";
   private static final String VALUE_FIELD = "value";
   private static final String IDENTIFIER_TYPE = "Identifier";
+  private static final String ORGANIZATION_SOURCE_FORMAT = "%s/cristin/organization/%s";
 
   private Approvals() {}
 
@@ -44,11 +46,11 @@ public final class Approvals {
     return Map.of(
         TYPE_FIELD, APPROVAL_TYPE,
         IDENTIFIERS_FIELD, List.of(identifier(identifierName, identifierValue)),
-        SOURCE_FIELD, uniqueSource());
+        SOURCE_FIELD, source());
   }
 
   public static Map<String, Object> updatePayload(String identifierName, String identifierValue) {
-    return updatePayload(identifierName, identifierValue, uniqueSource());
+    return updatePayload(identifierName, identifierValue, source());
   }
 
   /** An update replaces both the identifiers and the source of an existing approval. */
@@ -69,8 +71,18 @@ public final class Approvals {
     return UUID.randomUUID().toString();
   }
 
-  public static String uniqueSource() {
-    return "https://example.org/apitest/%s".formatted(UUID.randomUUID());
+  /**
+   * A source must resolve, since the approval API fetches it to snapshot it and to render the
+   * approval page, and it must match a source config in the customer's identifier policy. The
+   * seeded policies register the Cristin organization endpoint of this environment, so every source
+   * is one of the organizations the tests already know.
+   */
+  public static String source() {
+    return organizationSource(Affiliation.UIB);
+  }
+
+  public static String replacementSource() {
+    return organizationSource(Affiliation.UIS);
   }
 
   /**
@@ -111,5 +123,9 @@ public final class Approvals {
         .accept(mediaType)
         .pathParam(APPROVAL_ID_PARAMETER, approvalIdentifier)
         .get(APPROVAL_PATH);
+  }
+
+  private static String organizationSource(Affiliation affiliation) {
+    return ORGANIZATION_SOURCE_FORMAT.formatted(RestAssured.baseURI, affiliation.getCristinId());
   }
 }
