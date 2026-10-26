@@ -5,21 +5,20 @@ import static java.net.HttpURLConnection.HTTP_OK;
 import static no.sikt.nva.apitest.approvals.ApprovalPaths.ONTOLOGY_PATH;
 
 import io.qameta.allure.Description;
+import io.restassured.RestAssured;
 import no.sikt.nva.apitest.base.IntegrationTestBase;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(SoftAssertionsExtension.class)
 @DisplayName("GET " + ONTOLOGY_PATH)
-@Disabled("FIXME: See NP-52122")
 class FetchOntologyTest extends IntegrationTestBase {
 
   private static final String TURTLE_MEDIA_TYPE = "text/turtle";
-  private static final String VOCABULARY_PREFIX = "@prefix : <https://nva.unit.no/approval#> .";
+  private static final String VOCABULARY_PREFIX_FORMAT = "@prefix : <%s%s#> .";
   private static final String APPROVAL_CLASS = ":Approval a rdfs:Class";
   private static final String IDENTIFIER_CLASS = ":Identifier a rdfs:Class";
 
@@ -41,8 +40,12 @@ class FetchOntologyTest extends IntegrationTestBase {
             .extract()
             .asString();
 
-    softly.assertThat(ontology).contains(VOCABULARY_PREFIX);
+    softly.assertThat(ontology).contains(vocabularyPrefix());
     softly.assertThat(ontology).contains(APPROVAL_CLASS);
     softly.assertThat(ontology).contains(IDENTIFIER_CLASS);
+  }
+
+  private static String vocabularyPrefix() {
+    return VOCABULARY_PREFIX_FORMAT.formatted(RestAssured.baseURI, ONTOLOGY_PATH);
   }
 }

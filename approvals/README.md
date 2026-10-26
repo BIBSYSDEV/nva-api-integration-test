@@ -15,14 +15,15 @@ other is rejected when it tries to write a name belonging to the first.
 ## Where the clients come from
 
 External clients cannot be created from a test, since there is no way to delete one afterwards.
-They are seeded by `test_data/create_approval_clients.py` in
-[NVA-end-to-end-testing](https://github.com/BIBSYSDEV/NVA-end-to-end-testing), which runs as part
+They are seeded by `test_data/create_external_clients.py` and
+`test_data/create_approval_policies.py` in
+[NVA-end-to-end-testing](https://github.com/BIBSYSDEV/NVA-end-to-end-testing), which run as part
 of `create_test_data.py` whenever the e2e test data is regenerated.
 
-That script creates one external client per customer and stores it as a secret these tests read
-(`ApiTestApprovalClientUib` and `ApiTestApprovalClientUis`), writes the `IdentifierPolicy` item
-deciding which identifier names each customer may use, and points `/test/ApprovalsTable` at the
-approvals table.
+The first creates one external client per customer and stores it as a secret these tests read
+(`ApiTestApprovalClientUib` and `ApiTestApprovalClientUis`). The second writes the
+`IdentifierPolicy` item deciding which identifier names each customer may use, and points
+`/test/ApprovalsTable` at the approvals table.
 
 There is no API for writing an identifier policy, so it is written straight to DynamoDB.
 
@@ -30,6 +31,12 @@ Rerunning is safe: an existing client is left alone, while the policies and the 
 rewritten so drift is corrected.
 
 The customers are UiB and UiS, allowed to write `apitest-uib` and `apitest-uis` respectively.
+
+A policy also lists the sources its customer may point approvals at, and a write whose `source`
+matches none of them is forbidden. The source must also resolve, since the API fetches it to
+snapshot it and to render the approval page. Both policies therefore register the API root of the
+environment (`https://<api domain>/`) without authentication, and the tests use known Cristin
+organizations such as UiB and UiS as sources.
 
 ## Running
 

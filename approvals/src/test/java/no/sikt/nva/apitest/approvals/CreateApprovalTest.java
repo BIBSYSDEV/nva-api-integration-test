@@ -14,7 +14,7 @@ import static no.sikt.nva.apitest.approvals.Approvals.SOURCE_FIELD;
 import static no.sikt.nva.apitest.approvals.Approvals.TYPE_FIELD;
 import static no.sikt.nva.apitest.approvals.Approvals.approvalPayload;
 import static no.sikt.nva.apitest.approvals.Approvals.identifier;
-import static no.sikt.nva.apitest.approvals.Approvals.uniqueSource;
+import static no.sikt.nva.apitest.approvals.Approvals.source;
 import static no.sikt.nva.apitest.approvals.Approvals.uniqueValue;
 import static no.sikt.nva.apitest.base.Polling.pollUntil;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsClient;
@@ -31,7 +31,6 @@ import java.util.stream.Stream;
 import no.sikt.nva.apitest.base.IntegrationTestBase;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -58,7 +57,6 @@ class CreateApprovalTest extends IntegrationTestBase {
   @Test
   @DisplayName("Create approval")
   @Description
-  @Disabled("FIXME: See NP-52122")
   void shouldAcceptApprovalAndExposeItAtLocation(SoftAssertions softly) {
     var identifierValue = uniqueValue();
     var payload = approvalPayload(UIB_IDENTIFIER_NAME, identifierValue);
@@ -94,16 +92,11 @@ class CreateApprovalTest extends IntegrationTestBase {
   private static Stream<Arguments> incompletePayloads() {
     return Stream.of(
         argumentSet(
-            "Missing identifiers", Map.of(TYPE_FIELD, APPROVAL_TYPE, SOURCE_FIELD, uniqueSource())),
+            "Missing identifiers", Map.of(TYPE_FIELD, APPROVAL_TYPE, SOURCE_FIELD, source())),
         argumentSet(
             "Empty identifiers",
             Map.of(
-                TYPE_FIELD,
-                APPROVAL_TYPE,
-                IDENTIFIERS_FIELD,
-                List.of(),
-                SOURCE_FIELD,
-                uniqueSource())),
+                TYPE_FIELD, APPROVAL_TYPE, IDENTIFIERS_FIELD, List.of(), SOURCE_FIELD, source())),
         argumentSet(
             "Missing source",
             Map.of(

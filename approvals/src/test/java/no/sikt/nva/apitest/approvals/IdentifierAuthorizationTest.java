@@ -18,12 +18,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import io.qameta.allure.Description;
 import java.util.UUID;
 import no.sikt.nva.apitest.base.IntegrationTestBase;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 @DisplayName("Identifier authorization")
-@Disabled("FIXME: See NP-52122")
 class IdentifierAuthorizationTest extends IntegrationTestBase {
 
   private static final String DETAIL_FIELD = "detail";

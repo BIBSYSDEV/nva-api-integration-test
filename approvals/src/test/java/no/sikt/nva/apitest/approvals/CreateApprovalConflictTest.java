@@ -12,7 +12,7 @@ import static no.sikt.nva.apitest.approvals.Approvals.TYPE_FIELD;
 import static no.sikt.nva.apitest.approvals.Approvals.approvalPayload;
 import static no.sikt.nva.apitest.approvals.Approvals.createApproval;
 import static no.sikt.nva.apitest.approvals.Approvals.identifier;
-import static no.sikt.nva.apitest.approvals.Approvals.uniqueSource;
+import static no.sikt.nva.apitest.approvals.Approvals.source;
 import static no.sikt.nva.apitest.approvals.Approvals.uniqueValue;
 import static no.sikt.nva.apitest.base.Polling.pollUntil;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsClient;
@@ -28,7 +28,6 @@ import java.util.Map;
 import no.sikt.nva.apitest.base.IntegrationTestBase;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -50,7 +49,6 @@ class CreateApprovalConflictTest extends IntegrationTestBase {
   @Test
   @DisplayName("Create approval reusing an identifier")
   @Description
-  @Disabled("FIXME: See NP-52122")
   void shouldReturnConflictWhenIdentifierIsAlreadyTaken(SoftAssertions softly) {
     var takenValue = uniqueValue();
     createApproval(UIB_CLIENT_SECRET, approvalPayload(UIB_IDENTIFIER_NAME, takenValue));
@@ -71,7 +69,6 @@ class CreateApprovalConflictTest extends IntegrationTestBase {
   @Test
   @DisplayName("Create approval where one of several identifiers is taken")
   @Description
-  @Disabled("FIXME: See NP-52122")
   void shouldReportOnlyTheIdentifierThatWasTaken(SoftAssertions softly) {
     var takenValue = uniqueValue();
     var freeValue = uniqueValue();
@@ -87,7 +84,7 @@ class CreateApprovalConflictTest extends IntegrationTestBase {
                 identifier(UIB_IDENTIFIER_NAME, takenValue),
                 identifier(UIB_IDENTIFIER_NAME, freeValue)),
             SOURCE_FIELD,
-            uniqueSource());
+            source());
 
     var problem = postExpectingConflict(payload);
 

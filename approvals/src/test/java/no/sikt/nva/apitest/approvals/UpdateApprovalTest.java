@@ -20,7 +20,8 @@ import static no.sikt.nva.apitest.approvals.Approvals.approvalPayload;
 import static no.sikt.nva.apitest.approvals.Approvals.createApproval;
 import static no.sikt.nva.apitest.approvals.Approvals.fetchApproval;
 import static no.sikt.nva.apitest.approvals.Approvals.identifier;
-import static no.sikt.nva.apitest.approvals.Approvals.uniqueSource;
+import static no.sikt.nva.apitest.approvals.Approvals.replacementSource;
+import static no.sikt.nva.apitest.approvals.Approvals.source;
 import static no.sikt.nva.apitest.approvals.Approvals.uniqueValue;
 import static no.sikt.nva.apitest.approvals.Approvals.updatePayload;
 import static no.sikt.nva.apitest.base.Polling.pollUntil;
@@ -39,21 +40,19 @@ import java.util.UUID;
 import no.sikt.nva.apitest.base.IntegrationTestBase;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(SoftAssertionsExtension.class)
 @DisplayName("PUT " + APPROVAL_PATH)
-@Disabled("FIXME: See NP-52122")
 class UpdateApprovalTest extends IntegrationTestBase {
 
   private static final String JSON_MEDIA_TYPE = "application/json";
   private static final String CONFLICTING_KEYS_FIELD = "conflictingKeys";
   private static final String HANDLE_FIELD = "handle";
   private static final String DETAIL_FIELD = "detail";
-  private static final String SOURCE_MANDATORY_MESSAGE = "Source is mandatory for approval update";
+  private static final String SOURCE_MANDATORY_MESSAGE = "/source: Is mandatory";
   private static final String CUSTOMER_MISMATCH_MESSAGE =
       "Customer id does not match requested approval customer id";
   private static final String NAME_PARAMETER = "name";
@@ -75,7 +74,7 @@ class UpdateApprovalTest extends IntegrationTestBase {
     var beforeUpdate = fetchJson(approvalIdentifier);
 
     var replacementValue = uniqueValue();
-    var replacementSource = uniqueSource();
+    var replacementSource = replacementSource();
     var location =
         givenAuthenticatedJsonRequestAsClient(UIB_CLIENT_SECRET)
             .body(updatePayload(UIB_IDENTIFIER_NAME, replacementValue, replacementSource))
@@ -163,7 +162,7 @@ class UpdateApprovalTest extends IntegrationTestBase {
     var approvalIdentifier = createApprovalWith(uniqueValue());
 
     givenAuthenticatedJsonRequestAsClient(UIB_CLIENT_SECRET)
-        .body(Map.of(IDENTIFIERS_FIELD, List.of(), SOURCE_FIELD, uniqueSource()))
+        .body(Map.of(IDENTIFIERS_FIELD, List.of(), SOURCE_FIELD, source()))
         .when()
         .put(APPROVAL_PATH, approvalIdentifier)
         .then()
