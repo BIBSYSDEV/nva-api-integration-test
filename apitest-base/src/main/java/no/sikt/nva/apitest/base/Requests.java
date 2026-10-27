@@ -14,6 +14,12 @@ public final class Requests {
 
   private Requests() {}
 
+  public static RequestSpecification givenCristinAuthenticatedRequest() {
+    var userName = CognitoLogin.getValueFromSecretsManager("");
+    var password = CognitoLogin.getValueFromSecretsManager("");
+    return given().auth().basic(userName, password);
+  }
+
   public static RequestSpecification givenAuthenticatedRequest(String accessToken) {
     return given().header(AUTHORIZATION, BEARER_PREFIX + accessToken);
   }
