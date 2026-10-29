@@ -1,6 +1,10 @@
 package no.sikt.nva.apitest.approvals;
 
+import io.restassured.RestAssured;
+
 public final class ApprovalPaths {
+
+  private static final String ABSOLUTE_PATH_FORMAT = "%s%s";
 
   public static final String BASE_PATH = "/approval";
 
@@ -11,4 +15,8 @@ public final class ApprovalPaths {
   public static final String APPROVAL_PATH = BASE_PATH + "/{approvalId}";
 
   private ApprovalPaths() {}
+
+  public static String absolute(String path) {
+    return ABSOLUTE_PATH_FORMAT.formatted(RestAssured.baseURI, path);
+  }
 }

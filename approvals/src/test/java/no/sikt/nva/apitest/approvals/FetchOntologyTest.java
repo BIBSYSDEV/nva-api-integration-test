@@ -5,6 +5,9 @@ import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static no.sikt.nva.apitest.approvals.ApprovalPaths.CURRENT_ONTOLOGY_PATH;
 import static no.sikt.nva.apitest.approvals.ApprovalPaths.ONTOLOGY_PATH;
+import static no.sikt.nva.apitest.approvals.ApprovalPaths.absolute;
+import static no.sikt.nva.apitest.approvals.Approvals.CONTENT_LOCATION_HEADER;
+import static no.sikt.nva.apitest.approvals.Approvals.DETAIL_FIELD;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import io.qameta.allure.Description;
@@ -25,9 +28,8 @@ class FetchOntologyTest extends IntegrationTestBase {
   private static final String APPROVAL_CLASS = ":Approval a rdfs:Class";
   private static final String IDENTIFIER_CLASS = ":Identifier a rdfs:Class";
   private static final String VERSION_IRI_FORMAT = "owl:versionIRI <%s%s>";
-  private static final String CONTENT_LOCATION_HEADER = "Content-Location";
-  private static final String CONTENT_LOCATION_FORMAT = "%s%s";
   private static final String UNKNOWN_VERSION = "/0.0.0";
+  private static final String VERSION_NOT_FOUND_MESSAGE = "Version not found";
 
   /**
    * The ontology describes the two classes an approval document is built from, and is served as
@@ -62,9 +64,7 @@ class FetchOntologyTest extends IntegrationTestBase {
         .get(ONTOLOGY_PATH)
         .then()
         .statusCode(HTTP_OK)
-        .header(
-            CONTENT_LOCATION_HEADER,
-            CONTENT_LOCATION_FORMAT.formatted(RestAssured.baseURI, CURRENT_ONTOLOGY_PATH));
+        .header(CONTENT_LOCATION_HEADER, absolute(CURRENT_ONTOLOGY_PATH));
   }
 
   /**
@@ -88,16 +88,24 @@ class FetchOntologyTest extends IntegrationTestBase {
     assertThat(ontology).contains(versionIri());
   }
 
-  /** A version that was never published is not found rather than silently the latest one. */
+  /**
+   * A version that was never published is not found rather than silently the latest one, and it is
+   * the ontology endpoint that says so rather than a missing route.
+   */
   @Test
   @DisplayName("Get RDF ontology of unknown version")
   @Description
   void shouldReturnNotFoundForUnknownOntologyVersion() {
-    given()
-        .accept(TURTLE_MEDIA_TYPE)
-        .get(ONTOLOGY_PATH + UNKNOWN_VERSION)
-        .then()
-        .statusCode(HTTP_NOT_FOUND);
+    var problem =
+        given()
+            .accept(TURTLE_MEDIA_TYPE)
+            .get(ONTOLOGY_PATH + UNKNOWN_VERSION)
+            .then()
+            .statusCode(HTTP_NOT_FOUND)
+            .extract()
+            .jsonPath();
+
+    assertThat(problem.getString(DETAIL_FIELD)).contains(VERSION_NOT_FOUND_MESSAGE);
   }
 
   private static String vocabularyPrefix() {

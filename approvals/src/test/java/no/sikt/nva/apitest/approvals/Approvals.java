@@ -27,6 +27,8 @@ public final class Approvals {
   public static final String SOURCE_FIELD = "source";
   public static final String APPROVAL_TYPE = "Approval";
   public static final String LOCATION_HEADER = "Location";
+  public static final String CONTENT_LOCATION_HEADER = "Content-Location";
+  public static final String DETAIL_FIELD = "detail";
 
   private static final String APPROVAL_ID_PARAMETER = "approvalId";
   private static final Duration READABLE_TIMEOUT = Duration.ofSeconds(30);
