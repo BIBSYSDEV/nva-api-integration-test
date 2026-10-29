@@ -5,6 +5,7 @@ import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.net.HttpURLConnection.HTTP_UNSUPPORTED_TYPE;
+import static java.util.Objects.nonNull;
 import static no.sikt.nva.apitest.approvals.ApprovalClients.UIB_CLIENT_SECRET;
 import static no.sikt.nva.apitest.approvals.ApprovalClients.UIB_IDENTIFIER_NAME;
 import static no.sikt.nva.apitest.approvals.ApprovalClients.UIS_CLIENT_SECRET;
@@ -14,6 +15,7 @@ import static no.sikt.nva.apitest.approvals.Approvals.approvalPayload;
 import static no.sikt.nva.apitest.approvals.Approvals.createApproval;
 import static no.sikt.nva.apitest.approvals.Approvals.fetchApproval;
 import static no.sikt.nva.apitest.approvals.Approvals.fetchChanges;
+import static no.sikt.nva.apitest.approvals.Approvals.identifierOf;
 import static no.sikt.nva.apitest.approvals.Approvals.replacementSource;
 import static no.sikt.nva.apitest.approvals.Approvals.source;
 import static no.sikt.nva.apitest.approvals.Approvals.uniqueValue;
@@ -164,7 +166,7 @@ class ReceiveEventTest extends IntegrationTestBase {
 
   private static CreatedApproval createApprovalWithHandle() {
     var location = createApproval(UIB_CLIENT_SECRET, approvalPayload(UIB_IDENTIFIER_NAME));
-    var identifier = location.substring(location.lastIndexOf('/') + 1);
+    var identifier = identifierOf(location);
     var handle = fetchApproval(identifier, JSON_MEDIA_TYPE).jsonPath().getString(HANDLE_FIELD);
     return new CreatedApproval(identifier, handle);
   }
@@ -176,7 +178,7 @@ class ReceiveEventTest extends IntegrationTestBase {
             () -> fetchChanges(approvalIdentifier),
             response ->
                 response.statusCode() == HTTP_OK
-                    && response.jsonPath().getMap(SNAPSHOT_PATH) != null)
+                    && nonNull(response.jsonPath().getMap(SNAPSHOT_PATH)))
         .jsonPath()
         .getMap(SNAPSHOT_PATH);
   }

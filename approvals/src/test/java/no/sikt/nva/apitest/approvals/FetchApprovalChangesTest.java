@@ -13,6 +13,7 @@ import static no.sikt.nva.apitest.approvals.ApprovalPaths.absolute;
 import static no.sikt.nva.apitest.approvals.Approvals.approvalPayload;
 import static no.sikt.nva.apitest.approvals.Approvals.createApproval;
 import static no.sikt.nva.apitest.approvals.Approvals.fetchChanges;
+import static no.sikt.nva.apitest.approvals.Approvals.identifierOf;
 import static no.sikt.nva.apitest.approvals.Approvals.uniqueValue;
 import static no.sikt.nva.apitest.approvals.Approvals.updatePayload;
 import static no.sikt.nva.apitest.base.Polling.pollUntil;
@@ -128,10 +129,6 @@ class FetchApprovalChangesTest extends IntegrationTestBase {
 
   private static String createApprovalLocation() {
     return createApproval(UIB_CLIENT_SECRET, approvalPayload(UIB_IDENTIFIER_NAME));
-  }
-
-  private static String identifierOf(String location) {
-    return location.substring(location.lastIndexOf('/') + 1);
   }
 
   /** Changes are read through an eventually consistent lookup, like the approval itself. */

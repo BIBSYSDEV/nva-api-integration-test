@@ -115,7 +115,7 @@ public final class Approvals {
             .extract()
             .header(LOCATION_HEADER);
 
-    var approvalIdentifier = location.substring(location.lastIndexOf('/') + 1);
+    var approvalIdentifier = identifierOf(location);
     pollUntil(
         READABLE_TIMEOUT,
         () -> fetchApproval(approvalIdentifier, JSON_MEDIA_TYPE),
@@ -142,6 +142,10 @@ public final class Approvals {
     return givenAuthenticatedJsonRequestAsClient(UIB_CLIENT_SECRET)
         .pathParam(APPROVAL_ID_PARAMETER, approvalIdentifier)
         .get(CHANGES_PATH);
+  }
+
+  public static String identifierOf(String approvalLocation) {
+    return approvalLocation.substring(approvalLocation.lastIndexOf('/') + 1);
   }
 
   private static String organizationSource(Affiliation affiliation) {
