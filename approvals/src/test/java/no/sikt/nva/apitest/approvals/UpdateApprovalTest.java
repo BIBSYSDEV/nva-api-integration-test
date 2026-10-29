@@ -13,6 +13,7 @@ import static no.sikt.nva.apitest.approvals.ApprovalClients.UIS_CLIENT_SECRET;
 import static no.sikt.nva.apitest.approvals.ApprovalClients.UIS_IDENTIFIER_NAME;
 import static no.sikt.nva.apitest.approvals.ApprovalPaths.APPROVAL_PATH;
 import static no.sikt.nva.apitest.approvals.ApprovalPaths.BASE_PATH;
+import static no.sikt.nva.apitest.approvals.ApprovalPaths.absolute;
 import static no.sikt.nva.apitest.approvals.Approvals.IDENTIFIERS_FIELD;
 import static no.sikt.nva.apitest.approvals.Approvals.LOCATION_HEADER;
 import static no.sikt.nva.apitest.approvals.Approvals.SOURCE_FIELD;
@@ -34,6 +35,7 @@ import io.qameta.allure.Description;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import java.time.Duration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -58,6 +60,11 @@ class UpdateApprovalTest extends IntegrationTestBase {
   private static final String NAME_PARAMETER = "name";
   private static final String VALUE_PARAMETER = "value";
   private static final String INVALID_IDENTIFIER = "not-a-uuid";
+  private static final String ID_FIELD = "id";
+  private static final String APPROVAL_ID_FORMAT = "%s/%s";
+  private static final String IDENTIFIER_FIELD = "identifier";
+  private static final String ID_MISMATCH_MESSAGE = "does not address approval";
+  private static final String IDENTIFIER_MISMATCH_MESSAGE = "does not match approval";
   private static final Duration VISIBLE_TIMEOUT = Duration.ofSeconds(30);
 
   /**
@@ -203,6 +210,68 @@ class UpdateApprovalTest extends IntegrationTestBase {
         .statusCode(HTTP_BAD_REQUEST);
   }
 
+  /**
+   * A body may carry the identifier of the approval it describes, and it must then be the approval
+   * in the request URI, so a document cannot be written onto another approval by mistake.
+   */
+  @Test
+  @DisplayName("Update approval with identifier addressing another approval")
+  @Description
+  void shouldReturnBadRequestWhenBodyIdentifierAddressesAnotherApproval() {
+    var problem =
+        givenAuthenticatedJsonRequestAsClient(UIB_CLIENT_SECRET)
+            .body(addressedPayload(IDENTIFIER_FIELD, UUID.randomUUID().toString()))
+            .when()
+            .put(APPROVAL_PATH, UUID.randomUUID())
+            .then()
+            .statusCode(HTTP_BAD_REQUEST)
+            .extract()
+            .jsonPath();
+
+    assertThat(problem.getString(DETAIL_FIELD)).contains(IDENTIFIER_MISMATCH_MESSAGE);
+  }
+
+  /** The same holds for the id, which addresses the approval by its full URI. */
+  @Test
+  @DisplayName("Update approval with id addressing another approval")
+  @Description
+  void shouldReturnBadRequestWhenBodyIdAddressesAnotherApproval() {
+    var otherApprovalId = absolute(APPROVAL_ID_FORMAT.formatted(BASE_PATH, UUID.randomUUID()));
+    var problem =
+        givenAuthenticatedJsonRequestAsClient(UIB_CLIENT_SECRET)
+            .body(addressedPayload(ID_FIELD, otherApprovalId))
+            .when()
+            .put(APPROVAL_PATH, UUID.randomUUID())
+            .then()
+            .statusCode(HTTP_BAD_REQUEST)
+            .extract()
+            .jsonPath();
+
+    assertThat(problem.getString(DETAIL_FIELD)).contains(ID_MISMATCH_MESSAGE);
+  }
+
+  /**
+   * The mirror of the rejections above, and the reason they mean anything: a body addressing the
+   * approval in the request URI by both id and identifier is accepted.
+   */
+  @Test
+  @DisplayName("Update approval with id and identifier addressing the same approval")
+  @Description
+  void shouldAcceptBodyAddressingTheSameApproval() {
+    var location =
+        createApproval(UIB_CLIENT_SECRET, approvalPayload(UIB_IDENTIFIER_NAME, uniqueValue()));
+    var approvalIdentifier = location.substring(location.lastIndexOf('/') + 1);
+    var payload = addressedPayload(IDENTIFIER_FIELD, approvalIdentifier);
+    payload.put(ID_FIELD, location);
+
+    givenAuthenticatedJsonRequestAsClient(UIB_CLIENT_SECRET)
+        .body(payload)
+        .when()
+        .put(APPROVAL_PATH, approvalIdentifier)
+        .then()
+        .statusCode(HTTP_ACCEPTED);
+  }
+
   /** Updating an approval that does not exist is a not found rather than a server error. */
   @Test
   @DisplayName("Update approval that does not exist")
@@ -233,6 +302,12 @@ class UpdateApprovalTest extends IntegrationTestBase {
     var location =
         createApproval(UIB_CLIENT_SECRET, approvalPayload(UIB_IDENTIFIER_NAME, identifierValue));
     return location.substring(location.lastIndexOf('/') + 1);
+  }
+
+  private static Map<String, Object> addressedPayload(String addressField, String address) {
+    var payload = new HashMap<>(updatePayload(UIB_IDENTIFIER_NAME, uniqueValue()));
+    payload.put(addressField, address);
+    return payload;
   }
 
   private static Response updateApproval(String approvalIdentifier, String identifierValue) {
