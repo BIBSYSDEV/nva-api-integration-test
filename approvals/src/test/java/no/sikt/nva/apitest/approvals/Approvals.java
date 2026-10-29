@@ -2,8 +2,10 @@ package no.sikt.nva.apitest.approvals;
 
 import static java.net.HttpURLConnection.HTTP_ACCEPTED;
 import static java.net.HttpURLConnection.HTTP_OK;
+import static no.sikt.nva.apitest.approvals.ApprovalClients.UIB_CLIENT_SECRET;
 import static no.sikt.nva.apitest.approvals.ApprovalPaths.APPROVAL_PATH;
 import static no.sikt.nva.apitest.approvals.ApprovalPaths.BASE_PATH;
+import static no.sikt.nva.apitest.approvals.ApprovalPaths.CHANGES_PATH;
 import static no.sikt.nva.apitest.base.Polling.pollUntil;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsClient;
 
@@ -113,7 +115,7 @@ public final class Approvals {
             .extract()
             .header(LOCATION_HEADER);
 
-    var approvalIdentifier = location.substring(location.lastIndexOf('/') + 1);
+    var approvalIdentifier = identifierOf(location);
     pollUntil(
         READABLE_TIMEOUT,
         () -> fetchApproval(approvalIdentifier, JSON_MEDIA_TYPE),
@@ -130,6 +132,20 @@ public final class Approvals {
         .accept(mediaType)
         .pathParam(APPROVAL_ID_PARAMETER, approvalIdentifier)
         .get(APPROVAL_PATH);
+  }
+
+  /**
+   * Lists the recorded changes to an approval. The change history is only open to clients holding
+   * the approval-upsert scope, so it is read as the UiB client.
+   */
+  public static Response fetchChanges(String approvalIdentifier) {
+    return givenAuthenticatedJsonRequestAsClient(UIB_CLIENT_SECRET)
+        .pathParam(APPROVAL_ID_PARAMETER, approvalIdentifier)
+        .get(CHANGES_PATH);
+  }
+
+  public static String identifierOf(String approvalLocation) {
+    return approvalLocation.substring(approvalLocation.lastIndexOf('/') + 1);
   }
 
   private static String organizationSource(Affiliation affiliation) {
