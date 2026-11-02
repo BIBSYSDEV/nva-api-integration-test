@@ -27,6 +27,8 @@ public final class Approvals {
   public static final String SOURCE_FIELD = "source";
   public static final String APPROVAL_TYPE = "Approval";
   public static final String LOCATION_HEADER = "Location";
+  public static final String CONTENT_LOCATION_HEADER = "Content-Location";
+  public static final String DETAIL_FIELD = "detail";
 
   private static final String APPROVAL_ID_PARAMETER = "approvalId";
   private static final Duration READABLE_TIMEOUT = Duration.ofSeconds(30);
@@ -43,10 +45,15 @@ public final class Approvals {
   }
 
   public static Map<String, Object> approvalPayload(String identifierName, String identifierValue) {
+    return approvalPayload(identifierName, identifierValue, source());
+  }
+
+  public static Map<String, Object> approvalPayload(
+      String identifierName, String identifierValue, String source) {
     return Map.of(
         TYPE_FIELD, APPROVAL_TYPE,
         IDENTIFIERS_FIELD, List.of(identifier(identifierName, identifierValue)),
-        SOURCE_FIELD, source());
+        SOURCE_FIELD, source);
   }
 
   public static Map<String, Object> updatePayload(String identifierName, String identifierValue) {
