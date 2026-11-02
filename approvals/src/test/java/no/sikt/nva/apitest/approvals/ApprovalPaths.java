@@ -13,6 +13,8 @@ public final class ApprovalPaths {
   public static final String ONTOLOGY_PATH = BASE_PATH + "/ontology";
   public static final String CURRENT_ONTOLOGY_PATH = ONTOLOGY_PATH + "/1.0.0";
   public static final String APPROVAL_PATH = BASE_PATH + "/{approvalId}";
+  public static final String CHANGES_PATH = APPROVAL_PATH + "/change";
+  public static final String EVENTS_PATH = BASE_PATH + "/events";
 
   private ApprovalPaths() {}
 

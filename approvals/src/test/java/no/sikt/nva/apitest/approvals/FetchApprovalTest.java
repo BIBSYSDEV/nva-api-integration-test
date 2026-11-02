@@ -11,6 +11,7 @@ import static no.sikt.nva.apitest.approvals.Approvals.SOURCE_FIELD;
 import static no.sikt.nva.apitest.approvals.Approvals.approvalPayload;
 import static no.sikt.nva.apitest.approvals.Approvals.createApproval;
 import static no.sikt.nva.apitest.approvals.Approvals.identifier;
+import static no.sikt.nva.apitest.approvals.Approvals.identifierOf;
 import static no.sikt.nva.apitest.base.Polling.pollUntil;
 import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
 
@@ -59,7 +60,7 @@ class FetchApprovalTest extends IntegrationTestBase {
     source = (String) payload.get(SOURCE_FIELD);
 
     approvalLocation = createApproval(UIB_CLIENT_SECRET, payload);
-    approvalIdentifier = approvalLocation.substring(approvalLocation.lastIndexOf('/') + 1);
+    approvalIdentifier = identifierOf(approvalLocation);
 
     pollUntil(
         APPROVAL_AVAILABLE_TIMEOUT,

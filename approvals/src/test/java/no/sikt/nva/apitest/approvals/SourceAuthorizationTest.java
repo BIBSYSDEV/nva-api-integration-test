@@ -5,6 +5,7 @@ import static no.sikt.nva.apitest.approvals.ApprovalClients.UIB_CLIENT_SECRET;
 import static no.sikt.nva.apitest.approvals.ApprovalClients.UIB_IDENTIFIER_NAME;
 import static no.sikt.nva.apitest.approvals.ApprovalPaths.APPROVAL_PATH;
 import static no.sikt.nva.apitest.approvals.ApprovalPaths.BASE_PATH;
+import static no.sikt.nva.apitest.approvals.Approvals.DETAIL_FIELD;
 import static no.sikt.nva.apitest.approvals.Approvals.approvalPayload;
 import static no.sikt.nva.apitest.approvals.Approvals.uniqueValue;
 import static no.sikt.nva.apitest.approvals.Approvals.updatePayload;
@@ -20,7 +21,6 @@ import org.junit.jupiter.api.Test;
 @DisplayName("Source authorization")
 class SourceAuthorizationTest extends IntegrationTestBase {
 
-  private static final String DETAIL_FIELD = "detail";
   private static final String FOREIGN_SOURCE_FORMAT = "https://example.org/%s";
   private static final String SOURCE_MISMATCH_MESSAGE = "matches no source config";
 

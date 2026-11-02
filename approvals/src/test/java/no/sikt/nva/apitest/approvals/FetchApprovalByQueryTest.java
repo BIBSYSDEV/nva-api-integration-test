@@ -10,6 +10,7 @@ import static no.sikt.nva.apitest.approvals.ApprovalPaths.BASE_PATH;
 import static no.sikt.nva.apitest.approvals.Approvals.approvalPayload;
 import static no.sikt.nva.apitest.approvals.Approvals.createApproval;
 import static no.sikt.nva.apitest.approvals.Approvals.fetchApproval;
+import static no.sikt.nva.apitest.approvals.Approvals.identifierOf;
 import static no.sikt.nva.apitest.approvals.Approvals.uniqueValue;
 import static no.sikt.nva.apitest.base.Polling.pollUntil;
 import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
@@ -54,7 +55,7 @@ class FetchApprovalByQueryTest extends IntegrationTestBase {
     identifierValue = uniqueValue();
     approvalLocation =
         createApproval(UIB_CLIENT_SECRET, approvalPayload(UIB_IDENTIFIER_NAME, identifierValue));
-    var approvalIdentifier = approvalLocation.substring(approvalLocation.lastIndexOf('/') + 1);
+    var approvalIdentifier = identifierOf(approvalLocation);
 
     var approval =
         pollUntil(

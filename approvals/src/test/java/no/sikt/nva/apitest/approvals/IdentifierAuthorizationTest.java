@@ -10,6 +10,7 @@ import static no.sikt.nva.apitest.approvals.ApprovalPaths.APPROVAL_PATH;
 import static no.sikt.nva.apitest.approvals.ApprovalPaths.BASE_PATH;
 import static no.sikt.nva.apitest.approvals.Approvals.approvalPayload;
 import static no.sikt.nva.apitest.approvals.Approvals.createApproval;
+import static no.sikt.nva.apitest.approvals.Approvals.identifierOf;
 import static no.sikt.nva.apitest.approvals.Approvals.uniqueValue;
 import static no.sikt.nva.apitest.approvals.Approvals.updatePayload;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsClient;
@@ -126,7 +127,7 @@ class IdentifierAuthorizationTest extends IntegrationTestBase {
   void shouldAllowUpdatingWithOwnIdentifierName() {
     var location =
         createApproval(UIS_CLIENT_SECRET, approvalPayload(UIS_IDENTIFIER_NAME, uniqueValue()));
-    var approvalIdentifier = location.substring(location.lastIndexOf('/') + 1);
+    var approvalIdentifier = identifierOf(location);
 
     givenAuthenticatedJsonRequestAsClient(UIS_CLIENT_SECRET)
         .body(updatePayload(UIS_IDENTIFIER_NAME, uniqueValue()))

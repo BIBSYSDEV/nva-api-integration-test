@@ -21,6 +21,7 @@ import static no.sikt.nva.apitest.approvals.Approvals.approvalPayload;
 import static no.sikt.nva.apitest.approvals.Approvals.createApproval;
 import static no.sikt.nva.apitest.approvals.Approvals.fetchApproval;
 import static no.sikt.nva.apitest.approvals.Approvals.identifier;
+import static no.sikt.nva.apitest.approvals.Approvals.identifierOf;
 import static no.sikt.nva.apitest.approvals.Approvals.replacementSource;
 import static no.sikt.nva.apitest.approvals.Approvals.source;
 import static no.sikt.nva.apitest.approvals.Approvals.uniqueValue;
@@ -258,9 +259,8 @@ class UpdateApprovalTest extends IntegrationTestBase {
   @DisplayName("Update approval with id and identifier addressing the same approval")
   @Description
   void shouldAcceptBodyAddressingTheSameApproval() {
-    var location =
-        createApproval(UIB_CLIENT_SECRET, approvalPayload(UIB_IDENTIFIER_NAME, uniqueValue()));
-    var approvalIdentifier = location.substring(location.lastIndexOf('/') + 1);
+    var location = createApproval(UIB_CLIENT_SECRET, approvalPayload(UIB_IDENTIFIER_NAME));
+    var approvalIdentifier = identifierOf(location);
     var payload = addressedPayload(IDENTIFIER_FIELD, approvalIdentifier);
     payload.put(ID_FIELD, location);
 
@@ -301,7 +301,7 @@ class UpdateApprovalTest extends IntegrationTestBase {
   private static String createApprovalWith(String identifierValue) {
     var location =
         createApproval(UIB_CLIENT_SECRET, approvalPayload(UIB_IDENTIFIER_NAME, identifierValue));
-    return location.substring(location.lastIndexOf('/') + 1);
+    return identifierOf(location);
   }
 
   private static Map<String, Object> addressedPayload(String addressField, String address) {
