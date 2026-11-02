@@ -9,8 +9,10 @@ import static java.util.Objects.nonNull;
 import static no.sikt.nva.apitest.approvals.ApprovalClients.UIB_CLIENT_SECRET;
 import static no.sikt.nva.apitest.approvals.ApprovalClients.UIB_IDENTIFIER_NAME;
 import static no.sikt.nva.apitest.approvals.ApprovalClients.UIS_CLIENT_SECRET;
+import static no.sikt.nva.apitest.approvals.ApprovalPaths.APPROVAL_PATH;
 import static no.sikt.nva.apitest.approvals.ApprovalPaths.EVENTS_PATH;
 import static no.sikt.nva.apitest.approvals.Approvals.DETAIL_FIELD;
+import static no.sikt.nva.apitest.approvals.Approvals.SOURCE_FIELD;
 import static no.sikt.nva.apitest.approvals.Approvals.approvalPayload;
 import static no.sikt.nva.apitest.approvals.Approvals.createApproval;
 import static no.sikt.nva.apitest.approvals.Approvals.fetchApproval;
@@ -19,6 +21,7 @@ import static no.sikt.nva.apitest.approvals.Approvals.identifierOf;
 import static no.sikt.nva.apitest.approvals.Approvals.replacementSource;
 import static no.sikt.nva.apitest.approvals.Approvals.source;
 import static no.sikt.nva.apitest.approvals.Approvals.uniqueValue;
+import static no.sikt.nva.apitest.approvals.Approvals.updatePayload;
 import static no.sikt.nva.apitest.base.Polling.pollUntil;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsClient;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,6 +31,7 @@ import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.List;
 import java.util.Map;
 import no.sikt.nva.apitest.base.IntegrationTestBase;
 import org.assertj.core.api.SoftAssertions;
@@ -53,6 +57,8 @@ class ReceiveEventTest extends IntegrationTestBase {
   private static final String UNKNOWN_HANDLE_FORMAT = "%s/%s";
   private static final String HANDLE_FIELD = "handle";
   private static final String SNAPSHOT_PATH = "changes.find { it.type == 'SourceSnapshot' }";
+  private static final String SNAPSHOT_SOURCES_PATH =
+      "changes.findAll { it.type == 'SourceSnapshot' }.specializationOf";
   private static final String SPECIALIZATION_OF_FIELD = "specializationOf";
   private static final String MEDIA_TYPE_FIELD = "mediaType";
   private static final String SOURCE_MISMATCH_MESSAGE =
@@ -78,6 +84,49 @@ class ReceiveEventTest extends IntegrationTestBase {
     var snapshot = awaitSnapshot(approval.identifier());
     softly.assertThat(snapshot.get(SPECIALIZATION_OF_FIELD)).isEqualTo(source());
     softly.assertThat(snapshot.get(MEDIA_TYPE_FIELD)).isNotNull();
+  }
+
+  /**
+   * A CloudEvent may be delivered more than once, and a redelivery produces no second snapshot.
+   * That no snapshot was taken can only be seen once a later one has been: snapshots of one handle
+   * are taken in the order their events arrived, so the test changes the source, notifies about
+   * that, and waits for its snapshot.
+   */
+  @Test
+  @DisplayName("Notify twice with the same CloudEvent")
+  @Description
+  void shouldSnapshotRedeliveredEventOnce() {
+    var approval = createApprovalWithHandle();
+    var event = sourceChanged(source(), approval.handle());
+
+    sendEvent(UIB_CLIENT_SECRET, event).then().statusCode(HTTP_ACCEPTED);
+    sendEvent(UIB_CLIENT_SECRET, event).then().statusCode(HTTP_ACCEPTED);
+
+    assertThat(snapshotSourcesAfterSourceReplaced(approval))
+        .containsExactly(replacementSource(), source());
+  }
+
+  /**
+   * A snapshot records a change at the source, so a notification about a source whose content is
+   * the same as in the latest snapshot records nothing. As above, a later snapshot of a replaced
+   * source shows that the notification has been handled.
+   */
+  @Test
+  @DisplayName("Notify about a source that has not changed since the latest snapshot")
+  @Description
+  void shouldNotSnapshotUnchangedSource() {
+    var approval = createApprovalWithHandle();
+    sendEvent(UIB_CLIENT_SECRET, sourceChanged(source(), approval.handle()))
+        .then()
+        .statusCode(HTTP_ACCEPTED);
+    awaitSnapshotSources(approval.identifier(), source());
+
+    sendEvent(UIB_CLIENT_SECRET, sourceChanged(source(), approval.handle()))
+        .then()
+        .statusCode(HTTP_ACCEPTED);
+
+    assertThat(snapshotSourcesAfterSourceReplaced(approval))
+        .containsExactly(replacementSource(), source());
   }
 
   /** A notification is only about the source the approval points at, not any other source. */
@@ -181,6 +230,40 @@ class ReceiveEventTest extends IntegrationTestBase {
                     && nonNull(response.jsonPath().getMap(SNAPSHOT_PATH)))
         .jsonPath()
         .getMap(SNAPSHOT_PATH);
+  }
+
+  private static List<String> snapshotSourcesAfterSourceReplaced(CreatedApproval approval) {
+    replaceSource(approval.identifier());
+    sendEvent(UIB_CLIENT_SECRET, sourceChanged(replacementSource(), approval.handle()))
+        .then()
+        .statusCode(HTTP_ACCEPTED);
+    return awaitSnapshotSources(approval.identifier(), replacementSource());
+  }
+
+  private static void replaceSource(String approvalIdentifier) {
+    givenAuthenticatedJsonRequestAsClient(UIB_CLIENT_SECRET)
+        .body(updatePayload(UIB_IDENTIFIER_NAME, uniqueValue(), replacementSource()))
+        .when()
+        .put(APPROVAL_PATH, approvalIdentifier)
+        .then()
+        .statusCode(HTTP_ACCEPTED);
+    pollUntil(
+        SNAPSHOT_TIMEOUT,
+        () -> fetchApproval(approvalIdentifier, JSON_MEDIA_TYPE),
+        response ->
+            response.statusCode() == HTTP_OK
+                && replacementSource().equals(response.jsonPath().getString(SOURCE_FIELD)));
+  }
+
+  private static List<String> awaitSnapshotSources(String approvalIdentifier, String source) {
+    return pollUntil(
+            SNAPSHOT_TIMEOUT,
+            () -> fetchChanges(approvalIdentifier),
+            response ->
+                response.statusCode() == HTTP_OK
+                    && response.jsonPath().getList(SNAPSHOT_SOURCES_PATH).contains(source))
+        .jsonPath()
+        .getList(SNAPSHOT_SOURCES_PATH, String.class);
   }
 
   private record CreatedApproval(String identifier, String handle) {}
