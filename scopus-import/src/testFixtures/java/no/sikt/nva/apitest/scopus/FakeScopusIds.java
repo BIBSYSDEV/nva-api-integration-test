@@ -6,7 +6,7 @@ import java.util.concurrent.ThreadLocalRandom;
  * Ids Scopus never issues: real AUIDs, AFIDs and the number in an EID all start well below 99.
  * Generated ids stay below 99999990000, the block reserved for {@link ScopusFixtures#FIXTURE_AUID}.
  */
-final class FakeScopusIds {
+public final class FakeScopusIds {
 
   private static final String FAKE_PREFIX = "99";
   private static final String EID_PREFIX = "2-s2.0-";
@@ -14,15 +14,15 @@ final class FakeScopusIds {
 
   private FakeScopusIds() {}
 
-  static String randomAuid() {
+  public static String randomAuid() {
     return randomId();
   }
 
-  static String randomAfid() {
+  public static String randomAfid() {
     return randomId();
   }
 
-  static String randomEid() {
+  public static String randomEid() {
     return EID_PREFIX + randomId();
   }
 

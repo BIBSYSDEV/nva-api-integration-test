@@ -1,14 +1,14 @@
 package no.sikt.nva.apitest.scopus;
 
 /** An author in a generated Scopus record, identified in Scopus by the AUID. */
-record ScopusAuthor(String auid, String givenName, String surname) {
+public record ScopusAuthor(String auid, String givenName, String surname) {
 
   /** The name the import gives an author it cannot identify. */
-  String fullName() {
+  public String fullName() {
     return givenName + " " + surname;
   }
 
-  String initials() {
+  public String initials() {
     return givenName.charAt(0) + ".";
   }
 }

@@ -21,7 +21,7 @@ import nva.commons.core.paths.UriWrapper;
  * Candidates are found by search and then fetched, because the search hit lacks {@code
  * associatedCustomers} and has at most five contributors.
  */
-final class ImportCandidates {
+public final class ImportCandidates {
 
   private static final String SEARCH_PATH = "/search/customer/import-candidates";
   private static final String CANDIDATE_PATH = "/publication/import-candidate/{identifier}";
@@ -38,16 +38,16 @@ final class ImportCandidates {
 
   private ImportCandidates() {}
 
-  static JsonPath awaitCandidate(String scopusIdentifier) {
+  public static JsonPath awaitCandidate(String scopusIdentifier) {
     return fetch(awaitCandidateIdentifier(scopusIdentifier));
   }
 
-  static int totalHits(String scopusIdentifier) {
+  public static int totalHits(String scopusIdentifier) {
     return search(scopusIdentifier).getInt(TOTAL_HITS);
   }
 
   /** The import stores the person set on an author as the mapping for that author's AUID. */
-  static void importWithFixturePersonAsOnlyAuthor(JsonPath candidate, String auid) {
+  public static void importWithFixturePersonAsOnlyAuthor(JsonPath candidate, String auid) {
     var body =
         Map.of(
             "entityDescription",
@@ -62,15 +62,15 @@ final class ImportCandidates {
         .statusCode(HTTP_CREATED);
   }
 
-  static String identityIdOfAuthor(JsonPath candidate, String auid) {
+  public static String identityIdOfAuthor(JsonPath candidate, String auid) {
     return withAuthorParams(candidate, auid).getString(CONTRIBUTOR_WITH_AUID + ".identity.id");
   }
 
-  static String nameOfAuthor(JsonPath candidate, String auid) {
+  public static String nameOfAuthor(JsonPath candidate, String auid) {
     return withAuthorParams(candidate, auid).getString(CONTRIBUTOR_WITH_AUID + ".identity.name");
   }
 
-  static List<String> affiliationIdsOfAuthor(JsonPath candidate, String auid) {
+  public static List<String> affiliationIdsOfAuthor(JsonPath candidate, String auid) {
     return withAuthorParams(candidate, auid)
         .getList(CONTRIBUTOR_WITH_AUID + ".affiliations.targetOrganization.id", String.class);
   }

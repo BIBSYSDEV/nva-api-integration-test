@@ -11,13 +11,13 @@ import io.qameta.allure.Allure;
 import io.restassured.path.json.JsonPath;
 
 /** Maps the fixture AUID to the fixture person the way a curator does, by importing a candidate. */
-final class FixtureAuthorMapping {
+public final class FixtureAuthorMapping {
 
   private static final String MAPPING_PARAMETER = "Fixture author mapping";
 
   private FixtureAuthorMapping() {}
 
-  static void createIfMissing() {
+  public static void createIfMissing() {
     var scopusRecord =
         ScopusRecord.withAuthors(FIXTURE_AFID, new ScopusAuthor(FIXTURE_AUID, "Fixture", "Author"));
     ScopusImportPipeline.submitRecord(scopusRecord);
