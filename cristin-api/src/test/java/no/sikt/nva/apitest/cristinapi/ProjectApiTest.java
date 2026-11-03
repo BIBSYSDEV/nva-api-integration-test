@@ -1,14 +1,13 @@
 package no.sikt.nva.apitest.cristinapi;
 
 import static java.net.HttpURLConnection.HTTP_OK;
+import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedCristinRequest;
 
+import io.qameta.allure.Description;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-
-import io.qameta.allure.Description;
-import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedCristinRequest;
 
 @ExtendWith(SoftAssertionsExtension.class)
 @DisplayName("Cristin project tests")
