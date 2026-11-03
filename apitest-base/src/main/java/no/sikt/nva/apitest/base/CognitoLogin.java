@@ -38,15 +38,7 @@ public final class CognitoLogin {
 
   /** Get password AWS Secrets Manager. */
   private static String fetchPasswordFromSecretsManager() {
-    try (SecretsManagerClient secretsManager =
-        SecretsManagerClient.builder().region(Region.of(REGION)).build()) {
-
-      GetSecretValueRequest request =
-          GetSecretValueRequest.builder().secretId("TestUserPassword").build();
-
-      GetSecretValueResponse response = secretsManager.getSecretValue(request);
-      return response.secretString();
-    }
+    return getValueFromSecretsManager("TestUserPassword");
   }
 
   public static String getValueFromParameterStore(String name) {
@@ -199,6 +191,17 @@ public final class CognitoLogin {
   private record CachedToken(Map<String, String> tokens, Instant expiresAt) {
     private boolean isExpired() {
       return Instant.now().isAfter(expiresAt);
+    }
+  }
+
+  public static String getValueFromSecretsManager(String secret) {
+    try (SecretsManagerClient secretsManager =
+        SecretsManagerClient.builder().region(Region.of(REGION)).build()) {
+
+      GetSecretValueRequest request = GetSecretValueRequest.builder().secretId(secret).build();
+
+      GetSecretValueResponse response = secretsManager.getSecretValue(request);
+      return response.secretString();
     }
   }
 }

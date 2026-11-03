@@ -6,6 +6,7 @@ import static org.apache.http.HttpHeaders.CONTENT_TYPE;
 import static org.apache.http.entity.ContentType.APPLICATION_FORM_URLENCODED;
 
 import io.restassured.http.ContentType;
+import io.restassured.path.json.JsonPath;
 import io.restassured.specification.RequestSpecification;
 
 public final class Requests {
@@ -13,6 +14,20 @@ public final class Requests {
   private static final String BEARER_PREFIX = "Bearer ";
 
   private Requests() {}
+
+  public static RequestSpecification givenAuthenticatedCristinRequest() {
+    var cristinAuth =
+        new JsonPath(CognitoLogin.getValueFromSecretsManager("CristinClientBasicAuth"));
+    var userName = cristinAuth.getString("username");
+    var password = cristinAuth.getString("password");
+    return given().auth().basic(userName, password);
+  }
+
+  public static RequestSpecification givenAuthenticatedCristinJsonRequest() {
+    return givenAuthenticatedCristinRequest()
+        .contentType(ContentType.JSON)
+        .accept(ContentType.JSON);
+  }
 
   public static RequestSpecification givenAuthenticatedRequest(String accessToken) {
     return given().header(AUTHORIZATION, BEARER_PREFIX + accessToken);
