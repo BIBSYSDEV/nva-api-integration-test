@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Reduced from 2-s2.0-1542462534.xml in nva-publication-api's scopus-import tests.
+  No DOI: the converter would fetch files from Crossref and match existing publications by it.
+  No affiliation country: the converter would fall back to a Cristin search by country.
+  The year must be 2018 or later, or ExpandImportCandidateHandler never indexes the candidate.
+  The journal is the Kanalregister tests' fixture; its ISSN matches one channel, its title two.
+-->
+<xocs:doc xmlns:xocs="http://www.elsevier.com/xml/xocs/dtd"
+          xmlns:ce="http://www.elsevier.com/xml/ani/common"
+          xmlns:ait="http://www.elsevier.com/xml/ani/ait">
+  <xocs:meta>
+    <xocs:eid>{{EID}}</xocs:eid>
+    <xocs:srctype>j</xocs:srctype>
+  </xocs:meta>
+  <xocs:item>
+    <item>
+      <ait:process-info>
+        <ait:date-sort day="01" month="01" year="{{YEAR}}"/>
+      </ait:process-info>
+      <bibrecord>
+        <head>
+          <citation-info>
+            <citation-type code="ar"/>
+            <citation-language xml:lang="eng" language="English"/>
+          </citation-info>
+          <citation-title>
+            <titletext original="y" xml:lang="eng" language="English">{{TITLE}}</titletext>
+          </citation-title>
+          <author-group>
+{{AUTHORS}}
+            <affiliation afid="{{AFID}}">
+              <organization>{{AFFILIATION_NAME}}</organization>
+            </affiliation>
+          </author-group>
+          <source type="j">
+            <sourcetitle>Atmospheric Chemistry and Physics</sourcetitle>
+            <issn type="electronic">16807324</issn>
+          </source>
+        </head>
+      </bibrecord>
+    </item>
+  </xocs:item>
+</xocs:doc>
