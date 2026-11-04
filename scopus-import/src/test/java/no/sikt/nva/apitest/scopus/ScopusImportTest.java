@@ -38,8 +38,9 @@ class ScopusImportTest extends IntegrationTestBase {
   private static final String AUTHOR_SURNAME = "Author";
 
   /**
-   * The unit is checked on an unmapped co-author, since a mapped author gets the affiliations of
-   * their Cristin profile instead.
+   * A record with a mapped AUID and AFID gets the mapped Cristin person as author, and the mapped
+   * unit and its customer. The unit is checked on an unmapped co-author, because a mapped author
+   * gets the affiliations of their Cristin profile instead.
    */
   @Test
   @DisplayName("Mapped author and affiliation resolve to Cristin person, unit and customer")
@@ -58,8 +59,10 @@ class ScopusImportTest extends IntegrationTestBase {
     andCandidateBelongsToFixtureCustomer(candidate);
   }
 
+  /** An author with an unmapped AUID and no ORCID is kept by name, but without a Cristin person. */
   @Test
   @DisplayName("Unknown author has no identity")
+  @Description
   void shouldNotIdentifyAuthorWhenAuidIsNotMapped() {
     var unknownAuthor = new ScopusAuthor(randomAuid(), "Unknown", AUTHOR_SURNAME);
 
@@ -68,7 +71,10 @@ class ScopusImportTest extends IntegrationTestBase {
     thenAuthorIsKeptWithoutIdentity(candidate, unknownAuthor);
   }
 
-  /** Uses a new fake AUID every run, so the fixture mapping is never touched. */
+  /**
+   * The Cristin person a curator sets on an author when importing a candidate is used for the next
+   * record with the same AUID.
+   */
   @Test
   @DisplayName("Author correction made during import is used by the next record")
   @Description
@@ -83,8 +89,10 @@ class ScopusImportTest extends IntegrationTestBase {
     thenAuthorResolvesToFixturePerson(secondCandidate, correctedAuthor);
   }
 
+  /** A record uploaded as a zip to the zip bucket is unzipped and imported as a candidate. */
   @Test
   @DisplayName("Record delivered in a zip becomes an import candidate")
+  @Description
   void shouldCreateCandidateWhenRecordIsUploadedAsZip() {
     var scopusRecord =
         ScopusRecord.withAuthors(
@@ -95,7 +103,10 @@ class ScopusImportTest extends IntegrationTestBase {
     thenCandidateHasTitleOfRecord(candidate, scopusRecord);
   }
 
-  /** The affiliation has an unmapped AFID and a name that matches no Cristin organization. */
+  /**
+   * A record whose only affiliation matches no NVA customer is rejected with an error report and
+   * never becomes a candidate.
+   */
   @Test
   @DisplayName("Record with no customer affiliation gives an error report and no candidate")
   @Description
