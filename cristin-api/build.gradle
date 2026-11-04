@@ -11,6 +11,7 @@ dependencies {
     testImplementation(libs.allure.java.commons)
     testImplementation(nvaCatalog.assertj.core)
     testImplementation(nvaCatalog.junit.jupiter.api)
+    testImplementation(libs.json.assert)
     testRuntimeOnly(nvaCatalog.junit.jupiter.engine)
     testRuntimeOnly(nvaCatalog.junit.platform.launcher)
 }
