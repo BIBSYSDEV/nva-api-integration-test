@@ -5,7 +5,6 @@ import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.net.HttpURLConnection.HTTP_UNSUPPORTED_TYPE;
-import static java.util.Objects.nonNull;
 import static no.sikt.nva.apitest.approvals.ApprovalClients.UIB_CLIENT_SECRET;
 import static no.sikt.nva.apitest.approvals.ApprovalClients.UIB_IDENTIFIER_NAME;
 import static no.sikt.nva.apitest.approvals.ApprovalClients.UIS_CLIENT_SECRET;
@@ -34,13 +33,9 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import no.sikt.nva.apitest.base.IntegrationTestBase;
-import org.assertj.core.api.SoftAssertions;
-import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
-@ExtendWith(SoftAssertionsExtension.class)
 @DisplayName("POST " + EVENTS_PATH)
 class ReceiveEventTest extends IntegrationTestBase {
 
@@ -56,11 +51,8 @@ class ReceiveEventTest extends IntegrationTestBase {
   private static final String TIME_FIELD = "time";
   private static final String UNKNOWN_HANDLE_FORMAT = "%s/%s";
   private static final String HANDLE_FIELD = "handle";
-  private static final String SNAPSHOT_PATH = "changes.find { it.type == 'SourceSnapshot' }";
   private static final String SNAPSHOT_SOURCES_PATH =
       "changes.findAll { it.type == 'SourceSnapshot' }.specializationOf";
-  private static final String SPECIALIZATION_OF_FIELD = "specializationOf";
-  private static final String MEDIA_TYPE_FIELD = "mediaType";
   private static final String SOURCE_MISMATCH_MESSAGE =
       "Source provided in request does not match requested approval source";
   private static final String CUSTOMER_MISMATCH_MESSAGE =
@@ -68,29 +60,10 @@ class ReceiveEventTest extends IntegrationTestBase {
   private static final Duration SNAPSHOT_TIMEOUT = Duration.ofMinutes(2);
 
   /**
-   * A source changed notification makes the API fetch the source again and record what it got, so a
-   * snapshot of the source eventually appears among the changes of the approval.
-   */
-  @Test
-  @DisplayName("Notify that the source of an approval has changed")
-  @Description
-  void shouldSnapshotSourceWhenSourceHasChanged(SoftAssertions softly) {
-    var approval = createApprovalWithHandle();
-
-    sendEvent(UIB_CLIENT_SECRET, sourceChanged(source(), approval.handle()))
-        .then()
-        .statusCode(HTTP_ACCEPTED);
-
-    var snapshot = awaitSnapshot(approval.identifier());
-    softly.assertThat(snapshot.get(SPECIALIZATION_OF_FIELD)).isEqualTo(source());
-    softly.assertThat(snapshot.get(MEDIA_TYPE_FIELD)).isNotNull();
-  }
-
-  /**
    * A CloudEvent may be delivered more than once, and a redelivery produces no second snapshot.
-   * That no snapshot was taken can only be seen once a later one has been: snapshots of one handle
-   * are taken in the order their events arrived, so the test changes the source, notifies about
-   * that, and waits for its snapshot.
+   * That no snapshot was taken can only be seen once a later one has been: snapshots of one
+   * approval are taken in the order they were requested, so the test replaces the source and waits
+   * for the snapshot that revision produces.
    */
   @Test
   @DisplayName("Notify twice with the same CloudEvent")
@@ -108,18 +81,15 @@ class ReceiveEventTest extends IntegrationTestBase {
 
   /**
    * A snapshot records a change at the source, so a notification about a source whose content is
-   * the same as in the latest snapshot records nothing. As above, a later snapshot of a replaced
-   * source shows that the notification has been handled.
+   * the same as in the latest snapshot, here the one taken when the approval was created, records
+   * nothing. As above, a later snapshot of a replaced source shows that the notification has been
+   * handled.
    */
   @Test
   @DisplayName("Notify about a source that has not changed since the latest snapshot")
   @Description
   void shouldNotSnapshotUnchangedSource() {
     var approval = createApprovalWithHandle();
-    sendEvent(UIB_CLIENT_SECRET, sourceChanged(source(), approval.handle()))
-        .then()
-        .statusCode(HTTP_ACCEPTED);
-    awaitSnapshotSources(approval.identifier(), source());
 
     sendEvent(UIB_CLIENT_SECRET, sourceChanged(source(), approval.handle()))
         .then()
@@ -220,23 +190,8 @@ class ReceiveEventTest extends IntegrationTestBase {
     return new CreatedApproval(identifier, handle);
   }
 
-  /** The snapshot is taken asynchronously, after the notification has been accepted. */
-  private static Map<String, Object> awaitSnapshot(String approvalIdentifier) {
-    return pollUntil(
-            SNAPSHOT_TIMEOUT,
-            () -> fetchChanges(approvalIdentifier),
-            response ->
-                response.statusCode() == HTTP_OK
-                    && nonNull(response.jsonPath().getMap(SNAPSHOT_PATH)))
-        .jsonPath()
-        .getMap(SNAPSHOT_PATH);
-  }
-
   private static List<String> snapshotSourcesAfterSourceReplaced(CreatedApproval approval) {
     replaceSource(approval.identifier());
-    sendEvent(UIB_CLIENT_SECRET, sourceChanged(replacementSource(), approval.handle()))
-        .then()
-        .statusCode(HTTP_ACCEPTED);
     return awaitSnapshotSources(approval.identifier(), replacementSource());
   }
 
