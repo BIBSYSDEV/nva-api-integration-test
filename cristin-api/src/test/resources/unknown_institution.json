@@ -1,0 +1,12 @@
+{
+  "cristin_unit_id" : "0.0.0.0",
+  "unit_name" : {
+    "en" : "Unknown"
+  },
+  "institution" : {
+    "cristin_institution_id" : "0",
+    "url" : "https://api.cristin-test.uio.no/v2/institutions/0"
+  },
+  "country" : "NO",
+  "acronym" : "UNKNOWN"
+}

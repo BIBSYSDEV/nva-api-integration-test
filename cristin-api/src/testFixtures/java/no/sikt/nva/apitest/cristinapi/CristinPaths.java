@@ -18,8 +18,8 @@ public final class CristinPaths {
   public static final String PERSON_POSITIONS_PATH = PERSONS_BASE_PATH + "/affiliations/positions";
   public static final String PERSON_ORCID_PATH = PERSONS_BASE_PATH + "/orcid";
 
-  public static final String UNITS_PATH = "/units";
-  public static final String UNIT_PATH = UNITS_PATH + ID_PARAM;
+  public static final String BASE_UNITS_PATH = "/units";
+  public static final String UNIT_PATH = BASE_UNITS_PATH + ID_PARAM;
 
   public static final String KEYWORDS_PATH = "/keywords";
   public static final String KEYWORD_PATH = KEYWORDS_PATH + ID_PARAM;

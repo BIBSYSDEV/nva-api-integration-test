@@ -3,15 +3,15 @@ package no.sikt.nva.apitest.cristinapi.project;
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
+import static net.javacrumbs.jsonunit.core.Option.IGNORING_EXTRA_FIELDS;
 import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
 import static no.sikt.nva.apitest.cristinapi.CristinPaths.PROJECT_PATH;
-import static org.skyscreamer.jsonassert.JSONCompareMode.LENIENT;
 
 import io.qameta.allure.Description;
 import no.sikt.nva.apitest.cristinapi.CristinApiTestBase;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.skyscreamer.jsonassert.JSONAssert;
 
 @DisplayName("GET " + PROJECT_PATH)
 class GetProjectApiTest extends CristinApiTestBase {
@@ -36,7 +36,7 @@ class GetProjectApiTest extends CristinApiTestBase {
             .asString();
 
     var expected = readResourceFileAsString(EXPECTED_PROJECT_FILE);
-    JSONAssert.assertEquals(expected, jsonResponse, LENIENT);
+    assertThatJson(jsonResponse).when(IGNORING_EXTRA_FIELDS).isEqualTo(expected);
   }
 
   /** Fetch non-existing project returns {@code 404 Not Found} */
