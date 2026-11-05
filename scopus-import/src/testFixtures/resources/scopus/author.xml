@@ -1,0 +1,6 @@
+            <author auid="{{AUID}}" seq="{{SEQUENCE}}" type="auth">
+              <ce:initials>{{INITIALS}}</ce:initials>
+              <ce:indexed-name>{{SURNAME}} {{INITIALS}}</ce:indexed-name>
+              <ce:surname>{{SURNAME}}</ce:surname>
+              <ce:given-name>{{GIVEN_NAME}}</ce:given-name>
+            </author>
