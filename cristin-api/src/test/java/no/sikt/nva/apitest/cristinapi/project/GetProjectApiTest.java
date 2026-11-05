@@ -3,7 +3,6 @@ package no.sikt.nva.apitest.cristinapi.project;
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
-import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedCristinRequest;
 import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
 import static no.sikt.nva.apitest.cristinapi.CristinPaths.PROJECT_PATH;
 import static org.skyscreamer.jsonassert.JSONCompareMode.LENIENT;

@@ -1,26 +1,12 @@
 package no.sikt.nva;
 
+import static io.restassured.RestAssured.baseURI;
 import static java.net.HttpURLConnection.HTTP_ACCEPTED;
 import static java.net.HttpURLConnection.HTTP_CREATED;
 import static java.net.HttpURLConnection.HTTP_OK;
-import java.nio.file.Path;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.Callable;
-import java.util.stream.IntStream;
-
-import static io.restassured.RestAssured.baseURI;
-import io.restassured.path.json.JsonPath;
-import io.restassured.response.Response;
-import no.sikt.Category;
 import static no.sikt.Category.ACADEMIC_CHAPTER;
 import static no.sikt.Category.BOOK_ANTHOLOGY;
-import no.sikt.Contributor;
 import static no.sikt.Role.CREATOR;
-import no.sikt.nva.apitest.base.CognitoLogin;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_DAY;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_MONTH;
 import static no.sikt.nva.apitest.base.CurrentTimeConstants.CURRENT_YEAR;
@@ -28,11 +14,9 @@ import static no.sikt.nva.apitest.base.Polling.pollUntil;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequest;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsUser;
 import static no.sikt.nva.apitest.base.SettledCondition.settledWhen;
-import no.sikt.nva.apitest.base.User;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_CREATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_PUBLISHING_CURATOR;
 import static no.sikt.nva.apitest.base.UserFixtures.UIB_THESIS_CURATOR;
-import no.sikt.nva.apitest.publication.ContributorPayload;
 import static no.sikt.nva.apitest.publication.PublicationFields.CONTEXT_FIELD;
 import static no.sikt.nva.apitest.publication.PublicationFields.CONTRIBUTORS;
 import static no.sikt.nva.apitest.publication.PublicationFields.ENTITY_DESCRIPTION_FIELD;
@@ -42,10 +26,26 @@ import static no.sikt.nva.apitest.publication.PublicationFields.PUBLICATION_CONT
 import static no.sikt.nva.apitest.publication.PublicationFields.PUBLICATION_INSTANCE;
 import static no.sikt.nva.apitest.publication.PublicationFields.REFERENCE;
 import static no.sikt.nva.apitest.publication.PublicationFields.TYPE;
-import no.sikt.nva.apitest.publication.PublicationPaths;
 import static no.sikt.nva.apitest.publication.PublicationPaths.publicationPath;
 import static no.sikt.nva.apitest.publication.PublicationPaths.publishPublicationPath;
 import static nva.commons.core.ioutils.IoUtils.stringFromResources;
+
+import io.restassured.path.json.JsonPath;
+import io.restassured.response.Response;
+import java.nio.file.Path;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.Callable;
+import java.util.stream.IntStream;
+import no.sikt.Category;
+import no.sikt.Contributor;
+import no.sikt.nva.apitest.base.CognitoLogin;
+import no.sikt.nva.apitest.base.User;
+import no.sikt.nva.apitest.publication.ContributorPayload;
+import no.sikt.nva.apitest.publication.PublicationPaths;
 
 public class PublicationFactory {
 

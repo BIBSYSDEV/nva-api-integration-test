@@ -1,12 +1,11 @@
 package no.sikt.nva.apitest.cristinapi;
 
-import java.nio.file.Path;
-
-import org.junit.jupiter.api.BeforeAll;
+import static nva.commons.core.ioutils.IoUtils.stringFromResources;
 
 import io.restassured.RestAssured;
+import java.nio.file.Path;
 import no.sikt.nva.apitest.base.IntegrationTestBase;
-import static nva.commons.core.ioutils.IoUtils.stringFromResources;
+import org.junit.jupiter.api.BeforeAll;
 
 public class CristinApiTestBase extends IntegrationTestBase {
 
