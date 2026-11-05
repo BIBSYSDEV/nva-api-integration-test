@@ -3,11 +3,13 @@ package no.sikt.nva.apitest.base;
 import static no.sikt.nva.apitest.base.ApplicationConstants.getRegion;
 import static no.sikt.nva.apitest.base.AwsCalls.withPermissionHint;
 
+import java.util.List;
 import java.util.Optional;
 import nva.commons.core.Environment;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
+import software.amazon.awssdk.services.s3.model.S3Object;
 
 /**
  * Direct S3 access for testing pipelines that have no REST API, such as the text-extraction lambdas
@@ -19,6 +21,9 @@ public final class S3Storage {
   private static final String MISSING_PUT_PERMISSION_MESSAGE =
       "The test runner role is not allowed to upload to bucket %s. It needs s3:PutObject on"
           + " arn:aws:s3:::%<s/*.";
+  private static final String MISSING_LIST_PERMISSION_MESSAGE =
+      "The test runner role is not allowed to list bucket %s. It needs s3:ListBucket on"
+          + " arn:aws:s3:::%<s.";
 
   // Shared across parallel test classes for the lifetime of the JVM, so never closed.
   private static final S3Client S3_CLIENT =
@@ -45,6 +50,18 @@ public final class S3Storage {
     withPermissionHint(
         MISSING_PUT_PERMISSION_MESSAGE.formatted(bucketName),
         () -> S3_CLIENT.putObject(request -> request.bucket(bucketName).key(key), content));
+  }
+
+  public static List<String> listKeys(String bucketName, String prefix) {
+    return withPermissionHint(
+        MISSING_LIST_PERMISSION_MESSAGE.formatted(bucketName),
+        () ->
+            S3_CLIENT
+                .listObjectsV2Paginator(request -> request.bucket(bucketName).prefix(prefix))
+                .contents()
+                .stream()
+                .map(S3Object::key)
+                .toList());
   }
 
   /** Reads the object as UTF-8 text, or empty if the key does not exist. */
