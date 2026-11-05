@@ -13,10 +13,9 @@ import io.qameta.allure.Description;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
 import no.sikt.nva.apitest.cristinapi.CristinApiTestBase;
-import no.sikt.nva.apitest.cristinapi.CristinPaths;
 import static no.sikt.nva.apitest.cristinapi.CristinPaths.BASE_UNITS_PATH;
 
-@DisplayName("GET " + CristinPaths.BASE_UNITS_PATH + "/{parameters}")
+@DisplayName("GET " + BASE_UNITS_PATH + "/{parameters}")
 class FetchOrganizationsApiTest extends CristinApiTestBase {
 
   /** Search for organizations returns list of organizations and status {@code 200 Ok} */
