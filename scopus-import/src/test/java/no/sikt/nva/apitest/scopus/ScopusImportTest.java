@@ -132,7 +132,7 @@ class ScopusImportTest extends IntegrationTestBase {
   @Step("Given a candidate whose author has a new, unmapped AUID")
   private static JsonPath givenCandidateWithUnidentifiedAuthor(ScopusAuthor author) {
     var candidate = importRecord(ScopusRecord.withAuthors(FIXTURE_AFID, author));
-    assertThat(identityIdOfAuthor(candidate, author.auid())).isNull();
+    assertAuthorIsKeptWithoutIdentity(candidate, author);
     return candidate;
   }
 
@@ -182,8 +182,7 @@ class ScopusImportTest extends IntegrationTestBase {
 
   @Step("Then the author is kept by name, without an identity")
   private static void thenAuthorIsKeptWithoutIdentity(JsonPath candidate, ScopusAuthor author) {
-    assertThat(nameOfAuthor(candidate, author.auid())).isEqualTo(author.fullName());
-    assertThat(identityIdOfAuthor(candidate, author.auid())).isNull();
+    assertAuthorIsKeptWithoutIdentity(candidate, author);
   }
 
   @Step("Then the candidate has the title of the record")
@@ -212,6 +211,12 @@ class ScopusImportTest extends IntegrationTestBase {
   @Step("And the record without a customer has no searchable candidate")
   private static void andRecordWithoutCustomerHasNoSearchableCandidate(ScopusRecord scopusRecord) {
     assertThat(ImportCandidates.totalHits(scopusRecord.eid())).isZero();
+  }
+
+  /** Checks the name first, since an author missing from the candidate also has no identity id. */
+  private static void assertAuthorIsKeptWithoutIdentity(JsonPath candidate, ScopusAuthor author) {
+    assertThat(nameOfAuthor(candidate, author.auid())).isEqualTo(author.fullName());
+    assertThat(identityIdOfAuthor(candidate, author.auid())).isNull();
   }
 
   private static JsonPath importRecord(ScopusRecord scopusRecord) {
