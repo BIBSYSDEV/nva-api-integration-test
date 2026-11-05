@@ -1,0 +1,88 @@
+{
+  "cristin_project_id" : "435010",
+  "publishable" : true,
+  "published" : true,
+  "title" : {
+    "no" : "A multicenter,randomized,double-blind,placebo-controlled phase IIIb study to evaluate the efficacy, safety and tolerability of Serelaxin when added to standard therapy in acute heart failure patients(RELAX-2 trial)"
+  },
+  "main_language" : "no",
+  "start_date" : "2013-11-15T00:00:00.000Z",
+  "end_date" : "2016-11-15T00:00:00.000Z",
+  "status" : "CONCLUDED",
+  "created" : {
+    "date" : "2014-01-09T08:35:03.000Z"
+  },
+  "last_modified" : {
+  },
+  "coordinating_institution" : {
+    "institution" : {
+      "cristin_institution_id" : "1990",
+      "institution_name" : {
+        "en" : "Diakonhjemmet Hospital"
+      },
+      "url" : "https://api.cristin-test.uio.no/v2/institutions/1990"
+    },
+    "unit" : {
+      "cristin_unit_id" : "1990.17.0.0",
+      "unit_name" : {
+        "en" : "Clinic for Medicine"
+      },
+      "url" : "https://api.cristin-test.uio.no/v2/units/1990.17.0.0"
+    }
+  },
+  "languages" : [ {
+    "code" : "no",
+    "name" : {
+      "en" : "Norwegian"
+    }
+  } ],
+  "project_funding_sources" : [ {
+    "funding_source_code" : "OTHER",
+    "funding_source_name" : {
+      "en" : "Other"
+    }
+  } ],
+  "participants" : [ {
+    "cristin_person_id" : "11546",
+    "first_name" : "Erik Harald",
+    "surname" : "Øie",
+    "url" : "https://api.cristin-test.uio.no/v2/persons/11546",
+    "roles" : [ {
+      "role_code" : "PRO_MANAGER",
+      "institution" : {
+        "cristin_institution_id" : "1990",
+        "institution_name" : {
+          "en" : "Diakonhjemmet Hospital"
+        }
+      },
+      "unit" : {
+        "cristin_unit_id" : "1990.17.0.0",
+        "unit_name" : {
+          "en" : "Clinic for Medicine"
+        }
+      }
+    } ],
+    "identified_cristin_person" : true
+  } ],
+  "participants_url" : "https://api.cristin-test.uio.no/v2/projects/435010/participants",
+  "approvals" : [ {
+    "approved_date" : "2014-01-09T08:40:39.000Z",
+    "approved_by" : "REK",
+    "approved_by_name" : {
+      "en" : "Regional committees for medical and health research ethics"
+    },
+    "approval_status" : "APPLIED",
+    "application_code" : "ETICHAPPR"
+  } ],
+  "creator" : {
+    "cristin_person_id" : "529128",
+    "first_name" : "Aase",
+    "surname" : "Frich",
+    "roles" : [ {
+      "unit" : {
+        "cristin_unit_id" : "1990.0.0.0"
+      }
+    } ],
+    "identified_cristin_person" : true
+  }
+}
