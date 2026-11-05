@@ -4,6 +4,7 @@ import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedCristinRequest;
+import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
 import static no.sikt.nva.apitest.cristinapi.CristinPaths.PROJECT_PATH;
 import static org.skyscreamer.jsonassert.JSONCompareMode.LENIENT;
 
@@ -26,7 +27,7 @@ class GetProjectApiTest extends CristinApiTestBase {
   void shouldReturnProject() {
 
     var jsonResponse =
-        givenAuthenticatedCristinRequest()
+        givenUnauthenticatedJsonRequest()
             .when()
             .get(PROJECT_PATH, PROJECT_IDENTIFIER)
             .then()
@@ -45,7 +46,7 @@ class GetProjectApiTest extends CristinApiTestBase {
   @Description
   void shouldReturnNotFoundForNonExistingProject() {
     var nonExistingProjectIdentifier = "000000";
-    givenAuthenticatedCristinRequest()
+    givenUnauthenticatedJsonRequest()
         .when()
         .get(PROJECT_PATH, nonExistingProjectIdentifier)
         .then()
@@ -58,7 +59,7 @@ class GetProjectApiTest extends CristinApiTestBase {
   @Description
   void shouldReturnBadRequestWithInvalidProjectIdentifier() {
     var invalidProjectIdentifier = "invalid";
-    givenAuthenticatedCristinRequest()
+    givenUnauthenticatedJsonRequest()
         .when()
         .get(PROJECT_PATH, invalidProjectIdentifier)
         .then()
