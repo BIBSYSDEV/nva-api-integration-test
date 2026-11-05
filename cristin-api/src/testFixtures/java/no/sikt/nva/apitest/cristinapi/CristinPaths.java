@@ -13,7 +13,7 @@ public final class CristinPaths {
   public static final String PERSON_AFFILIATIONS_PATH =
       PERSONS_BASE_PATH + ID_PARAM + "/affiliations";
   public static final String AFFILIATION_PATH = PERSON_AFFILIATIONS_PATH + "/{eid}";
-  public static final String PERSON_INSTITUTION_PATH = PERSON_PATH + "/institutions/" + ID_PARAM;
+  public static final String PERSON_INSTITUTION_PATH = PERSON_PATH + "/institutions" + ID_PARAM;
   public static final String PERSON_PICTURE_PATH = PERSONS_BASE_PATH + ID_PARAM + "/picture";
   public static final String PERSON_POSITIONS_PATH = PERSONS_BASE_PATH + "/affiliations/postitions";
   public static final String PERSON_ORCID_PATH = PERSONS_BASE_PATH + "/orcid";
