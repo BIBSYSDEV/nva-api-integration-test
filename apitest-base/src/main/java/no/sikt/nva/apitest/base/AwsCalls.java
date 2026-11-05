@@ -1,12 +1,14 @@
 package no.sikt.nva.apitest.base;
 
-import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
-
+import java.util.Set;
 import java.util.function.Supplier;
 import software.amazon.awssdk.awscore.exception.AwsServiceException;
 
 /** Turns an IAM denial into a message that names the permission the test runner role lacks. */
 final class AwsCalls {
+
+  private static final Set<String> ACCESS_DENIED_ERROR_CODES =
+      Set.of("AccessDenied", "AccessDeniedException");
 
   private AwsCalls() {}
 
@@ -14,10 +16,15 @@ final class AwsCalls {
     try {
       return awsCall.get();
     } catch (AwsServiceException exception) {
-      if (exception.statusCode() == HTTP_FORBIDDEN) {
-        throw new IllegalStateException(permissionHint, exception);
+      if (isAccessDenied(exception)) {
+        throw new IllegalStateException(
+            "%s AWS response: %s".formatted(permissionHint, exception.getMessage()), exception);
       }
       throw exception;
     }
+  }
+
+  private static boolean isAccessDenied(AwsServiceException exception) {
+    return ACCESS_DENIED_ERROR_CODES.contains(exception.awsErrorDetails().errorCode());
   }
 }
