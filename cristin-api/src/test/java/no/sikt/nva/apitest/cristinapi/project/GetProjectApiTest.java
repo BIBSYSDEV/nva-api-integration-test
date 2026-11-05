@@ -3,16 +3,15 @@ package no.sikt.nva.apitest.cristinapi.project;
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
-
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.skyscreamer.jsonassert.JSONAssert;
+import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedCristinRequest;
+import static no.sikt.nva.apitest.cristinapi.CristinPaths.PROJECT_PATH;
 import static org.skyscreamer.jsonassert.JSONCompareMode.LENIENT;
 
 import io.qameta.allure.Description;
-import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedCristinRequest;
 import no.sikt.nva.apitest.cristinapi.CristinApiTestBase;
-import static no.sikt.nva.apitest.cristinapi.CristinPaths.PROJECT_PATH;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.skyscreamer.jsonassert.JSONAssert;
 
 @DisplayName("GET " + PROJECT_PATH)
 class GetProjectApiTest extends CristinApiTestBase {
