@@ -105,11 +105,13 @@ class ScopusImportTest extends IntegrationTestBase {
 
   /**
    * A record whose only affiliation matches no NVA customer is rejected with an error report and
-   * never becomes a candidate.
+   * never becomes a candidate. A record with a customer, imported afterwards, shows that indexing
+   * has caught up before the absence is checked.
    */
   @Test
   @DisplayName("Record with no customer affiliation gives an error report and no candidate")
   @Description
+  @Timeout(value = 15, unit = MINUTES)
   void shouldNotCreateCandidateWhenNoAffiliationBelongsToCustomer() {
     var scopusRecord =
         ScopusRecord.withAuthors(
@@ -118,7 +120,8 @@ class ScopusImportTest extends IntegrationTestBase {
     whenRecordIsSubmitted(scopusRecord);
 
     thenErrorReportSaysNoCustomerWasFound(scopusRecord);
-    andNoCandidateIsSearchable(scopusRecord);
+    andRecordWithCustomerImportedAfterwardsBecomesSearchable();
+    andRecordWithoutCustomerHasNoSearchableCandidate(scopusRecord);
   }
 
   @Step("Given the fixture AUID is mapped to the fixture person")
@@ -199,8 +202,15 @@ class ScopusImportTest extends IntegrationTestBase {
     assertThat(errorReport).contains(scopusRecord.eid());
   }
 
-  @Step("And no candidate is searchable")
-  private static void andNoCandidateIsSearchable(ScopusRecord scopusRecord) {
+  @Step("And a record with a customer, imported afterwards, becomes searchable")
+  private static void andRecordWithCustomerImportedAfterwardsBecomesSearchable() {
+    importRecord(
+        ScopusRecord.withAuthors(
+            FIXTURE_AFID, new ScopusAuthor(randomAuid(), "Control", AUTHOR_SURNAME)));
+  }
+
+  @Step("And the record without a customer has no searchable candidate")
+  private static void andRecordWithoutCustomerHasNoSearchableCandidate(ScopusRecord scopusRecord) {
     assertThat(ImportCandidates.totalHits(scopusRecord.eid())).isZero();
   }
 
