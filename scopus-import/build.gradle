@@ -22,5 +22,5 @@ dependencies {
 }
 
 tasks.withType(Test).configureEach {
-    systemProperty 'allure.label.module', 'Scopus import'
+    systemProperty 'allure.label.module', 'Publication API - Scopus import'
 }
