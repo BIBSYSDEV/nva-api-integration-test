@@ -38,6 +38,7 @@ class FetchApprovalChangesTest extends IntegrationTestBase {
 
   private static final String CHANGE_LIST_TYPE = "ChangeList";
   private static final String REVISION_TYPE = "ApprovalRevision";
+  private static final String SNAPSHOT_TYPE = "SourceSnapshot";
   private static final String CREATION_ACTIVITY = "ApprovalCreation";
   private static final String UPDATE_ACTIVITY = "ApprovalUpdate";
   private static final String CONTEXT_FIELD = "@context";
@@ -46,26 +47,30 @@ class FetchApprovalChangesTest extends IntegrationTestBase {
   private static final String ABOUT_ID_FIELD = "about.id";
   private static final String CHANGE_TYPES_FIELD = "changes.type";
   private static final String CHANGE_ACTIVITIES_FIELD = "changes.wasGeneratedBy.type";
-  private static final String FIRST_CHANGE_ID_FIELD = "changes[0].id";
+  private static final String REVISIONS_PATH = "changes.findAll { it.type == 'ApprovalRevision' }";
+  private static final String REVISION_ACTIVITIES_PATH = REVISIONS_PATH + ".wasGeneratedBy.type";
+  private static final String FIRST_REVISION_ID_PATH =
+      "changes.find { it.type == 'ApprovalRevision' }.id";
+  private static final int CHANGES_OF_CREATION = 2;
   private static final Duration VISIBLE_TIMEOUT = Duration.ofSeconds(30);
 
   /**
-   * Creating an approval is itself recorded, so the change list of a new approval holds exactly the
-   * revision its creation produced.
+   * Creating an approval is itself recorded, so the change list of a new approval holds the
+   * revision its creation produced and the snapshot of its source taken from that revision.
    */
   @Test
   @DisplayName("List changes of a new approval")
   @Description
   void shouldListCreationOfNewApproval(SoftAssertions softly) {
     var location = createApprovalLocation();
-    var changeList = awaitChanges(identifierOf(location), 1);
+    var changeList = awaitChanges(identifierOf(location), CHANGE_TYPES_FIELD, CHANGES_OF_CREATION);
 
     softly.assertThat(changeList.getString(TYPE_FIELD)).isEqualTo(CHANGE_LIST_TYPE);
     softly.assertThat(changeList.getString(ABOUT_ID_FIELD)).isEqualTo(location);
-    softly.assertThat(changeList.getList(CHANGE_TYPES_FIELD)).containsExactly(REVISION_TYPE);
     softly
-        .assertThat(changeList.getList(CHANGE_ACTIVITIES_FIELD))
-        .containsExactly(CREATION_ACTIVITY);
+        .assertThat(changeList.getList(CHANGE_TYPES_FIELD))
+        .containsExactlyInAnyOrder(REVISION_TYPE, SNAPSHOT_TYPE);
+    softly.assertThat(changeList.getList(CHANGE_ACTIVITIES_FIELD)).containsOnly(CREATION_ACTIVITY);
   }
 
   /** Changes are listed newest first, so an update comes before the creation it followed. */
@@ -81,9 +86,9 @@ class FetchApprovalChangesTest extends IntegrationTestBase {
         .then()
         .statusCode(HTTP_ACCEPTED);
 
-    var changeList = awaitChanges(approvalIdentifier, 2);
+    var changeList = awaitChanges(approvalIdentifier, REVISIONS_PATH, 2);
 
-    assertThat(changeList.getList(CHANGE_ACTIVITIES_FIELD))
+    assertThat(changeList.getList(REVISION_ACTIVITIES_PATH))
         .containsExactly(UPDATE_ACTIVITY, CREATION_ACTIVITY);
   }
 
@@ -92,8 +97,8 @@ class FetchApprovalChangesTest extends IntegrationTestBase {
   @DisplayName("Get a listed change")
   @Description
   void shouldFetchListedChange(SoftAssertions softly) {
-    var changeList = awaitChanges(identifierOf(createApprovalLocation()), 1);
-    var changeId = changeList.getString(FIRST_CHANGE_ID_FIELD);
+    var changeList = awaitChanges(identifierOf(createApprovalLocation()), REVISIONS_PATH, 1);
+    var changeId = changeList.getString(FIRST_REVISION_ID_PATH);
 
     var change =
         givenAuthenticatedJsonRequestAsClient(UIB_CLIENT_SECRET)
@@ -132,13 +137,14 @@ class FetchApprovalChangesTest extends IntegrationTestBase {
   }
 
   /** Changes are read through an eventually consistent lookup, like the approval itself. */
-  private static JsonPath awaitChanges(String approvalIdentifier, int expectedCount) {
+  private static JsonPath awaitChanges(
+      String approvalIdentifier, String countedPath, int expectedCount) {
     return pollUntil(
             VISIBLE_TIMEOUT,
             () -> fetchChanges(approvalIdentifier),
             response ->
                 response.statusCode() == HTTP_OK
-                    && response.jsonPath().getList(CHANGE_TYPES_FIELD).size() == expectedCount)
+                    && response.jsonPath().getList(countedPath).size() == expectedCount)
         .jsonPath();
   }
 }
