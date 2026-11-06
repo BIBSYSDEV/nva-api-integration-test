@@ -22,4 +22,5 @@ awaitility-core = { group = "org.awaitility", name = "awaitility", version.ref =
 
 aspectj-weaver = { module = "org.aspectj:aspectjweaver", version.ref = "aspectj" }
 
+json-unit-core = {module = "net.javacrumbs.json-unit:json-unit-core", version.ref = "json-unit"}
 json-unit = {module = "net.javacrumbs.json-unit:json-unit-assertj", version.ref = "json-unit"}
