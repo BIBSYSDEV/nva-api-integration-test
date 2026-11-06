@@ -61,9 +61,9 @@ class ReceiveEventTest extends IntegrationTestBase {
 
   /**
    * A CloudEvent may be delivered more than once, and a redelivery produces no second snapshot.
-   * That no snapshot was taken can only be seen once a later one has been: snapshots of one
-   * approval are taken in the order they were requested, so the test replaces the source and waits
-   * for the snapshot that revision produces.
+   * That no snapshot was taken can only be seen once a later one has been, so the test replaces the
+   * source and waits for the snapshot that revision produces. An event still in flight by then is
+   * skipped, since the approval no longer points at its source.
    */
   @Test
   @DisplayName("Notify twice with the same CloudEvent")
@@ -82,8 +82,7 @@ class ReceiveEventTest extends IntegrationTestBase {
   /**
    * A snapshot records a change at the source, so a notification about a source whose content is
    * the same as in the latest snapshot, here the one taken when the approval was created, records
-   * nothing. As above, a later snapshot of a replaced source shows that the notification has been
-   * handled.
+   * nothing. As above, the test ends with the snapshot of a replaced source.
    */
   @Test
   @DisplayName("Notify about a source that has not changed since the latest snapshot")
