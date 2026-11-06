@@ -53,7 +53,7 @@ public final class UserFixtures {
       User.builder()
           .withName("Contributor UiB ApiTestUser")
           .withUserId("api-test-user-contributor-uib@test.sikt.no")
-          .withCristinId("1862464@184.0.0.0")
+          .withCristinId("1862465@184.0.0.0")
           .withAffiliations(Affiliation.UIB)
           .build();
 
