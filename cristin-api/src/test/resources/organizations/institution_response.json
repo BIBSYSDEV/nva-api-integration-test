@@ -1,0 +1,1402 @@
+[
+  {
+      "cristin_unit_id": "185.11.0.0",
+      "unit_name": {
+          "en": "Faculty of Theology"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.11.0.0",
+      "acronym": "TF",
+      "parent_unit": {
+          "cristin_unit_id": "185.90.0.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.11.0.10",
+      "unit_name": {
+          "en": "Det teologiske fakultetssekretariat"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.11.0.10",
+      "acronym": "TF-FAKSEKR",
+      "parent_unit": {
+          "cristin_unit_id": "185.11.0.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.11.0.20",
+      "unit_name": {
+          "en": "Fagseksjonen"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.11.0.20",
+      "acronym": "TF-FAGSEK",
+      "parent_unit": {
+          "cristin_unit_id": "185.11.0.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.11.0.21",
+      "unit_name": {
+          "en": "Gruppe A.T."
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.11.0.21",
+      "acronym": "TF-GRUPPE-",
+      "parent_unit": {
+          "cristin_unit_id": "185.11.0.20"
+      }
+  },
+  {
+      "cristin_unit_id": "185.11.0.30",
+      "unit_name": {
+          "en": "Kompetansehevende studier"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.11.0.30",
+      "acronym": "TF-AKS",
+      "parent_unit": {
+          "cristin_unit_id": "185.11.0.20"
+      }
+  },
+  {
+      "cristin_unit_id": "185.11.0.40",
+      "unit_name": {
+          "nb": "Religion i pluralistiske samfunn"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.11.0.40",
+      "acronym": "PLUREL",
+      "parent_unit": {
+          "cristin_unit_id": "185.11.0.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.12.0.0",
+      "unit_name": {
+          "en": "Faculty of Law"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.12.0.0",
+      "acronym": "JF",
+      "parent_unit": {
+          "cristin_unit_id": "185.90.0.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.12.0.10",
+      "unit_name": {
+          "en": "Faculty Administration"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.12.0.10",
+      "acronym": "JF-FAKSEKR",
+      "parent_unit": {
+          "cristin_unit_id": "185.12.0.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.12.0.11",
+      "unit_name": {
+          "en": "Administration Section"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.12.0.11",
+      "acronym": "JF-ADSEK",
+      "parent_unit": {
+          "cristin_unit_id": "185.12.0.17"
+      }
+  },
+  {
+      "cristin_unit_id": "185.12.0.12",
+      "unit_name": {
+          "en": "Information Technology Section"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.12.0.12",
+      "acronym": "JF-ITSEK",
+      "parent_unit": {
+          "cristin_unit_id": "185.12.0.10"
+      }
+  },
+  {
+      "cristin_unit_id": "185.12.0.13",
+      "unit_name": {
+          "en": "Finance and Planning Section"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.12.0.13",
+      "acronym": "JF-ØSEK",
+      "parent_unit": {
+          "cristin_unit_id": "185.12.0.17"
+      }
+  },
+  {
+      "cristin_unit_id": "185.12.0.14",
+      "unit_name": {
+          "en": "Educational Quality Section"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.12.0.14",
+      "acronym": "JF-STUDKVA",
+      "parent_unit": {
+          "cristin_unit_id": "185.12.0.10"
+      }
+  },
+  {
+      "cristin_unit_id": "185.12.0.15",
+      "unit_name": {
+          "en": "Communication Section"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.12.0.15",
+      "acronym": "JF-KSJUS",
+      "parent_unit": {
+          "cristin_unit_id": "185.12.0.10"
+      }
+  },
+  {
+      "cristin_unit_id": "185.12.0.17",
+      "unit_name": {
+          "en": "Faculty Administration"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.12.0.17",
+      "acronym": "JF-ADMØK",
+      "parent_unit": {
+          "cristin_unit_id": "185.12.0.10"
+      }
+  },
+  {
+      "cristin_unit_id": "185.12.0.19",
+      "unit_name": {
+          "en": "CELL: Centre for Experiential Legal Learning"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.12.0.19",
+      "acronym": "JF-CELL",
+      "parent_unit": {
+          "cristin_unit_id": "185.12.0.10"
+      }
+  },
+  {
+      "cristin_unit_id": "185.12.0.40",
+      "unit_name": {
+          "en": "Studies Section"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.12.0.40",
+      "acronym": "JF-STUDJUS",
+      "parent_unit": {
+          "cristin_unit_id": "185.12.0.10"
+      }
+  },
+  {
+      "cristin_unit_id": "185.12.0.46",
+      "unit_name": {
+          "en": "Infosenteret"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.12.0.46",
+      "acronym": "JF-INFOSEN",
+      "parent_unit": {
+          "cristin_unit_id": "185.12.0.40"
+      }
+  },
+  {
+      "cristin_unit_id": "185.12.1.0",
+      "unit_name": {
+          "en": "Department of Criminology and Sociology of Law"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.12.1.0",
+      "acronym": "JF-IKRS",
+      "parent_unit": {
+          "cristin_unit_id": "185.12.0.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.12.1.1",
+      "unit_name": {
+          "en": "Technical and administrative group"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.12.1.1",
+      "acronym": "IKRS-TA",
+      "parent_unit": {
+          "cristin_unit_id": "185.12.1.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.12.1.10",
+      "unit_name": {
+          "en": "Law Student's Free Legal Aid Organization"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.12.1.10",
+      "acronym": "JUSSBUSS",
+      "parent_unit": {
+          "cristin_unit_id": "185.12.1.1"
+      }
+  },
+  {
+      "cristin_unit_id": "185.12.2.0",
+      "unit_name": {
+          "en": "Department of Private Law"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.12.2.0",
+      "acronym": "JF-IFP",
+      "parent_unit": {
+          "cristin_unit_id": "185.12.0.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.12.2.1",
+      "unit_name": {
+          "en": "Technical and administrative"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.12.2.1",
+      "acronym": "IFP-TA",
+      "parent_unit": {
+          "cristin_unit_id": "185.12.2.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.12.2.2",
+      "unit_name": {
+          "en": "Bilagslønnet"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.12.2.2",
+      "acronym": "IFP-BILAG",
+      "parent_unit": {
+          "cristin_unit_id": "185.12.2.1"
+      }
+  },
+  {
+      "cristin_unit_id": "185.12.4.0",
+      "unit_name": {
+          "en": "Scandinavian Institute of Maritime Law"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.12.4.0",
+      "acronym": "JF-NIFS",
+      "parent_unit": {
+          "cristin_unit_id": "185.12.0.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.12.4.1",
+      "unit_name": {
+          "en": "Technical and administrative"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.12.4.1",
+      "acronym": "NIFS-TA",
+      "parent_unit": {
+          "cristin_unit_id": "185.12.4.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.12.5.0",
+      "unit_name": {
+          "en": "Department of Public and International Law"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.12.5.0",
+      "acronym": "JF-IOR",
+      "parent_unit": {
+          "cristin_unit_id": "185.12.0.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.12.5.1",
+      "unit_name": {
+          "en": "Technical and administrative group"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.12.5.1",
+      "acronym": "IOR-TA",
+      "parent_unit": {
+          "cristin_unit_id": "185.12.5.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.12.5.2",
+      "unit_name": {
+          "en": "Bilagslønnet"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.12.5.2",
+      "acronym": "IOR-BILAG",
+      "parent_unit": {
+          "cristin_unit_id": "185.12.5.1"
+      }
+  },
+  {
+      "cristin_unit_id": "185.12.5.3",
+      "unit_name": {
+          "en": "Research administration"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.12.5.3",
+      "acronym": "IOR-FORSK",
+      "parent_unit": {
+          "cristin_unit_id": "185.12.5.1"
+      }
+  },
+  {
+      "cristin_unit_id": "185.12.5.10",
+      "unit_name": {
+          "en": "PluriCourts - Centre for the Study of the Legitimate Roles of the Judiciary in the Global Order"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.12.5.10",
+      "acronym": "PLURICOU",
+      "parent_unit": {
+          "cristin_unit_id": "185.12.5.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.12.5.11",
+      "unit_name": {
+          "en": "Technical and administrative group"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.12.5.11",
+      "acronym": "PLURICOU-T",
+      "parent_unit": {
+          "cristin_unit_id": "185.12.5.10"
+      }
+  },
+  {
+      "cristin_unit_id": "185.12.7.0",
+      "unit_name": {
+          "en": "Norwegian Centre for Human Rights"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.12.7.0",
+      "acronym": "JF-SMR",
+      "parent_unit": {
+          "cristin_unit_id": "185.12.0.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.12.7.2",
+      "unit_name": {
+          "en": "Administration"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.12.7.2",
+      "acronym": "SMR-FELLES",
+      "parent_unit": {
+          "cristin_unit_id": "185.12.7.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.12.7.3",
+      "unit_name": {
+          "en": "Prosjektadministrasjon"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.12.7.3",
+      "acronym": "SMR-PROSJE",
+      "parent_unit": {
+          "cristin_unit_id": "185.12.7.2"
+      }
+  },
+  {
+      "cristin_unit_id": "185.12.7.4",
+      "unit_name": {
+          "en": "Bilagslønnet"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.12.7.4",
+      "acronym": "SMR-BILAG",
+      "parent_unit": {
+          "cristin_unit_id": "185.12.7.2"
+      }
+  },
+  {
+      "cristin_unit_id": "185.12.7.6",
+      "unit_name": {
+          "en": "International Department"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.12.7.6",
+      "acronym": "SMR-INTAVD",
+      "parent_unit": {
+          "cristin_unit_id": "185.12.7.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.13.25.20",
+      "unit_name": {
+          "en": "Enhet for helsevitenskapelig pedagogikk - HELP"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.13.25.20",
+      "acronym": "MED-HELP",
+      "parent_unit": {
+          "cristin_unit_id": "185.50.0.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.14.0.0",
+      "unit_name": {
+          "en": "Faculty of Humanities"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.14.0.0",
+      "acronym": "HF",
+      "parent_unit": {
+          "cristin_unit_id": "185.90.0.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.14.0.10",
+      "unit_name": {
+          "en": "Faculty Administration"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.14.0.10",
+      "acronym": "HF-FAKSEKR",
+      "parent_unit": {
+          "cristin_unit_id": "185.14.0.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.14.0.11",
+      "unit_name": {
+          "en": "Research Section"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.14.0.11",
+      "acronym": "HF-FORSKN",
+      "parent_unit": {
+          "cristin_unit_id": "185.14.0.10"
+      }
+  },
+  {
+      "cristin_unit_id": "185.14.0.12",
+      "unit_name": {
+          "en": "IT-seksjonen"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.14.0.12",
+      "acronym": "HF-IT-SEK",
+      "parent_unit": {
+          "cristin_unit_id": "185.14.0.10"
+      }
+  },
+  {
+      "cristin_unit_id": "185.14.0.13",
+      "unit_name": {
+          "en": "Human Resources Section"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.14.0.13",
+      "acronym": "HF-HR",
+      "parent_unit": {
+          "cristin_unit_id": "185.14.0.10"
+      }
+  },
+  {
+      "cristin_unit_id": "185.14.0.14",
+      "unit_name": {
+          "en": "Communications Section at The Faculty of Humanities"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.14.0.14",
+      "acronym": "HF-KOMMSEK",
+      "parent_unit": {
+          "cristin_unit_id": "185.14.0.10"
+      }
+  },
+  {
+      "cristin_unit_id": "185.14.0.15",
+      "unit_name": {
+          "en": "Studies section"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.14.0.15",
+      "acronym": "HF-STUDIE",
+      "parent_unit": {
+          "cristin_unit_id": "185.14.0.10"
+      }
+  },
+  {
+      "cristin_unit_id": "185.14.0.17",
+      "unit_name": {
+          "en": "UiO:Democracy Administration"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.14.0.17",
+      "acronym": "HF-DEMOADM",
+      "parent_unit": {
+          "cristin_unit_id": "185.14.0.10"
+      }
+  },
+  {
+      "cristin_unit_id": "185.14.0.18",
+      "unit_name": {
+          "en": "Finance Section"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.14.0.18",
+      "acronym": "HF-ØKONOMI",
+      "parent_unit": {
+          "cristin_unit_id": "185.14.0.10"
+      }
+  },
+  {
+      "cristin_unit_id": "185.14.0.19",
+      "unit_name": {
+          "en": "Studentmottaksgruppe"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.14.0.19",
+      "acronym": "HF-STUDENT",
+      "parent_unit": {
+          "cristin_unit_id": "185.14.0.15"
+      }
+  },
+  {
+      "cristin_unit_id": "185.14.0.21",
+      "unit_name": {
+          "en": "Group for Projects"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.14.0.21",
+      "acronym": "HF-PROSJEK",
+      "parent_unit": {
+          "cristin_unit_id": "185.14.0.18"
+      }
+  },
+  {
+      "cristin_unit_id": "185.14.0.53",
+      "unit_name": {
+          "en": "The Norwegian University Center in St. Petersburg"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.14.0.53",
+      "acronym": "HF-DNUSP",
+      "parent_unit": {
+          "cristin_unit_id": "185.14.0.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.14.0.54",
+      "unit_name": {
+          "en": "Centre Universitaire de Norvège à Paris"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.14.0.54",
+      "acronym": "HF-SFNF",
+      "parent_unit": {
+          "cristin_unit_id": "185.14.0.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.14.9.0",
+      "unit_name": {
+          "en": "Department of Media and Communication"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.14.9.0",
+      "acronym": "HF-IMK",
+      "parent_unit": {
+          "cristin_unit_id": "185.14.0.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.14.9.1",
+      "unit_name": {
+          "en": "Stab - IMK"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.14.9.1",
+      "acronym": "IMK-STAB",
+      "parent_unit": {
+          "cristin_unit_id": "185.14.9.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.14.9.2",
+      "unit_name": {
+          "en": "Spesialist-kandidat gruppe"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.14.9.2",
+      "acronym": "IMK-SPESKA",
+      "parent_unit": {
+          "cristin_unit_id": "185.14.9.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.14.9.3",
+      "unit_name": {
+          "en": "Bilagslønnede"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.14.9.3",
+      "acronym": "IMK-BILAG",
+      "parent_unit": {
+          "cristin_unit_id": "185.14.9.1"
+      }
+  },
+  {
+      "cristin_unit_id": "185.14.13.0",
+      "unit_name": {
+          "en": "Det norske institutt i Roma"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.14.13.0",
+      "acronym": "HF-DNIR",
+      "parent_unit": {
+          "cristin_unit_id": "185.14.0.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.14.13.1",
+      "unit_name": {
+          "en": "DNIR-stab"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.14.13.1",
+      "acronym": "DNIR-STAB",
+      "parent_unit": {
+          "cristin_unit_id": "185.14.13.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.14.31.0",
+      "unit_name": {
+          "en": "Department of Archaeology, Conservation and History"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.14.31.0",
+      "acronym": "HF-IAKH",
+      "parent_unit": {
+          "cristin_unit_id": "185.14.0.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.14.31.1",
+      "unit_name": {
+          "en": "Stab - IAKH"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.14.31.1",
+      "acronym": "IAKH-STAB",
+      "parent_unit": {
+          "cristin_unit_id": "185.14.31.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.14.31.10",
+      "unit_name": {
+          "en": "Archaeology"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.14.31.10",
+      "acronym": "IAKH-AIAKH",
+      "parent_unit": {
+          "cristin_unit_id": "185.14.31.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.14.31.20",
+      "unit_name": {
+          "en": "Historie"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.14.31.20",
+      "acronym": "IAKH-HIS",
+      "parent_unit": {
+          "cristin_unit_id": "185.14.31.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.14.31.21",
+      "unit_name": {
+          "en": "Forum for Contemporary History"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.14.31.21",
+      "acronym": "IAKH-FOSAM",
+      "parent_unit": {
+          "cristin_unit_id": "185.14.31.20"
+      }
+  },
+  {
+      "cristin_unit_id": "185.14.31.22",
+      "unit_name": {
+          "en": "Forum for universitetshistorie"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.14.31.22",
+      "acronym": "IAKH-UNIHI",
+      "parent_unit": {
+          "cristin_unit_id": "185.14.31.20"
+      }
+  },
+  {
+      "cristin_unit_id": "185.14.31.23",
+      "unit_name": {
+          "en": "IAKH Ark-kons-midl"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.14.31.23",
+      "acronym": "IAKH-ARKKO",
+      "parent_unit": {
+          "cristin_unit_id": "185.14.31.20"
+      }
+  },
+  {
+      "cristin_unit_id": "185.14.31.30",
+      "unit_name": {
+          "en": "Conservation"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.14.31.30",
+      "acronym": "IAKH-KONS",
+      "parent_unit": {
+          "cristin_unit_id": "185.14.31.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.14.31.40",
+      "unit_name": {
+          "en": "Centre for Viking and Medieval Culture"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.14.31.40",
+      "acronym": "IAKH-MIDST",
+      "parent_unit": {
+          "cristin_unit_id": "185.14.31.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.14.31.50",
+      "unit_name": {
+          "en": "Norway's history online"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.14.31.50",
+      "acronym": "IAKH-HNHN",
+      "parent_unit": {
+          "cristin_unit_id": "185.14.31.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.14.32.0",
+      "unit_name": {
+          "en": "Department of Culture, Religion, Asian and Middle Eastern Studies"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.14.32.0",
+      "acronym": "HF-IKOS",
+      "parent_unit": {
+          "cristin_unit_id": "185.14.0.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.14.32.1",
+      "unit_name": {
+          "en": "IKOS-stab"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.14.32.1",
+      "acronym": "IKOS-STAB",
+      "parent_unit": {
+          "cristin_unit_id": "185.14.32.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.14.32.10",
+      "unit_name": {
+          "nb": "Arkivkunnskap"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.14.32.10",
+      "acronym": "ARKKUN",
+      "parent_unit": {
+          "cristin_unit_id": "185.14.32.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.14.32.25",
+      "unit_name": {
+          "en": "Environmental Humanities"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.14.32.25",
+      "acronym": "IKOS-MILHU",
+      "parent_unit": {
+          "cristin_unit_id": "185.14.32.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.14.32.30",
+      "unit_name": {
+          "en": "Cultural History and Museology"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.14.32.30",
+      "acronym": "IKOS-KULMU",
+      "parent_unit": {
+          "cristin_unit_id": "185.14.32.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.14.32.40",
+      "unit_name": {
+          "en": "Middle East Studies"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.14.32.40",
+      "acronym": "IKOS-MØS",
+      "parent_unit": {
+          "cristin_unit_id": "185.14.32.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.14.32.50",
+      "unit_name": {
+          "en": "Study of Religion"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.14.32.50",
+      "acronym": "IKOS-RELVI",
+      "parent_unit": {
+          "cristin_unit_id": "185.14.32.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.14.32.60",
+      "unit_name": {
+          "en": "Theatre Studies"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.14.32.60",
+      "acronym": "TEATER",
+      "parent_unit": {
+          "cristin_unit_id": "185.14.32.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.14.32.70",
+      "unit_name": {
+          "en": "South Asia studies"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.14.32.70",
+      "acronym": "IKOS-SASTU",
+      "parent_unit": {
+          "cristin_unit_id": "185.14.32.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.14.32.80",
+      "unit_name": {
+          "en": "Japan Studies"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.14.32.80",
+      "acronym": "IKOS-JAP",
+      "parent_unit": {
+          "cristin_unit_id": "185.14.32.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.14.32.85",
+      "unit_name": {
+          "en": "China Studies"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.14.32.85",
+      "acronym": "IKOS-KIN",
+      "parent_unit": {
+          "cristin_unit_id": "185.14.32.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.14.32.95",
+      "unit_name": {
+          "en": "Korea-studies"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.14.32.95",
+      "acronym": "IKOS-KOR",
+      "parent_unit": {
+          "cristin_unit_id": "185.14.32.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.14.33.0",
+      "unit_name": {
+          "en": "Department of Philosophy, Classics, History of Art and Ideas"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.14.33.0",
+      "acronym": "HF-IFIKK",
+      "parent_unit": {
+          "cristin_unit_id": "185.14.0.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.14.33.1",
+      "unit_name": {
+          "en": "IFIKK-stab"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.14.33.1",
+      "acronym": "IFIKK-STAB",
+      "parent_unit": {
+          "cristin_unit_id": "185.14.33.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.14.33.2",
+      "unit_name": {
+          "en": "Timelærere og assistenter"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.14.33.2",
+      "acronym": "IFIKK-BILA",
+      "parent_unit": {
+          "cristin_unit_id": "185.14.33.1"
+      }
+  },
+  {
+      "cristin_unit_id": "185.14.33.10",
+      "unit_name": {
+          "en": "Examen Philosophicum"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.14.33.10",
+      "acronym": "IFIKK-EXPH",
+      "parent_unit": {
+          "cristin_unit_id": "185.14.33.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.14.33.20",
+      "unit_name": {
+          "en": "Philosophy"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.14.33.20",
+      "acronym": "IFIKK-FILO",
+      "parent_unit": {
+          "cristin_unit_id": "185.14.33.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.14.33.30",
+      "unit_name": {
+          "en": "Classics"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.14.33.30",
+      "acronym": "IFIKK-GREL",
+      "parent_unit": {
+          "cristin_unit_id": "185.14.33.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.14.33.40",
+      "unit_name": {
+          "en": "History of Ideas"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.14.33.40",
+      "acronym": "IFIKK-IHIS",
+      "parent_unit": {
+          "cristin_unit_id": "185.14.33.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.14.33.50",
+      "unit_name": {
+          "en": "History of Art"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.14.33.50",
+      "acronym": "IFIKK-KUNH",
+      "parent_unit": {
+          "cristin_unit_id": "185.14.33.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.14.33.60",
+      "unit_name": {
+          "en": "Ethics Programme"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.14.33.60",
+      "acronym": "IFIKK-ETIK",
+      "parent_unit": {
+          "cristin_unit_id": "185.14.33.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.14.33.70",
+      "unit_name": {
+          "en": "Centre for the Study of Mind in Nature"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.14.33.70",
+      "acronym": "CSMN",
+      "parent_unit": {
+          "cristin_unit_id": "185.14.33.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.14.34.0",
+      "unit_name": {
+          "en": "Department of Literature, Area Studies and European Languages"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.14.34.0",
+      "acronym": "HF-ILOS",
+      "parent_unit": {
+          "cristin_unit_id": "185.14.0.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.14.34.1",
+      "unit_name": {
+          "en": "ILOS-stab"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.14.34.1",
+      "acronym": "ILOS-STAB",
+      "parent_unit": {
+          "cristin_unit_id": "185.14.34.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.14.34.2",
+      "unit_name": {
+          "en": "Timelærere og assistenter"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.14.34.2",
+      "acronym": "ILOS-BILAG",
+      "parent_unit": {
+          "cristin_unit_id": "185.14.34.1"
+      }
+  },
+  {
+      "cristin_unit_id": "185.14.34.3",
+      "unit_name": {
+          "en": "ILOS study administration"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.14.34.3",
+      "acronym": "ILOS-STUDI",
+      "parent_unit": {
+          "cristin_unit_id": "185.14.34.1"
+      }
+  },
+  {
+      "cristin_unit_id": "185.14.34.10",
+      "unit_name": {
+          "en": "Allmenn litteraturvitenskap"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.14.34.10",
+      "acronym": "ILOS-LITVI",
+      "parent_unit": {
+          "cristin_unit_id": "185.14.34.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.14.34.20",
+      "unit_name": {
+          "en": "Britisk-amerikansk"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.14.34.20",
+      "acronym": "ILOS-BRITA",
+      "parent_unit": {
+          "cristin_unit_id": "185.14.34.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.14.34.21",
+      "unit_name": {
+          "en": "English Language Literature"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.14.34.21",
+      "acronym": "ILOS-ENGLI",
+      "parent_unit": {
+          "cristin_unit_id": "185.14.34.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.14.34.22",
+      "unit_name": {
+          "en": "British North American"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.14.34.22",
+      "acronym": "ILOS-BRITN",
+      "parent_unit": {
+          "cristin_unit_id": "185.14.34.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.14.34.30",
+      "unit_name": {
+          "en": "Tysk og germansk"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.14.34.30",
+      "acronym": "ILOS-TYSGE",
+      "parent_unit": {
+          "cristin_unit_id": "185.14.34.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.14.34.31",
+      "unit_name": {
+          "en": "Dutch"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.14.34.31",
+      "acronym": "ILOS-NED",
+      "parent_unit": {
+          "cristin_unit_id": "185.14.34.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.14.34.40",
+      "unit_name": {
+          "en": "Fransk"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.14.34.40",
+      "acronym": "ILOS-FRANS",
+      "parent_unit": {
+          "cristin_unit_id": "185.14.34.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.14.34.41",
+      "unit_name": {
+          "en": "French Literature and Culture"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.14.34.41",
+      "acronym": "ILOS-FRALI",
+      "parent_unit": {
+          "cristin_unit_id": "185.14.34.0"
+      }
+  }
+]

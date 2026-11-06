@@ -1,0 +1,365 @@
+[
+  {
+      "cristin_unit_id": "11100000.0.0.0",
+      "unit_name": {
+          "en": "Albania"
+      },
+      "institution": {
+          "acronym": "ALBANIA"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/11100000.0.0.0",
+      "acronym": "ALBANIA"
+  },
+  {
+      "cristin_unit_id": "11100001.0.0.0",
+      "unit_name": {
+          "en": "University of Arts"
+      },
+      "institution": {
+          "acronym": "AEAT"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/11100001.0.0.0",
+      "acronym": "AEAT"
+  },
+  {
+      "cristin_unit_id": "11100002.0.0.0",
+      "unit_name": {
+          "en": "University \"Aleksander Xhuvani\" Elbasan"
+      },
+      "institution": {
+          "acronym": "UNIEL"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/11100002.0.0.0",
+      "acronym": "UNIEL"
+  },
+  {
+      "cristin_unit_id": "11100003.0.0.0",
+      "unit_name": {
+          "nb": "Universitetit “Eqrem Çabej” Gjirokaster"
+      },
+      "institution": {
+          "acronym": "UOGJ"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/11100003.0.0.0",
+      "acronym": "UOGJ"
+  },
+  {
+      "cristin_unit_id": "11100004.0.0.0",
+      "unit_name": {
+          "en": "Sports University of Tiran"
+      },
+      "institution": {
+          "acronym": "UIST"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/11100004.0.0.0",
+      "acronym": "UIST"
+  },
+  {
+      "cristin_unit_id": "11100005.0.0.0",
+      "unit_name": {
+          "en": "Agricultural University of Tirana"
+      },
+      "institution": {
+          "acronym": "UBT"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/11100005.0.0.0",
+      "acronym": "UBT"
+  },
+  {
+      "cristin_unit_id": "11100006.0.0.0",
+      "unit_name": {
+          "en": "Polytechnic University of Tirana"
+      },
+      "institution": {
+          "acronym": "UPT"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/11100006.0.0.0",
+      "acronym": "UPT"
+  },
+  {
+      "cristin_unit_id": "11100007.0.0.0",
+      "unit_name": {
+          "en": "University of Vlora \"Ismail Qemali\""
+      },
+      "institution": {
+          "acronym": "UNIVLORA"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/11100007.0.0.0",
+      "acronym": "UNIVLORA"
+  },
+  {
+      "cristin_unit_id": "11100008.0.0.0",
+      "unit_name": {
+          "en": "University of Korca 'Fan S. Noli'"
+      },
+      "institution": {
+          "acronym": "UNKORCE"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/11100008.0.0.0",
+      "acronym": "UNKORCE"
+  },
+  {
+      "cristin_unit_id": "11100009.0.0.0",
+      "unit_name": {
+          "en": "University of Shkodra 'Luigj Gurakuqi'"
+      },
+      "institution": {
+          "acronym": "UNISHK"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/11100009.0.0.0",
+      "acronym": "UNISHK"
+  },
+  {
+      "cristin_unit_id": "11100010.0.0.0",
+      "unit_name": {
+          "en": "University of Tirana"
+      },
+      "institution": {
+          "acronym": "UT"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/11100010.0.0.0",
+      "acronym": "UT"
+  },
+  {
+      "cristin_unit_id": "11100011.0.0.0",
+      "unit_name": {
+          "nb": "Universiteti Kristal"
+      },
+      "institution": {
+          "acronym": "KU"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/11100011.0.0.0",
+      "acronym": "KU"
+  },
+  {
+      "cristin_unit_id": "11100012.0.0.0",
+      "unit_name": {
+          "en": "Supreme Court of the Republic of Albania"
+      },
+      "institution": {
+          "acronym": "GLRS"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/11100012.0.0.0",
+      "acronym": "GLRS"
+  },
+  {
+      "cristin_unit_id": "11100013.0.0.0",
+      "unit_name": {
+          "en": "'Epoka' University"
+      },
+      "institution": {
+          "acronym": "EU"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/11100013.0.0.0",
+      "acronym": "EU"
+  },
+  {
+      "cristin_unit_id": "11100014.0.0.0",
+      "unit_name": {
+          "en": "Albanian University"
+      },
+      "institution": {
+          "acronym": "AU"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/11100014.0.0.0",
+      "acronym": "AU"
+  },
+  {
+      "cristin_unit_id": "11100015.0.0.0",
+      "unit_name": {
+          "nb": "Universiteti Mesdhetar i Shqipërisë"
+      },
+      "institution": {
+          "acronym": "UMS"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/11100015.0.0.0",
+      "acronym": "UMS"
+  },
+  {
+      "cristin_unit_id": "11105700.0.0.0",
+      "unit_name": {
+          "nb": "Help the Life Association"
+      },
+      "institution": {
+          "acronym": "HELPLIFE"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/11105700.0.0.0",
+      "acronym": "HELPLIFE"
+  },
+  {
+      "cristin_unit_id": "11120001.0.0.0",
+      "unit_name": {
+          "en": "European University of Tirana"
+      },
+      "institution": {
+          "acronym": "UET"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/11120001.0.0.0",
+      "acronym": "UET"
+  },
+  {
+      "cristin_unit_id": "11120002.0.0.0",
+      "unit_name": {
+          "en": "University of Medicine, Tirana"
+      },
+      "institution": {
+          "acronym": "UMT"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/11120002.0.0.0",
+      "acronym": "UMT"
+  },
+  {
+      "cristin_unit_id": "11120003.0.0.0",
+      "unit_name": {
+          "en": "University 'Aleksander Moisiu' Durres"
+      },
+      "institution": {
+          "acronym": "UAMD"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/11120003.0.0.0",
+      "acronym": "UAMD"
+  },
+  {
+      "cristin_unit_id": "11120004.0.0.0",
+      "unit_name": {
+          "en": "University 'Aleksander Moisiu' Durres"
+      },
+      "institution": {
+          "acronym": "UAMD"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/11120004.0.0.0",
+      "acronym": "UAMD"
+  },
+  {
+      "cristin_unit_id": "11120005.0.0.0",
+      "unit_name": {
+          "en": "Mediterranean University of Albania"
+      },
+      "institution": {
+          "acronym": "ASCAL"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/11120005.0.0.0",
+      "acronym": "ASCAL"
+  },
+  {
+      "cristin_unit_id": "11120006.0.0.0",
+      "unit_name": {
+          "en": "\"Barleti\" University"
+      },
+      "institution": {
+          "acronym": "UMB"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/11120006.0.0.0",
+      "acronym": "UMB"
+  },
+  {
+      "cristin_unit_id": "11120007.0.0.0",
+      "unit_name": {
+          "en": "\"Metropolitan Tirana\" University"
+      },
+      "institution": {
+          "acronym": "MUT"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/11120007.0.0.0",
+      "acronym": "MUT"
+  },
+  {
+      "cristin_unit_id": "11120008.0.0.0",
+      "unit_name": {
+          "en": "University College \"Canadian Institute of Technology\""
+      },
+      "institution": {
+          "acronym": "IKT"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/11120008.0.0.0",
+      "acronym": "IKT"
+  },
+  {
+      "cristin_unit_id": "11120009.0.0.0",
+      "unit_name": {
+          "en": "University \"Aldent\""
+      },
+      "institution": {
+          "acronym": "UA"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/11120009.0.0.0",
+      "acronym": "UA"
+  },
+  {
+      "cristin_unit_id": "11120010.0.0.0",
+      "unit_name": {
+          "en": "University College of Business"
+      },
+      "institution": {
+          "acronym": "KUB"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/11120010.0.0.0",
+      "acronym": "KUB"
+  },
+  {
+      "cristin_unit_id": "11120011.0.0.0",
+      "unit_name": {
+          "en": "University College \"Qiriazi\""
+      },
+      "institution": {
+          "acronym": "KUQ"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/11120011.0.0.0",
+      "acronym": "KUQ"
+  },
+  {
+      "cristin_unit_id": "11120012.0.0.0",
+      "unit_name": {
+          "en": "Akademia e Studimeve Albanologjike"
+      },
+      "institution": {
+          "acronym": "ASA"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/11120012.0.0.0",
+      "acronym": "ASA"
+  },
+  {
+      "cristin_unit_id": "11120013.0.0.0",
+      "unit_name": {
+          "en": "Private Proffesional College Medicom"
+      },
+      "institution": {
+          "acronym": "KPPM"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/11120013.0.0.0",
+      "acronym": "KPPM"
+  },
+  {
+      "cristin_unit_id": "11120014.0.0.0",
+      "unit_name": {
+          "en": "Polis University"
+      },
+      "institution": {
+          "acronym": "UPOLIS"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/11120014.0.0.0",
+      "acronym": "UPOLIS"
+  },
+  {
+      "cristin_unit_id": "11120015.0.0.0",
+      "unit_name": {
+          "en": "University College Wisdom"
+      },
+      "institution": {
+          "acronym": "UCW"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/11120015.0.0.0",
+      "acronym": "UCW"
+  },
+  {
+      "cristin_unit_id": "11120016.0.0.0",
+      "unit_name": {
+          "en": "University of Medicine, Tirana"
+      },
+      "institution": {
+          "acronym": "UMED"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/11120016.0.0.0",
+      "acronym": "UMED"
+  }
+]

@@ -1,0 +1,16 @@
+[
+  {
+      "cristin_unit_id": "185.53.18.11",
+      "unit_name": {
+          "en": "Department of Microbiology"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.53.18.11",
+      "acronym": "KLM-MIK",
+      "parent_unit": {
+          "cristin_unit_id": "185.53.18.0"
+      }
+  }
+]

@@ -1,0 +1,112 @@
+[
+  {
+    "cristin_unit_id": "11100000.0.0.0",
+    "unit_name": {
+      "en": "Albania"
+    },
+    "institution": {
+      "acronym": "ALBANIA"
+    },
+    "url": "https://api.cristin-test.uio.no/v2/units/11100000.0.0.0",
+    "acronym": "ALBANIA"
+  },
+  {
+    "cristin_unit_id": "11100001.0.0.0",
+    "unit_name": {
+      "en": "University of Arts"
+    },
+    "institution": {
+      "acronym": "AEAT"
+    },
+    "url": "https://api.cristin-test.uio.no/v2/units/11100001.0.0.0",
+    "acronym": "AEAT"
+  },
+  {
+    "cristin_unit_id": "11100002.0.0.0",
+    "unit_name": {
+      "en": "University \"Aleksander Xhuvani\" Elbasan"
+    },
+    "institution": {
+      "acronym": "UNIEL"
+    },
+    "url": "https://api.cristin-test.uio.no/v2/units/11100002.0.0.0",
+    "acronym": "UNIEL"
+  },
+  {
+    "cristin_unit_id": "11100003.0.0.0",
+    "unit_name": {
+      "nb": "Universitetit “Eqrem Çabej” Gjirokaster"
+    },
+    "institution": {
+      "acronym": "UOGJ"
+    },
+    "url": "https://api.cristin-test.uio.no/v2/units/11100003.0.0.0",
+    "acronym": "UOGJ"
+  },
+  {
+    "cristin_unit_id": "11100004.0.0.0",
+    "unit_name": {
+      "en": "Sports University of Tiran"
+    },
+    "institution": {
+      "acronym": "UIST"
+    },
+    "url": "https://api.cristin-test.uio.no/v2/units/11100004.0.0.0",
+    "acronym": "UIST"
+  },
+  {
+    "cristin_unit_id": "11100005.0.0.0",
+    "unit_name": {
+      "en": "Agricultural University of Tirana"
+    },
+    "institution": {
+      "acronym": "UBT"
+    },
+    "url": "https://api.cristin-test.uio.no/v2/units/11100005.0.0.0",
+    "acronym": "UBT"
+  },
+  {
+    "cristin_unit_id": "11100006.0.0.0",
+    "unit_name": {
+      "en": "Polytechnic University of Tirana"
+    },
+    "institution": {
+      "acronym": "UPT"
+    },
+    "url": "https://api.cristin-test.uio.no/v2/units/11100006.0.0.0",
+    "acronym": "UPT"
+  },
+  {
+    "cristin_unit_id": "11100007.0.0.0",
+    "unit_name": {
+      "en": "University of Vlora \"Ismail Qemali\""
+    },
+    "institution": {
+      "acronym": "UNIVLORA"
+    },
+    "url": "https://api.cristin-test.uio.no/v2/units/11100007.0.0.0",
+    "acronym": "UNIVLORA"
+  },
+  {
+    "cristin_unit_id": "11100008.0.0.0",
+    "unit_name": {
+      "en": "University of Korca 'Fan S. Noli'"
+    },
+    "institution": {
+      "acronym": "UNKORCE"
+    },
+    "url": "https://api.cristin-test.uio.no/v2/units/11100008.0.0.0",
+    "acronym": "UNKORCE"
+  },
+  {
+    "cristin_unit_id": "11100009.0.0.0",
+    "unit_name": {
+      "en": "University of Shkodra 'Luigj Gurakuqi'"
+    },
+    "institution": {
+      "acronym": "UNISHK"
+    },
+    "url": "https://api.cristin-test.uio.no/v2/units/11100009.0.0.0",
+    "acronym": "UNISHK"
+  }
+]
