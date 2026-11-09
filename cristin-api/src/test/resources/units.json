@@ -1,0 +1,71 @@
+{
+  "cristin_unit_id": "185.53.18.14",
+  "unit_name": {
+      "en": "Department of Medical Biochemistry"
+  },
+  "institution": {
+      "cristin_institution_id": "185",
+      "url": "https://api.cristin-test.uio.no/v2/institutions/185"
+  },
+  "parent_unit": {
+      "cristin_unit_id": "185.53.18.0",
+      "unit_name": {
+          "en": "Division of Laboratory Medicine"
+      },
+      "parent_unit": {
+          "cristin_unit_id": "185.53.0.0"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.53.18.0",
+      "country": "NO",
+      "acronym": "IKM-KLM"
+  },
+  "parent_units": [
+      {
+          "cristin_unit_id": "185.90.0.0",
+          "unit_name": {
+              "en": "University of Oslo"
+          },
+          "url": "https://api.cristin-test.uio.no/v2/units/185.90.0.0",
+          "country": "NO",
+          "acronym": "UIO"
+      },
+      {
+          "cristin_unit_id": "185.50.0.0",
+          "unit_name": {
+              "en": "Faculty of Medicine"
+          },
+          "parent_unit": {
+              "cristin_unit_id": "185.90.0.0"
+          },
+          "url": "https://api.cristin-test.uio.no/v2/units/185.50.0.0",
+          "country": "NO",
+          "acronym": "MED"
+      },
+      {
+          "cristin_unit_id": "185.53.0.0",
+          "unit_name": {
+              "en": "Institute of Clinical Medicine"
+          },
+          "parent_unit": {
+              "cristin_unit_id": "185.50.0.0"
+          },
+          "url": "https://api.cristin-test.uio.no/v2/units/185.53.0.0",
+          "country": "NO",
+          "acronym": "MED-IKM"
+      },
+      {
+          "cristin_unit_id": "185.53.18.0",
+          "unit_name": {
+              "en": "Division of Laboratory Medicine"
+          },
+          "parent_unit": {
+              "cristin_unit_id": "185.53.0.0"
+          },
+          "url": "https://api.cristin-test.uio.no/v2/units/185.53.18.0",
+          "country": "NO",
+          "acronym": "IKM-KLM"
+      }
+  ],
+  "country": "NO",
+  "acronym": "KLM-MBK"
+}

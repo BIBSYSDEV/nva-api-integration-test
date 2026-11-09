@@ -1,0 +1,51 @@
+[ {
+  "cristin_unit_id" : "11100008.0.0.0",
+  "unit_name" : {
+    "en" : "University of Korca 'Fan S. Noli'"
+  },
+  "institution" : {
+    "acronym" : "UNKORCE"
+  },
+  "url" : "https://api.cristin-test.uio.no/v2/units/11100008.0.0.0",
+  "acronym" : "UNKORCE"
+}, {
+  "cristin_unit_id" : "11100001.0.0.0",
+  "unit_name" : {
+    "en" : "University of Arts"
+  },
+  "institution" : {
+    "acronym" : "AEAT"
+  },
+  "url" : "https://api.cristin-test.uio.no/v2/units/11100001.0.0.0",
+  "acronym" : "AEAT"
+}, {
+  "cristin_unit_id" : "11120015.0.0.0",
+  "unit_name" : {
+    "en" : "University College Wisdom"
+  },
+  "institution" : {
+    "acronym" : "UCW"
+  },
+  "url" : "https://api.cristin-test.uio.no/v2/units/11120015.0.0.0",
+  "acronym" : "UCW"
+}, {
+  "cristin_unit_id" : "11120010.0.0.0",
+  "unit_name" : {
+    "en" : "University College of Business"
+  },
+  "institution" : {
+    "acronym" : "KUB"
+  },
+  "url" : "https://api.cristin-test.uio.no/v2/units/11120010.0.0.0",
+  "acronym" : "KUB"
+}, {
+  "cristin_unit_id" : "11120011.0.0.0",
+  "unit_name" : {
+    "en" : "University College \"Qiriazi\""
+  },
+  "institution" : {
+    "acronym" : "KUQ"
+  },
+  "url" : "https://api.cristin-test.uio.no/v2/units/11120011.0.0.0",
+  "acronym" : "KUQ"
+} ]

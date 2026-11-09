@@ -3,7 +3,7 @@ rest-assured = "6.0.1"
 allure = "2.35.4"
 awaitility = "4.3.0"
 aspectj = "1.9.25.1"
-json-assert = "2.0-rc1"
+json-unit = "6.4.0"
 
 [libraries]
 rest-assured-bom = { module = "io.rest-assured:rest-assured-bom", version.ref = "rest-assured" }
@@ -22,4 +22,5 @@ awaitility-core = { group = "org.awaitility", name = "awaitility", version.ref =
 
 aspectj-weaver = { module = "org.aspectj:aspectjweaver", version.ref = "aspectj" }
 
-json-assert = { module = "org.skyscreamer:jsonassert", version.ref = "json-assert"}
+json-unit-core = {module = "net.javacrumbs.json-unit:json-unit-core", version.ref = "json-unit"}
+json-unit = {module = "net.javacrumbs.json-unit:json-unit-assertj", version.ref = "json-unit"}

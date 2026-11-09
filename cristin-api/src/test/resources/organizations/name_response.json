@@ -1,0 +1,292 @@
+[
+  {
+      "cristin_unit_id": "14800256.0.0.0",
+      "unit_name": {
+          "nb": "Ukrainian Financial and Economics Institute"
+      },
+      "institution": {
+          "acronym": "UIOFAEK"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/14800256.0.0.0",
+      "acronym": "UIOFAEK"
+  },
+  {
+      "cristin_unit_id": "14800257.0.0.0",
+      "unit_name": {
+          "nb": "Institute of Municipal Management and Business"
+      },
+      "institution": {
+          "acronym": "UIOMMABK"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/14800257.0.0.0",
+      "acronym": "UIOMMABK"
+  },
+  {
+      "cristin_unit_id": "14800258.0.0.0",
+      "unit_name": {
+          "nb": "Ukrainian Institute of Tourism of Trade Unions Federation of Ukraine, Kyiv"
+      },
+      "institution": {
+          "acronym": "UIoToTUFoU"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/14800258.0.0.0",
+      "acronym": "UIoToTUFoU"
+  },
+  {
+      "cristin_unit_id": "14800270.0.0.0",
+      "unit_name": {
+          "nb": "Ukrainian-Finnish Institute of Management and Business, Kyiv"
+      },
+      "institution": {
+          "acronym": "UIoMaBK"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/14800270.0.0.0",
+      "acronym": "UIoMaBK"
+  },
+  {
+      "cristin_unit_id": "14800868.0.0.0",
+      "unit_name": {
+          "en": "Ukrainian Institute of Arts and Sciences"
+      },
+      "institution": {
+          "acronym": "UIOAS"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/14800868.0.0.0",
+      "acronym": "UIOAS"
+  },
+  {
+      "cristin_unit_id": "185.14.0.17",
+      "unit_name": {
+          "en": "UiO:Democracy Administration"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.14.0.17",
+      "acronym": "HF-DEMOADM",
+      "parent_unit": {
+          "cristin_unit_id": "185.14.0.10"
+      }
+  },
+  {
+      "cristin_unit_id": "185.29.4.0",
+      "unit_name": {
+          "en": "UiO:Energy and Environment"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.29.4.0",
+      "acronym": "UIO-ENERGI",
+      "parent_unit": {
+          "cristin_unit_id": "185.90.0.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.29.20.0",
+      "unit_name": {
+          "en": "UiO:Life Science"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.29.20.0",
+      "acronym": "UIO:L",
+      "parent_unit": {
+          "cristin_unit_id": "185.90.0.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.29.23.0",
+      "unit_name": {
+          "en": "UiO:Life Science"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.29.23.0",
+      "acronym": "UIO-LV",
+      "parent_unit": {
+          "cristin_unit_id": "185.90.0.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.29.25.0",
+      "unit_name": {
+          "en": "UiO:Democracy"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.29.25.0",
+      "acronym": "DEMOKRATI",
+      "parent_unit": {
+          "cristin_unit_id": "185.90.0.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.36.0.0",
+      "unit_name": {
+          "en": "UiO: Management and Support Units"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.36.0.0",
+      "acronym": "UIO-ADM",
+      "parent_unit": {
+          "cristin_unit_id": "185.90.0.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.36.17.0",
+      "unit_name": {
+          "en": "University of Oslo Switchboard"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.36.17.0",
+      "acronym": "SB",
+      "parent_unit": {
+          "cristin_unit_id": "185.36.10.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.39.2.0",
+      "unit_name": {
+          "en": "Trade unions"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.39.2.0",
+      "acronym": "AE-TILLITV",
+      "parent_unit": {
+          "cristin_unit_id": "185.90.0.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.39.3.0",
+      "unit_name": {
+          "en": "Senior Safety representatives"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.39.3.0",
+      "acronym": "AE-HOVEDV",
+      "parent_unit": {
+          "cristin_unit_id": "185.90.0.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.51.20.11",
+      "unit_name": {
+          "en": "Department of comparative medicine-UiO"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.51.20.11",
+      "acronym": "IMB-KPMUIO",
+      "parent_unit": {
+          "cristin_unit_id": "185.51.0.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.53.1.5",
+      "unit_name": {
+          "en": "UiO Campus South"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.53.1.5",
+      "acronym": "IKM-CAMPSO",
+      "parent_unit": {
+          "cristin_unit_id": "185.53.0.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.53.18.71",
+      "unit_name": {
+          "en": "K.G.Jebsen Inflammation Research Centre - part UiO"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.53.18.71",
+      "acronym": "KLM-KGJIRC",
+      "parent_unit": {
+          "cristin_unit_id": "185.53.18.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.53.18.72",
+      "unit_name": {
+          "en": "K.G. Jebsen Influenza Vaccine Research Centre-part UiO"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.53.18.72",
+      "acronym": "KLM-KGJIVR",
+      "parent_unit": {
+          "cristin_unit_id": "185.53.18.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.53.18.75",
+      "unit_name": {
+          "en": "K.G. Jebsen Centre for B-Cell Malignancies"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.53.18.75",
+      "acronym": "KLM-KGJBCE",
+      "parent_unit": {
+          "cristin_unit_id": "185.53.18.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.53.49.70",
+      "unit_name": {
+          "en": "K.G. Jebsen Centre for Cancer Immunotherapy"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.53.49.70",
+      "acronym": "KRE-KGVCIR",
+      "parent_unit": {
+          "cristin_unit_id": "185.53.49.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.57.58.0",
+      "unit_name": {
+          "en": "UiO Growth House"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.57.58.0",
+      "acronym": "MED-GROW",
+      "parent_unit": {
+          "cristin_unit_id": "185.50.0.0"
+      }
+  },
+  {
+      "cristin_unit_id": "185.90.0.0",
+      "unit_name": {
+          "en": "University of Oslo"
+      },
+      "institution": {
+          "acronym": "UIO"
+      },
+      "url": "https://api.cristin-test.uio.no/v2/units/185.90.0.0",
+      "acronym": "UIO"
+  }
+]

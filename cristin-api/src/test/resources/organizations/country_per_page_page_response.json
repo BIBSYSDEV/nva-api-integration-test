@@ -1,0 +1,57 @@
+[
+  {
+    "cristin_unit_id": "11100005.0.0.0",
+    "unit_name": {
+      "en": "Agricultural University of Tirana"
+    },
+    "institution": {
+      "acronym": "UBT"
+    },
+    "url": "https://api.cristin-test.uio.no/v2/units/11100005.0.0.0",
+    "acronym": "UBT"
+  },
+  {
+    "cristin_unit_id": "11100006.0.0.0",
+    "unit_name": {
+      "en": "Polytechnic University of Tirana"
+    },
+    "institution": {
+      "acronym": "UPT"
+    },
+    "url": "https://api.cristin-test.uio.no/v2/units/11100006.0.0.0",
+    "acronym": "UPT"
+  },
+  {
+    "cristin_unit_id": "11100007.0.0.0",
+    "unit_name": {
+      "en": "University of Vlora \"Ismail Qemali\""
+    },
+    "institution": {
+      "acronym": "UNIVLORA"
+    },
+    "url": "https://api.cristin-test.uio.no/v2/units/11100007.0.0.0",
+    "acronym": "UNIVLORA"
+  },
+  {
+    "cristin_unit_id": "11100008.0.0.0",
+    "unit_name": {
+      "en": "University of Korca 'Fan S. Noli'"
+    },
+    "institution": {
+      "acronym": "UNKORCE"
+    },
+    "url": "https://api.cristin-test.uio.no/v2/units/11100008.0.0.0",
+    "acronym": "UNKORCE"
+  },
+  {
+    "cristin_unit_id": "11100009.0.0.0",
+    "unit_name": {
+      "en": "University of Shkodra 'Luigj Gurakuqi'"
+    },
+    "institution": {
+      "acronym": "UNISHK"
+    },
+    "url": "https://api.cristin-test.uio.no/v2/units/11100009.0.0.0",
+    "acronym": "UNISHK"
+  }
+]
