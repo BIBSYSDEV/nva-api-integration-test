@@ -56,7 +56,7 @@ class GetOrganizationApiTest extends CristinApiTestBase {
 
   /** Fetch a Cristin unit with invalid unit id returns status {@code 400 Bad Request} */
   @Test
-  @DisplayName("Fetch a Cristin unit with invalid unit id  returns Bad Request")
+  @DisplayName("Fetch a Cristin unit with invalid unit id returns Bad Request")
   @Description
   void shouldReturnBadRequestForInvalidUnitId() {
     var invalidUnitId = "invalid";
