@@ -1,19 +1,20 @@
 package no.sikt.nva.apitest.cristinapi.organization;
 
-import java.util.Map;
-import java.util.stream.Stream;
-
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import static org.junit.jupiter.params.provider.Arguments.argumentSet;
-import org.junit.jupiter.params.provider.MethodSource;
-
-import io.qameta.allure.Description;
+import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
-import no.sikt.nva.apitest.cristinapi.CristinApiTestBase;
 import static no.sikt.nva.apitest.cristinapi.CristinPaths.BASE_UNITS_PATH;
+import static org.junit.jupiter.params.provider.Arguments.argumentSet;
+
+import io.qameta.allure.Description;
+import java.util.Map;
+import java.util.stream.Stream;
+import no.sikt.nva.apitest.cristinapi.CristinApiTestBase;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 @DisplayName("GET " + BASE_UNITS_PATH + "/{parameters}")
 class FetchOrganizationsApiTest extends CristinApiTestBase {
@@ -67,5 +68,18 @@ class FetchOrganizationsApiTest extends CristinApiTestBase {
             "sort",
             Map.of(COUNTRY, "al", PER_PAGE, "5", PAGE, "2", SORT, "name_en desc"),
             "country_sort_response.json"));
+  }
+
+  /** Search for organizations with invalid search query returns status {@code 400 Bad Request} */
+  @Test
+  @DisplayName("Search for organization with invalid search query returns Bad Request")
+  @Description
+  void shouldReturnBadRequestWithInvalidSearchQuery() {
+    givenUnauthenticatedJsonRequest()
+        .queryParams("invalid", "query")
+        .when()
+        .get(BASE_UNITS_PATH)
+        .then()
+        .statusCode(HTTP_BAD_REQUEST);
   }
 }
