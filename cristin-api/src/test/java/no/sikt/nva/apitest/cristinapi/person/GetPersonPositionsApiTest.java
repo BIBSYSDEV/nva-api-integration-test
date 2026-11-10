@@ -1,16 +1,15 @@
 package no.sikt.nva.apitest.cristinapi.person;
 
 import static java.net.HttpURLConnection.HTTP_OK;
-
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-
-import io.qameta.allure.Description;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static net.javacrumbs.jsonunit.core.Option.IGNORING_EXTRA_ARRAY_ITEMS;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedCristinJsonRequest;
-import no.sikt.nva.apitest.cristinapi.CristinApiTestBase;
 import static no.sikt.nva.apitest.cristinapi.CristinPaths.PERSON_POSITIONS_PATH;
+
+import io.qameta.allure.Description;
+import no.sikt.nva.apitest.cristinapi.CristinApiTestBase;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 class GetPersonPositionsApiTest extends CristinApiTestBase {
 

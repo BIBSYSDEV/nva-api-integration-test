@@ -3,15 +3,14 @@ package no.sikt.nva.apitest.cristinapi.person;
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
-
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-
-import io.qameta.allure.Description;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
-import no.sikt.nva.apitest.cristinapi.CristinApiTestBase;
 import static no.sikt.nva.apitest.cristinapi.CristinPaths.PERSON_PATH;
+
+import io.qameta.allure.Description;
+import no.sikt.nva.apitest.cristinapi.CristinApiTestBase;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 class GetPersonApiTest extends CristinApiTestBase {
 
