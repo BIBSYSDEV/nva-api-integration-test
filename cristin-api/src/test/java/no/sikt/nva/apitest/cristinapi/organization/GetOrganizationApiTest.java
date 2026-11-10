@@ -98,9 +98,7 @@ class GetOrganizationApiTest extends CristinApiTestBase {
    * institution unit and status {@code 200 OK}
    */
   @Test
-  @DisplayName(
-      "Fetch a institution that with an id that redirects to another id should return the"
-          + " redirected institution unit")
+  @DisplayName("Fetch a unit with an id that redirects to another id returns the redirected unit")
   @Description
   void shouldReturnRedirect() {
     var redirectedResponse =
