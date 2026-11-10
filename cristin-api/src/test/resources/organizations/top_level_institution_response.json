@@ -1,0 +1,13 @@
+{
+  "cristin_institution_id" : "209",
+  "institution_name" : {
+    "en" : "University of Inland Norway"
+  },
+  "acronym" : "INN",
+  "country" : "NO",
+  "cristin_user_institution" : true,
+  "corresponding_unit" : {
+    "cristin_unit_id" : "209.0.0.0",
+    "url" : "https://api.cristin-test.uio.no/v2/units/209.0.0.0"
+  }
+}

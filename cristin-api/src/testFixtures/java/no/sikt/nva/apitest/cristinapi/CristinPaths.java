@@ -21,6 +21,8 @@ public final class CristinPaths {
   public static final String BASE_UNITS_PATH = "/units";
   public static final String UNIT_PATH = BASE_UNITS_PATH + ID_PARAM;
 
+  public static final String INSTITUTION_PATH = "/institutions/{id}";
+
   public static final String KEYWORDS_PATH = "/keywords";
   public static final String KEYWORD_PATH = KEYWORDS_PATH + ID_PARAM;
 
