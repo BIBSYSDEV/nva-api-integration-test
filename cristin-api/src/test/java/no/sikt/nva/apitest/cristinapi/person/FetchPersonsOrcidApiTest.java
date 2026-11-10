@@ -1,17 +1,18 @@
 package no.sikt.nva.apitest.cristinapi.person;
 
 import static java.net.HttpURLConnection.HTTP_OK;
-import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
-import static net.javacrumbs.jsonunit.core.Option.IGNORING_EXTRA_ARRAY_ITEMS;
-import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedCristinJsonRequest;
-import static no.sikt.nva.apitest.cristinapi.CristinPaths.PERSON_ORCID_PATH;
 
-import io.qameta.allure.Description;
-import no.sikt.nva.apitest.cristinapi.CristinApiTestBase;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-public class FetchPersonsOrcidApiTest extends CristinApiTestBase {
+import io.qameta.allure.Description;
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
+import static net.javacrumbs.jsonunit.core.Option.IGNORING_EXTRA_ARRAY_ITEMS;
+import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedCristinJsonRequest;
+import no.sikt.nva.apitest.cristinapi.CristinApiTestBase;
+import static no.sikt.nva.apitest.cristinapi.CristinPaths.PERSON_ORCID_PATH;
+
+class FetchPersonsOrcidApiTest extends CristinApiTestBase {
 
   private static final String EXPECTED_ORCID_FILE = "persons/persons_orcid_response.json";
 
