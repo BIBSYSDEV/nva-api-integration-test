@@ -6,6 +6,7 @@ import static java.net.HttpURLConnection.HTTP_CONFLICT;
 import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
+import static java.net.HttpURLConnection.HTTP_PRECON_FAILED;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static no.sikt.nva.apitest.approvals.ApprovalClients.UIB_CLIENT_SECRET;
 import static no.sikt.nva.apitest.approvals.ApprovalClients.UIB_IDENTIFIER_NAME;
@@ -15,16 +16,19 @@ import static no.sikt.nva.apitest.approvals.ApprovalPaths.APPROVAL_PATH;
 import static no.sikt.nva.apitest.approvals.ApprovalPaths.BASE_PATH;
 import static no.sikt.nva.apitest.approvals.ApprovalPaths.absolute;
 import static no.sikt.nva.apitest.approvals.Approvals.IDENTIFIERS_FIELD;
+import static no.sikt.nva.apitest.approvals.Approvals.IF_MATCH_HEADER;
 import static no.sikt.nva.apitest.approvals.Approvals.LOCATION_HEADER;
 import static no.sikt.nva.apitest.approvals.Approvals.SOURCE_FIELD;
 import static no.sikt.nva.apitest.approvals.Approvals.approvalPayload;
 import static no.sikt.nva.apitest.approvals.Approvals.createApproval;
+import static no.sikt.nva.apitest.approvals.Approvals.entityTagOf;
 import static no.sikt.nva.apitest.approvals.Approvals.fetchApproval;
 import static no.sikt.nva.apitest.approvals.Approvals.identifier;
 import static no.sikt.nva.apitest.approvals.Approvals.identifierOf;
 import static no.sikt.nva.apitest.approvals.Approvals.replacementSource;
 import static no.sikt.nva.apitest.approvals.Approvals.source;
 import static no.sikt.nva.apitest.approvals.Approvals.uniqueValue;
+import static no.sikt.nva.apitest.approvals.Approvals.unknownEntityTag;
 import static no.sikt.nva.apitest.approvals.Approvals.updatePayload;
 import static no.sikt.nva.apitest.base.Polling.pollUntil;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsClient;
@@ -67,6 +71,7 @@ class UpdateApprovalTest extends IntegrationTestBase {
   private static final String ID_MISMATCH_MESSAGE = "does not address approval";
   private static final String IDENTIFIER_MISMATCH_MESSAGE = "does not match approval";
   private static final Duration VISIBLE_TIMEOUT = Duration.ofSeconds(30);
+  private static final int HTTP_PRECONDITION_REQUIRED = 428;
 
   /**
    * An update replaces the identifiers and the source of an approval rather than adding to them,
@@ -85,6 +90,7 @@ class UpdateApprovalTest extends IntegrationTestBase {
     var replacementSource = replacementSource();
     var location =
         givenAuthenticatedJsonRequestAsClient(UIB_CLIENT_SECRET)
+            .header(IF_MATCH_HEADER, entityTagOf(approvalIdentifier))
             .body(updatePayload(UIB_IDENTIFIER_NAME, replacementValue, replacementSource))
             .when()
             .put(APPROVAL_PATH, approvalIdentifier)
@@ -151,6 +157,7 @@ class UpdateApprovalTest extends IntegrationTestBase {
 
     var problem =
         givenAuthenticatedJsonRequestAsClient(UIS_CLIENT_SECRET)
+            .header(IF_MATCH_HEADER, entityTagOf(approvalIdentifier))
             .body(updatePayload(UIS_IDENTIFIER_NAME, uniqueValue()))
             .when()
             .put(APPROVAL_PATH, approvalIdentifier)
@@ -265,6 +272,7 @@ class UpdateApprovalTest extends IntegrationTestBase {
     payload.put(ID_FIELD, location);
 
     givenAuthenticatedJsonRequestAsClient(UIB_CLIENT_SECRET)
+        .header(IF_MATCH_HEADER, entityTagOf(approvalIdentifier))
         .body(payload)
         .when()
         .put(APPROVAL_PATH, approvalIdentifier)
@@ -278,11 +286,44 @@ class UpdateApprovalTest extends IntegrationTestBase {
   @Description
   void shouldReturnNotFoundWhenApprovalDoesNotExist() {
     givenAuthenticatedJsonRequestAsClient(UIB_CLIENT_SECRET)
+        .header(IF_MATCH_HEADER, unknownEntityTag())
         .body(updatePayload(UIB_IDENTIFIER_NAME, uniqueValue()))
         .when()
         .put(APPROVAL_PATH, UUID.randomUUID())
         .then()
         .statusCode(HTTP_NOT_FOUND);
+  }
+
+  /**
+   * An update must say which version it changes, so one client cannot silently overwrite what
+   * another wrote since it last read.
+   */
+  @Test
+  @DisplayName("Update approval without If-Match")
+  @Description
+  void shouldReturnPreconditionRequiredWhenIfMatchIsMissing() {
+    givenAuthenticatedJsonRequestAsClient(UIB_CLIENT_SECRET)
+        .body(updatePayload(UIB_IDENTIFIER_NAME, uniqueValue()))
+        .when()
+        .put(APPROVAL_PATH, UUID.randomUUID())
+        .then()
+        .statusCode(HTTP_PRECONDITION_REQUIRED);
+  }
+
+  /** An update based on a version that is not the current one is refused rather than applied. */
+  @Test
+  @DisplayName("Update approval with an If-Match that is not the current version")
+  @Description
+  void shouldReturnPreconditionFailedWhenIfMatchIsNotCurrentVersion() {
+    var approvalIdentifier = createApprovalWith(uniqueValue());
+
+    givenAuthenticatedJsonRequestAsClient(UIB_CLIENT_SECRET)
+        .header(IF_MATCH_HEADER, unknownEntityTag())
+        .body(updatePayload(UIB_IDENTIFIER_NAME, uniqueValue()))
+        .when()
+        .put(APPROVAL_PATH, approvalIdentifier)
+        .then()
+        .statusCode(HTTP_PRECON_FAILED);
   }
 
   /** Changing an approval is reserved for clients holding the approval-upsert scope. */
@@ -312,6 +353,7 @@ class UpdateApprovalTest extends IntegrationTestBase {
 
   private static Response updateApproval(String approvalIdentifier, String identifierValue) {
     return givenAuthenticatedJsonRequestAsClient(UIB_CLIENT_SECRET)
+        .header(IF_MATCH_HEADER, entityTagOf(approvalIdentifier))
         .body(updatePayload(UIB_IDENTIFIER_NAME, identifierValue))
         .when()
         .put(APPROVAL_PATH, approvalIdentifier);
