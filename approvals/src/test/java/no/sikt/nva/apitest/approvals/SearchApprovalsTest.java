@@ -9,7 +9,7 @@ import static no.sikt.nva.apitest.approvals.Approvals.createApproval;
 import static no.sikt.nva.apitest.approvals.Approvals.fetchApproval;
 import static no.sikt.nva.apitest.approvals.Approvals.identifierOf;
 import static no.sikt.nva.apitest.approvals.Approvals.uniqueValue;
-import static no.sikt.nva.apitest.approvals.ClinicalTrialSource.INVESTIGATOR_PERSON_ID;
+import static no.sikt.nva.apitest.approvals.ClinicalTrialSource.INVESTIGATOR_PERSON_IDENTIFIER;
 import static no.sikt.nva.apitest.approvals.ClinicalTrialSource.INVESTIGATOR_PERSON_URI;
 import static no.sikt.nva.apitest.approvals.ClinicalTrialSource.publishClinicalTrial;
 import static no.sikt.nva.apitest.base.Polling.pollUntil;
@@ -54,7 +54,7 @@ class SearchApprovalsTest extends IntegrationTestBase {
             createApproval(
                 UIB_CLIENT_SECRET,
                 approvalPayload(
-                    UIB_IDENTIFIER_NAME, namedIdentifierValue, publishClinicalTrial())));
+                    UIB_IDENTIFIER_NAME, namedIdentifierValue, publishClinicalTrial().toString())));
     var approvalIdentifier = identifierOf(approvalId.toString());
 
     var approval =
@@ -74,9 +74,9 @@ class SearchApprovalsTest extends IntegrationTestBase {
     assertThat(searchApprovals(uniqueValue()).getList(HITS_FIELD)).isEmpty();
   }
 
-  /** Search approval by handle, identifier and person returns approval in hits */
+  /** Search approval by handle, identifiers and person returns approval in hits */
   @ParameterizedTest
-  @MethodSource("queriesNamingTheApproval")
+  @MethodSource("queries")
   @DisplayName("Search approval by query")
   @Description
   void shouldReturnApprovalWhenQueryNamesIt(String query) {
@@ -84,30 +84,16 @@ class SearchApprovalsTest extends IntegrationTestBase {
         .isEqualTo(approvalId.toString());
   }
 
-  private static Stream<Arguments> queriesNamingTheApproval() {
+  private static Stream<Arguments> queries() {
     return Stream.of(
         argumentSet("Approval uri", approvalId.toString()),
         argumentSet("Approval identifier", identifierOf(approvalId)),
         argumentSet("Handle", handle.toString()),
         argumentSet("Named identifier", namedIdentifierValue),
-        argumentSet("Person uri", narrowedToThisApproval(INVESTIGATOR_PERSON_URI.toString())),
-        argumentSet("Person identifier", narrowedToThisApproval(INVESTIGATOR_PERSON_ID)));
+        argumentSet("Person uri", INVESTIGATOR_PERSON_URI.toString()),
+        argumentSet("Person identifier", INVESTIGATOR_PERSON_IDENTIFIER));
   }
 
-  /**
-   * Pairs a term with the identifier value only this run's approval carries. The trial document is
-   * the same one every run publishes, so its persons name every approval this test has ever
-   * created, while the four terms above name one approval on their own. Query terms are combined
-   * with AND, so a person term matching nothing would leave the query without hits.
-   */
-  private static String narrowedToThisApproval(String term) {
-    return "%s:%s".formatted(term, namedIdentifierValue);
-  }
-
-  /**
-   * Indexing an approval takes fetching and expanding its source first, so a search for one just
-   * created answers truthfully with nothing until that has happened.
-   */
   private static JsonPath awaitSearchable(String query) {
     return pollUntil(
         INDEXING_TIMEOUT,
