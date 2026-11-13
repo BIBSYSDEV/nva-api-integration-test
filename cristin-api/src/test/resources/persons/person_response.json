@@ -1,0 +1,20 @@
+{
+  "cristin_person_id" : "250",
+  "first_name" : "Patrick",
+  "surname" : "Diemling",
+  "identified_cristin_person" : true,
+  "affiliations" : [ {
+    "institution" : {
+      "cristin_institution_id" : "185",
+      "url" : "https://api.cristin-test.uio.no/v2/institutions/185"
+    },
+    "unit" : {
+      "cristin_unit_id" : "185.14.32.0",
+      "url" : "https://api.cristin-test.uio.no/v2/units/185.14.32.0"
+    },
+    "active" : false,
+    "position" : {
+      "en" : "Guest"
+    }
+  } ]
+}

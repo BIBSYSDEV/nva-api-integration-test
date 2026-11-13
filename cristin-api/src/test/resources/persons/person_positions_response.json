@@ -1,0 +1,51 @@
+[
+  {
+    "code": "0",
+    "name": {
+      "en": "External"
+    },
+    "enabled": false
+  },
+  {
+    "code": "00",
+    "name": {
+      "en": "Student"
+    },
+    "enabled": false
+  },
+  {
+    "code": "0000",
+    "name": {
+      "en": "Guest"
+    },
+    "enabled": false
+  },
+  {
+    "code": "00000000",
+    "name": {
+      "nb": "Pensjonist"
+    },
+    "enabled": false
+  },
+  {
+    "code": "0001",
+    "name": {
+      "en": "Cabinet ministers office"
+    },
+    "enabled": false
+  },
+  {
+    "code": "0002",
+    "name": {
+      "en": "Emeritus"
+    },
+    "enabled": false
+  },
+  {
+    "code": "0003",
+    "name": {
+      "nb": "Ekstern Phd"
+    },
+    "enabled": false
+  }
+]
