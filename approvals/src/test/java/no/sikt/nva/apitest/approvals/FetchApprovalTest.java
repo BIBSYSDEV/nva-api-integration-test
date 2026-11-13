@@ -1,19 +1,25 @@
 package no.sikt.nva.apitest.approvals;
 
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
+import static java.net.HttpURLConnection.HTTP_NOT_ACCEPTABLE;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
+import static java.net.HttpURLConnection.HTTP_NOT_MODIFIED;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static no.sikt.nva.apitest.approvals.ApprovalClients.UIB_CLIENT_SECRET;
 import static no.sikt.nva.apitest.approvals.ApprovalClients.UIB_IDENTIFIER_NAME;
 import static no.sikt.nva.apitest.approvals.ApprovalPaths.APPROVAL_PATH;
+import static no.sikt.nva.apitest.approvals.Approvals.ETAG_HEADER;
 import static no.sikt.nva.apitest.approvals.Approvals.IDENTIFIERS_FIELD;
+import static no.sikt.nva.apitest.approvals.Approvals.IF_NONE_MATCH_HEADER;
 import static no.sikt.nva.apitest.approvals.Approvals.SOURCE_FIELD;
 import static no.sikt.nva.apitest.approvals.Approvals.approvalPayload;
 import static no.sikt.nva.apitest.approvals.Approvals.createApproval;
+import static no.sikt.nva.apitest.approvals.Approvals.entityTagOf;
 import static no.sikt.nva.apitest.approvals.Approvals.identifier;
 import static no.sikt.nva.apitest.approvals.Approvals.identifierOf;
 import static no.sikt.nva.apitest.base.Polling.pollUntil;
 import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import io.qameta.allure.Description;
 import io.restassured.response.Response;
@@ -36,7 +42,6 @@ class FetchApprovalTest extends IntegrationTestBase {
   private static final String JSON_LD_MEDIA_TYPE = "application/ld+json";
   private static final String HTML_MEDIA_TYPE = "text/html";
   private static final String ANY_MEDIA_TYPE = "*/*";
-  private static final String DOCTYPE_DECLARATION = "<!DOCTYPE html>";
   private static final String CONTEXT_FIELD = "@context";
   private static final String ID_FIELD = "id";
   private static final String IDENTIFIER_FIELD = "identifier";
@@ -109,45 +114,56 @@ class FetchApprovalTest extends IntegrationTestBase {
   }
 
   /**
-   * A handle resolves to this URI in a browser, so it must also serve a readable page. The page has
-   * to render the approval's own data rather than merely be valid html, so it is checked for the
-   * identifier value the approval carries.
+   * The approval is served as a document and no longer as a page, so a client that will take
+   * nothing but html is told so, rather than being handed a representation it did not ask for.
    */
   @Test
-  @DisplayName("Get approval as html")
+  @DisplayName("Get approval with unsupported accept header")
   @Description
-  void shouldReturnApprovalAsHtml(SoftAssertions softly) {
-    var page =
-        fetchApproval(HTML_MEDIA_TYPE)
-            .then()
-            .statusCode(HTTP_OK)
-            .contentType(HTML_MEDIA_TYPE)
-            .extract()
-            .asString();
-
-    softly.assertThat(page).contains(DOCTYPE_DECLARATION);
-    softly.assertThat(page).contains(identifierValue);
+  void shouldReturnNotAcceptableWhenAcceptHeaderIsUnsupported() {
+    fetchApproval(HTML_MEDIA_TYPE).then().statusCode(HTTP_NOT_ACCEPTABLE);
   }
 
   /**
-   * A browser following a handle accepts anything, and gets the page rather than the document,
-   * because html is the first media type this endpoint offers. Clients that want the document ask
-   * for it by media type.
+   * A client that accepts anything states no preference, so it gets the default representation
+   * instead of an error.
    */
   @Test
   @DisplayName("Get approval accepting any media type")
   @Description
-  void shouldReturnPageWhenClientAcceptsAnyMediaType(SoftAssertions softly) {
-    var page =
+  void shouldReturnJsonWhenClientAcceptsAnyMediaType() {
+    var approval =
         fetchApproval(ANY_MEDIA_TYPE)
             .then()
             .statusCode(HTTP_OK)
-            .contentType(HTML_MEDIA_TYPE)
+            .contentType(JSON_MEDIA_TYPE)
             .extract()
-            .asString();
+            .jsonPath();
 
-    softly.assertThat(page).contains(DOCTYPE_DECLARATION);
-    softly.assertThat(page).contains(identifierValue);
+    assertThat(approval.getString(ID_FIELD)).isEqualTo(approvalLocation);
+  }
+
+  /** Get approval returns entity tag. */
+  @Test
+  @DisplayName("Get approval returns entity tag")
+  @Description
+  void shouldReturnEntityTagWhenApprovalIsFetched() {
+    assertThat(fetchApproval(JSON_MEDIA_TYPE).header(ETAG_HEADER)).isNotBlank();
+  }
+
+  /**
+   * A client holding the current version sends it back as If-None-Match and is told that nothing
+   * changed, instead of being served a copy of what it already has.
+   */
+  @Test
+  @DisplayName("Get approval that has not changed since its entity tag was issued")
+  @Description
+  void shouldReturnNotModifiedWhenEntityTagMatchesCurrentVersion() {
+    givenUnauthenticatedJsonRequest()
+        .header(IF_NONE_MATCH_HEADER, entityTagOf(approvalIdentifier))
+        .get(APPROVAL_PATH, approvalIdentifier)
+        .then()
+        .statusCode(HTTP_NOT_MODIFIED);
   }
 
   /** An approval identifier that is well formed but unknown is not found. */

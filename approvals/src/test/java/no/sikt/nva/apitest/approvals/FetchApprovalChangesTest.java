@@ -10,8 +10,10 @@ import static no.sikt.nva.apitest.approvals.ApprovalPaths.APPROVAL_PATH;
 import static no.sikt.nva.apitest.approvals.ApprovalPaths.CHANGES_PATH;
 import static no.sikt.nva.apitest.approvals.ApprovalPaths.CURRENT_CONTEXT_PATH;
 import static no.sikt.nva.apitest.approvals.ApprovalPaths.absolute;
+import static no.sikt.nva.apitest.approvals.Approvals.IF_MATCH_HEADER;
 import static no.sikt.nva.apitest.approvals.Approvals.approvalPayload;
 import static no.sikt.nva.apitest.approvals.Approvals.createApproval;
+import static no.sikt.nva.apitest.approvals.Approvals.entityTagOf;
 import static no.sikt.nva.apitest.approvals.Approvals.fetchChanges;
 import static no.sikt.nva.apitest.approvals.Approvals.identifierOf;
 import static no.sikt.nva.apitest.approvals.Approvals.uniqueValue;
@@ -75,6 +77,7 @@ class FetchApprovalChangesTest extends IntegrationTestBase {
   void shouldListUpdateBeforeCreation() {
     var approvalIdentifier = identifierOf(createApprovalLocation());
     givenAuthenticatedJsonRequestAsClient(UIB_CLIENT_SECRET)
+        .header(IF_MATCH_HEADER, entityTagOf(approvalIdentifier))
         .body(updatePayload(UIB_IDENTIFIER_NAME, uniqueValue()))
         .when()
         .put(APPROVAL_PATH, approvalIdentifier)

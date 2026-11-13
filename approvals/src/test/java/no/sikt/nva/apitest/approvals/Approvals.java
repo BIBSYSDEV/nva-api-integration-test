@@ -11,11 +11,13 @@ import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsC
 
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
+import java.net.URI;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import no.sikt.nva.apitest.base.Affiliation;
+import nva.commons.core.paths.UriWrapper;
 
 /**
  * Payloads for the approval write endpoints. Identifier values are unique per call, because an
@@ -31,7 +33,11 @@ public final class Approvals {
   public static final String LOCATION_HEADER = "Location";
   public static final String CONTENT_LOCATION_HEADER = "Content-Location";
   public static final String DETAIL_FIELD = "detail";
+  public static final String IF_MATCH_HEADER = "If-Match";
+  public static final String IF_NONE_MATCH_HEADER = "If-None-Match";
+  public static final String ETAG_HEADER = "ETag";
 
+  private static final String ENTITY_TAG_FORMAT = "\"%s\"";
   private static final String APPROVAL_ID_PARAMETER = "approvalId";
   private static final Duration READABLE_TIMEOUT = Duration.ofSeconds(30);
   private static final String JSON_MEDIA_TYPE = "application/json";
@@ -135,6 +141,23 @@ public final class Approvals {
   }
 
   /**
+   * Reads the entity tag of the approval's current version. An update must send it back as {@code
+   * If-Match}, so a client can only change the version it has actually read.
+   */
+  public static String entityTagOf(String approvalIdentifier) {
+    return fetchApproval(approvalIdentifier, JSON_MEDIA_TYPE).header(ETAG_HEADER);
+  }
+
+  /**
+   * A well formed entity tag that names no version. It gets an update past the {@code If-Match}
+   * check to whatever is decided after it, and proves that a version the client never read is
+   * refused.
+   */
+  public static String unknownEntityTag() {
+    return ENTITY_TAG_FORMAT.formatted(UUID.randomUUID());
+  }
+
+  /**
    * Lists the recorded changes to an approval. The change history is only open to clients holding
    * the approval-upsert scope, so it is read as the UiB client.
    */
@@ -144,8 +167,12 @@ public final class Approvals {
         .get(CHANGES_PATH);
   }
 
+  public static String identifierOf(URI approvalLocation) {
+    return identifierOf(approvalLocation.toString());
+  }
+
   public static String identifierOf(String approvalLocation) {
-    return approvalLocation.substring(approvalLocation.lastIndexOf('/') + 1);
+    return UriWrapper.fromUri(approvalLocation).getLastPathElement();
   }
 
   private static String organizationSource(Affiliation affiliation) {
