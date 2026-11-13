@@ -12,6 +12,7 @@ import no.sikt.nva.apitest.cristinapi.CristinApiTestBase;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+@DisplayName("GET " + PERSON_PATH)
 class GetPersonApiTest extends CristinApiTestBase {
 
   private static final String EXPECTED_PERSON_FILE = "persons/person_response.json";
