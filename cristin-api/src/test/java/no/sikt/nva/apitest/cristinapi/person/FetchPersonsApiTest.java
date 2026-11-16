@@ -20,6 +20,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 @DisplayName("GET " + PERSONS_BASE_PATH + "?{parameters}")
 class FetchPersonsApiTest extends CristinApiTestBase {
 
+  private static final String ADD = " + ";
   private static final String ID = "id";
   private static final String NAME = "name";
   private static final String INSTITUTION = "institution";
@@ -52,7 +53,7 @@ class FetchPersonsApiTest extends CristinApiTestBase {
         argumentSet(ID, Map.of(ID, "30621"), "id_response.json"),
         argumentSet(NAME, Map.of(NAME, "eirik+nilsen"), "name_response.json"),
         argumentSet(
-            INSTITUTION + " + " + NAME,
+            INSTITUTION + ADD + NAME,
             Map.of(INSTITUTION, "uio", NAME, "røed"),
             "institution_name_response.json"),
         argumentSet(
@@ -60,11 +61,11 @@ class FetchPersonsApiTest extends CristinApiTestBase {
             Map.of(INSTITUTION, "185", NAME, "røed"),
             "institution_name_response.json"),
         argumentSet(
-            PARENT_UNIT_ID + " + " + NAME,
+            PARENT_UNIT_ID + ADD + NAME,
             Map.of(PARENT_UNIT_ID, "192.0.0.0", NAME, "nilsen"),
             "parent_unit_id_name_response.json"),
         argumentSet(
-            PARENT_UNIT_ID + " + " + NAME + " + " + LEVELS,
+            PARENT_UNIT_ID + ADD + NAME + ADD + LEVELS,
             Map.of(PARENT_UNIT_ID, "192.0.0.0", NAME, "nilsen", LEVELS, "1"),
             "parent_unit_id_name_level_response.json"));
   }
