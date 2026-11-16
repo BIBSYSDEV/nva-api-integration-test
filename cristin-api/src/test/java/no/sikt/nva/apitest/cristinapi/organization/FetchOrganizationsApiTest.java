@@ -30,7 +30,7 @@ class FetchOrganizationsApiTest extends CristinApiTestBase {
 
   /** Search for organizations returns list of organizations and status {@code 200 Ok} */
   @ParameterizedTest
-  @MethodSource("fetchParametersProvider")
+  @MethodSource("fetchOrganizationsParametersProvider")
   @DisplayName("Search for organization returns list of organizations")
   @Description
   void shouldFetchUnits(Map<String, String> parameters, String expectedFile) {
@@ -50,7 +50,7 @@ class FetchOrganizationsApiTest extends CristinApiTestBase {
     assertThatJson(searchResponse).isEqualTo(expected);
   }
 
-  private static Stream<Arguments> fetchParametersProvider() {
+  private static Stream<Arguments> fetchOrganizationsParametersProvider() {
     return Stream.of(
         argumentSet(ID, Map.of(ID, "185.53.18.11"), "id_response.json"),
         argumentSet(NAME, Map.of(NAME, "UIO"), "name_response.json"),

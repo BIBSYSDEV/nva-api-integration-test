@@ -1,0 +1,26 @@
+[
+  {
+    "first_name": "Lise Benette Nilsen",
+    "surname": "Hovd",
+    "url": "https://api.cristin-test.uio.no/v2/persons/1824525",
+    "cristin_person_id": "1824525"
+  },
+  {
+    "first_name": "Eirik",
+    "surname": "Nilsen",
+    "url": "https://api.cristin-test.uio.no/v2/persons/43419",
+    "cristin_person_id": "43419"
+  },
+  {
+    "first_name": "Sarah Elise Smebakk",
+    "surname": "Nilsen",
+    "url": "https://api.cristin-test.uio.no/v2/persons/1746785",
+    "cristin_person_id": "1746785"
+  },
+  {
+    "first_name": "Vegard",
+    "surname": "Nilsen",
+    "url": "https://api.cristin-test.uio.no/v2/persons/317714",
+    "cristin_person_id": "317714"
+  }
+]

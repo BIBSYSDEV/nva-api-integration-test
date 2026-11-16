@@ -1,0 +1,26 @@
+[
+  {
+      "first_name": "Eirik Nilsen",
+      "surname": "Fosse",
+      "url": "https://api.cristin-test.uio.no/v2/persons/624606",
+      "cristin_person_id": "624606"
+  },
+  {
+      "first_name": "Eirik Nilsen",
+      "surname": "Haugland",
+      "url": "https://api.cristin-test.uio.no/v2/persons/951787",
+      "cristin_person_id": "951787"
+  },
+  {
+      "first_name": "Eirik",
+      "surname": "Nilsen",
+      "url": "https://api.cristin-test.uio.no/v2/persons/704351",
+      "cristin_person_id": "704351"
+  },
+  {
+      "first_name": "Eirik",
+      "surname": "Nilsen",
+      "url": "https://api.cristin-test.uio.no/v2/persons/43419",
+      "cristin_person_id": "43419"
+  }
+]

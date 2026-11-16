@@ -1,0 +1,32 @@
+[
+  {
+    "first_name": "Hogne Røed",
+    "surname": "Nilsen",
+    "url": "https://api.cristin-test.uio.no/v2/persons/6482",
+    "cristin_person_id": "6482"
+  },
+  {
+    "first_name": "Elin Sandertun",
+    "surname": "Røed",
+    "url": "https://api.cristin-test.uio.no/v2/persons/1774702",
+    "cristin_person_id": "1774702"
+  },
+  {
+    "first_name": "Erik Sandertun",
+    "surname": "Røed",
+    "url": "https://api.cristin-test.uio.no/v2/persons/1770628",
+    "cristin_person_id": "1770628"
+  },
+  {
+    "first_name": "Ketil",
+    "surname": "Røed",
+    "url": "https://api.cristin-test.uio.no/v2/persons/44923",
+    "cristin_person_id": "44923"
+  },
+  {
+    "first_name": "Maiken",
+    "surname": "Røed",
+    "url": "https://api.cristin-test.uio.no/v2/persons/619059",
+    "cristin_person_id": "619059"
+  }
+]
