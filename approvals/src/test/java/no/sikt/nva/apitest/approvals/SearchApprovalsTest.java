@@ -14,7 +14,7 @@ import static no.sikt.nva.apitest.approvals.ClinicalTrialSource.INVESTIGATOR_PER
 import static no.sikt.nva.apitest.approvals.ClinicalTrialSource.publishClinicalTrial;
 import static no.sikt.nva.apitest.base.Polling.pollUntil;
 import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
-import static no.sikt.nva.apitest.base.SettledCondition.settledWhenAtLeast;
+import static no.sikt.nva.apitest.base.SettledCondition.settledWhen;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.argumentSet;
 
@@ -22,6 +22,7 @@ import io.qameta.allure.Description;
 import io.restassured.path.json.JsonPath;
 import java.net.URI;
 import java.time.Duration;
+import java.util.List;
 import java.util.stream.Stream;
 import no.sikt.nva.apitest.base.IntegrationTestBase;
 import org.junit.jupiter.api.BeforeAll;
@@ -38,8 +39,7 @@ class SearchApprovalsTest extends IntegrationTestBase {
   private static final String QUERY_PARAMETER = "query";
   private static final String HANDLE_FIELD = "handle";
   private static final String HITS_FIELD = "hits";
-  private static final String FIRST_HIT_ID_FIELD = "hits[0].id";
-  private static final Duration APPROVAL_AVAILABLE_TIMEOUT = Duration.ofSeconds(30);
+  private static final String HIT_IDS_FIELD = "hits.id";
   private static final Duration INDEXING_TIMEOUT = Duration.ofMinutes(3);
 
   private static URI approvalId;
@@ -55,15 +55,11 @@ class SearchApprovalsTest extends IntegrationTestBase {
                 UIB_CLIENT_SECRET,
                 approvalPayload(
                     UIB_IDENTIFIER_NAME, namedIdentifierValue, publishClinicalTrial().toString())));
-    var approvalIdentifier = identifierOf(approvalId.toString());
-
-    var approval =
-        pollUntil(
-                APPROVAL_AVAILABLE_TIMEOUT,
-                () -> fetchApproval(approvalIdentifier, JSON_MEDIA_TYPE),
-                response -> response.statusCode() == HTTP_OK)
-            .jsonPath();
-    handle = URI.create(approval.getString(HANDLE_FIELD));
+    handle =
+        URI.create(
+            fetchApproval(identifierOf(approvalId), JSON_MEDIA_TYPE)
+                .jsonPath()
+                .getString(HANDLE_FIELD));
   }
 
   /** A query matching nothing is an empty result. */
@@ -74,14 +70,17 @@ class SearchApprovalsTest extends IntegrationTestBase {
     assertThat(searchApprovals(uniqueValue()).getList(HITS_FIELD)).isEmpty();
   }
 
-  /** Search approval by handle, identifiers and person returns approval in hits */
+  /**
+   * Search approval by handle, identifiers and person returns approval in hits. A person query also
+   * matches the approvals left by earlier runs, so the hit this test is about is looked for among
+   * the hits rather than expected to be the first one.
+   */
   @ParameterizedTest
   @MethodSource("queries")
   @DisplayName("Search approval by query")
   @Description
   void shouldReturnApprovalWhenQueryNamesIt(String query) {
-    assertThat(awaitSearchable(query).getString(FIRST_HIT_ID_FIELD))
-        .isEqualTo(approvalId.toString());
+    assertThat(hitIds(awaitSearchable(query))).contains(approvalId.toString());
   }
 
   private static Stream<Arguments> queries() {
@@ -98,7 +97,15 @@ class SearchApprovalsTest extends IntegrationTestBase {
     return pollUntil(
         INDEXING_TIMEOUT,
         () -> searchApprovals(query),
-        settledWhenAtLeast(HITS_FIELD, 1, jsonPath -> jsonPath.getList(HITS_FIELD).size()));
+        settledWhen(
+            jsonPath -> hitIds(jsonPath).contains(approvalId.toString()),
+            jsonPath ->
+                "%s was %s, expected to contain %s"
+                    .formatted(HIT_IDS_FIELD, hitIds(jsonPath), approvalId)));
+  }
+
+  private static List<String> hitIds(JsonPath jsonPath) {
+    return jsonPath.getList(HIT_IDS_FIELD, String.class);
   }
 
   private static JsonPath searchApprovals(String query) {

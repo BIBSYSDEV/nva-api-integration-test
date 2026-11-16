@@ -177,6 +177,7 @@ class UpdateApprovalTest extends IntegrationTestBase {
     var approvalIdentifier = createApprovalWith(uniqueValue());
 
     givenAuthenticatedJsonRequestAsClient(UIB_CLIENT_SECRET)
+        .header(IF_MATCH_HEADER, entityTagOf(approvalIdentifier))
         .body(Map.of(IDENTIFIERS_FIELD, List.of(), SOURCE_FIELD, source()))
         .when()
         .put(APPROVAL_PATH, approvalIdentifier)
@@ -193,6 +194,7 @@ class UpdateApprovalTest extends IntegrationTestBase {
 
     var problem =
         givenAuthenticatedJsonRequestAsClient(UIB_CLIENT_SECRET)
+            .header(IF_MATCH_HEADER, entityTagOf(approvalIdentifier))
             .body(
                 Map.of(IDENTIFIERS_FIELD, List.of(identifier(UIB_IDENTIFIER_NAME, uniqueValue()))))
             .when()
@@ -211,6 +213,7 @@ class UpdateApprovalTest extends IntegrationTestBase {
   @Description
   void shouldReturnBadRequestWhenIdentifierIsMalformed() {
     givenAuthenticatedJsonRequestAsClient(UIB_CLIENT_SECRET)
+        .header(IF_MATCH_HEADER, unknownEntityTag())
         .body(updatePayload(UIB_IDENTIFIER_NAME, uniqueValue()))
         .when()
         .put(APPROVAL_PATH, INVALID_IDENTIFIER)
@@ -228,6 +231,7 @@ class UpdateApprovalTest extends IntegrationTestBase {
   void shouldReturnBadRequestWhenBodyIdentifierAddressesAnotherApproval() {
     var problem =
         givenAuthenticatedJsonRequestAsClient(UIB_CLIENT_SECRET)
+            .header(IF_MATCH_HEADER, unknownEntityTag())
             .body(addressedPayload(IDENTIFIER_FIELD, UUID.randomUUID().toString()))
             .when()
             .put(APPROVAL_PATH, UUID.randomUUID())
@@ -247,6 +251,7 @@ class UpdateApprovalTest extends IntegrationTestBase {
     var otherApprovalId = absolute(APPROVAL_ID_FORMAT.formatted(BASE_PATH, UUID.randomUUID()));
     var problem =
         givenAuthenticatedJsonRequestAsClient(UIB_CLIENT_SECRET)
+            .header(IF_MATCH_HEADER, unknownEntityTag())
             .body(addressedPayload(ID_FIELD, otherApprovalId))
             .when()
             .put(APPROVAL_PATH, UUID.randomUUID())
