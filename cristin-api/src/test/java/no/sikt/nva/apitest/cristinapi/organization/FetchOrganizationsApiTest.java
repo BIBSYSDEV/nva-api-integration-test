@@ -1,20 +1,22 @@
 package no.sikt.nva.apitest.cristinapi.organization;
 
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
-import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
-import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
-import static no.sikt.nva.apitest.cristinapi.CristinPaths.BASE_UNITS_PATH;
-import static org.junit.jupiter.params.provider.Arguments.argumentSet;
-
-import io.qameta.allure.Description;
+import static java.net.HttpURLConnection.HTTP_OK;
 import java.util.Map;
 import java.util.stream.Stream;
-import no.sikt.nva.apitest.cristinapi.CristinApiTestBase;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import static org.junit.jupiter.params.provider.Arguments.argumentSet;
 import org.junit.jupiter.params.provider.MethodSource;
+
+import io.qameta.allure.Description;
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
+import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
+import no.sikt.nva.apitest.cristinapi.CristinApiTestBase;
+import static no.sikt.nva.apitest.cristinapi.CristinPaths.BASE_UNITS_PATH;
 
 @DisplayName("GET " + BASE_UNITS_PATH + "/{parameters}")
 class FetchOrganizationsApiTest extends CristinApiTestBase {
@@ -41,7 +43,7 @@ class FetchOrganizationsApiTest extends CristinApiTestBase {
             .when()
             .get(BASE_UNITS_PATH)
             .then()
-            .statusCode(200)
+            .statusCode(HTTP_OK)
             .extract()
             .body()
             .asString();
