@@ -62,8 +62,6 @@ class UpdateApprovalTest extends IntegrationTestBase {
   private static final String SOURCE_MANDATORY_MESSAGE = "/source: Is mandatory";
   private static final String CUSTOMER_MISMATCH_MESSAGE =
       "Customer id does not match requested approval customer id";
-  private static final String NAME_PARAMETER = "name";
-  private static final String VALUE_PARAMETER = "value";
   private static final String INVALID_IDENTIFIER = "not-a-uuid";
   private static final String ID_FIELD = "id";
   private static final String APPROVAL_ID_FORMAT = "%s/%s";
@@ -111,19 +109,21 @@ class UpdateApprovalTest extends IntegrationTestBase {
     softly.assertThat(afterUpdate.getString(SOURCE_FIELD)).isEqualTo(replacementSource);
   }
 
-  /** The identifier the approval no longer carries stops resolving to it. */
+  /**
+   * The identifier the approval no longer carries is released, so another approval may claim it.
+   */
   @Test
   @DisplayName("Update approval releases the replaced identifier")
   @Description
-  void shouldStopResolvingTheReplacedIdentifier() {
+  void shouldReleaseTheReplacedIdentifier() {
     var originalValue = uniqueValue();
     var approvalIdentifier = createApprovalWith(originalValue);
-    awaitIdentifierResolves(originalValue);
 
     var replacementValue = uniqueValue();
     updateApproval(approvalIdentifier, replacementValue).then().statusCode(HTTP_ACCEPTED);
+    awaitIdentifier(approvalIdentifier, replacementValue);
 
-    awaitIdentifierStopsResolving(originalValue);
+    awaitIdentifierClaimable(originalValue);
   }
 
   /** An identifier belongs to one approval, so it cannot be moved to another by updating it. */
@@ -133,7 +133,6 @@ class UpdateApprovalTest extends IntegrationTestBase {
   void shouldReturnConflictWhenIdentifierBelongsToAnotherApproval() {
     var takenValue = uniqueValue();
     createApprovalWith(takenValue);
-    awaitIdentifierResolves(takenValue);
 
     var approvalIdentifier = createApprovalWith(uniqueValue());
 
@@ -382,29 +381,22 @@ class UpdateApprovalTest extends IntegrationTestBase {
   }
 
   /**
-   * The conflict check and the identifier lookup both read the identifier row by its own key, which
-   * the approval lookup does not touch: waiting for the approval to reflect a write says nothing
-   * about whether the identifier row has caught up.
+   * The conflict check reads the identifier row through an eventually consistent batch get, so a
+   * claim made the moment the update released the identifier can still be rejected. A rejected
+   * claim creates nothing, so the attempt is repeated until the release is visible.
    */
-  private static void awaitIdentifierResolves(String identifierValue) {
+  private static void awaitIdentifierClaimable(String identifierValue) {
     pollUntil(
         VISIBLE_TIMEOUT,
-        () -> fetchByIdentifier(identifierValue),
-        response -> response.statusCode() == HTTP_OK);
+        () -> claimIdentifier(identifierValue),
+        response -> response.statusCode() == HTTP_ACCEPTED);
   }
 
-  private static void awaitIdentifierStopsResolving(String identifierValue) {
-    pollUntil(
-        VISIBLE_TIMEOUT,
-        () -> fetchByIdentifier(identifierValue),
-        response -> response.statusCode() == HTTP_NOT_FOUND);
-  }
-
-  private static Response fetchByIdentifier(String identifierValue) {
-    return givenUnauthenticatedJsonRequest()
-        .queryParam(NAME_PARAMETER, UIB_IDENTIFIER_NAME)
-        .queryParam(VALUE_PARAMETER, identifierValue)
-        .get(BASE_PATH);
+  private static Response claimIdentifier(String identifierValue) {
+    return givenAuthenticatedJsonRequestAsClient(UIB_CLIENT_SECRET)
+        .body(approvalPayload(UIB_IDENTIFIER_NAME, identifierValue))
+        .when()
+        .post(BASE_PATH);
   }
 
   private static JsonPath fetchJson(String approvalIdentifier) {
