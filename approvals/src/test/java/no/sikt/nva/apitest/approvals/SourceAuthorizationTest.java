@@ -6,8 +6,10 @@ import static no.sikt.nva.apitest.approvals.ApprovalClients.UIB_IDENTIFIER_NAME;
 import static no.sikt.nva.apitest.approvals.ApprovalPaths.APPROVAL_PATH;
 import static no.sikt.nva.apitest.approvals.ApprovalPaths.BASE_PATH;
 import static no.sikt.nva.apitest.approvals.Approvals.DETAIL_FIELD;
+import static no.sikt.nva.apitest.approvals.Approvals.IF_MATCH_HEADER;
 import static no.sikt.nva.apitest.approvals.Approvals.approvalPayload;
 import static no.sikt.nva.apitest.approvals.Approvals.uniqueValue;
+import static no.sikt.nva.apitest.approvals.Approvals.unknownEntityTag;
 import static no.sikt.nva.apitest.approvals.Approvals.updatePayload;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsClient;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -57,6 +59,7 @@ class SourceAuthorizationTest extends IntegrationTestBase {
     var source = foreignSource();
     var problem =
         givenAuthenticatedJsonRequestAsClient(UIB_CLIENT_SECRET)
+            .header(IF_MATCH_HEADER, unknownEntityTag())
             .body(updatePayload(UIB_IDENTIFIER_NAME, uniqueValue(), source))
             .when()
             .put(APPROVAL_PATH, UUID.randomUUID())

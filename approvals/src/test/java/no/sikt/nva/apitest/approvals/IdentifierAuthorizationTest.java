@@ -8,10 +8,13 @@ import static no.sikt.nva.apitest.approvals.ApprovalClients.UIS_CLIENT_SECRET;
 import static no.sikt.nva.apitest.approvals.ApprovalClients.UIS_IDENTIFIER_NAME;
 import static no.sikt.nva.apitest.approvals.ApprovalPaths.APPROVAL_PATH;
 import static no.sikt.nva.apitest.approvals.ApprovalPaths.BASE_PATH;
+import static no.sikt.nva.apitest.approvals.Approvals.IF_MATCH_HEADER;
 import static no.sikt.nva.apitest.approvals.Approvals.approvalPayload;
 import static no.sikt.nva.apitest.approvals.Approvals.createApproval;
+import static no.sikt.nva.apitest.approvals.Approvals.entityTagOf;
 import static no.sikt.nva.apitest.approvals.Approvals.identifierOf;
 import static no.sikt.nva.apitest.approvals.Approvals.uniqueValue;
+import static no.sikt.nva.apitest.approvals.Approvals.unknownEntityTag;
 import static no.sikt.nva.apitest.approvals.Approvals.updatePayload;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedJsonRequestAsClient;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -59,6 +62,7 @@ class IdentifierAuthorizationTest extends IntegrationTestBase {
   void shouldForbidUpdatingWithAnotherCustomersIdentifierName() {
     var problem =
         givenAuthenticatedJsonRequestAsClient(UIS_CLIENT_SECRET)
+            .header(IF_MATCH_HEADER, unknownEntityTag())
             .body(updatePayload(UIB_IDENTIFIER_NAME, uniqueValue()))
             .when()
             .put(APPROVAL_PATH, UUID.randomUUID())
@@ -109,6 +113,7 @@ class IdentifierAuthorizationTest extends IntegrationTestBase {
   void shouldForbidUibClientFromUpdatingWithTheUisIdentifierName() {
     var problem =
         givenAuthenticatedJsonRequestAsClient(UIB_CLIENT_SECRET)
+            .header(IF_MATCH_HEADER, unknownEntityTag())
             .body(updatePayload(UIS_IDENTIFIER_NAME, uniqueValue()))
             .when()
             .put(APPROVAL_PATH, UUID.randomUUID())
@@ -130,6 +135,7 @@ class IdentifierAuthorizationTest extends IntegrationTestBase {
     var approvalIdentifier = identifierOf(location);
 
     givenAuthenticatedJsonRequestAsClient(UIS_CLIENT_SECRET)
+        .header(IF_MATCH_HEADER, entityTagOf(approvalIdentifier))
         .body(updatePayload(UIS_IDENTIFIER_NAME, uniqueValue()))
         .when()
         .put(APPROVAL_PATH, approvalIdentifier)

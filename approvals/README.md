@@ -36,7 +36,30 @@ A policy also lists the sources its customer may point approvals at, and a write
 matches none of them is forbidden. The source must also resolve, since the API fetches it to
 snapshot it and to render the approval page. Both policies therefore register the API root of the
 environment (`https://<api domain>/`) without authentication, and the tests use known Cristin
-organizations such as UiB and UiS as sources.
+organizations such as UiB and UiS as sources. The UiB policy registers the clinical trial fixture
+bucket as a second source, for the tests that need an approval the search index accepts.
+
+## Where the clinical trial comes from
+
+Indexing accepts clinical trial sources only, so an approval created from anything else is never
+searchable and a query can never find it. CTIS has no stable test environment, so the tests serve
+a captured trial document instead of fetching one from CTIS.
+
+It is served from `approval-source-fixtures-<account-id>`, created by
+`test_data/create_fixture_bucket.py` in
+[NVA-end-to-end-testing](https://github.com/BIBSYSDEV/NVA-end-to-end-testing), which runs as part
+of `create_test_data.py` alongside the scripts above. The API fetches a source without
+credentials, so the bucket lets anyone read its objects, and it holds nothing but this fixture.
+
+`ClinicalTrialSource` uploads `clinical-trial.json` there before the approval is created, so the
+test runner role needs `s3:PutObject` on the bucket. The document is stored as it came from CTIS
+rather than built from a record, since the API parses it against its own bundled CTIS context and
+a shape invented here would prove nothing about the real one.
+
+The bucket is not under the API root, so `create_approval_policies.py` registers it as a second
+source config on the UiB policy. Its base uri is written as `{fixtureBucketUrl}` in
+`identifier_policies.json` and resolved at seed time, the same way `{apiUrl}` is, since the bucket
+name carries the account id of the environment being seeded.
 
 ## Running
 
