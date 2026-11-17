@@ -1,0 +1,23 @@
+{
+  "affiliation": {
+    "institution": {
+      "cristin_institution_id": "2012",
+      "url": "https://api.cristin-test.uio.no/v2/institutions/2012"
+    },
+    "unit": {
+      "cristin_unit_id": "2012.0.0.0",
+      "url": "https://api.cristin-test.uio.no/v2/units/2012.0.0.0"
+    }
+  },
+  "active": false,
+  "position": {
+    "code": "1087",
+    "name": {
+      "en": "Head engineer"
+    },
+    "enabled": true
+  },
+  "start_date": "2021-03-01T12:00:00.000Z",
+  "end_date": "2022-03-01T12:00:00.000Z",
+  "fte_percentage": 100.0
+}
