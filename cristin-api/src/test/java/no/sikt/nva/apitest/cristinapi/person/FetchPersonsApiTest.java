@@ -26,6 +26,7 @@ class FetchPersonsApiTest extends CristinApiTestBase {
   private static final String INSTITUTION = "institution";
   private static final String PARENT_UNIT_ID = "parent_unit_id";
   private static final String LEVELS = "levels";
+  private static final String LABEL_SEPARATOR = " + ";
 
   /** Search for persons returns list of persons and status {@code 200 Ok} */
   @ParameterizedTest
@@ -53,7 +54,7 @@ class FetchPersonsApiTest extends CristinApiTestBase {
         argumentSet(ID, Map.of(ID, "30621"), "id_response.json"),
         argumentSet(NAME, Map.of(NAME, "eirik+nilsen"), "name_response.json"),
         argumentSet(
-            INSTITUTION + ADD + NAME,
+            INSTITUTION + LABEL_SEPARATOR + NAME,
             Map.of(INSTITUTION, "uio", NAME, "røed"),
             "institution_name_response.json"),
         argumentSet(
@@ -61,11 +62,11 @@ class FetchPersonsApiTest extends CristinApiTestBase {
             Map.of(INSTITUTION, "185", NAME, "røed"),
             "institution_name_response.json"),
         argumentSet(
-            PARENT_UNIT_ID + ADD + NAME,
+            PARENT_UNIT_ID + LABEL_SEPARATOR + NAME,
             Map.of(PARENT_UNIT_ID, "192.0.0.0", NAME, "nilsen"),
             "parent_unit_id_name_response.json"),
         argumentSet(
-            PARENT_UNIT_ID + ADD + NAME + ADD + LEVELS,
+            PARENT_UNIT_ID + LABEL_SEPARATOR + NAME + LABEL_SEPARATOR + LEVELS,
             Map.of(PARENT_UNIT_ID, "192.0.0.0", NAME, "nilsen", LEVELS, "1"),
             "parent_unit_id_name_level_response.json"));
   }

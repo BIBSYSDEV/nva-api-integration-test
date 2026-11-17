@@ -12,9 +12,11 @@ import static no.sikt.nva.apitest.approvals.ApprovalClients.UIS_CLIENT_SECRET;
 import static no.sikt.nva.apitest.approvals.ApprovalPaths.APPROVAL_PATH;
 import static no.sikt.nva.apitest.approvals.ApprovalPaths.EVENTS_PATH;
 import static no.sikt.nva.apitest.approvals.Approvals.DETAIL_FIELD;
+import static no.sikt.nva.apitest.approvals.Approvals.IF_MATCH_HEADER;
 import static no.sikt.nva.apitest.approvals.Approvals.SOURCE_FIELD;
 import static no.sikt.nva.apitest.approvals.Approvals.approvalPayload;
 import static no.sikt.nva.apitest.approvals.Approvals.createApproval;
+import static no.sikt.nva.apitest.approvals.Approvals.entityTagOf;
 import static no.sikt.nva.apitest.approvals.Approvals.fetchApproval;
 import static no.sikt.nva.apitest.approvals.Approvals.fetchChanges;
 import static no.sikt.nva.apitest.approvals.Approvals.identifierOf;
@@ -242,6 +244,7 @@ class ReceiveEventTest extends IntegrationTestBase {
 
   private static void replaceSource(String approvalIdentifier) {
     givenAuthenticatedJsonRequestAsClient(UIB_CLIENT_SECRET)
+        .header(IF_MATCH_HEADER, entityTagOf(approvalIdentifier))
         .body(updatePayload(UIB_IDENTIFIER_NAME, uniqueValue(), replacementSource()))
         .when()
         .put(APPROVAL_PATH, approvalIdentifier)

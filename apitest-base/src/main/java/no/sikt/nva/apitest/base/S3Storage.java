@@ -42,6 +42,20 @@ public final class S3Storage {
     putObject(bucketName, key, RequestBody.fromString(content));
   }
 
+  /**
+   * Stores the object under the given content type, for pipelines that read it back over HTTP and
+   * act on what the response declares. Without it S3 serves the object as binary data.
+   */
+  public static void putTextObject(
+      String bucketName, String key, String content, String contentType) {
+    withPermissionHint(
+        MISSING_PUT_PERMISSION_MESSAGE.formatted(bucketName),
+        () ->
+            S3_CLIENT.putObject(
+                request -> request.bucket(bucketName).key(key).contentType(contentType),
+                RequestBody.fromString(content)));
+  }
+
   public static void putBytesObject(String bucketName, String key, byte[] content) {
     putObject(bucketName, key, RequestBody.fromBytes(content));
   }
