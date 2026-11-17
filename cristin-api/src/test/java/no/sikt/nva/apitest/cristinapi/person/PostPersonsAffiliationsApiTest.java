@@ -1,21 +1,20 @@
 package no.sikt.nva.apitest.cristinapi.person;
 
+import static io.restassured.http.Method.POST;
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static java.net.HttpURLConnection.HTTP_CREATED;
 import static java.net.HttpURLConnection.HTTP_OK;
-import java.util.Map;
-
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-
-import io.qameta.allure.Description;
-import static io.restassured.http.Method.POST;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static net.javacrumbs.jsonunit.core.Option.IGNORING_EXTRA_FIELDS;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedCristinJsonRequest;
-import no.sikt.nva.apitest.cristinapi.CristinApiTestBase;
 import static no.sikt.nva.apitest.cristinapi.CristinPaths.PERSON_AFFILIATIONS_PATH;
+
+import io.qameta.allure.Description;
+import java.util.Map;
+import no.sikt.nva.apitest.cristinapi.CristinApiTestBase;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 @DisplayName("POST " + PERSON_AFFILIATIONS_PATH)
 class PostPersonsAffiliationsApiTest extends CristinApiTestBase {
