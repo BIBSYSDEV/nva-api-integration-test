@@ -49,6 +49,9 @@ class FetchApprovalChangesTest extends IntegrationTestBase {
   private static final String ABOUT_ID_FIELD = "about.id";
   private static final String CHANGE_TYPES_FIELD = "changes.type";
   private static final String CHANGE_ACTIVITIES_FIELD = "changes.wasGeneratedBy.type";
+  private static final String REVISIONS_PATH = "changes.findAll { it.type == 'ApprovalRevision' }";
+  private static final String REVISION_TYPES_PATH = REVISIONS_PATH + ".type";
+  private static final String REVISION_ACTIVITIES_PATH = REVISIONS_PATH + ".wasGeneratedBy.type";
   private static final String FIRST_REVISION_ID_PATH =
       "changes.find { it.type == 'ApprovalRevision' }.id";
   private static final Duration VISIBLE_TIMEOUT = Duration.ofSeconds(30);
@@ -75,8 +78,9 @@ class FetchApprovalChangesTest extends IntegrationTestBase {
   }
 
   /**
-   * Changes are listed newest first, so an update comes before both the creation it followed and
-   * the snapshot that creation produced.
+   * Changes are listed newest first, so an update comes before the creation it followed. A source
+   * is snapshotted only when its content changed since the last snapshot, so how many snapshots an
+   * update adds is not fixed and the revisions are counted and asserted on their own.
    */
   @Test
   @DisplayName("List changes of an updated approval")
@@ -91,10 +95,10 @@ class FetchApprovalChangesTest extends IntegrationTestBase {
         .then()
         .statusCode(HTTP_ACCEPTED);
 
-    var changeList = awaitChanges(approvalIdentifier, 3);
+    var changeList = awaitRevisions(approvalIdentifier, 2);
 
-    assertThat(changeList.getList(CHANGE_ACTIVITIES_FIELD))
-        .containsExactly(UPDATE_ACTIVITY, CREATION_ACTIVITY, CREATION_ACTIVITY);
+    assertThat(changeList.getList(REVISION_ACTIVITIES_PATH))
+        .containsExactly(UPDATE_ACTIVITY, CREATION_ACTIVITY);
   }
 
   /**
@@ -145,14 +149,22 @@ class FetchApprovalChangesTest extends IntegrationTestBase {
     return createApproval(UIB_CLIENT_SECRET, approvalPayload(UIB_IDENTIFIER_NAME));
   }
 
-  /** Changes are read through an eventually consistent lookup, like the approval itself. */
   private static JsonPath awaitChanges(String approvalIdentifier, int expectedCount) {
+    return awaitListed(approvalIdentifier, CHANGE_TYPES_FIELD, expectedCount);
+  }
+
+  private static JsonPath awaitRevisions(String approvalIdentifier, int expectedCount) {
+    return awaitListed(approvalIdentifier, REVISION_TYPES_PATH, expectedCount);
+  }
+
+  private static JsonPath awaitListed(
+      String approvalIdentifier, String countedField, int expectedCount) {
     return pollUntil(
             VISIBLE_TIMEOUT,
             () -> fetchChanges(approvalIdentifier),
             response ->
                 response.statusCode() == HTTP_OK
-                    && response.jsonPath().getList(CHANGE_TYPES_FIELD).size() == expectedCount)
+                    && response.jsonPath().getList(countedField).size() == expectedCount)
         .jsonPath();
   }
 }
