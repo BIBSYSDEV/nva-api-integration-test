@@ -20,7 +20,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 @DisplayName("GET " + PERSONS_BASE_PATH + "?{parameters}")
 class FetchPersonsApiTest extends CristinApiTestBase {
 
-  private static final String ADD = " + ";
   private static final String ID = "id";
   private static final String NAME = "name";
   private static final String INSTITUTION = "institution";

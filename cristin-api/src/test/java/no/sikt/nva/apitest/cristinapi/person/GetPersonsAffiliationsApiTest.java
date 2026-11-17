@@ -22,7 +22,7 @@ class GetPersonsAffiliationsApiTest extends CristinApiTestBase {
   @DisplayName("Get affiliations for a person returns list of affiliations")
   @Description
   void shouldReturnAffiliationsForPerson() {
-    var affilationsResponse =
+    var affiliationsResponse =
         givenAuthenticatedCristinJsonRequest()
             .when()
             .get(PERSON_AFFILIATIONS_PATH, PERSON_ID)
@@ -33,7 +33,7 @@ class GetPersonsAffiliationsApiTest extends CristinApiTestBase {
             .asString();
 
     var expected = readResourceFileAsString("persons/person_affiliations_response.json");
-    assertThatJson(affilationsResponse).isEqualTo(expected);
+    assertThatJson(affiliationsResponse).isEqualTo(expected);
   }
 
   /** Get affiliations for a person with invalid id returns {@code 400 Bad Request} */

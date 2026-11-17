@@ -10,7 +10,6 @@ import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedCristinJsonReq
 import static no.sikt.nva.apitest.cristinapi.CristinPaths.PERSON_AFFILIATIONS_PATH;
 
 import io.qameta.allure.Description;
-import java.util.Map;
 import no.sikt.nva.apitest.cristinapi.CristinApiTestBase;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -20,47 +19,35 @@ import org.junit.jupiter.api.Test;
 class PostPersonsAffiliationsApiTest extends CristinApiTestBase {
 
   private static final String PERSON_ID = "43419";
-  private static final String INSTIUTION_ID = "2012";
+  private static final String INSTITUTION_ID = "2012";
 
   @BeforeAll
   static void cleanup() {
 
-    var affiliationsId = findExistingAffiliationId(PERSON_ID, INSTIUTION_ID);
+    var affiliationsId = findExistingAffiliationId(PERSON_ID, INSTITUTION_ID);
 
-    givenAuthenticatedCristinJsonRequest()
-        .header("Cristin-Representing-Institution", INSTIUTION_ID)
-        .when()
-        .delete(PERSON_AFFILIATIONS_PATH + "/{uid}", PERSON_ID, affiliationsId);
+    if (affiliationsId != null) {
+      givenAuthenticatedCristinJsonRequest()
+          .header("Cristin-Representing-Institution", INSTITUTION_ID)
+          .when()
+          .delete(PERSON_AFFILIATIONS_PATH + "/{uid}", PERSON_ID, affiliationsId);
+    }
   }
 
   private static String findExistingAffiliationId(String personId, String institutionId) {
-    var affiliationsResponse =
-        givenAuthenticatedCristinJsonRequest()
-            .when()
-            .get(PERSON_AFFILIATIONS_PATH, personId)
-            .then()
-            .statusCode(HTTP_OK)
-            .extract()
-            .jsonPath();
-
-    var personAffiliation =
-        affiliationsResponse.getList("").stream()
-            .filter(
-                affiliationItem -> {
-                  var affiliation = ((Map<String, Object>) affiliationItem).get("affiliation");
-                  var institution = ((Map<String, Object>) affiliation).get("institution");
-                  return institutionId.equals(
-                      ((Map<String, String>) institution).get("cristin_institution_id"));
-                })
-            .toList()
-            .getFirst();
-    return ((Map<String, Object>) personAffiliation).get("id").toString();
+    return givenAuthenticatedCristinJsonRequest()
+        .when()
+        .get(PERSON_AFFILIATIONS_PATH, personId)
+        .then()
+        .statusCode(HTTP_OK)
+        .extract()
+        .jsonPath()
+        .param("institutionId", institutionId)
+        .getString(
+            "find { it.affiliation.institution.cristin_institution_id == institutionId }.id");
   }
 
-  /**
-   * Adding an existing affiliation to a person returns the affiliation and status {@code 201
-   * Created}
-   */
+  /** Adding an affiliation to a person returns the affiliation and status {@code 201 Created} */
   @Test
   @DisplayName("Adding an existing affiliation to a person returns the affiliation")
   @Description
@@ -69,7 +56,7 @@ class PostPersonsAffiliationsApiTest extends CristinApiTestBase {
     var createPayload = readResourceFileAsString("persons/create_affiliation_payload.json");
     var createResponse =
         givenAuthenticatedCristinJsonRequest()
-            .header("Cristin-Representing-Institution", INSTIUTION_ID)
+            .header("Cristin-Representing-Institution", INSTITUTION_ID)
             .when()
             .body(createPayload)
             .post(PERSON_AFFILIATIONS_PATH, PERSON_ID)
