@@ -49,9 +49,6 @@ class FetchApprovalChangesTest extends IntegrationTestBase {
   private static final String ABOUT_ID_FIELD = "about.id";
   private static final String CHANGE_TYPES_FIELD = "changes.type";
   private static final String CHANGE_ACTIVITIES_FIELD = "changes.wasGeneratedBy.type";
-  private static final String REVISIONS_PATH = "changes.findAll { it.type == 'ApprovalRevision' }";
-  private static final String REVISION_TYPES_PATH = REVISIONS_PATH + ".type";
-  private static final String REVISION_ACTIVITIES_PATH = REVISIONS_PATH + ".wasGeneratedBy.type";
   private static final String FIRST_REVISION_ID_PATH =
       "changes.find { it.type == 'ApprovalRevision' }.id";
   private static final Duration VISIBLE_TIMEOUT = Duration.ofSeconds(30);
@@ -77,7 +74,10 @@ class FetchApprovalChangesTest extends IntegrationTestBase {
         .containsExactly(CREATION_ACTIVITY, CREATION_ACTIVITY);
   }
 
-  /** Changes are listed newest first, so an update comes before the creation it followed. */
+  /**
+   * Changes are listed newest first, so an update comes before both the creation it followed and
+   * the snapshot that creation produced.
+   */
   @Test
   @DisplayName("List changes of an updated approval")
   @Description
@@ -91,18 +91,22 @@ class FetchApprovalChangesTest extends IntegrationTestBase {
         .then()
         .statusCode(HTTP_ACCEPTED);
 
-    var changeList = awaitRevisions(approvalIdentifier, 2);
+    var changeList = awaitChanges(approvalIdentifier, 3);
 
-    assertThat(changeList.getList(REVISION_ACTIVITIES_PATH))
-        .containsExactly(UPDATE_ACTIVITY, CREATION_ACTIVITY);
+    assertThat(changeList.getList(CHANGE_ACTIVITIES_FIELD))
+        .containsExactly(UPDATE_ACTIVITY, CREATION_ACTIVITY, CREATION_ACTIVITY);
   }
 
-  /** A listed change resolves at its own id, as a document referencing the current context. */
+  /**
+   * A listed change resolves at its own id, as a document referencing the current context. A
+   * revision and the snapshot it produced sort on a tie, so the revision is taken by its type
+   * rather than by its position.
+   */
   @Test
   @DisplayName("Get a listed change")
   @Description
   void shouldFetchListedChange(SoftAssertions softly) {
-    var changeList = awaitRevisions(identifierOf(createApprovalLocation()), 1);
+    var changeList = awaitChanges(identifierOf(createApprovalLocation()), 2);
     var changeId = changeList.getString(FIRST_REVISION_ID_PATH);
 
     var change =
@@ -141,28 +145,14 @@ class FetchApprovalChangesTest extends IntegrationTestBase {
     return createApproval(UIB_CLIENT_SECRET, approvalPayload(UIB_IDENTIFIER_NAME));
   }
 
-  private static JsonPath awaitChanges(String approvalIdentifier, int expectedCount) {
-    return awaitListed(approvalIdentifier, CHANGE_TYPES_FIELD, expectedCount);
-  }
-
-  /**
-   * A source snapshot is recorded after the revision that triggered it, so a test about revisions
-   * waits for the revisions it expects rather than for a number of changes that depends on whether
-   * the snapshot has landed yet.
-   */
-  private static JsonPath awaitRevisions(String approvalIdentifier, int expectedCount) {
-    return awaitListed(approvalIdentifier, REVISION_TYPES_PATH, expectedCount);
-  }
-
   /** Changes are read through an eventually consistent lookup, like the approval itself. */
-  private static JsonPath awaitListed(
-      String approvalIdentifier, String countedField, int expectedCount) {
+  private static JsonPath awaitChanges(String approvalIdentifier, int expectedCount) {
     return pollUntil(
             VISIBLE_TIMEOUT,
             () -> fetchChanges(approvalIdentifier),
             response ->
                 response.statusCode() == HTTP_OK
-                    && response.jsonPath().getList(countedField).size() == expectedCount)
+                    && response.jsonPath().getList(CHANGE_TYPES_FIELD).size() == expectedCount)
         .jsonPath();
   }
 }
