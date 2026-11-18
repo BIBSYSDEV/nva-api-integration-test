@@ -34,19 +34,6 @@ class PostPersonsAffiliationsApiTest extends CristinApiTestBase {
     }
   }
 
-  private static String findExistingAffiliationId(String personId, String institutionId) {
-    return givenAuthenticatedCristinJsonRequest()
-        .when()
-        .get(PERSON_AFFILIATIONS_PATH, personId)
-        .then()
-        .statusCode(HTTP_OK)
-        .extract()
-        .jsonPath()
-        .param("institutionId", institutionId)
-        .getString(
-            "find { it.affiliation.institution.cristin_institution_id == institutionId }.id");
-  }
-
   /** Adding an affiliation to a person returns the affiliation and status {@code 201 Created} */
   @Test
   @DisplayName("Adding an existing affiliation to a person returns the affiliation")
