@@ -16,6 +16,13 @@ public final class ClinicalTrialSource {
       URI.create(
           "https://api.e2e.nva.aws.unit.no/cristin/person/" + INVESTIGATOR_PERSON_IDENTIFIER);
 
+  public static final String TRIAL_SITE_ORGANIZATION_IDENTIFIER = "2.0.0.0";
+
+  public static final URI TRIAL_SITE_ORGANIZATION_URI =
+      URI.create(
+          "https://api.e2e.nva.aws.unit.no/cristin/organization/"
+              + TRIAL_SITE_ORGANIZATION_IDENTIFIER);
+
   private static final String FIXTURE_BUCKET_PREFIX = "approval-source-fixtures-";
   private static final String TRIAL_DOCUMENT_FILE = "clinical-trial.json";
   private static final String JSON_LD_MEDIA_TYPE = "application/ld+json";

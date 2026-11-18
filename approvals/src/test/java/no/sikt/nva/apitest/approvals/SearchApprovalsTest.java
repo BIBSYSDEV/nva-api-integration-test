@@ -11,6 +11,8 @@ import static no.sikt.nva.apitest.approvals.Approvals.identifierOf;
 import static no.sikt.nva.apitest.approvals.Approvals.uniqueValue;
 import static no.sikt.nva.apitest.approvals.ClinicalTrialSource.INVESTIGATOR_PERSON_IDENTIFIER;
 import static no.sikt.nva.apitest.approvals.ClinicalTrialSource.INVESTIGATOR_PERSON_URI;
+import static no.sikt.nva.apitest.approvals.ClinicalTrialSource.TRIAL_SITE_ORGANIZATION_IDENTIFIER;
+import static no.sikt.nva.apitest.approvals.ClinicalTrialSource.TRIAL_SITE_ORGANIZATION_URI;
 import static no.sikt.nva.apitest.approvals.ClinicalTrialSource.publishClinicalTrial;
 import static no.sikt.nva.apitest.base.Polling.pollUntil;
 import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
@@ -25,6 +27,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.stream.Stream;
 import no.sikt.nva.apitest.base.IntegrationTestBase;
+import nva.commons.core.paths.UriWrapper;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -37,6 +40,11 @@ class SearchApprovalsTest extends IntegrationTestBase {
 
   private static final String JSON_MEDIA_TYPE = "application/json";
   private static final String QUERY_PARAMETER = "query";
+  private static final String HANDLE_PARAMETER = "handle";
+  private static final String IDENTIFIER_PARAMETER = "identifier";
+  private static final String PERSON_PARAMETER = "person";
+  private static final String ORGANIZATION_PARAMETER = "organization";
+  private static final String NAMESPACED_IDENTIFIER_FORMAT = "%s:%s";
   private static final String HANDLE_FIELD = "handle";
   private static final String HITS_FIELD = "hits";
   private static final String HIT_IDS_FIELD = "hits.id";
@@ -67,7 +75,7 @@ class SearchApprovalsTest extends IntegrationTestBase {
   @DisplayName("Search by a query that matches no approval")
   @Description
   void shouldReturnOkWithEmptyHitsWhenQueryMatchesNoApproval() {
-    assertThat(searchApprovals(uniqueValue()).getList(HITS_FIELD)).isEmpty();
+    assertThat(searchApprovals(QUERY_PARAMETER, uniqueValue()).getList(HITS_FIELD)).isEmpty();
   }
 
   /**
@@ -80,7 +88,16 @@ class SearchApprovalsTest extends IntegrationTestBase {
   @DisplayName("Search approval by query")
   @Description
   void shouldReturnApprovalWhenQueryNamesIt(String query) {
-    assertThat(hitIds(awaitSearchable(query))).contains(approvalId.toString());
+    assertThat(hitIds(awaitSearchable(QUERY_PARAMETER, query))).contains(approvalId.toString());
+  }
+
+  /** Each filter matches on an exact value rather than on free text. */
+  @ParameterizedTest
+  @MethodSource("filters")
+  @DisplayName("Search approval by filter")
+  @Description
+  void shouldReturnApprovalWhenFilterNamesIt(String parameterName, String value) {
+    assertThat(hitIds(awaitSearchable(parameterName, value))).contains(approvalId.toString());
   }
 
   private static Stream<Arguments> queries() {
@@ -93,10 +110,31 @@ class SearchApprovalsTest extends IntegrationTestBase {
         argumentSet("Person identifier", INVESTIGATOR_PERSON_IDENTIFIER));
   }
 
-  private static JsonPath awaitSearchable(String query) {
+  private static Stream<Arguments> filters() {
+    return Stream.of(
+        argumentSet("Handle uri", HANDLE_PARAMETER, handle.toString()),
+        argumentSet("Handle identifier", HANDLE_PARAMETER, handleIdentifier()),
+        argumentSet("Named identifier", IDENTIFIER_PARAMETER, namespacedIdentifier()),
+        argumentSet("Person uri", PERSON_PARAMETER, INVESTIGATOR_PERSON_URI.toString()),
+        argumentSet("Person identifier", PERSON_PARAMETER, INVESTIGATOR_PERSON_IDENTIFIER),
+        argumentSet(
+            "Organization uri", ORGANIZATION_PARAMETER, TRIAL_SITE_ORGANIZATION_URI.toString()),
+        argumentSet(
+            "Organization identifier", ORGANIZATION_PARAMETER, TRIAL_SITE_ORGANIZATION_IDENTIFIER));
+  }
+
+  private static String handleIdentifier() {
+    return UriWrapper.fromUri(handle).getPath().removeRoot().toString();
+  }
+
+  private static String namespacedIdentifier() {
+    return NAMESPACED_IDENTIFIER_FORMAT.formatted(UIB_IDENTIFIER_NAME, namedIdentifierValue);
+  }
+
+  private static JsonPath awaitSearchable(String parameterName, String value) {
     return pollUntil(
         INDEXING_TIMEOUT,
-        () -> searchApprovals(query),
+        () -> searchApprovals(parameterName, value),
         settledWhen(
             jsonPath -> hitIds(jsonPath).contains(approvalId.toString()),
             jsonPath ->
@@ -108,9 +146,9 @@ class SearchApprovalsTest extends IntegrationTestBase {
     return jsonPath.getList(HIT_IDS_FIELD, String.class);
   }
 
-  private static JsonPath searchApprovals(String query) {
+  private static JsonPath searchApprovals(String parameterName, String value) {
     return givenUnauthenticatedJsonRequest()
-        .queryParam(QUERY_PARAMETER, query)
+        .queryParam(parameterName, value)
         .get(BASE_PATH)
         .then()
         .statusCode(HTTP_OK)
