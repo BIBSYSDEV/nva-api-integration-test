@@ -30,7 +30,9 @@ class PostPersonsAffiliationsApiTest extends CristinApiTestBase {
       givenAuthenticatedCristinJsonRequest()
           .header("Cristin-Representing-Institution", INSTITUTION_ID)
           .when()
-          .delete(PERSON_AFFILIATIONS_PATH + "/{uid}", PERSON_ID, affiliationsId);
+          .delete(PERSON_AFFILIATIONS_PATH + "/{uid}", PERSON_ID, affiliationsId)
+          .then()
+          .statusCode(HTTP_OK);
     }
   }
 
