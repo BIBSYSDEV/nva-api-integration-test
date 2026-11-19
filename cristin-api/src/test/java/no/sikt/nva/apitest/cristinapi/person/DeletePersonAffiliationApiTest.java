@@ -12,13 +12,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import io.qameta.allure.Description;
 import no.sikt.nva.apitest.cristinapi.CristinApiTestBase;
-import no.sikt.nva.apitest.cristinapi.CristinPaths;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-@DisplayName("DELETE " + CristinPaths.AFFILIATION_PATH)
+@DisplayName("DELETE " + AFFILIATION_PATH)
 class DeletePersonAffiliationApiTest extends CristinApiTestBase {
 
   private static final String PERSON_ID = "1421086";
