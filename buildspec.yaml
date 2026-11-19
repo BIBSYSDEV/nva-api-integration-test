@@ -8,7 +8,7 @@ env:
 phases:
   install:
     runtime-versions:
-      java: corretto21
+      java: corretto25
       nodejs: 26
     commands:
       - npm ci --ignore-scripts --no-audit --no-fund
