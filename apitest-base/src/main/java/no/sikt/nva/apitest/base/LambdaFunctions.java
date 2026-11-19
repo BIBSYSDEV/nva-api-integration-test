@@ -59,11 +59,8 @@ public final class LambdaFunctions {
    */
   public static LambdaInvocation invoke(String logicalId, String payload) {
     var response =
-        LAMBDA_CLIENT.invoke(
-            request ->
-                request
-                    .functionName(functionArn(logicalId))
-                    .payload(SdkBytes.fromUtf8String(payload)));
+        LAMBDA_CLIENT.invoke(request ->
+            request.functionName(functionArn(logicalId)).payload(SdkBytes.fromUtf8String(payload)));
     return new LambdaInvocation(response.payload().asUtf8String(), response.functionError());
   }
 
@@ -76,11 +73,10 @@ public final class LambdaFunctions {
         ResourceGroupsTaggingApiClient.builder().region(getRegion(new Environment())).build()) {
       var functionArns =
           taggingClient
-              .getResourcesPaginator(
-                  request ->
-                      request
-                          .resourceTypeFilters(LAMBDA_RESOURCE_TYPE)
-                          .tagFilters(logicalIdFilter(logicalId)))
+              .getResourcesPaginator(request ->
+                  request
+                      .resourceTypeFilters(LAMBDA_RESOURCE_TYPE)
+                      .tagFilters(logicalIdFilter(logicalId)))
               .resourceTagMappingList()
               .stream()
               .map(ResourceTagMapping::resourceARN)

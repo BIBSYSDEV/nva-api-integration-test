@@ -124,13 +124,12 @@ class JsonLdSearchTest extends JsonLdTestBase {
     @BeforeAll
     static void createSharedPublications() {
       SHARED_CATEGORIES.parallelStream()
-          .forEach(
-              category -> {
-                var titleUuid = UUID.randomUUID().toString();
-                PUBLICATION_FACTORY.createPublishedPublication(
-                    category, SHARED_TITLE_PREFIX + titleUuid);
-                TITLE_UUIDS_BY_CATEGORY.put(category, titleUuid);
-              });
+          .forEach(category -> {
+            var titleUuid = UUID.randomUUID().toString();
+            PUBLICATION_FACTORY.createPublishedPublication(
+                category, SHARED_TITLE_PREFIX + titleUuid);
+            TITLE_UUIDS_BY_CATEGORY.put(category, titleUuid);
+          });
     }
 
     private static Stream<Arguments> publicationsInJsonLdFormatProvider() {
@@ -277,11 +276,10 @@ class JsonLdSearchTest extends JsonLdTestBase {
     var categories = List.of(ACADEMIC_ARTICLE, ACADEMIC_MONOGRAPH, DEGREE_MASTER, RESEARCH_REPORT);
 
     IntStream.range(0, categories.size())
-        .forEach(
-            index ->
-                PUBLICATION_FACTORY.createPublishedPublication(
-                    categories.get(index),
-                    titleRoot + index + " " + commonUuid + " " + UUID.randomUUID()));
+        .forEach(index ->
+            PUBLICATION_FACTORY.createPublishedPublication(
+                categories.get(index),
+                titleRoot + index + " " + commonUuid + " " + UUID.randomUUID()));
 
     var response = awaitIndexedCount(commonUuid, categories.size());
     var body = itemList(response);

@@ -24,14 +24,9 @@ class FindPublisherChannelsTest extends ChannelRegistryTestBase {
   private static final String RESOURCE = "findpublisher";
 
   private static final SharedResponse GYLDENDAL_UNDERVISNING_SEARCH =
-      new SharedResponse(
-          env ->
-              searchChannels(
-                  env,
-                  RESOURCE,
-                  "name",
-                  GYLDENDAL_UNDERVISNING.name(),
-                  GYLDENDAL_UNDERVISNING.year()));
+      new SharedResponse(env ->
+          searchChannels(
+              env, RESOURCE, "name", GYLDENDAL_UNDERVISNING.name(), GYLDENDAL_UNDERVISNING.year()));
 
   /** A name search returns hits with the level for the requested year. */
   @Test

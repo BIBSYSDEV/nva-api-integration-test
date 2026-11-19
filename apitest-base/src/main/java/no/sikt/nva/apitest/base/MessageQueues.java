@@ -41,12 +41,11 @@ public final class MessageQueues {
     withPermissionHint(
         MISSING_SEND_PERMISSION_MESSAGE.formatted(queueUrl),
         () ->
-            SQS_CLIENT.sendMessage(
-                request ->
-                    request
-                        .queueUrl(queueUrl)
-                        .messageBody(messageBody)
-                        .messageAttributes(toMessageAttributes(stringAttributes))));
+            SQS_CLIENT.sendMessage(request ->
+                request
+                    .queueUrl(queueUrl)
+                    .messageBody(messageBody)
+                    .messageAttributes(toMessageAttributes(stringAttributes))));
   }
 
   private static Map<String, MessageAttributeValue> toMessageAttributes(

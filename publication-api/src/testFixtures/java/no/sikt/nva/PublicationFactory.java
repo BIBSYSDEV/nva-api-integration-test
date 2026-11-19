@@ -218,21 +218,19 @@ public class PublicationFactory {
     var entityDescription = createEntityDescription(title, category, contributorList);
     if (reference.containsKey(PUBLICATION_CONTEXT)) {
       ((Map<String, Object>) reference.get(PUBLICATION_CONTEXT))
-          .forEach(
-              (key, value) ->
-                  ((Map<String, Object>)
-                          ((Map<String, Object>) entityDescription.get(REFERENCE))
-                              .get(PUBLICATION_CONTEXT))
-                      .put(key, value));
+          .forEach((key, value) ->
+              ((Map<String, Object>)
+                      ((Map<String, Object>) entityDescription.get(REFERENCE))
+                          .get(PUBLICATION_CONTEXT))
+                  .put(key, value));
     }
     if (reference.containsKey(PUBLICATION_INSTANCE)) {
       ((Map<String, Object>) reference.get(PUBLICATION_INSTANCE))
-          .forEach(
-              (key, value) ->
-                  ((Map<String, Object>)
-                          ((Map<String, Object>) entityDescription.get(REFERENCE))
-                              .get(PUBLICATION_INSTANCE))
-                      .put(key, value));
+          .forEach((key, value) ->
+              ((Map<String, Object>)
+                      ((Map<String, Object>) entityDescription.get(REFERENCE))
+                          .get(PUBLICATION_INSTANCE))
+                  .put(key, value));
     }
 
     responseBody.put(ENTITY_DESCRIPTION_FIELD, entityDescription);
