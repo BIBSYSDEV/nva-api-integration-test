@@ -5,6 +5,7 @@ plugins {
 dependencies {
     testFixturesApi(testFixtures(project(':apitest-base')))
     testFixturesImplementation(libs.rest.assured.core)
+    testFixturesImplementation(libs.rest.assured.json.path)
     testFixturesImplementation(nvaCatalog.junit.jupiter.api)
     testFixturesImplementation(nvaLibs.core)
     testAnnotationProcessor(libs.allure.descriptions.javadoc)
