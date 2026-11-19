@@ -7,6 +7,7 @@ import static java.net.HttpURLConnection.HTTP_OK;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static java.net.HttpURLConnection.HTTP_UNSUPPORTED_TYPE;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedCristinJsonRequest;
+import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedCristinRequest;
 import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
 import static no.sikt.nva.apitest.cristinapi.CristinPaths.AFFILIATION_PATH;
 import static no.sikt.nva.apitest.cristinapi.CristinPaths.PERSON_AFFILIATIONS_PATH;
@@ -54,7 +55,7 @@ class PatchPersonsAffiliationsApiTest extends CristinApiTestBase {
 
     var changePayload = Map.of("fte_percentage", percentageChange);
 
-    givenAuthenticatedCristinJsonRequest()
+    givenAuthenticatedCristinRequest()
         .contentType(APPLICATION_MERGE_PATCH_JSON)
         .header(CRISTIN_REPRESENTING_INSTITUTION, INSTITUTION_ID)
         .body(changePayload)
@@ -75,7 +76,7 @@ class PatchPersonsAffiliationsApiTest extends CristinApiTestBase {
 
     var nonExistingPerson = "0";
 
-    givenAuthenticatedCristinJsonRequest()
+    givenAuthenticatedCristinRequest()
         .contentType(APPLICATION_MERGE_PATCH_JSON)
         .header(CRISTIN_REPRESENTING_INSTITUTION, INSTITUTION_ID)
         .body(DEFAULT_CHANGE_PAYLOAD)
@@ -127,7 +128,7 @@ class PatchPersonsAffiliationsApiTest extends CristinApiTestBase {
   @Description
   void shouldReturnUnsupportedTypeWithMissingContentType() {
 
-    givenAuthenticatedCristinJsonRequest()
+    givenAuthenticatedCristinRequest()
         .header(CRISTIN_REPRESENTING_INSTITUTION, INSTITUTION_ID)
         .body(DEFAULT_CHANGE_PAYLOAD)
         .when()
@@ -140,9 +141,9 @@ class PatchPersonsAffiliationsApiTest extends CristinApiTestBase {
   @Test
   @DisplayName("Patch person affiliation with missing institution header returns Bad Request")
   @Description
-  void shouldReturnUnsupportedTypeWithMissingHeader() {
+  void shouldReturnBadRequestWithMissingHeader() {
 
-    givenAuthenticatedCristinJsonRequest()
+    givenAuthenticatedCristinRequest()
         .contentType(APPLICATION_MERGE_PATCH_JSON)
         .body(DEFAULT_CHANGE_PAYLOAD)
         .when()
