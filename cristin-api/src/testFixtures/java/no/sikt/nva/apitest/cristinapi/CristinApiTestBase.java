@@ -1,9 +1,9 @@
 package no.sikt.nva.apitest.cristinapi;
 
 import static java.net.HttpURLConnection.HTTP_OK;
-import java.nio.file.Path;
-
-import org.junit.jupiter.api.BeforeAll;
+import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedCristinJsonRequest;
+import static no.sikt.nva.apitest.cristinapi.CristinPaths.PERSON_AFFILIATIONS_PATH;
+import static nva.commons.core.ioutils.IoUtils.stringFromResources;
 
 import io.restassured.RestAssured;
 import no.sikt.nva.apitest.base.IntegrationTestBase;
@@ -21,7 +21,6 @@ public class CristinApiTestBase extends IntegrationTestBase {
   public static String readResourceFileAsString(String filename) {
     return stringFromResources(Path.of(filename));
   }
-  
   public static String findExistingAffiliationId(String personId, String institutionId) {
     return givenAuthenticatedCristinJsonRequest()
         .when()
