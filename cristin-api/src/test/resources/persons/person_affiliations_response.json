@@ -1,0 +1,26 @@
+[
+  {
+    "id": "527190",
+    "affiliation": {
+      "institution": {
+        "cristin_institution_id": "185",
+        "url": "https://api.cristin-test.uio.no/v2/institutions/185"
+      },
+      "unit": {
+        "cristin_unit_id": "185.14.32.0",
+        "url": "https://api.cristin-test.uio.no/v2/units/185.14.32.0"
+      }
+    },
+    "active": false,
+    "position": {
+      "code": "GJEST",
+      "name": {
+        "en": "Guest"
+      },
+      "enabled": false
+    },
+    "start_date": "2009-10-06T00:00:00.000Z",
+    "end_date": "2014-09-12T00:00:00.000Z",
+    "url": "https://api.cristin-test.uio.no/v2/persons/250/affiliations/527190"
+  }
+]

@@ -1,0 +1,13 @@
+{
+  "affiliation": {
+    "unit": {
+      "cristin_unit_id": "2012.0.0.0"
+    }
+  },
+  "position": {
+    "code": "1087"
+  },
+  "start_date": "2021-03-01T12:00:00.000Z",
+  "end_date": "2022-03-01T12:00:00.000Z",
+  "fte_percentage": 100
+}
