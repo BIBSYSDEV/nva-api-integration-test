@@ -6,6 +6,7 @@ import io.qameta.allure.restassured.AllureRestAssured;
 import io.restassured.RestAssured;
 import io.restassured.config.HttpClientConfig;
 import io.restassured.config.LogConfig;
+import java.time.Duration;
 import java.util.concurrent.locks.ReentrantLock;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.BeforeAll;
@@ -26,7 +27,7 @@ import org.junit.jupiter.params.provider.EnumSource;
 public abstract class ChannelRegistryTestBase {
 
   // The upstream API can be slow (5-10 s per search); a timeout is itself signal, so no retries.
-  private static final int REQUEST_TIMEOUT_MILLIS = 30_000;
+  private static final Duration REQUEST_TIMEOUT = Duration.ofSeconds(30);
 
   private static final ReentrantLock CONFIGURATION_LOCK = new ReentrantLock();
   private static boolean restAssuredConfigured;
@@ -42,8 +43,8 @@ public abstract class ChannelRegistryTestBase {
         var logConfig = LogConfig.logConfig().enableLoggingOfRequestAndResponseIfValidationFails();
         var httpClientConfig =
             HttpClientConfig.httpClientConfig()
-                .setParam("http.connection.timeout", REQUEST_TIMEOUT_MILLIS)
-                .setParam("http.socket.timeout", REQUEST_TIMEOUT_MILLIS);
+                .connectTimeout(REQUEST_TIMEOUT)
+                .readTimeout(REQUEST_TIMEOUT);
         RestAssured.config = RestAssured.config().logConfig(logConfig).httpClient(httpClientConfig);
         restAssuredConfigured = true;
       }

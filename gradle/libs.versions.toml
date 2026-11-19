@@ -1,5 +1,5 @@
 [versions]
-rest-assured = "6.0.1"
+rest-assured = "6.3.0"
 allure = "2.35.6"
 awaitility = "4.3.0"
 aspectj = "1.9.27"
