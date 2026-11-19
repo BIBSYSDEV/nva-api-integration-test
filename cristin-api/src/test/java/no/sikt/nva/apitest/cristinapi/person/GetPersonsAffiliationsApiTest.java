@@ -19,7 +19,7 @@ import static no.sikt.nva.apitest.cristinapi.CristinPaths.PERSON_AFFILIATIONS_PA
 @DisplayName("GET " + PERSON_AFFILIATIONS_PATH)
 class GetPersonsAffiliationsApiTest extends CristinApiTestBase {
 
-  private static final String PERSON_ID = "43419";
+  private static final String PERSON_ID = "250";
 
   /** Get affiliations for a person returns list of affiliations and status {@code 200 Ok} */
   @Test
