@@ -1,5 +1,6 @@
 package no.sikt.nva.apitest.cristinapi.person;
 
+import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static java.net.HttpURLConnection.HTTP_CREATED;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
@@ -87,6 +88,21 @@ class DeletePersonAffiliationApiTest extends CristinApiTestBase{
     .delete(AFFILIATION_PATH, PERSON_ID, nonExistingAffiliation)
     .then()
     .statusCode(HTTP_NOT_FOUND);
+  }
+
+  /** Delete person affiliation with invalid affilation id returns {@code 400 Bad Request}  */
+  @Test
+  @DisplayName("Delete person affiliation with invalid affiliation id returns Bad Request")
+  @Description
+  void shouldReturnBadRequestWhenDeleteWithInvalidAffiliationId() {
+    var invalidAffilationId = "invalid";
+
+    givenAuthenticatedCristinJsonRequest()
+    .header(CRISTIN_REPRESENTING_INSTITUTION, INSTIUTION_ID)
+    .when()
+    .delete(AFFILIATION_PATH, PERSON_ID, invalidAffilationId)
+    .then()
+    .statusCode(HTTP_BAD_REQUEST);
   }
 
   @AfterAll 
