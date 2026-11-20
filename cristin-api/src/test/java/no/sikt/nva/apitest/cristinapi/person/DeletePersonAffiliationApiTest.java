@@ -21,18 +21,18 @@ import org.junit.jupiter.api.Test;
 class DeletePersonAffiliationApiTest extends CristinApiTestBase {
 
   private static final String PERSON_ID = "1421086";
-  private static final String INSTIUTION_ID = "2012";
+  private static final String INSTITUTION_ID = "2012";
   private static final String CRISTIN_REPRESENTING_INSTITUTION = "Cristin-Representing-Institution";
 
   @BeforeAll
   static void init() {
 
-    var existingAffiliation = findExistingAffiliationId(PERSON_ID, INSTIUTION_ID);
+    var existingAffiliation = findExistingAffiliationId(PERSON_ID, INSTITUTION_ID);
 
     if (existingAffiliation == null) {
       var createPayload = readResourceFileAsString("persons/create_affiliation_payload.json");
       givenAuthenticatedCristinJsonRequest()
-          .header(CRISTIN_REPRESENTING_INSTITUTION, INSTIUTION_ID)
+          .header(CRISTIN_REPRESENTING_INSTITUTION, INSTITUTION_ID)
           .body(createPayload)
           .when()
           .post(PERSON_AFFILIATIONS_PATH, PERSON_ID)
@@ -47,17 +47,17 @@ class DeletePersonAffiliationApiTest extends CristinApiTestBase {
   @Description
   void shouldDeleteAffiliationFromPerson() {
 
-    var existingAffiliation = findExistingAffiliationId(PERSON_ID, INSTIUTION_ID);
+    var existingAffiliation = findExistingAffiliationId(PERSON_ID, INSTITUTION_ID);
     assertThat(existingAffiliation).isNotNull();
 
     givenAuthenticatedCristinJsonRequest()
-        .header(CRISTIN_REPRESENTING_INSTITUTION, INSTIUTION_ID)
+        .header(CRISTIN_REPRESENTING_INSTITUTION, INSTITUTION_ID)
         .when()
         .delete(AFFILIATION_PATH, PERSON_ID, existingAffiliation)
         .then()
         .statusCode(HTTP_OK);
 
-    var deletedAffiliation = findExistingAffiliationId(PERSON_ID, INSTIUTION_ID);
+    var deletedAffiliation = findExistingAffiliationId(PERSON_ID, INSTITUTION_ID);
     assertThat(deletedAffiliation).isNull();
   }
 
@@ -79,7 +79,7 @@ class DeletePersonAffiliationApiTest extends CristinApiTestBase {
     var nonExistingAffiliation = "0";
 
     givenAuthenticatedCristinJsonRequest()
-        .header(CRISTIN_REPRESENTING_INSTITUTION, INSTIUTION_ID)
+        .header(CRISTIN_REPRESENTING_INSTITUTION, INSTITUTION_ID)
         .when()
         .delete(AFFILIATION_PATH, PERSON_ID, nonExistingAffiliation)
         .then()
@@ -94,7 +94,7 @@ class DeletePersonAffiliationApiTest extends CristinApiTestBase {
     var invalidAffilationId = "invalid";
 
     givenAuthenticatedCristinJsonRequest()
-        .header(CRISTIN_REPRESENTING_INSTITUTION, INSTIUTION_ID)
+        .header(CRISTIN_REPRESENTING_INSTITUTION, INSTITUTION_ID)
         .when()
         .delete(AFFILIATION_PATH, PERSON_ID, invalidAffilationId)
         .then()
@@ -103,11 +103,11 @@ class DeletePersonAffiliationApiTest extends CristinApiTestBase {
 
   @AfterAll
   static void cleanUp() {
-    var existingAffiliation = findExistingAffiliationId(PERSON_ID, INSTIUTION_ID);
+    var existingAffiliation = findExistingAffiliationId(PERSON_ID, INSTITUTION_ID);
 
     if (existingAffiliation != null) {
       givenAuthenticatedCristinJsonRequest()
-          .header(CRISTIN_REPRESENTING_INSTITUTION, INSTIUTION_ID)
+          .header(CRISTIN_REPRESENTING_INSTITUTION, INSTITUTION_ID)
           .when()
           .delete(AFFILIATION_PATH, PERSON_ID, existingAffiliation)
           .then()
