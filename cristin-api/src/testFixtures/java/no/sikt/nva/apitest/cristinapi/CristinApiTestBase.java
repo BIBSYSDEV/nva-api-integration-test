@@ -17,7 +17,7 @@ public class CristinApiTestBase extends IntegrationTestBase {
     RestAssured.baseURI = "https://api.cristin-test.uio.no/v2/";
   }
 
-  public String readResourceFileAsString(String filename) {
+  public static String readResourceFileAsString(String filename) {
     return stringFromResources(Path.of(filename));
   }
 
