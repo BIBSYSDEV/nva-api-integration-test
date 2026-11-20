@@ -9,7 +9,7 @@ phases:
   install:
     runtime-versions:
       java: corretto21
-      nodejs: 24
+      nodejs: 26
     commands:
       - npm ci --ignore-scripts --no-audit --no-fund
       - npm run allure:version
