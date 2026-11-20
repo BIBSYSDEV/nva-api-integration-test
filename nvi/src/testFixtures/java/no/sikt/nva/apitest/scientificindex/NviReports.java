@@ -61,13 +61,12 @@ public final class NviReports {
 
     valueAssertions
         .entrySet()
-        .forEach(
-            (entry) -> {
-              softly
-                  .assertThat(jsonPath.getString(entry.getKey()))
-                  .as("%s for year %s and %s", entry.getKey(), CURRENT_YEAR, affiliation.name())
-                  .isEqualTo(entry.getValue());
-            });
+        .forEach(entry -> {
+          softly
+              .assertThat(jsonPath.getString(entry.getKey()))
+              .as("%s for year %s and %s", entry.getKey(), CURRENT_YEAR, affiliation.name())
+              .isEqualTo(entry.getValue());
+        });
 
     var notEmptyMapAssertions =
         List.of(
@@ -77,12 +76,11 @@ public final class NviReports {
             "institutionSummary",
             "institutionSummary.totals");
 
-    notEmptyMapAssertions.forEach(
-        path ->
-            softly
-                .assertThat(jsonPath.getMap(path))
-                .as("%s for year %s and %s", path, CURRENT_YEAR, affiliation.name())
-                .isNotEmpty());
+    notEmptyMapAssertions.forEach(path ->
+        softly
+            .assertThat(jsonPath.getMap(path))
+            .as("%s for year %s and %s", path, CURRENT_YEAR, affiliation.name())
+            .isNotEmpty());
 
     softly
         .assertThat(jsonPath.getFloat("institutionSummary.totals.validPoints"))
@@ -97,24 +95,22 @@ public final class NviReports {
             "globalRejectedCount",
             "undisputedProcessedCount",
             "undisputedTotalCount");
-    totalsFields.forEach(
-        field ->
-            softly
-                .assertThat(jsonPath.getInt("institutionSummary.totals.%s".formatted(field)))
-                .as(
-                    "institutionSummary.totals.%s for year %s and %s",
-                    field, CURRENT_YEAR, affiliation.name())
-                .isNotNull());
+    totalsFields.forEach(field ->
+        softly
+            .assertThat(jsonPath.getInt("institutionSummary.totals.%s".formatted(field)))
+            .as(
+                "institutionSummary.totals.%s for year %s and %s",
+                field, CURRENT_YEAR, affiliation.name())
+            .isNotNull());
     var byLocalApprovalStatusFields = List.of("new", "pending", "approved", "rejected");
-    byLocalApprovalStatusFields.forEach(
-        field ->
-            softly
-                .assertThat(
-                    jsonPath.getInt("institutionSummary.byLocalApprovalStatus.%s".formatted(field)))
-                .as(
-                    "institutionSummary.byLocalApprovalStatus.%s for year %s and %s",
-                    field, CURRENT_YEAR, affiliation.name())
-                .isNotNull());
+    byLocalApprovalStatusFields.forEach(field ->
+        softly
+            .assertThat(
+                jsonPath.getInt("institutionSummary.byLocalApprovalStatus.%s".formatted(field)))
+            .as(
+                "institutionSummary.byLocalApprovalStatus.%s for year %s and %s",
+                field, CURRENT_YEAR, affiliation.name())
+            .isNotNull());
 
     softly
         .assertThat(jsonPath.getList("units"))
@@ -144,34 +140,31 @@ public final class NviReports {
         .assertThat(jsonPath.getString("period.type"))
         .as("period.type for %s", year)
         .isEqualTo("NviPeriod");
-    periodPaths.forEach(
-        path ->
-            softly
-                .assertThat(jsonPath.getString("period.%s".formatted(path)))
-                .as("period.%s for %s", path, year)
-                .isNotEmpty());
+    periodPaths.forEach(path ->
+        softly
+            .assertThat(jsonPath.getString("period.%s".formatted(path)))
+            .as("period.%s for %s", path, year)
+            .isNotEmpty());
 
     softly
         .assertThat(jsonPath.getString("totals.type"))
         .as("period.type for %s", year)
         .isEqualTo("PeriodTotals");
-    totalsPaths.forEach(
-        path ->
-            softly
-                .assertThat(jsonPath.getString("totals.%s".formatted(path)))
-                .as("period.%s for %s", path, year)
-                .isNotEmpty());
+    totalsPaths.forEach(path ->
+        softly
+            .assertThat(jsonPath.getString("totals.%s".formatted(path)))
+            .as("period.%s for %s", path, year)
+            .isNotEmpty());
 
     softly
         .assertThat(jsonPath.getString("byGlobalApprovalStatus.type"))
         .as("period.type for %s", year)
         .isEqualTo("CandidatesByGlobalApprovalStatus");
-    byGlobalApprovalStatusPaths.forEach(
-        path ->
-            softly
-                .assertThat(jsonPath.getString("byGlobalApprovalStatus.%s".formatted(path)))
-                .as("period.%s for %s", path, year)
-                .isNotEmpty());
+    byGlobalApprovalStatusPaths.forEach(path ->
+        softly
+            .assertThat(jsonPath.getString("byGlobalApprovalStatus.%s".formatted(path)))
+            .as("period.%s for %s", path, year)
+            .isNotEmpty());
 
     switch (period) {
       case PREVIOUS_PERIOD ->

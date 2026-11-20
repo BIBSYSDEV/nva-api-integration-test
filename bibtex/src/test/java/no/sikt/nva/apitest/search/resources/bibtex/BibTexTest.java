@@ -222,10 +222,9 @@ class BibTexTest extends SearchTestBase {
             DEGREE_PHD);
 
     IntStream.range(0, categories.size())
-        .forEach(
-            i ->
-                PUBLICATION_FACTORY.createPublishedPublication(
-                    categories.get(i), titleRoot + i + " " + commonUuid + " " + UUID.randomUUID()));
+        .forEach(i ->
+            PUBLICATION_FACTORY.createPublishedPublication(
+                categories.get(i), titleRoot + i + " " + commonUuid + " " + UUID.randomUUID()));
 
     var responseBody = awaitIndexedPublications(commonUuid, categories.size());
 

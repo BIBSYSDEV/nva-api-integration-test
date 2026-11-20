@@ -75,15 +75,13 @@ class ManuallyUpdatePublicationsTest extends PublicationTestBase {
     softly.assertThat(report.resourcesChanged()).isEqualTo(indexedPublications());
     softly
         .assertThat(report.changes())
-        .allSatisfy(
-            change ->
-                softly
-                    .assertThat(change.fieldChanges())
-                    .anySatisfy(
-                        fieldChange -> {
-                          softly.assertThat(fieldChange.oldValue()).isEqualTo(UIB.getValue());
-                          softly.assertThat(fieldChange.newValue()).isEqualTo(SIKT.getValue());
-                        }));
+        .allSatisfy(change ->
+            softly
+                .assertThat(change.fieldChanges())
+                .anySatisfy(fieldChange -> {
+                  softly.assertThat(fieldChange.oldValue()).isEqualTo(UIB.getValue());
+                  softly.assertThat(fieldChange.newValue()).isEqualTo(SIKT.getValue());
+                }));
     softly
         .assertThat(contributorAffiliationOf(report.changedIdentifiers().getFirst()))
         .isEqualTo(UIB.getValue());

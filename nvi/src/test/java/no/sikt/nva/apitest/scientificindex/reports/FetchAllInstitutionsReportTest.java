@@ -62,16 +62,15 @@ class FetchAllInstitutionsReportTest extends ScientificIndexTestBase {
     softly.assertThat(response.jsonPath().getString(TYPE_FIELD)).isEqualTo(ALL_INSTITUTIONS_REPORT);
     softly.assertThat(reportedInstitutions).containsAll(affiliationValues);
 
-    affiliations.forEach(
-        affiliation -> {
-          var jsonPath =
-              response
-                  .jsonPath()
-                  .param("affiliation", affiliation.getValue())
-                  .setRootPath("institutions.find {it.institution.id == affiliation} ");
+    affiliations.forEach(affiliation -> {
+      var jsonPath =
+          response
+              .jsonPath()
+              .param("affiliation", affiliation.getValue())
+              .setRootPath("institutions.find {it.institution.id == affiliation} ");
 
-          NviReports.assertInstitutionReportContent(jsonPath, softly, affiliation);
-        });
+      NviReports.assertInstitutionReportContent(jsonPath, softly, affiliation);
+    });
   }
 
   /**

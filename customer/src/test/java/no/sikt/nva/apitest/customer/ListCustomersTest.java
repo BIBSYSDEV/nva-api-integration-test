@@ -45,10 +45,9 @@ class ListCustomersTest extends IntegrationTestBase {
     var customers = customersIn(customerList);
 
     softly.assertThat(customers).isNotEmpty();
-    customers.forEach(
-        customer ->
-            assertTypeInVocabulary(
-                softly, rightsRetentionStrategyOf(customer), displayNameOf(customer)));
+    customers.forEach(customer ->
+        assertTypeInVocabulary(
+            softly, rightsRetentionStrategyOf(customer), displayNameOf(customer)));
   }
 
   /**
@@ -62,10 +61,9 @@ class ListCustomersTest extends IntegrationTestBase {
     var customers = customersIn(customerList);
 
     softly.assertThat(customers).isNotEmpty();
-    customers.forEach(
-        customer ->
-            assertWithoutDeprecatedId(
-                softly, rightsRetentionStrategyOf(customer), displayNameOf(customer)));
+    customers.forEach(customer ->
+        assertWithoutDeprecatedId(
+            softly, rightsRetentionStrategyOf(customer), displayNameOf(customer)));
   }
 
   /**

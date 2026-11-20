@@ -8,7 +8,12 @@ nva {
         allErrorsAsWarnings = false
     }
     pmd {
-        rulesetFile = rootProject.file('config/pmd/ruleset.xml')
+        excludedRules = [
+                'AbstractClassWithoutAbstractMethod',
+                'ShortMethodName',
+                'UnitTestContainsTooManyAsserts',
+                'UnitTestShouldIncludeAssert'
+        ]
     }
 }
 
