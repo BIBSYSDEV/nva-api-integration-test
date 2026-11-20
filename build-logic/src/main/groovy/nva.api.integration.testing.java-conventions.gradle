@@ -4,6 +4,9 @@ plugins {
 }
 
 nva {
+    java {
+        languageVersion = 25
+    }
     errorprone {
         allErrorsAsWarnings = false
     }
