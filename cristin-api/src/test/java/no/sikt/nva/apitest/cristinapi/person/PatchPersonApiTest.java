@@ -1,75 +1,72 @@
 package no.sikt.nva.apitest.cristinapi.person;
 
+import static io.restassured.RestAssured.given;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
-import java.util.Map;
-
+import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedCristinRequest;
+import static no.sikt.nva.apitest.cristinapi.CristinPaths.PERSON_PATH;
 import static org.assertj.core.api.Assertions.assertThat;
+
+import io.qameta.allure.Description;
+import io.restassured.path.json.JsonPath;
+import java.util.Map;
+import no.sikt.nva.apitest.cristinapi.CristinApiTestBase;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import io.qameta.allure.Description;
-import static io.restassured.RestAssured.given;
-import io.restassured.path.json.JsonPath;
-import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedCristinJsonRequest;
-import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedCristinRequest;
-import no.sikt.nva.apitest.cristinapi.CristinApiTestBase;
-import no.sikt.nva.apitest.cristinapi.CristinPaths;
-import static no.sikt.nva.apitest.cristinapi.CristinPaths.PERSON_PATH;
+@DisplayName("PATCH " + PERSON_PATH)
+class PatchPersonApiTest extends CristinApiTestBase {
 
-@DisplayName("PATCH " + CristinPaths.PERSON_PATH)
-class PatchPersonApiTest extends CristinApiTestBase{
-
+  private static final String FIRST_NAME = "first_name";
   private static final String PERSON_ID = "1862476";
   private static final String INITIAL_FIRST_NAME = "Registrar Kristiania";
   private static final String PATCHED_FIRST_NAME = "Registrar Kristiania Patched";
   private static final String APPLICATION_MERGE_PATCH_JSON = "application/merge-patch+json";
-  private static final Map<String, String> DUMMY_PAYLOAD = Map.of("first_name", "dummy");
+  private static final Map<String, String> DUMMY_PAYLOAD = Map.of(FIRST_NAME, "dummy");
 
   /** Patch person updates person and return {@code 204 No Content} */
-  @Test 
+  @Test
   @DisplayName("Patch person updates person")
-  @Description 
+  @Description
   void shouldUpdatePerson() {
 
     var initialResponse = fetchPerson(PERSON_ID);
-    assertThat(initialResponse.getString("first_name")).isEqualTo(INITIAL_FIRST_NAME);
+    assertThat(initialResponse.getString(FIRST_NAME)).isEqualTo(INITIAL_FIRST_NAME);
 
-    var payload = Map.of("first_name", PATCHED_FIRST_NAME);
+    var payload = Map.of(FIRST_NAME, PATCHED_FIRST_NAME);
 
     givenAuthenticatedCristinRequest()
-    .contentType(APPLICATION_MERGE_PATCH_JSON)
-    .body(payload)
-    .when()
-    .patch(PERSON_PATH, PERSON_ID)
-    .then()
-    .statusCode(HTTP_NO_CONTENT);
+        .contentType(APPLICATION_MERGE_PATCH_JSON)
+        .body(payload)
+        .when()
+        .patch(PERSON_PATH, PERSON_ID)
+        .then()
+        .statusCode(HTTP_NO_CONTENT);
 
     var patchedResponse = fetchPerson(PERSON_ID);
-    assertThat(patchedResponse.getString("first_name")).isEqualTo(PATCHED_FIRST_NAME);
+    assertThat(patchedResponse.getString(FIRST_NAME)).isEqualTo(PATCHED_FIRST_NAME);
   }
 
   private JsonPath fetchPerson(String personId) {
-    var initialResponse = givenAuthenticatedCristinJsonRequest()
-    .when()
-    .get(PERSON_PATH, personId)
-    .then()
-    .statusCode(HTTP_OK)
-    .extract()
-    .jsonPath();
-    return initialResponse;
+    return givenAuthenticatedCristinRequest()
+        .when()
+        .get(PERSON_PATH, personId)
+        .then()
+        .statusCode(HTTP_OK)
+        .extract()
+        .jsonPath();
   }
 
-  /** Patch person when unauthenticated returns {@code 401 Unauthorized} */
+  /** Update person when unauthenticated returns {@code 401 Unauthorized} */
   @Test
-  @DisplayName("Patch person when unauthenticated returns Unauthorized")
+  @DisplayName("Update person when unauthenticated returns Unauthorized")
   @Description
   void shouldReturnUnauthorizedWhenUnauthenticated() {
-    
-        given()
+
+    given()
         .contentType(APPLICATION_MERGE_PATCH_JSON)
         .body(DUMMY_PAYLOAD)
         .when()
@@ -78,33 +75,32 @@ class PatchPersonApiTest extends CristinApiTestBase{
         .statusCode(HTTP_UNAUTHORIZED);
   }
 
-  /** Patch non-existing person should return {@code 404 Not Found} */
+  /** Update non-existing person should return {@code 404 Not Found} */
   @Test
-  @DisplayName("Patch non-existing person should return Not Found")
+  @DisplayName("Update non-existing person should return Not Found")
   @Description
   void shouldReturnNotFoundWhenNonExistingPerson() {
 
     var personId = "9999999";
     givenAuthenticatedCristinRequest()
-    .contentType(APPLICATION_MERGE_PATCH_JSON)
-    .body(DUMMY_PAYLOAD)
-    .when()
-    .patch(PERSON_PATH, personId)
-    .then()
-    .statusCode(HTTP_NOT_FOUND);
+        .contentType(APPLICATION_MERGE_PATCH_JSON)
+        .body(DUMMY_PAYLOAD)
+        .when()
+        .patch(PERSON_PATH, personId)
+        .then()
+        .statusCode(HTTP_NOT_FOUND);
   }
-
 
   @AfterAll
   static void cleanUp() {
-    var payload = Map.of("first_name", INITIAL_FIRST_NAME);
+    var payload = Map.of(FIRST_NAME, INITIAL_FIRST_NAME);
 
     givenAuthenticatedCristinRequest()
-    .contentType(APPLICATION_MERGE_PATCH_JSON)
-    .body(payload)
-    .when()
-    .patch(PERSON_PATH, PERSON_ID)
-    .then()
-    .statusCode(HTTP_NO_CONTENT);
+        .contentType(APPLICATION_MERGE_PATCH_JSON)
+        .body(payload)
+        .when()
+        .patch(PERSON_PATH, PERSON_ID)
+        .then()
+        .statusCode(HTTP_NO_CONTENT);
   }
 }
