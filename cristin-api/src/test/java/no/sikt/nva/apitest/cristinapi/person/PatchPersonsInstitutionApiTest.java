@@ -1,22 +1,23 @@
 package no.sikt.nva.apitest.cristinapi.person;
 
-import static io.restassured.RestAssured.given;
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
-import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedCristinJsonRequest;
-import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedCristinRequest;
-import static no.sikt.nva.apitest.cristinapi.CristinPaths.PERSON_INSTITUTION_PATH;
-import static org.assertj.core.api.Assertions.assertThat;
-
-import io.qameta.allure.Description;
 import java.util.Map;
-import no.sikt.nva.apitest.cristinapi.CristinApiTestBase;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+import io.qameta.allure.Description;
+import static io.restassured.RestAssured.given;
+import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedCristinJsonRequest;
+import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedCristinRequest;
+import no.sikt.nva.apitest.cristinapi.CristinApiTestBase;
+import static no.sikt.nva.apitest.cristinapi.CristinPaths.PERSON_INSTITUTION_PATH;
 
 @DisplayName("PATCH " + PERSON_INSTITUTION_PATH)
 class PatchPersonsInstitutionApiTest extends CristinApiTestBase {
@@ -27,7 +28,7 @@ class PatchPersonsInstitutionApiTest extends CristinApiTestBase {
   private static final Map<String, String> DUMMY_PAYLOAD = Map.of("email", "dummy@test.sikt.no");
   private static final String APPLICATION_MERGE_PATCH_JSON = "application/merge-patch+json";
 
-  /** Patch person institution updates person instution email returns {@code 204 No Content} */
+  /** Patch person institution updates person institution email returns {@code 204 No Content} */
   @Test
   @DisplayName("Patch person institution updates person instution email")
   @Description
