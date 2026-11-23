@@ -1,5 +1,6 @@
 package no.sikt.nva.apitest.cristinapi.person;
 
+import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
@@ -76,6 +77,23 @@ class PatchPersonApiTest extends CristinApiTestBase{
         .then()
         .statusCode(HTTP_UNAUTHORIZED);
   }
+
+  /** Patch non-existing person should return {@code 404 Not Found} */
+  @Test
+  @DisplayName("Patch non-existing person should return Not Found")
+  @Description
+  void shouldReturnNotFoundWhenNonExistingPerson() {
+
+    var personId = "9999999";
+    givenAuthenticatedCristinRequest()
+    .contentType(APPLICATION_MERGE_PATCH_JSON)
+    .body(DUMMY_PAYLOAD)
+    .when()
+    .patch(PERSON_PATH, personId)
+    .then()
+    .statusCode(HTTP_NOT_FOUND);
+  }
+
 
   @AfterAll
   static void cleanUp() {
