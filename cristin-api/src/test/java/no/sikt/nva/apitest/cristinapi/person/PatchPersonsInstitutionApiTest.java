@@ -59,7 +59,7 @@ class PatchPersonsInstitutionApiTest extends CristinApiTestBase {
   @Test
   @DisplayName("Patch person institutions when unauthenticated returns Unauthorized")
   @Description
-  void shouldReturnUnauthorizedWhenUnauthorized() {
+  void shouldReturnUnauthorizedWhenUnauthenticated() {
     given()
         .contentType(APPLICATION_MERGE_PATCH_JSON)
         .body(DUMMY_PAYLOAD)
