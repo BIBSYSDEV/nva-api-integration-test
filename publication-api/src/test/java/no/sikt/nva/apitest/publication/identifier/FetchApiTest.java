@@ -143,10 +143,9 @@ class FetchApiTest extends PublicationTestBase {
     var identifier = setupUnpublishedPublication();
 
     var tombstone =
-        awaitTombstone(
-            () ->
-                givenAuthenticatedJsonRequestAsUser(KRISTIANIA_CREATOR)
-                    .get(publicationPath(identifier)));
+        awaitTombstone(() ->
+            givenAuthenticatedJsonRequestAsUser(KRISTIANIA_CREATOR)
+                .get(publicationPath(identifier)));
 
     assertTombstoneFor(softly, tombstone, identifier);
   }

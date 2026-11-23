@@ -355,14 +355,13 @@ class UpdateApiTest extends PublicationTestBase {
       softly
           .assertThat(ticketsOwnedByInstitution)
           .as("pending file approval ticket at institution %s", institution)
-          .allSatisfy(
-              ticket -> {
-                assertThat(ticket.status()).as("ticket status").isEqualTo(TICKET_NEW);
-                assertThat(ticket.filesForApproval())
-                    .as("files for approval")
-                    .extracting(TicketFile::identifier)
-                    .containsExactlyInAnyOrderElementsOf(identifiersOf(uploadedFiles));
-              });
+          .allSatisfy(ticket -> {
+            assertThat(ticket.status()).as("ticket status").isEqualTo(TICKET_NEW);
+            assertThat(ticket.filesForApproval())
+                .as("files for approval")
+                .extracting(TicketFile::identifier)
+                .containsExactlyInAnyOrderElementsOf(identifiersOf(uploadedFiles));
+          });
     }
 
     private static void assertInstitutionHasCompletedApprovalTicketApproving(
@@ -379,15 +378,14 @@ class UpdateApiTest extends PublicationTestBase {
       softly
           .assertThat(ticketsOwnedByInstitution)
           .as("completed file approval ticket at institution %s", institution)
-          .allSatisfy(
-              ticket -> {
-                assertThat(ticket.status()).as("ticket status").isEqualTo(TICKET_COMPLETED);
-                assertThat(ticket.approvedFiles())
-                    .as("approved files")
-                    .extracting(TicketFile::identifier)
-                    .containsExactlyInAnyOrderElementsOf(identifiersOf(uploadedFiles));
-                assertThat(ticket.filesForApproval()).as("files for approval").isEmpty();
-              });
+          .allSatisfy(ticket -> {
+            assertThat(ticket.status()).as("ticket status").isEqualTo(TICKET_COMPLETED);
+            assertThat(ticket.approvedFiles())
+                .as("approved files")
+                .extracting(TicketFile::identifier)
+                .containsExactlyInAnyOrderElementsOf(identifiersOf(uploadedFiles));
+            assertThat(ticket.filesForApproval()).as("files for approval").isEmpty();
+          });
     }
 
     private static List<Ticket> ticketsOwnedBy(Affiliation institution, List<Ticket> tickets) {

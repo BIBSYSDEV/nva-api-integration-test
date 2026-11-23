@@ -53,22 +53,21 @@ class JsonLdVolumeTest extends JsonLdTestBase {
 
     IntStream.range(0, NUMBER_OF_TEST_PUBLICATIONS)
         .parallel()
-        .forEach(
-            index -> {
-              var title =
-                  "JsonLd volume test using tokens "
-                      + index
-                      + " "
-                      + VOLUME_UUID
-                      + " "
-                      + UUID.randomUUID();
-              PUBLICATION_FACTORY.createPublishedPublicationUsingTokens(
-                  userAccessToken,
-                  title,
-                  ACADEMIC_ARTICLE,
-                  List.of(new Contributor(UIB_CREATOR, Role.CREATOR)),
-                  curatorAccessToken);
-            });
+        .forEach(index -> {
+          var title =
+              "JsonLd volume test using tokens "
+                  + index
+                  + " "
+                  + VOLUME_UUID
+                  + " "
+                  + UUID.randomUUID();
+          PUBLICATION_FACTORY.createPublishedPublicationUsingTokens(
+              userAccessToken,
+              title,
+              ACADEMIC_ARTICLE,
+              List.of(new Contributor(UIB_CREATOR, Role.CREATOR)),
+              curatorAccessToken);
+        });
   }
 
   /**

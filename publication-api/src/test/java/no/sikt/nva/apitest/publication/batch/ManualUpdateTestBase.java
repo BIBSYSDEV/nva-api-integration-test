@@ -70,15 +70,13 @@ abstract class ManualUpdateTestBase extends PublicationTestBase {
     softly
         .assertThat(report.changes())
         .isNotEmpty()
-        .allSatisfy(
-            change ->
-                softly
-                    .assertThat(change.fieldChanges())
-                    .anySatisfy(
-                        fieldChange -> {
-                          softly.assertThat(fieldChange.oldValue()).isEqualTo(oldValue);
-                          softly.assertThat(fieldChange.newValue()).isEqualTo(newValue);
-                        }));
+        .allSatisfy(change ->
+            softly
+                .assertThat(change.fieldChanges())
+                .anySatisfy(fieldChange -> {
+                  softly.assertThat(fieldChange.oldValue()).isEqualTo(oldValue);
+                  softly.assertThat(fieldChange.newValue()).isEqualTo(newValue);
+                }));
   }
 
   /** Asserts that every changed resource has a field arriving at the given value. */
@@ -87,13 +85,11 @@ abstract class ManualUpdateTestBase extends PublicationTestBase {
     softly
         .assertThat(report.changes())
         .isNotEmpty()
-        .allSatisfy(
-            change ->
-                softly
-                    .assertThat(change.fieldChanges())
-                    .anySatisfy(
-                        fieldChange ->
-                            softly.assertThat(fieldChange.newValue()).isEqualTo(newValue)));
+        .allSatisfy(change ->
+            softly
+                .assertThat(change.fieldChanges())
+                .anySatisfy(
+                    fieldChange -> softly.assertThat(fieldChange.newValue()).isEqualTo(newValue)));
   }
 
   /** An absolute api uri, which is the form the handler writes into a resource. */

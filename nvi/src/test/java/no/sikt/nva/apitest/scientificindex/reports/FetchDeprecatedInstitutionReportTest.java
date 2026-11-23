@@ -51,47 +51,42 @@ class FetchDeprecatedInstitutionReportTest extends ScientificIndexTestBase {
     var approvalStatusFields = List.of("Approved", "Pending", "Rejected", "New");
 
     softly.assertThat(jsonPath.getMap("totals.globalApprovalStatus")).isNotNull();
-    globalApprovalStatusFields.forEach(
-        field ->
-            softly
-                .assertThat(jsonPath.getString("totals.globalApprovalStatus.%s".formatted(field)))
-                .as("globalApprovalStatus.%s is not null", field)
-                .isNotNull());
+    globalApprovalStatusFields.forEach(field ->
+        softly
+            .assertThat(jsonPath.getString("totals.globalApprovalStatus.%s".formatted(field)))
+            .as("globalApprovalStatus.%s is not null", field)
+            .isNotNull());
 
     softly.assertThat(jsonPath.getMap("totals.approvalStatus")).isNotNull();
-    approvalStatusFields.forEach(
-        field ->
-            softly
-                .assertThat(jsonPath.getString("totals.approvalStatus.%s".formatted(field)))
-                .as("approvalStatus.%s is not null", field)
-                .isNotNull());
+    approvalStatusFields.forEach(field ->
+        softly
+            .assertThat(jsonPath.getString("totals.approvalStatus.%s".formatted(field)))
+            .as("approvalStatus.%s is not null", field)
+            .isNotNull());
 
     softly.assertThat(jsonPath.getMap("byOrganization")).isNotNull();
     softly
         .assertThat(
             jsonPath.getMap("byOrganization.'%s'.globalApprovalStatus".formatted(UIS.getValue())))
         .isNotNull();
-    globalApprovalStatusFields.forEach(
-        field ->
-            softly
-                .assertThat(
-                    jsonPath.getString(
-                        "byOrganization.'%s'.globalApprovalStatus.%s"
-                            .formatted(UIS.getValue(), field)))
-                .as("byOrganizationglobalApprovalStatus.%s is not null", field)
-                .isNotNull());
+    globalApprovalStatusFields.forEach(field ->
+        softly
+            .assertThat(
+                jsonPath.getString(
+                    "byOrganization.'%s'.globalApprovalStatus.%s".formatted(UIS.getValue(), field)))
+            .as("byOrganizationglobalApprovalStatus.%s is not null", field)
+            .isNotNull());
 
     softly.assertThat(jsonPath.getMap("byOrganization")).isNotNull();
     softly
         .assertThat(jsonPath.getMap("byOrganization.'%s'.approvalStatus".formatted(UIS.getValue())))
         .isNotNull();
-    approvalStatusFields.forEach(
-        field ->
-            softly
-                .assertThat(
-                    jsonPath.getString(
-                        "byOrganization.'%s'.approvalStatus.%s".formatted(UIS.getValue(), field)))
-                .as("byOrganization.approvalStatus.%s is not null", field)
-                .isNotNull());
+    approvalStatusFields.forEach(field ->
+        softly
+            .assertThat(
+                jsonPath.getString(
+                    "byOrganization.'%s'.approvalStatus.%s".formatted(UIS.getValue(), field)))
+            .as("byOrganization.approvalStatus.%s is not null", field)
+            .isNotNull());
   }
 }
