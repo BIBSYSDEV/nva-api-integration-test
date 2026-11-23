@@ -4,11 +4,19 @@ plugins {
 }
 
 nva {
+    java {
+        languageVersion = 25
+    }
     errorprone {
         allErrorsAsWarnings = false
     }
     pmd {
-        rulesetFile = rootProject.file('config/pmd/ruleset.xml')
+        excludedRules = [
+                'AbstractClassWithoutAbstractMethod',
+                'ShortMethodName',
+                'UnitTestContainsTooManyAsserts',
+                'UnitTestShouldIncludeAssert'
+        ]
     }
 }
 

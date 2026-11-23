@@ -1,8 +1,8 @@
 [versions]
-rest-assured = "6.0.1"
-allure = "2.35.4"
+rest-assured = "6.3.0"
+allure = "2.35.6"
 awaitility = "4.3.0"
-aspectj = "1.9.25.1"
+aspectj = "1.9.27"
 json-unit = "6.4.0"
 
 [libraries]

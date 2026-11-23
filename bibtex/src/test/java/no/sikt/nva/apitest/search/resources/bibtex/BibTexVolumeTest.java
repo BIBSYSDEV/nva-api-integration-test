@@ -50,22 +50,16 @@ class BibTexVolumeTest extends SearchTestBase {
 
     IntStream.range(0, NUMBER_OF_TEST_PUBLICATIONS)
         .parallel()
-        .forEach(
-            i -> {
-              var title =
-                  "BibTex volume test using tokens "
-                      + i
-                      + " "
-                      + VOLUME_UUID
-                      + " "
-                      + UUID.randomUUID();
-              PUBLICATION_FACTORY.createPublishedPublicationUsingTokens(
-                  userAccessToken,
-                  title,
-                  ACADEMIC_ARTICLE,
-                  List.of(new Contributor(UIB_CREATOR, Role.CREATOR)),
-                  curatorAccessToken);
-            });
+        .forEach(i -> {
+          var title =
+              "BibTex volume test using tokens " + i + " " + VOLUME_UUID + " " + UUID.randomUUID();
+          PUBLICATION_FACTORY.createPublishedPublicationUsingTokens(
+              userAccessToken,
+              title,
+              ACADEMIC_ARTICLE,
+              List.of(new Contributor(UIB_CREATOR, Role.CREATOR)),
+              curatorAccessToken);
+        });
   }
 
   private static SettledCondition<Response> hasTotalCount(int expectedCount) {

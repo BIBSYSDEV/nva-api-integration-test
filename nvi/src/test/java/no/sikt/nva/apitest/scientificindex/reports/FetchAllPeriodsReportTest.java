@@ -42,17 +42,16 @@ class FetchAllPeriodsReportTest extends ScientificIndexTestBase {
     softly.assertThat(response.jsonPath().getList("periods").size()).isGreaterThanOrEqualTo(3);
 
     List.of(NviReports.Periods.values())
-        .forEach(
-            period -> {
-              var jsonPath = response.jsonPath().param("year", period.getYear());
-              jsonPath.setRootPath("periods.find { it.period.publishingYear == year }");
+        .forEach(period -> {
+          var jsonPath = response.jsonPath().param("year", period.getYear());
+          jsonPath.setRootPath("periods.find { it.period.publishingYear == year }");
 
-              softly
-                  .assertThat(jsonPath.getMap(""))
-                  .as("periods exist for %s", period.getYear())
-                  .isNotEmpty();
-              NviReports.assertPeriodReportContent(period, jsonPath, softly);
-            });
+          softly
+              .assertThat(jsonPath.getMap(""))
+              .as("periods exist for %s", period.getYear())
+              .isNotEmpty();
+          NviReports.assertPeriodReportContent(period, jsonPath, softly);
+        });
   }
 
   /**

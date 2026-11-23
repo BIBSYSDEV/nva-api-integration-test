@@ -7,6 +7,6 @@
     "allure:generate": "allure generate '*/build/allure-results'"
   },
   "devDependencies": {
-    "allure": "3.14.3"
+    "allure": "3.33.0"
   }
 }
