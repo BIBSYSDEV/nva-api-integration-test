@@ -1,0 +1,67 @@
+{
+  "title": {
+    "no": "dummy_title"
+  },
+  "main_language": "no",
+  "start_date": "2026-01-01T00:00:00.000Z",
+  "end_date": "2027-01-01T00:00:00.000Z",
+  "coordinating_institution": {
+    "institution": {
+      "cristin_institution_id": "1990"
+    }
+  },
+  "project_funding_sources": [
+    {
+      "funding_source_code": "OTHER",
+      "funding_source_name": {
+        "en": "Other"
+      }
+    }
+  ],
+  "participants": [
+    {
+      "cristin_person_id": "654321",
+      "email": "kari@nordmann.no",
+      "roles": [
+        {
+          "role_code": "PRO_PARTICIPANT",
+          "institution": {
+            "cristin_institution_id": "203"
+          }
+        },
+        {
+          "role_code": "PRO_MANAGER",
+          "institution": {
+            "cristin_institution_id": "203"
+          }
+        }
+      ]
+    }
+  ],
+  "project_categories": [
+    {
+      "code": "BASICRESEARCH"
+    },
+    {
+      "code": "APPLIEDRESEARCH"
+    }
+  ],
+  "keywords": [
+    {
+      "code": "1200"
+    },
+    {
+      "code": "1204"
+    }
+  ],
+  "creator": {
+    "cristin_person_id": "529128",
+    "roles": [
+      {
+        "unit": {
+          "cristin_unit_id": "1990.0.0.0"
+        }
+      }
+    ]
+  }
+}

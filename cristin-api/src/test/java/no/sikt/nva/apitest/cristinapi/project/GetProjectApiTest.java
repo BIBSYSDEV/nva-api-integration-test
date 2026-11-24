@@ -3,21 +3,22 @@ package no.sikt.nva.apitest.cristinapi.project;
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
+
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
+import io.qameta.allure.Description;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static net.javacrumbs.jsonunit.core.Option.IGNORING_EXTRA_FIELDS;
 import static no.sikt.nva.apitest.base.Requests.givenUnauthenticatedJsonRequest;
-import static no.sikt.nva.apitest.cristinapi.CristinPaths.PROJECT_PATH;
-
-import io.qameta.allure.Description;
 import no.sikt.nva.apitest.cristinapi.CristinApiTestBase;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import static no.sikt.nva.apitest.cristinapi.CristinPaths.PROJECT_PATH;
 
 @DisplayName("GET " + PROJECT_PATH)
 class GetProjectApiTest extends CristinApiTestBase {
 
   private static final String PROJECT_IDENTIFIER = "435010";
-  private static final String EXPECTED_PROJECT_FILE = "project.json";
+  private static final String EXPECTED_PROJECT_FILE = "projects/project.json";
 
   /** Fetch a Cristin project returns project and status {@code 200 Ok} */
   @Test

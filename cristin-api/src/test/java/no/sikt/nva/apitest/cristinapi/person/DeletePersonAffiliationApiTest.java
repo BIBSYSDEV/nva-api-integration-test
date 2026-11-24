@@ -1,28 +1,28 @@
 package no.sikt.nva.apitest.cristinapi.person;
 
-import static io.restassured.http.Method.DELETE;
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static java.net.HttpURLConnection.HTTP_CREATED;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
-import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedCristinJsonRequest;
-import static no.sikt.nva.apitest.cristinapi.CristinPaths.AFFILIATION_PATH;
-import static no.sikt.nva.apitest.cristinapi.CristinPaths.PERSON_AFFILIATIONS_PATH;
-import static org.assertj.core.api.Assertions.assertThat;
 
-import io.qameta.allure.Description;
-import no.sikt.nva.apitest.cristinapi.CristinApiTestBase;
+import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+import io.qameta.allure.Description;
+import static io.restassured.http.Method.DELETE;
+import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedCristinJsonRequest;
+import no.sikt.nva.apitest.cristinapi.CristinApiTestBase;
+import static no.sikt.nva.apitest.cristinapi.CristinPaths.AFFILIATION_PATH;
+import static no.sikt.nva.apitest.cristinapi.CristinPaths.PERSON_AFFILIATIONS_PATH;
 
 @DisplayName("DELETE " + AFFILIATION_PATH)
 class DeletePersonAffiliationApiTest extends CristinApiTestBase {
 
   private static final String PERSON_ID = "1421086";
   private static final String INSTITUTION_ID = "2012";
-  private static final String CRISTIN_REPRESENTING_INSTITUTION = "Cristin-Representing-Institution";
 
   @BeforeAll
   static void init() {

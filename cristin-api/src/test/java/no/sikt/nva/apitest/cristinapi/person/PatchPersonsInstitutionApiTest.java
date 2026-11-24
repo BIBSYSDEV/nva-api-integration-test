@@ -5,6 +5,7 @@ import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
+import static java.net.HttpURLConnection.HTTP_UNSUPPORTED_TYPE;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -26,7 +27,6 @@ class PatchPersonsInstitutionApiTest extends CristinApiTestBase {
   private static final String INSTITUTION_ID = "215";
   private static final String EMAIL = "api.test.user@test.sikt.no";
   private static final Map<String, String> DUMMY_PAYLOAD = Map.of("email", "dummy@test.sikt.no");
-  private static final String APPLICATION_MERGE_PATCH_JSON = "application/merge-patch+json";
 
   /** Patch person institution updates person institution email returns {@code 204 No Content} */
   @Test
@@ -56,9 +56,9 @@ class PatchPersonsInstitutionApiTest extends CristinApiTestBase {
     assertThat(fetchResponse.getString("email")).isEqualTo(EMAIL);
   }
 
-  /** Patch person institutions when unauthenticated returns {@code 401 Unauthorized} */
+  /** Update person institutions when unauthenticated returns {@code 401 Unauthorized} */
   @Test
-  @DisplayName("Patch person institutions when unauthenticated returns Unauthorized")
+  @DisplayName("Update person institutions when unauthenticated returns Unauthorized")
   @Description
   void shouldReturnUnauthorizedWhenUnauthenticated() {
     given()
@@ -70,9 +70,9 @@ class PatchPersonsInstitutionApiTest extends CristinApiTestBase {
         .statusCode(HTTP_UNAUTHORIZED);
   }
 
-  /** Patch person institution with invalid person id returns {@code 400 Bad Request} */
+  /** Update person institution with invalid person id returns {@code 400 Bad Request} */
   @Test
-  @DisplayName("Patch person institution with invalid person id returns Bad Request")
+  @DisplayName("Update person institution with invalid person id returns Bad Request")
   @Description
   void shouldReturnBadRequestWithInvalidPersonId() {
 
@@ -87,9 +87,9 @@ class PatchPersonsInstitutionApiTest extends CristinApiTestBase {
         .statusCode(HTTP_BAD_REQUEST);
   }
 
-  /** Patch person institution with invalid person id returns {@code 400 Bad Request} */
+  /** Update person institution with invalid person id returns {@code 400 Bad Request} */
   @Test
-  @DisplayName("Patch person institution with invalid institution id returns Bad Request")
+  @DisplayName("Update person institution with invalid institution id returns Bad Request")
   @Description
   void shouldReturnBadRequestWithInvalidInstitutionId() {
 
@@ -104,9 +104,9 @@ class PatchPersonsInstitutionApiTest extends CristinApiTestBase {
         .statusCode(HTTP_BAD_REQUEST);
   }
 
-  /** Patch person institutiton with wrong person id returns {@code 404 Not Found} */
+  /** Update person institutiton with wrong person id returns {@code 404 Not Found} */
   @Test
-  @DisplayName("Patch person institutiton with wrong person id returns Not Found")
+  @DisplayName("Update person institutiton with wrong person id returns Not Found")
   @Description
   void shouldReturnNotFoundWithWrongPersonId() {
     var personId = "999999";
@@ -121,9 +121,9 @@ class PatchPersonsInstitutionApiTest extends CristinApiTestBase {
         .statusCode(HTTP_NOT_FOUND);
   }
 
-  /** Patch person institutiton with wrong institution id returns {@code 404 Not Found} */
+  /** Update person institutiton with wrong institution id returns {@code 404 Not Found} */
   @Test
-  @DisplayName("Patch person institutiton with wrong institution id returns Not Found")
+  @DisplayName("Update person institutiton with wrong institution id returns Not Found")
   @Description
   void shouldReturnNotFoundWithWrongInstitutionId() {
     var institutionId = "999";
@@ -136,10 +136,23 @@ class PatchPersonsInstitutionApiTest extends CristinApiTestBase {
         .then()
         .statusCode(HTTP_NOT_FOUND);
   }
-
+  
+  /** Update person institution with missing content type should return {@code 415 Unsupported Media Type} */
+  @Test 
+  @DisplayName("Update person institution with missing content type should return Unsupported Media Type")
+  @Description 
+  void shouldReturnUnsupportedMediaType() {
+    givenAuthenticatedCristinRequest()
+    .body(DUMMY_PAYLOAD)
+    .when()
+    .patch(PERSON_INSTITUTION_PATH, PERSON_ID, INSTITUTION_ID)
+    .then()
+    .statusCode(HTTP_UNSUPPORTED_TYPE);
+  }
+  
   @AfterAll
   static void resetEmail() {
-
+  
     givenAuthenticatedCristinRequest()
         .contentType(APPLICATION_MERGE_PATCH_JSON)
         .body(DUMMY_PAYLOAD)

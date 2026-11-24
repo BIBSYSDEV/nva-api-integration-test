@@ -1,16 +1,20 @@
 package no.sikt.nva.apitest.cristinapi;
 
 import static java.net.HttpURLConnection.HTTP_OK;
+import java.nio.file.Path;
+
+import org.junit.jupiter.api.BeforeAll;
+
+import io.restassured.RestAssured;
+import no.sikt.nva.apitest.base.IntegrationTestBase;
 import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedCristinJsonRequest;
 import static no.sikt.nva.apitest.cristinapi.CristinPaths.PERSON_AFFILIATIONS_PATH;
 import static nva.commons.core.ioutils.IoUtils.stringFromResources;
 
-import io.restassured.RestAssured;
-import java.nio.file.Path;
-import no.sikt.nva.apitest.base.IntegrationTestBase;
-import org.junit.jupiter.api.BeforeAll;
-
 public class CristinApiTestBase extends IntegrationTestBase {
+
+  public static final String CRISTIN_REPRESENTING_INSTITUTION = "Cristin-Representing-Institution";
+  public static final String APPLICATION_MERGE_PATCH_JSON = "application/merge-patch+json";
 
   @BeforeAll
   static void initCristinApiTests() {

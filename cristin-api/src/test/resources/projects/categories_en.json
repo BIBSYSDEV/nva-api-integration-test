@@ -1,0 +1,56 @@
+[
+  {
+    "code": "BASICRESEARCH",
+    "name": {
+      "en": "Basic Research"
+    }
+  },
+  {
+    "code": "APPLIEDRESEARCH",
+    "name": {
+      "en": "Applied Research"
+    }
+  },
+  {
+    "code": "ACADEMICDEV",
+    "name": {
+      "en": "Academic Development"
+    }
+  },
+  {
+    "code": "NORARTRES",
+    "name": {
+      "en": "Norwegian Artistic Research "
+    }
+  },
+  {
+    "code": "SHAREDCOST",
+    "name": {
+      "en": "Shared Cost Project"
+    }
+  },
+  {
+    "code": "PHD",
+    "name": {
+      "en": "Ph.D. Project"
+    }
+  },
+  {
+    "code": "COMISSIONED",
+    "name": {
+      "en": "Comissioned Research Project"
+    }
+  },
+  {
+    "code": "INHOUSE",
+    "name": {
+      "en": "In-house Project"
+    }
+  },
+  {
+    "code": "EDUCATIONAL",
+    "name": {
+      "en": "Educational Development"
+    }
+  }
+]

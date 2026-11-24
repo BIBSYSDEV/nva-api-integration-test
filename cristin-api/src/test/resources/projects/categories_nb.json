@@ -1,0 +1,56 @@
+[
+  {
+    "code": "BASICRESEARCH",
+    "name": {
+      "nb": "Grunnforskning"
+    }
+  },
+  {
+    "code": "APPLIEDRESEARCH",
+    "name": {
+      "nb": "Anvendt forskning"
+    }
+  },
+  {
+    "code": "ACADEMICDEV",
+    "name": {
+      "nb": "Faglig utviklingsarbeid"
+    }
+  },
+  {
+    "code": "NORARTRES",
+    "name": {
+      "nb": "Program for kunstnerisk utviklingsarbeid"
+    }
+  },
+  {
+    "code": "SHAREDCOST",
+    "name": {
+      "nb": "Bidragsprosjekt"
+    }
+  },
+  {
+    "code": "COMISSIONED",
+    "name": {
+      "nb": "Oppdragsprosjekt"
+    }
+  },
+  {
+    "code": "PHD",
+    "name": {
+      "nb": "Doktorgradsprosjekt"
+    }
+  },
+  {
+    "code": "INHOUSE",
+    "name": {
+      "nb": "Internt prosjekt"
+    }
+  },
+  {
+    "code": "EDUCATIONAL",
+    "name": {
+      "nb": "Pedagogisk utviklingsarbeid"
+    }
+  }
+]
