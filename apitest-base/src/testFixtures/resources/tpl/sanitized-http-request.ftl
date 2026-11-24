@@ -7,10 +7,15 @@
     <#return value?replace("([?&](?:X-Amz-Signature|X-Amz-Security-Token|X-Amz-Credential)=)[^&\\s\"']+", "$1[REDACTED]", "r")>
 </#function>
 
+<#-- A national identity number is eleven digits, and is the only value these tests send as such. -->
+<#function redactNin value>
+    <#return value?replace("(?<![0-9])[0-9]{11}(?![0-9])", "[REDACTED]", "r")>
+</#function>
+
 <#function redactCurl curl>
-    <#return redactSigV4(curl
+    <#return redactNin(redactSigV4(curl
         ?replace("-H '[Aa]uthorization:[^']*'", "-H 'Authorization: [REDACTED]'", "r")
-        ?replace("-H '[Cc]ookie:[^']*'", "-H 'Cookie: [REDACTED]'", "r"))>
+        ?replace("-H '[Cc]ookie:[^']*'", "-H 'Cookie: [REDACTED]'", "r")))>
 </#function>
 
 <div><#if data.method??>${data.method}<#else>GET</#if> to <#if data.url??>${redactSigV4(data.url)}<#else>Unknown</#if></div>
@@ -19,7 +24,7 @@
 <h4>Body</h4>
 <div>
     <pre class="preformated-text">
-    <#t>${redactSigV4(data.body)}
+    <#t>${redactNin(redactSigV4(data.body))}
     </pre>
 </div>
 </#if>
