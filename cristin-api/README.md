@@ -13,7 +13,7 @@ the approval tests use, which is seeded by
 [NVA-end-to-end-testing](https://github.com/BIBSYSDEV/NVA-end-to-end-testing) with the
 `third-party/approval-upsert` scope only.
 
-The request body carries a random synthetic national identity number. The number is redacted from
+The request body carries a synthetic national identity number. The number is redacted from
 the Allure report, and request logging on failure is turned off for these requests, so it never
 reaches test output.
 
