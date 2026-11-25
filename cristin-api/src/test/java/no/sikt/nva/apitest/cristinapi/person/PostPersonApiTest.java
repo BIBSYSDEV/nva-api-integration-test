@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 class PostPersonApiTest extends CristinApiTestBase {
 
   private static final String INSTITUTION_ID = "2012";
+  private static final String SYNTETIC_NIN = "08306211057";
 
   /** Create person returns {@code 201 Created} */
   @Test
@@ -29,10 +30,9 @@ class PostPersonApiTest extends CristinApiTestBase {
   @Description
   void shouldCreatePerson() {
     // synteticNin needs to be unique in Cristin, get value from 'persons/syntetic_nin.txt'
-    var synteticNin = "08306211057";
     var createPayload =
         readResourceFileAsString("persons/post_person_payload.json")
-            .replace("dummy_nin", synteticNin);
+            .replace("dummy_nin", SYNTETIC_NIN);
 
     var newPersonResponse =
         givenAuthenticatedCristinJsonRequest()
@@ -47,7 +47,7 @@ class PostPersonApiTest extends CristinApiTestBase {
 
     var expectedResponse =
         readResourceFileAsString("persons/post_person_response.json")
-            .replace("dummy_nin", synteticNin);
+            .replace("dummy_nin", SYNTETIC_NIN);
     assertThatJson(newPersonResponse.body().asString())
         .when(IGNORING_EXTRA_FIELDS)
         .isEqualTo(expectedResponse);
@@ -61,7 +61,12 @@ class PostPersonApiTest extends CristinApiTestBase {
   @Description
   void shouldReturnUnauthorizedWhenUnauthenticated() {
 
+    var createPayload =
+        readResourceFileAsString("persons/post_person_payload.json")
+            .replace("dummy_nin", SYNTETIC_NIN);
+
     givenUnauthenticatedJsonRequest()
+        .body(createPayload)
         .when()
         .post(PERSONS_BASE_PATH)
         .then()

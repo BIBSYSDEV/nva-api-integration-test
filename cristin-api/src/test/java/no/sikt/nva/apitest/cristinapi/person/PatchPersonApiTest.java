@@ -21,9 +21,9 @@ import org.junit.jupiter.api.Test;
 class PatchPersonApiTest extends CristinApiTestBase {
 
   private static final String FIRST_NAME = "first_name";
-  private static final String PERSON_ID = "1862476";
-  private static final String INITIAL_FIRST_NAME = "Registrar Kristiania";
-  private static final String PATCHED_FIRST_NAME = "Registrar Kristiania Patched";
+  private static final String PERSON_ID = "1862519";
+  private static final String INITIAL_FIRST_NAME = fetchPerson(PERSON_ID).getString(FIRST_NAME);
+  private static final String PATCHED_FIRST_NAME = "Patch Kristiania " + System.currentTimeMillis();
   private static final String APPLICATION_MERGE_PATCH_JSON = "application/merge-patch+json";
   private static final Map<String, String> DUMMY_PAYLOAD = Map.of(FIRST_NAME, "dummy");
 
@@ -50,7 +50,7 @@ class PatchPersonApiTest extends CristinApiTestBase {
     assertThat(patchedResponse.getString(FIRST_NAME)).isEqualTo(PATCHED_FIRST_NAME);
   }
 
-  private JsonPath fetchPerson(String personId) {
+  private static JsonPath fetchPerson(String personId) {
     return givenAuthenticatedCristinRequest()
         .when()
         .get(PERSON_PATH, personId)
