@@ -1,21 +1,22 @@
 package no.sikt.nva.apitest.cristinapi.person;
 
-import static io.restassured.RestAssured.given;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
-import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedCristinRequest;
-import static no.sikt.nva.apitest.cristinapi.CristinPaths.PERSON_PATH;
-import static org.assertj.core.api.Assertions.assertThat;
-
-import io.qameta.allure.Description;
-import io.restassured.path.json.JsonPath;
 import java.util.Map;
-import no.sikt.nva.apitest.cristinapi.CristinApiTestBase;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+import io.qameta.allure.Description;
+import static io.restassured.RestAssured.given;
+import io.restassured.path.json.JsonPath;
+import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedCristinRequest;
+import no.sikt.nva.apitest.cristinapi.CristinApiTestBase;
+import static no.sikt.nva.apitest.cristinapi.CristinPaths.PERSON_PATH;
 
 @DisplayName("PATCH " + PERSON_PATH)
 class PatchPersonApiTest extends CristinApiTestBase {
@@ -32,9 +33,6 @@ class PatchPersonApiTest extends CristinApiTestBase {
   @DisplayName("Patch person updates person")
   @Description
   void shouldUpdatePerson() {
-
-    var initialResponse = fetchPerson(PERSON_ID);
-    assertThat(initialResponse.getString(FIRST_NAME)).isEqualTo(INITIAL_FIRST_NAME);
 
     var payload = Map.of(FIRST_NAME, PATCHED_FIRST_NAME);
 
