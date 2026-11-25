@@ -1,23 +1,22 @@
 package no.sikt.nva.apitest.cristinapi.person;
 
+import static io.restassured.RestAssured.given;
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
-import java.util.Map;
-
+import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedCristinJsonRequest;
+import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedCristinRequest;
+import static no.sikt.nva.apitest.cristinapi.CristinPaths.PERSON_INSTITUTION_PATH;
 import static org.assertj.core.api.Assertions.assertThat;
+
+import io.qameta.allure.Description;
+import java.util.Map;
+import no.sikt.nva.apitest.cristinapi.CristinApiTestBase;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import io.qameta.allure.Description;
-import static io.restassured.RestAssured.given;
-import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedCristinJsonRequest;
-import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedCristinRequest;
-import no.sikt.nva.apitest.cristinapi.CristinApiTestBase;
-import static no.sikt.nva.apitest.cristinapi.CristinPaths.PERSON_INSTITUTION_PATH;
 
 @DisplayName("PATCH " + PERSON_INSTITUTION_PATH)
 class PatchPersonsInstitutionApiTest extends CristinApiTestBase {

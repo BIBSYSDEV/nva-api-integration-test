@@ -1,21 +1,20 @@
 package no.sikt.nva.apitest.cristinapi.person;
 
+import static io.restassured.http.Method.GET;
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
-
+import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedCristinJsonRequest;
+import static no.sikt.nva.apitest.cristinapi.CristinPaths.PERSON_INSTITUTION_PATH;
 import static org.assertj.core.api.Assertions.assertThat;
+
+import io.qameta.allure.Description;
+import no.sikt.nva.apitest.cristinapi.CristinApiTestBase;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-
-import io.qameta.allure.Description;
-import static io.restassured.http.Method.GET;
-import static no.sikt.nva.apitest.base.Requests.givenAuthenticatedCristinJsonRequest;
-import no.sikt.nva.apitest.cristinapi.CristinApiTestBase;
-import static no.sikt.nva.apitest.cristinapi.CristinPaths.PERSON_INSTITUTION_PATH;
 
 @DisplayName("GET " + PERSON_INSTITUTION_PATH)
 @ExtendWith(SoftAssertionsExtension.class)
